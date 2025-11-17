@@ -184,17 +184,24 @@ class PHPWebsiteGenerator:
         prompt = f"""Generate a unique, creative website name for a {theme} company based in {country}.
 
 CRITICAL REQUIREMENTS:
-- The name MUST be directly related to {theme} industry
+- The name MUST be directly related to {theme} industry in {country}
 - The name should reflect the nature of {theme} business
+- Consider the cultural and geographical context of {country}
 - 1-3 words maximum
 - DO NOT use generic tech words like "Digital", "Tech", "Cyber", "Web", "Net" unless the theme is IT/Technology
 - DO NOT use the exact words "{theme}" or "{country}" in the name
 - Use creative combinations, metaphors, or related terms specific to {theme}
+- The name should sound appropriate for a company operating in {country}
 
 Examples of good names for {theme}: {examples}
 
 Industry-specific guidance for {theme}:
 {self._get_industry_guidance(theme)}
+
+Geographic and cultural context for {country}:
+- Consider local business naming conventions in {country}
+- The name should resonate with customers in {country}
+- Avoid names that might be culturally inappropriate or confusing in {country}
 
 Return ONLY the site name, nothing else. No quotes, no punctuation, no explanations."""
         
@@ -508,70 +515,95 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         # Создаем папку images
         images_dir = os.path.join(output_dir, 'images')
         os.makedirs(images_dir, exist_ok=True)
-        
+
         theme = self.blueprint.get('theme', 'business')
         site_name = self.blueprint.get('site_name', 'Company')
-        
+
+        # Создаем детальные контекстные промпты в зависимости от темы
+        theme_lower = theme.lower()
+
+        # Определяем географический и этнический контекст темы
+        location_context = ""
+        ethnicity_context = ""
+
+        if any(word in theme_lower for word in ['netherlands', 'dutch', 'amsterdam', 'holland', 'нидерланды', 'голландия']):
+            location_context = "in the Netherlands, Dutch architecture, windmills, canals, tulip fields, traditional Dutch buildings"
+            ethnicity_context = "European people, Dutch ethnicity, Caucasian"
+        elif any(word in theme_lower for word in ['europe', 'european', 'европа']):
+            location_context = "in Europe, European cities, historic architecture"
+            ethnicity_context = "European people, Caucasian"
+        elif any(word in theme_lower for word in ['asia', 'asian', 'japan', 'china', 'азия']):
+            location_context = "in Asia, Asian cities"
+            ethnicity_context = "Asian people"
+        elif any(word in theme_lower for word in ['america', 'usa', 'american', 'америка']):
+            location_context = "in America, American cities"
+            ethnicity_context = "diverse American people"
+        else:
+            # Нейтральный контекст
+            location_context = "in a modern setting"
+            ethnicity_context = "diverse people"
+
+        # Детальные промпты с учетом темы, локации и этничности
         images_to_generate = [
             {
                 'filename': 'hero.jpg',
-                'prompt': f"Professional wide banner photo for {theme}, clean background, photorealistic"
+                'prompt': f"Professional wide banner photograph for {theme} website. {location_context}. Clean composition, natural lighting, high quality, photorealistic, 8k resolution. {ethnicity_context} if people are visible. No text or logos."
             },
             {
                 'filename': 'about.jpg',
-                'prompt': f"Professional business photo for {theme}, people in natural setting"
+                'prompt': f"Professional business photograph showing {theme} company culture. {location_context}. {ethnicity_context} in natural professional setting, authentic workplace environment, candid moments, warm atmosphere, photorealistic."
             },
             {
                 'filename': 'service1.jpg',
-                'prompt': f"{theme} service illustration, professional, clean design"
+                'prompt': f"High-quality photograph representing {theme} services. {location_context}. Professional service delivery, real-world application, authentic setting, natural lighting, clean composition, photorealistic. {ethnicity_context} if people are shown."
             },
             {
                 'filename': 'service2.jpg',
-                'prompt': f"{theme} teamwork, collaboration, modern office"
+                'prompt': f"Professional teamwork photograph for {theme} business. {location_context}. {ethnicity_context} collaborating in modern office, natural interaction, authentic workplace, productive atmosphere, photorealistic, bright natural light."
             },
             {
                 'filename': 'service3.jpg',
-                'prompt': f"{theme} innovation, technology, future"
+                'prompt': f"Professional service photograph for {theme} company. {location_context}. Expert professionals at work, quality service delivery, attention to detail, authentic workplace setting, natural lighting, photorealistic. {ethnicity_context} visible."
             },
             {
                 'filename': 'blog1.jpg',
-                'prompt': f"Blog article header image for {theme}, creative composition, modern"
+                'prompt': f"Engaging blog header photograph related to {theme} topic. {location_context}. Creative composition, storytelling visual, authentic scene, natural colors, high quality, photorealistic. {ethnicity_context} if people present."
             },
             {
                 'filename': 'blog2.jpg',
-                'prompt': f"Blog featured image for {theme}, inspiring and professional"
+                'prompt': f"Inspiring blog featured photograph for {theme} article. {location_context}. Professional quality, engaging composition, relevant to topic, authentic setting, natural lighting, photorealistic."
             },
             {
                 'filename': 'blog3.jpg',
-                'prompt': f"Blog post image for {theme}, informative and engaging"
+                'prompt': f"Informative blog post photograph about {theme}. {location_context}. Clear visual storytelling, educational value, authentic scene, natural environment, high-quality photography, photorealistic."
             },
             {
                 'filename': 'blog4.jpg',
-                'prompt': f"Blog article photo for {theme}, unique perspective"
+                'prompt': f"Unique perspective blog photograph for {theme} content. {location_context}. Creative angle, interesting composition, authentic moment, natural lighting, professional photography, photorealistic."
             },
             {
                 'filename': 'blog5.jpg',
-                'prompt': f"Blog content image for {theme}, compelling visual story"
+                'prompt': f"Compelling blog content photograph representing {theme}. {location_context}. Strong visual narrative, authentic scene, engaging composition, natural colors, high quality, photorealistic."
             },
             {
                 'filename': 'blog6.jpg',
-                'prompt': f"Blog header photo for {theme}, professional and attractive"
+                'prompt': f"Professional blog header photograph for {theme} article. {location_context}. Attractive composition, relevant content, authentic setting, clear subject, natural lighting, photorealistic."
             },
             {
                 'filename': 'gallery1.jpg',
-                'prompt': f"Showcase photo for {theme}, interesting composition"
+                'prompt': f"Showcase photograph highlighting {theme} work. {location_context}. Portfolio quality, interesting composition, professional execution, authentic project, natural lighting, photorealistic."
             },
             {
                 'filename': 'gallery2.jpg',
-                'prompt': f"Professional image for {theme}, different angle"
+                'prompt': f"Professional portfolio photograph of {theme} project. {location_context}. Different perspective, quality craftsmanship, authentic work, detailed shot, natural light, photorealistic."
             },
             {
                 'filename': 'gallery3.jpg',
-                'prompt': f"Quality service photo for {theme}"
+                'prompt': f"Quality showcase photograph for {theme} services. {location_context}. Professional presentation, real project example, clean composition, authentic work, photorealistic."
             },
             {
                 'filename': 'gallery4.jpg',
-                'prompt': f"Professional showcase for {theme}"
+                'prompt': f"Professional portfolio piece for {theme} company. {location_context}. High-quality craftsmanship, finished project, authentic work, professional photography, photorealistic."
             }
         ]
         
@@ -759,19 +791,26 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 theme = "Travel"
             
         # Ищем страну в тексте
-        if 'singapore' in user_prompt.lower():
+        prompt_lower = user_prompt.lower()
+        if any(word in prompt_lower for word in ['netherlands', 'dutch', 'holland', 'amsterdam', 'нидерланды', 'голландия']):
+            country = "Netherlands"
+        elif 'singapore' in prompt_lower:
             country = "Singapore"
-        elif 'usa' in user_prompt.lower() or 'america' in user_prompt.lower():
+        elif 'usa' in prompt_lower or 'america' in prompt_lower:
             country = "USA"
-        elif 'uk' in user_prompt.lower() or 'britain' in user_prompt.lower():
+        elif 'uk' in prompt_lower or 'britain' in prompt_lower:
             country = "UK"
-        elif 'germany' in user_prompt.lower():
+        elif 'germany' in prompt_lower or 'german' in prompt_lower:
             country = "Germany"
-        elif 'france' in user_prompt.lower():
+        elif 'france' in prompt_lower or 'french' in prompt_lower:
             country = "France"
-        elif 'japan' in user_prompt.lower():
+        elif 'italy' in prompt_lower or 'italian' in prompt_lower:
+            country = "Italy"
+        elif 'spain' in prompt_lower or 'spanish' in prompt_lower:
+            country = "Spain"
+        elif 'japan' in prompt_lower or 'japanese' in prompt_lower:
             country = "Japan"
-        elif 'china' in user_prompt.lower():
+        elif 'china' in prompt_lower or 'chinese' in prompt_lower:
             country = "China"
         
         # Генерируем уникальное название сайта через API
@@ -1462,7 +1501,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                     </form>
                 </div>
 
-                <div class="grid md:grid-cols-3 gap-6 mt-8 md:-mt-20 relative z-10">
+                <div class="grid md:grid-cols-3 gap-6 mt-12">
                     <div class="bg-white rounded-2xl shadow-xl p-6 text-center border-t-4 border-{primary}">
                         <div class="w-12 h-12 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-3">
                             <svg class="w-6 h-6 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
