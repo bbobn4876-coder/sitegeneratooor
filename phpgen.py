@@ -2122,7 +2122,10 @@ Return ONLY the content for <main> tag."""
         return True
 
     def generate_index_hero_variations(self, output_dir):
-        """Выбор и генерация ОДНОЙ случайной вариации главной страницы с hero секцией"""
+        """Выбор и генерация ОДНОЙ случайной вариации главной страницы с hero секцией
+
+        Эта функция ЗАМЕНЯЕТ стандартный index.php на вариацию с выбранной hero секцией
+        """
         site_name = self.blueprint.get('site_name', 'Company')
         theme = self.blueprint.get('theme', 'business')
         colors = self.blueprint.get('color_scheme', {})
@@ -2295,7 +2298,8 @@ Return ONLY the content for <main> tag."""
         # ВЫБИРАЕМ СЛУЧАЙНУЮ вариацию
         hero_content, description = random.choice(variations)
 
-        # Генерируем ОДНУ выбранную вариацию как index_hero_variation.php
+        # ПЕРЕЗАПИСЫВАЕМ index.php выбранной вариацией
+        # Это гарантирует, что hero секция будет именно той, которую мы выбрали
         full_html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2317,11 +2321,12 @@ Return ONLY the content for <main> tag."""
 </body>
 </html>"""
 
-        page_path = os.path.join(output_dir, "index_hero_variation.php")
+        # ВАЖНО: Перезаписываем index.php, а не создаем отдельный файл
+        page_path = os.path.join(output_dir, "index.php")
         with open(page_path, 'w', encoding='utf-8') as f:
             f.write(full_html)
 
-        print(f"    ✓ index_hero_variation.php создана (вариация: {description})")
+        print(f"    ✓ index.php перезаписан с hero вариацией: {description}")
 
         return True
 
