@@ -125,7 +125,18 @@ class PHPWebsiteGenerator:
                     return None
                     
             except requests.exceptions.HTTPError as e:
-                if e.response.status_code >= 500:
+                if e.response.status_code == 401:
+                    # Unauthorized - проблема с API ключом
+                    if attempt < 4:
+                        print(f"    ⚠️  Ошибка авторизации (401), проверка ключа API, попытка {attempt + 2}/5...")
+                        import time
+                        time.sleep(5)
+                        continue
+                    else:
+                        print(f"    ✗ Ошибка авторизации API после 5 попыток")
+                        print(f"    ℹ️  Проверьте API ключ OpenRouter или используйте другую модель")
+                        return None
+                elif e.response.status_code >= 500:
                     if attempt < 4:
                         print(f"    ⚠️  Ошибка сервера {e.response.status_code}, попытка {attempt + 2}/5...")
                         import time
@@ -133,6 +144,16 @@ class PHPWebsiteGenerator:
                         continue
                     else:
                         print(f"    ✗ Ошибка API после 5 попыток: {e.response.status_code}")
+                        return None
+                elif e.response.status_code == 429:
+                    # Rate limit exceeded
+                    if attempt < 4:
+                        print(f"    ⚠️  Превышен лимит запросов (429), ожидание, попытка {attempt + 2}/5...")
+                        import time
+                        time.sleep(10)  # Увеличенное время ожидания
+                        continue
+                    else:
+                        print(f"    ✗ Превышен лимит запросов после 5 попыток")
                         return None
                 else:
                     print(f"    ✗ Ошибка API: {e.response.status_code}")
@@ -571,10 +592,18 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 'filename': 'gallery4.jpg',
                 'prompt': f"Professional {theme} showcase final, panoramic overview, impressive scale"
             },
-            # БЛОГ - одно изображение для главной страницы блога и всех статей
+            # БЛОГ - ТРИ РАЗНЫЕ картинки для статей блога
             {
-                'filename': 'blog.jpg',
-                'prompt': f"Blog header image for {theme} articles, professional writing and content creation scene, inspiring workspace with laptop and notebooks"
+                'filename': 'blog1.jpg',
+                'prompt': f"First blog article image for {theme}, professional writing and content creation scene, inspiring workspace with laptop and notebooks, creative atmosphere"
+            },
+            {
+                'filename': 'blog2.jpg',
+                'prompt': f"Second blog article image for {theme}, modern office collaboration and brainstorming session, team discussing ideas, innovative workspace"
+            },
+            {
+                'filename': 'blog3.jpg',
+                'prompt': f"Third blog article image for {theme}, professional presentation and strategy planning, business meeting with charts and documents"
             },
             # Контакты
             {
@@ -1730,9 +1759,9 @@ Return ONLY the content for <main> tag."""
         <h1 class="text-4xl md:text-5xl font-bold mb-4">{blog_titles[page_name]}</h1>
         <p class="text-gray-500 mb-8">Published on November 15, 2025 by {site_name} Team</p>
 
-        <!-- Изображение блога (одинаковое для всех статей) -->
+        <!-- Изображение блога (уникальное для каждой статьи) -->
         <div class="mb-8 rounded-xl overflow-hidden shadow-lg">
-            <img src="images/blog.jpg" alt="{blog_titles[page_name]}" class="w-full h-auto object-cover">
+            <img src="images/{page_name}.jpg" alt="{blog_titles[page_name]}" class="w-full h-auto object-cover">
         </div>
 
         <div class="prose prose-lg max-w-none">
@@ -1862,9 +1891,9 @@ Return ONLY the content for <main> tag."""
         <h1 class="text-4xl md:text-5xl font-bold mb-4">{blog_titles[page_name]}</h1>
         <p class="text-gray-500 mb-8">Published on November 15, 2025 by {site_name} Team</p>
 
-        <!-- Изображение блога (одинаковое для всех статей) -->
+        <!-- Изображение блога (уникальное для каждой статьи) -->
         <div class="mb-8 rounded-xl overflow-hidden shadow-lg">
-            <img src="images/blog.jpg" alt="{blog_titles[page_name]}" class="w-full h-auto object-cover">
+            <img src="images/{page_name}.jpg" alt="{blog_titles[page_name]}" class="w-full h-auto object-cover">
         </div>
 
         <div class="prose prose-lg max-w-none">
@@ -1922,28 +1951,28 @@ Return ONLY the content for <main> tag."""
         primary = colors.get('primary', 'blue-600')
         hover = colors.get('hover', 'blue-700')
         
-        # Используем одинаковое изображение blog.jpg для всех статей блога
+        # Используем РАЗНЫЕ изображения для каждой статьи блога
         blog_articles = [
             {
                 'title': f'The Future of {theme}',
                 'url': 'blog1.php',
                 'excerpt': f'Explore the latest innovations in {theme} and what they mean for your business.',
                 'date': 'November 15, 2025',
-                'image': 'images/blog.jpg'
+                'image': 'images/blog1.jpg'
             },
             {
                 'title': f'Top 5 Trends in {theme}',
                 'url': 'blog2.php',
                 'excerpt': f'Stay competitive with these emerging trends in the {theme} industry.',
                 'date': 'November 10, 2025',
-                'image': 'images/blog.jpg'
+                'image': 'images/blog2.jpg'
             },
             {
                 'title': f'How to Choose the Right {theme} Service',
                 'url': 'blog3.php',
                 'excerpt': f'A comprehensive guide to selecting the best {theme} solution for your needs.',
                 'date': 'November 5, 2025',
-                'image': 'images/blog.jpg'
+                'image': 'images/blog3.jpg'
             }
         ]
         
@@ -2030,7 +2059,208 @@ Return ONLY the content for <main> tag."""
         
         print(f"    ✓ blog.php создана (главная страница блога)")
         return True
-    
+
+    def generate_index_hero_variations(self, output_dir):
+        """Генерация 5 вариаций главной страницы с разными hero секциями"""
+        site_name = self.blueprint.get('site_name', 'Company')
+        theme = self.blueprint.get('theme', 'business')
+        colors = self.blueprint.get('color_scheme', {})
+        primary = colors.get('primary', 'blue-600')
+        hover = colors.get('hover', 'blue-700')
+
+        # КРИТИЧЕСКИ ВАЖНО: Проверяем, что header и footer созданы
+        if not self.header_code or not self.footer_code:
+            print(f"    ⚠️  Header/Footer не найдены, регенерация...")
+            self.generate_header_footer()
+
+        # Вариация 1: Фотография справа
+        hero_v1 = f"""<section class="py-20 bg-white">
+    <div class="container mx-auto px-6">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">Welcome to {site_name}</h1>
+                <p class="text-xl text-gray-600 mb-8">Your trusted partner in {theme} solutions. We deliver excellence and innovation.</p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="about.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold text-center transition">
+                        About Us
+                    </a>
+                    <a href="contact.php" class="inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 px-8 py-4 rounded-lg text-lg font-semibold text-center transition">
+                        Contact
+                    </a>
+                </div>
+            </div>
+            <div class="rounded-xl overflow-hidden shadow-2xl">
+                <img src="images/hero.jpg" alt="{site_name}" class="w-full h-full object-cover">
+            </div>
+        </div>
+    </div>
+</section>"""
+
+        # Вариация 2: Карусель на фоне (упрощенная версия без JS)
+        hero_v2 = f"""<section class="relative py-32 bg-gradient-to-r from-{primary}/90 to-{hover}/90 overflow-hidden">
+    <div class="absolute inset-0 opacity-30">
+        <img src="images/hero.jpg" alt="Background" class="w-full h-full object-cover">
+    </div>
+    <div class="relative container mx-auto px-6 text-center text-white">
+        <h1 class="text-5xl md:text-7xl font-bold mb-6">{site_name}</h1>
+        <p class="text-2xl md:text-3xl mb-10 max-w-3xl mx-auto">Excellence in {theme}</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="about.php" class="inline-block bg-white text-{primary} px-10 py-5 rounded-lg text-xl font-semibold hover:bg-gray-100 transition">
+                About Us
+            </a>
+            <a href="contact.php" class="inline-block bg-transparent border-2 border-white text-white px-10 py-5 rounded-lg text-xl font-semibold hover:bg-white hover:text-{primary} transition">
+                Contact
+            </a>
+        </div>
+    </div>
+</section>"""
+
+        # Вариация 3: Без фотографии
+        hero_v3 = f"""<section class="py-32 bg-gradient-to-br from-{primary}/5 via-white to-{hover}/5">
+    <div class="container mx-auto px-6 text-center">
+        <h1 class="text-6xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-{primary} to-{hover} bg-clip-text text-transparent">
+            {site_name}
+        </h1>
+        <p class="text-2xl md:text-3xl text-gray-700 mb-12 max-w-4xl mx-auto">
+            Leading the way in {theme} with innovative solutions and exceptional service
+        </p>
+        <div class="flex flex-col sm:flex-row gap-6 justify-center">
+            <a href="about.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-12 py-5 rounded-lg text-xl font-semibold shadow-lg hover:shadow-xl transition">
+                Learn About Us
+            </a>
+            <a href="contact.php" class="inline-block bg-gray-800 hover:bg-gray-900 text-white px-12 py-5 rounded-lg text-xl font-semibold shadow-lg hover:shadow-xl transition">
+                Get in Touch
+            </a>
+        </div>
+    </div>
+</section>"""
+
+        # Вариация 4: Картинка на фоне с кнопкой Contact
+        hero_v4 = f"""<section class="relative py-40 bg-gray-900">
+    <div class="absolute inset-0">
+        <img src="images/hero.jpg" alt="{site_name}" class="w-full h-full object-cover opacity-50">
+    </div>
+    <div class="relative container mx-auto px-6 text-center text-white">
+        <h1 class="text-6xl md:text-8xl font-bold mb-6">
+            {site_name}
+        </h1>
+        <p class="text-2xl md:text-4xl mb-12 max-w-3xl mx-auto font-light">
+            Transform Your {theme} Experience
+        </p>
+        <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-16 py-6 rounded-full text-2xl font-semibold shadow-2xl hover:shadow-3xl transform hover:scale-105 transition">
+            Contact Us Today
+        </a>
+    </div>
+</section>"""
+
+        # Вариация 5: Фотография слева
+        hero_v5 = f"""<section class="py-20 bg-gradient-to-br from-gray-50 to-white">
+    <div class="container mx-auto px-6">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div class="rounded-xl overflow-hidden shadow-2xl">
+                <img src="images/hero.jpg" alt="{site_name}" class="w-full h-full object-cover">
+            </div>
+            <div>
+                <h1 class="text-5xl md:text-6xl font-bold mb-6 text-gray-900">Discover {site_name}</h1>
+                <p class="text-xl text-gray-600 mb-8 leading-relaxed">
+                    We specialize in {theme} solutions that drive results. Our commitment to excellence sets us apart.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="about.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold text-center transition shadow-md hover:shadow-lg">
+                        Discover More
+                    </a>
+                    <a href="contact.php" class="inline-block border-2 border-{primary} text-{primary} hover:bg-{primary} hover:text-white px-8 py-4 rounded-lg text-lg font-semibold text-center transition">
+                        Contact Us
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>"""
+
+        # Общие секции для всех вариаций (после hero)
+        common_sections = f"""
+<!-- Features Section -->
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-6">
+        <h2 class="text-4xl font-bold text-center mb-12">Why Choose Us</h2>
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-{primary} text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                    ✓
+                </div>
+                <h3 class="text-xl font-bold mb-3">Professional Service</h3>
+                <p class="text-gray-600">Dedicated to delivering exceptional quality in every project we undertake.</p>
+            </div>
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-{primary} text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                    ★
+                </div>
+                <h3 class="text-xl font-bold mb-3">Expert Team</h3>
+                <p class="text-gray-600">Our experienced professionals bring years of expertise to your project.</p>
+            </div>
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-{primary} text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                    ⚡
+                </div>
+                <h3 class="text-xl font-bold mb-3">Fast Delivery</h3>
+                <p class="text-gray-600">Efficient processes ensure timely completion without compromising quality.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-20 bg-gradient-to-br from-{primary}/10 to-{hover}/5">
+    <div class="container mx-auto px-6 text-center">
+        <h2 class="text-4xl md:text-5xl font-bold mb-6">Ready to Get Started?</h2>
+        <p class="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">Contact us today to discuss your {theme} needs</p>
+        <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-5 rounded-lg text-xl font-semibold shadow-lg hover:shadow-xl transition">
+            Contact Us Now
+        </a>
+    </div>
+</section>
+"""
+
+        # Создаем 5 вариаций
+        variations = [
+            ('index_hero_photo_right.php', hero_v1, 'Вариация с фото справа'),
+            ('index_hero_carousel.php', hero_v2, 'Вариация с каруселью на фоне'),
+            ('index_hero_no_photo.php', hero_v3, 'Вариация без фотографии'),
+            ('index_hero_bg_image.php', hero_v4, 'Вариация с картинкой на фоне'),
+            ('index_hero_photo_left.php', hero_v5, 'Вариация с фото слева')
+        ]
+
+        for filename, hero_content, description in variations:
+            full_html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - {site_name}</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    {self.header_footer_css}
+</head>
+<body>
+    {self.header_code}
+
+    <main>
+        {hero_content}
+        {common_sections}
+    </main>
+
+    {self.footer_code}
+</body>
+</html>"""
+
+            page_path = os.path.join(output_dir, filename)
+            with open(page_path, 'w', encoding='utf-8') as f:
+                f.write(full_html)
+
+            print(f"    ✓ {filename} создана ({description})")
+
+        return True
+
     def generate_policy_page(self, page_name, output_dir):
         """Генерация policy страниц с УНИКАЛЬНЫМ контентом для каждой"""
         site_name = self.blueprint.get('site_name', 'Company')
@@ -2711,7 +2941,11 @@ php -S localhost:8000
             success = self.generate_page(page, output_dir)
             if not success:
                 print(f"    ⚠️  Ошибка генерации {page}.php, создан fallback")
-        
+
+        # Генерируем вариации hero секций для главной страницы
+        print(f"\n  Генерация вариаций hero секций...")
+        self.generate_index_hero_variations(output_dir)
+
         print("\n[7/7] Twig шаблоны и дополнительные файлы...")
         
         # Создаём Twig шаблоны если включено
