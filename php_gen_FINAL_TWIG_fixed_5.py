@@ -1167,6 +1167,234 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             f.write(favicon_svg)
         print(f"✓ Favicon создан: {letter} ({hex_color})")
     
+    def generate_contact_page(self, output_dir):
+        """Генерация готовой Contact страницы с профессиональной формой"""
+        site_name = self.blueprint.get('site_name', 'Company')
+        theme = self.blueprint.get('theme', 'business')
+        colors = self.blueprint.get('color_scheme', {})
+        primary = colors.get('primary', 'blue-600')
+        hover = colors.get('hover', 'blue-700')
+
+        main_content = f"""<main>
+    <!-- Contact Page -->
+    <section class="py-20 bg-gradient-to-br from-{primary}/5 to-white">
+        <div class="container mx-auto px-6">
+            <!-- Page Header -->
+            <div class="text-center mb-16">
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">Get In Touch</h1>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Have a question or want to work together? We'd love to hear from you.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+                <!-- Contact Form -->
+                <div class="bg-white rounded-2xl shadow-xl p-8 md:p-10">
+                    <h2 class="text-3xl font-bold mb-6">Send us a message</h2>
+                    <form action="thanks_you.php" method="POST" class="space-y-6">
+                        <div>
+                            <label for="name" class="block text-gray-700 font-semibold mb-2">
+                                Your Name <span class="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none"
+                                placeholder="John Doe"
+                            >
+                        </div>
+
+                        <div>
+                            <label for="email" class="block text-gray-700 font-semibold mb-2">
+                                Your Email <span class="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none"
+                                placeholder="john@example.com"
+                            >
+                        </div>
+
+                        <div>
+                            <label for="phone" class="block text-gray-700 font-semibold mb-2">
+                                Phone Number
+                            </label>
+                            <input
+                                type="tel"
+                                id="phone"
+                                name="phone"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none"
+                                placeholder="+1 (555) 123-4567"
+                            >
+                        </div>
+
+                        <div>
+                            <label for="message" class="block text-gray-700 font-semibold mb-2">
+                                Your Message <span class="text-red-500">*</span>
+                            </label>
+                            <textarea
+                                id="message"
+                                name="message"
+                                rows="5"
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none resize-none"
+                                placeholder="Tell us about your project..."
+                            ></textarea>
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="w-full bg-{primary} hover:bg-{hover} text-white py-4 rounded-lg text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                        >
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="space-y-8">
+                    <div class="bg-white rounded-2xl shadow-xl p-8">
+                        <h2 class="text-3xl font-bold mb-6">Contact Information</h2>
+
+                        <div class="space-y-6">
+                            <!-- Email -->
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-semibold text-gray-900 mb-1">Email</h3>
+                                    <a href="mailto:contact@{site_name.lower().replace(' ', '')}.com" class="text-gray-600 hover:text-{primary} transition">
+                                        contact@{site_name.lower().replace(' ', '')}.com
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-semibold text-gray-900 mb-1">Phone</h3>
+                                    <a href="tel:+15551234567" class="text-gray-600 hover:text-{primary} transition">
+                                        +1 (555) 123-4567
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Address -->
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-semibold text-gray-900 mb-1">Address</h3>
+                                    <p class="text-gray-600">
+                                        123 Business Street<br>
+                                        Suite 100<br>
+                                        New York, NY 10001
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Business Hours -->
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-semibold text-gray-900 mb-1">Business Hours</h3>
+                                    <p class="text-gray-600">
+                                        Monday - Friday: 9:00 AM - 6:00 PM<br>
+                                        Saturday: 10:00 AM - 4:00 PM<br>
+                                        Sunday: Closed
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Social Links / Additional Info -->
+                    <div class="bg-gradient-to-br from-{primary} to-{hover} rounded-2xl shadow-xl p-8 text-white">
+                        <h3 class="text-2xl font-bold mb-4">Why Choose Us?</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Quick response within 24 hours
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Professional and friendly team
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Free initial consultation
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Customized solutions for your needs
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # КРИТИЧЕСКИ ВАЖНО: Проверяем, что header и footer созданы
+        if not self.header_code or not self.footer_code:
+            print(f"    ⚠️  Header/Footer не найдены, регенерация...")
+            self.generate_header_footer()
+
+        full_html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - {site_name}</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    {self.header_footer_css}
+</head>
+<body>
+    {self.header_code}
+
+    {main_content}
+
+    {self.footer_code}
+</body>
+</html>"""
+
+        page_path = os.path.join(output_dir, "contact.php")
+        with open(page_path, 'w', encoding='utf-8') as f:
+            f.write(full_html)
+
+        print(f"    ✓ contact.php создана (готовый шаблон)")
+        return True
+
     def generate_home_sections(self):
         """Генерация случайных секций для Home страницы"""
         site_name = self.blueprint.get('site_name', 'Company')
@@ -1704,7 +1932,11 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         # Для главной страницы blog (список статей)
         if page_name == 'blog':
             return self.generate_blog_main_page(output_dir)
-        
+
+        # Для Contact страницы используем готовый профессиональный шаблон
+        if page_name == 'contact':
+            return self.generate_contact_page(output_dir)
+
         # Для основных страниц генерируем через API с детальными промптами
         page_configs = {
             'index': {
@@ -1769,24 +2001,6 @@ REQUIREMENTS:
 - Color scheme: {colors.get('primary')} primary, {colors.get('hover')} hover
 - Responsive grid layout
 - NO emojis, NO prices, NO currency
-
-Return ONLY the content for <main> tag."""
-            },
-            'contact': {
-                'title': 'Contact Us',
-                'prompt': f"""Create a professional CONTACT page for {site_name} - a {theme} business.
-
-CRITICAL FORM REQUIREMENTS:
-- Form MUST have: action="thanks_you.php" method="POST"
-- Form MUST redirect to thanks_you.php on submit
-- Fields: Name (type="text" name="name"), Email (type="email" name="email"), Message (textarea name="message")
-- Contact information section (email, phone)
-- Optional: location map or address
-- Form should have proper validation classes
-- Modern, professional design with Tailwind CSS
-- Color scheme: {colors.get('primary')} primary, {colors.get('hover')} hover
-- Responsive design
-- NO emojis
 
 Return ONLY the content for <main> tag."""
             },
