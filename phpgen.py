@@ -428,10 +428,11 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 ethnicity_hint = ", people of European descent, Caucasian"
 
             # Генерация изображения через Ark API
-            # КРИТИЧЕСКИ ВАЖНО: строго запрещаем любой текст в изображениях
+            # КРИТИЧЕСКИ ВАЖНО: МАКСИМАЛЬНО строго запрещаем любой текст в изображениях
+            # Повторяем запрет несколько раз для усиления
             imagesResponse = self.ark_client.images.generate(
                 model="seedream-4-0-250828",
-                prompt=f"{prompt}{ethnicity_hint}, professional photography, high quality, photorealistic, 4K, absolutely no text, no words, no letters, no numbers, no signs, no writing of any kind",
+                prompt=f"{prompt}{ethnicity_hint}, professional photography, high quality, photorealistic, 4K. CRITICAL: NO TEXT WHATSOEVER, no words, no letters, no numbers, no signs, no captions, no labels, no typography, no written content, no symbols with text, completely text-free image, purely visual content only, zero text elements",
                 response_format="url",
                 size="2K",
                 stream=True,
@@ -1117,22 +1118,52 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             
             footer_variants_map = {1: 1, 2: 2, 4: 3, 5: 4}
             print(f"  ✓ Footer создан (вариант {footer_variants_map.get(footer_variant, footer_variant)}/4) с навигацией (без соц. сетей)")
-            
-            # CSS для header и footer
+
+            # Выбор случайного шрифта из 3 вариантов
+            font_combinations = [
+                {
+                    'name': 'Inter & Poppins',
+                    'link': '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">',
+                    'body': "'Inter', sans-serif",
+                    'heading': "'Poppins', sans-serif"
+                },
+                {
+                    'name': 'Montserrat & Open Sans',
+                    'link': '<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">',
+                    'body': "'Open Sans', sans-serif",
+                    'heading': "'Montserrat', sans-serif"
+                },
+                {
+                    'name': 'Playfair Display & Lato',
+                    'link': '<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">',
+                    'body': "'Lato', sans-serif",
+                    'heading': "'Playfair Display', serif"
+                }
+            ]
+
+            selected_font = random.choice(font_combinations)
+
+            # CSS для header и footer с выбранными шрифтами
             self.header_footer_css = f"""<script src="https://cdn.tailwindcss.com"></script>
+{selected_font['link']}
 <style>
     * {{ margin: 0; padding: 0; box-sizing: border-box; }}
     html {{ height: 100%; }}
-    body {{ 
-        font-family: 'Inter', system-ui, sans-serif; 
+    body {{
+        font-family: {selected_font['body']};
         min-height: 100vh;
         display: flex;
         flex-direction: column;
     }}
+    h1, h2, h3, h4, h5, h6 {{
+        font-family: {selected_font['heading']};
+    }}
     main {{ flex: 1; }}
     footer {{ margin-top: auto; }}
 </style>"""
-            
+
+            print(f"  ✓ Шрифты: {selected_font['name']}")
+
             return True
             
         except Exception as e:
@@ -1167,20 +1198,50 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
     </div>
 </footer>"""
             
-            # Минимальный CSS
-            self.header_footer_css = """<script src="https://cdn.tailwindcss.com"></script>
+            # Выбор случайного шрифта из 3 вариантов
+            font_combinations = [
+                {
+                    'name': 'Inter & Poppins',
+                    'link': '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">',
+                    'body': "'Inter', sans-serif",
+                    'heading': "'Poppins', sans-serif"
+                },
+                {
+                    'name': 'Montserrat & Open Sans',
+                    'link': '<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">',
+                    'body': "'Open Sans', sans-serif",
+                    'heading': "'Montserrat', sans-serif"
+                },
+                {
+                    'name': 'Playfair Display & Lato',
+                    'link': '<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">',
+                    'body': "'Lato', sans-serif",
+                    'heading': "'Playfair Display', serif"
+                }
+            ]
+
+            selected_font = random.choice(font_combinations)
+
+            # Минимальный CSS с выбранными шрифтами
+            self.header_footer_css = f"""<script src="https://cdn.tailwindcss.com"></script>
+{selected_font['link']}
 <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { height: 100%; }
-    body { 
-        font-family: 'Inter', system-ui, sans-serif; 
+    * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+    html {{ height: 100%; }}
+    body {{
+        font-family: {selected_font['body']};
         min-height: 100vh;
         display: flex;
         flex-direction: column;
-    }
-    main { flex: 1; }
-    footer { margin-top: auto; }
+    }}
+    h1, h2, h3, h4, h5, h6 {{
+        font-family: {selected_font['heading']};
+    }}
+    main {{ flex: 1; }}
+    footer {{ margin-top: auto; }}
 </style>"""
+
+            print(f"  ✓ Шрифты: {selected_font['name']}")
             
             print(f"  ✓ Базовый header/footer создан (fallback режим)")
             return True
@@ -2061,7 +2122,7 @@ Return ONLY the content for <main> tag."""
         return True
 
     def generate_index_hero_variations(self, output_dir):
-        """Генерация 5 вариаций главной страницы с разными hero секциями"""
+        """Выбор и генерация ОДНОЙ случайной вариации главной страницы с hero секцией"""
         site_name = self.blueprint.get('site_name', 'Company')
         theme = self.blueprint.get('theme', 'business')
         colors = self.blueprint.get('color_scheme', {})
@@ -2222,17 +2283,20 @@ Return ONLY the content for <main> tag."""
 </section>
 """
 
-        # Создаем 5 вариаций
+        # Все 5 вариаций hero секций
         variations = [
-            ('index_hero_photo_right.php', hero_v1, 'Вариация с фото справа'),
-            ('index_hero_carousel.php', hero_v2, 'Вариация с каруселью на фоне'),
-            ('index_hero_no_photo.php', hero_v3, 'Вариация без фотографии'),
-            ('index_hero_bg_image.php', hero_v4, 'Вариация с картинкой на фоне'),
-            ('index_hero_photo_left.php', hero_v5, 'Вариация с фото слева')
+            (hero_v1, 'фото справа'),
+            (hero_v2, 'карусель на фоне'),
+            (hero_v3, 'без фотографии'),
+            (hero_v4, 'картинка на фоне'),
+            (hero_v5, 'фото слева')
         ]
 
-        for filename, hero_content, description in variations:
-            full_html = f"""<!DOCTYPE html>
+        # ВЫБИРАЕМ СЛУЧАЙНУЮ вариацию
+        hero_content, description = random.choice(variations)
+
+        # Генерируем ОДНУ выбранную вариацию как index_hero_variation.php
+        full_html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -2253,11 +2317,11 @@ Return ONLY the content for <main> tag."""
 </body>
 </html>"""
 
-            page_path = os.path.join(output_dir, filename)
-            with open(page_path, 'w', encoding='utf-8') as f:
-                f.write(full_html)
+        page_path = os.path.join(output_dir, "index_hero_variation.php")
+        with open(page_path, 'w', encoding='utf-8') as f:
+            f.write(full_html)
 
-            print(f"    ✓ {filename} создана ({description})")
+        print(f"    ✓ index_hero_variation.php создана (вариация: {description})")
 
         return True
 
