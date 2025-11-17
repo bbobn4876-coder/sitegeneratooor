@@ -22,9 +22,8 @@ class PHPWebsiteGenerator:
         
         self.api_url = "https://openrouter.ai/api/v1/chat/completions"
         self.code_model = "google/gemini-2.5-pro"
-        self.max_tokens = 8000  
+        self.max_tokens = 8000
         self.use_symfony = False
-        self.use_twig = True  # Использовать Twig Template Engine
         self.site_type = "landing"  # "landing" или "multipage"
         self.blueprint = {}
         self.header_code = ""
@@ -836,7 +835,17 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             hover_color = colors.get('hover', 'blue-700')
             primary_color = colors.get('primary', 'blue-600')
             theme = self.blueprint.get('theme', 'business')
-            
+
+            # Случайный выбор шрифта (4 варианта)
+            font_options = [
+                {'name': 'Inter', 'import': '@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap");', 'family': "'Inter', sans-serif"},
+                {'name': 'Poppins', 'import': '@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap");', 'family': "'Poppins', sans-serif"},
+                {'name': 'Montserrat', 'import': '@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap");', 'family': "'Montserrat', sans-serif"},
+                {'name': 'Roboto', 'import': '@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap");', 'family': "'Roboto', sans-serif"}
+            ]
+            selected_font = random.choice(font_options)
+            self.selected_font = selected_font  # Сохраняем для использования в других местах
+
             # Определяем страницы в зависимости от типа сайта
             if self.site_type == "landing":
                 nav_pages = [
@@ -1075,10 +1084,11 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             # CSS для header и footer (обязательный footer на всех страницах)
             self.header_footer_css = f"""<script src="https://cdn.tailwindcss.com"></script>
 <style>
+    {selected_font['import']}
     * {{ margin: 0; padding: 0; box-sizing: border-box; }}
     html {{ height: 100%; scroll-behavior: smooth; }}
     body {{
-        font-family: 'Inter', system-ui, sans-serif;
+        font-family: {selected_font['family']};
         min-height: 100vh;
         display: flex;
         flex-direction: column;
@@ -1123,13 +1133,14 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
     </div>
 </footer>"""
             
-            # Минимальный CSS
+            # Минимальный CSS (используем Inter по умолчанию при ошибке)
             self.header_footer_css = """<script src="https://cdn.tailwindcss.com"></script>
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { height: 100%; }
-    body { 
-        font-family: 'Inter', system-ui, sans-serif; 
+    body {
+        font-family: 'Inter', sans-serif;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
@@ -1611,6 +1622,176 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
 
         print(f"    ✓ contact.php создана (готовый шаблон)")
         return True
+
+    def generate_hero_section(self, site_name, theme, primary, hover):
+        """Генерация Hero секции с 5 вариациями"""
+        hero_variant = random.randint(1, 5)
+
+        # Вариация 1: Фотография справа
+        if hero_variant == 1:
+            return f"""<main>
+    <!-- Hero: Image Right -->
+    <section class="py-20 bg-gradient-to-br from-{primary}/5 to-white">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h1 class="text-5xl md:text-6xl font-bold mb-6">Welcome to {site_name}</h1>
+                    <p class="text-xl text-gray-600 mb-8">Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.</p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl text-center">
+                            About Us
+                        </a>
+                        <a href="contact.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition text-center">
+                            Contact
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <img src="images/hero.jpg" alt="{site_name}" class="rounded-2xl shadow-2xl w-full h-96 object-cover">
+                </div>
+            </div>
+        </div>
+    </section>
+"""
+
+        # Вариация 2: Карусель с фотографиями на фоне
+        elif hero_variant == 2:
+            return f"""<main>
+    <!-- Hero: Carousel Background -->
+    <section class="relative py-32 overflow-hidden">
+        <!-- Carousel Background -->
+        <div class="absolute inset-0 z-0">
+            <div id="hero-carousel" class="w-full h-full">
+                <div class="carousel-item active absolute inset-0 transition-opacity duration-1000">
+                    <img src="images/hero.jpg" alt="Slide 1" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/50"></div>
+                </div>
+                <div class="carousel-item absolute inset-0 transition-opacity duration-1000 opacity-0">
+                    <img src="images/about.jpg" alt="Slide 2" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/50"></div>
+                </div>
+                <div class="carousel-item absolute inset-0 transition-opacity duration-1000 opacity-0">
+                    <img src="images/service1.jpg" alt="Slide 3" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/50"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="max-w-4xl mx-auto text-center text-white">
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 drop-shadow-lg">Welcome to {site_name}</h1>
+                <p class="text-xl md:text-2xl mb-8 drop-shadow-lg">Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="company.php" class="inline-block bg-white hover:bg-gray-100 text-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                        About Us
+                    </a>
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                        Contact
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        (function() {{
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.carousel-item');
+            const totalSlides = slides.length;
+
+            function nextSlide() {{
+                slides[currentSlide].classList.remove('opacity-100');
+                slides[currentSlide].classList.add('opacity-0');
+                currentSlide = (currentSlide + 1) % totalSlides;
+                slides[currentSlide].classList.remove('opacity-0');
+                slides[currentSlide].classList.add('opacity-100');
+            }}
+
+            setInterval(nextSlide, 4000);
+        }})();
+        </script>
+    </section>
+"""
+
+        # Вариация 3: Без фотографии (центрированная)
+        elif hero_variant == 3:
+            return f"""<main>
+    <!-- Hero: No Image -->
+    <section class="relative py-32 bg-gradient-to-br from-{primary}/10 via-white to-{primary}/5">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-{primary} to-{hover} bg-clip-text text-transparent">
+                    Welcome to {site_name}
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-600 mb-8">
+                    Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                        About Us
+                    </a>
+                    <a href="contact.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition">
+                        Contact
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Decorative elements -->
+        <div class="absolute top-0 right-0 w-64 h-64 bg-{primary}/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-{hover}/10 rounded-full blur-3xl"></div>
+    </section>
+"""
+
+        # Вариация 4: Картинка на фоне
+        elif hero_variant == 4:
+            return f"""<main>
+    <!-- Hero: Background Image -->
+    <section class="relative py-40 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="images/hero.jpg" alt="{site_name}" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70"></div>
+        </div>
+
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="max-w-4xl mx-auto text-center text-white">
+                <h1 class="text-6xl md:text-8xl font-bold mb-6 drop-shadow-2xl">Welcome to {site_name}</h1>
+                <p class="text-2xl md:text-3xl mb-12 drop-shadow-lg">Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.</p>
+                <div class="flex justify-center">
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-12 py-5 rounded-lg text-xl font-bold transition shadow-2xl hover:shadow-3xl transform hover:-translate-y-1">
+                        Contact Us
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+"""
+
+        # Вариация 5: Фотография слева
+        else:
+            return f"""<main>
+    <!-- Hero: Image Left -->
+    <section class="py-20 bg-gradient-to-br from-{primary}/5 to-white">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="order-2 md:order-1">
+                    <img src="images/hero.jpg" alt="{site_name}" class="rounded-2xl shadow-2xl w-full h-96 object-cover">
+                </div>
+                <div class="order-1 md:order-2">
+                    <h1 class="text-5xl md:text-6xl font-bold mb-6">Welcome to {site_name}</h1>
+                    <p class="text-xl text-gray-600 mb-8">Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.</p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl text-center">
+                            About Us
+                        </a>
+                        <a href="contact.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition text-center">
+                            Contact
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+"""
 
     def generate_home_sections(self):
         """Генерация случайных секций для Home страницы"""
@@ -2380,33 +2561,8 @@ Return ONLY the content for <main> tag."""
             primary = colors.get('primary', 'blue-600')
             hover = colors.get('hover', 'blue-700')
 
-            # Hero секция (статичная - всегда присутствует)
-            hero_section = f"""<main>
-    <!-- Hero Section (Static) -->
-    <section class="relative py-32 bg-gradient-to-br from-{primary}/10 via-white to-{primary}/5">
-        <div class="container mx-auto px-6">
-            <div class="max-w-4xl mx-auto text-center">
-                <h1 class="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-{primary} to-{hover} bg-clip-text text-transparent">
-                    Welcome to {site_name}
-                </h1>
-                <p class="text-xl md:text-2xl text-gray-600 mb-8">
-                    Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.
-                </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
-                        Get Started
-                    </a>
-                    <a href="company.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition">
-                        Learn More
-                    </a>
-                </div>
-            </div>
-        </div>
-        <!-- Decorative elements -->
-        <div class="absolute top-0 right-0 w-64 h-64 bg-{primary}/10 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-0 left-0 w-96 h-96 bg-{hover}/10 rounded-full blur-3xl"></div>
-    </section>
-"""
+            # Hero секция (5 вариаций со случайным выбором)
+            hero_section = self.generate_hero_section(site_name, theme, primary, hover)
 
             # Добавляем случайные секции
             random_sections = self.generate_home_sections()
@@ -3242,442 +3398,13 @@ Return ONLY the content for <main> tag."""
         
         print(f"    ✓ {page_name}.php создана")
         return True
-    
-    
-    # ============= МЕТОДЫ ДЛЯ TWIG TEMPLATE ENGINE =============
-    
-    def create_twig_templates(self, output_dir):
-        """Создание Twig шаблонов для сайта"""
-        templates_dir = os.path.join(output_dir, 'templates')
-        os.makedirs(templates_dir, exist_ok=True)
-        
-        print("  🎨 Создание Twig шаблонов...")
-        
-        # Создаем базовый layout
-        self.create_base_layout_twig(templates_dir)
-        
-        # Создаем компоненты
-        self.create_twig_components(templates_dir)
-        
-        # Создаем страницы
-        self.create_twig_pages(templates_dir)
-        
-        print("  ✓ Twig шаблоны созданы")
-    
-    def create_base_layout_twig(self, templates_dir):
-        """Создание базового Twig layout"""
-        site_name = self.blueprint.get('site_name', 'Company')
-        colors = self.blueprint.get('color_scheme', {})
-        primary = colors.get('primary', 'blue-600')
-        hover = colors.get('hover', 'blue-700')
-        theme = self.blueprint.get('theme', 'business')
-        
-        base_layout = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{{{ page_title }}}} - {site_name}</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-        html {{ height: 100%; }}
-        body {{ 
-            font-family: 'Inter', system-ui, sans-serif; 
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }}
-        main {{ flex: 1; }}
-        footer {{ margin-top: auto; }}
-    </style>
-</head>
-<body>
-    <!-- Header -->
-    <header class="bg-white shadow-md sticky top-0 z-50">
-        <div class="container mx-auto px-6 py-4">
-            <div class="flex justify-between items-center">
-                <div class="text-2xl font-bold text-{primary}">
-                    {site_name}
-                </div>
-                <nav class="hidden md:flex space-x-8">
-                    {{% for item in navigation %}}
-                    <a href="{{{{ item.url }}}}" class="text-gray-700 hover:text-{hover} transition-colors">{{{{ item.name }}}}</a>
-                    {{% endfor %}}
-                </nav>
-                <button id="mobile-menu-btn" class="md:hidden text-gray-700 hover:text-{hover}">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
-            </div>
-            <nav id="mobile-menu" class="hidden md:hidden mt-4 pb-4">
-                {{% for item in navigation %}}
-                <a href="{{{{ item.url }}}}" class="block py-2 text-gray-700 hover:text-{hover} transition-colors">{{{{ item.name }}}}</a>
-                {{% endfor %}}
-            </nav>
-        </div>
-        <script>
-            document.getElementById('mobile-menu-btn').addEventListener('click', function() {{
-                document.getElementById('mobile-menu').classList.toggle('hidden');
-            }});
-        </script>
-    </header>
 
-    {{% block content %}}
-    {{% endblock %}}
-
-    <footer class="bg-gray-900 text-white py-12 mt-auto">
-        <div class="container mx-auto px-6">
-            <div class="grid md:grid-cols-3 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4">{site_name}</h3>
-                    <p class="text-gray-400">Your trusted partner in {theme}.</p>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
-                    <ul class="space-y-2">
-                        {{% for item in footer_links %}}
-                        <li><a href="{{{{ item.url }}}}" class="text-gray-400 hover:text-{hover} transition-colors">{{{{ item.name }}}}</a></li>
-                        {{% endfor %}}
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Contact</h4>
-                    <p class="text-gray-400">Email: contact@{site_name.lower().replace(' ', '')}.com</p>
-                    <p class="text-gray-400">Phone: +1 (555) 123-4567</p>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2025 {site_name}. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-</body>
-</html>"""
-        
-        with open(os.path.join(templates_dir, 'base.twig'), 'w', encoding='utf-8') as f:
-            f.write(base_layout)
-    
-    def create_twig_components(self, templates_dir):
-        """Создание Twig компонентов"""
-        components_dir = os.path.join(templates_dir, 'components')
-        os.makedirs(components_dir, exist_ok=True)
-        
-        colors = self.blueprint.get('color_scheme', {})
-        primary = colors.get('primary', 'blue-600')
-        hover = colors.get('hover', 'blue-700')
-        
-        # Hero Section
-        hero = f"""<section class="py-20 bg-gradient-to-br from-{primary}/10 to-white">
-    <div class="container mx-auto px-6">
-        <div class="max-w-4xl mx-auto text-center">
-            <h1 class="text-5xl md:text-6xl font-bold mb-6">{{{{ hero.title }}}}</h1>
-            <p class="text-xl md:text-2xl text-gray-600 mb-8">{{{{ hero.subtitle }}}}</p>
-            {{% if hero.cta_text %}}
-            <a href="{{{{ hero.cta_url }}}}" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition">
-                {{{{ hero.cta_text }}}}
-            </a>
-            {{% endif %}}
-        </div>
-    </div>
-</section>"""
-        
-        with open(os.path.join(components_dir, 'hero.twig'), 'w', encoding='utf-8') as f:
-            f.write(hero)
-        
-        # Service Card
-        service = f"""<div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition">
-    {{% if service.image %}}
-    <img src="{{{{ service.image }}}}" alt="{{{{ service.title }}}}" class="w-full h-48 object-cover rounded-lg mb-4">
-    {{% endif %}}
-    <h3 class="text-2xl font-bold mb-4">{{{{ service.title }}}}</h3>
-    <p class="text-gray-600 mb-4">{{{{ service.description }}}}</p>
-    {{% if service.link %}}
-    <a href="{{{{ service.link }}}}" class="text-{primary} hover:text-{hover} font-semibold">Learn More →</a>
-    {{% endif %}}
-</div>"""
-        
-        with open(os.path.join(components_dir, 'service_card.twig'), 'w', encoding='utf-8') as f:
-            f.write(service)
-        
-        # Contact Form
-        form = f"""<form action="thanks_you.php" method="POST" class="space-y-6">
-    <div>
-        <label class="block text-gray-700 font-semibold mb-2">Name</label>
-        <input type="text" name="name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-{primary}">
-    </div>
-    <div>
-        <label class="block text-gray-700 font-semibold mb-2">Email</label>
-        <input type="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-{primary}">
-    </div>
-    <div>
-        <label class="block text-gray-700 font-semibold mb-2">Message</label>
-        <textarea name="message" rows="5" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-{primary}"></textarea>
-    </div>
-    <button type="submit" class="w-full bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition">
-        Send Message
-    </button>
-</form>"""
-        
-        with open(os.path.join(components_dir, 'contact_form.twig'), 'w', encoding='utf-8') as f:
-            f.write(form)
-    
-    def create_twig_pages(self, templates_dir):
-        """Создание Twig страниц"""
-        pages_dir = os.path.join(templates_dir, 'pages')
-        os.makedirs(pages_dir, exist_ok=True)
-        
-        site_name = self.blueprint.get('site_name', 'Company')
-        colors = self.blueprint.get('color_scheme', {})
-        primary = colors.get('primary', 'blue-600')
-        hover = colors.get('hover', 'blue-700')
-        
-        # Index Page
-        index = f"""{{% extends "base.twig" %}}
-
-{{% block content %}}
-<main>
-    {{% include "components/hero.twig" with {{
-        'hero': {{
-            'title': 'Welcome to {site_name}',
-            'subtitle': 'Your trusted partner in excellence',
-            'cta_text': 'Get Started',
-            'cta_url': 'contact.php'
-        }}
-    }} %}}
-    
-    <section class="py-20">
-        <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center mb-12">Our Services</h2>
-            <div class="grid md:grid-cols-3 gap-8">
-                {{% for service in services %}}
-                {{% include "components/service_card.twig" with {{'service': service}} %}}
-                {{% endfor %}}
-            </div>
-        </div>
-    </section>
-    
-    <section class="py-20 bg-gradient-to-br from-{primary}/10 to-{primary}/5">
-        <div class="container mx-auto px-6 text-center">
-            <h2 class="text-4xl font-bold mb-6">Ready to Get Started?</h2>
-            <p class="text-xl text-gray-600 mb-8">Contact us today to learn how we can help.</p>
-            <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition">
-                Contact Us
-            </a>
-        </div>
-    </section>
-</main>
-{{% endblock %}}"""
-        
-        with open(os.path.join(pages_dir, 'index.twig'), 'w', encoding='utf-8') as f:
-            f.write(index)
-        
-        # Contact Page
-        contact = f"""{{% extends "base.twig" %}}
-
-{{% block content %}}
-<main>
-    <section class="py-20">
-        <div class="container mx-auto px-6">
-            <h1 class="text-5xl font-bold text-center mb-12">Contact Us</h1>
-            <div class="max-w-2xl mx-auto">
-                {{% include "components/contact_form.twig" %}}
-            </div>
-        </div>
-    </section>
-</main>
-{{% endblock %}}"""
-        
-        with open(os.path.join(pages_dir, 'contact.twig'), 'w', encoding='utf-8') as f:
-            f.write(contact)
-    
-    def create_composer_json(self, output_dir):
-        """Создание composer.json для Twig"""
-        composer = {
-            "name": "php-website-generator/twig-site",
-            "description": "Generated PHP website with Twig templates",
-            "type": "project",
-            "require": {
-                "php": ">=7.4",
-                "twig/twig": "^3.0"
-            }
-        }
-        
-        import json
-        with open(os.path.join(output_dir, 'composer.json'), 'w', encoding='utf-8') as f:
-            json.dump(composer, f, indent=4)
-        
-        print("  ✓ composer.json создан")
-    
-    def create_twig_renderer_php(self, output_dir):
-        """PHP файл для рендеринга Twig"""
-        site_name = self.blueprint.get('site_name', 'Company')
-        theme = self.blueprint.get('theme', 'business')
-        
-        if self.site_type == "landing":
-            nav = "['name' => 'Home', 'url' => 'index.php'], ['name' => 'Contact', 'url' => 'index.php#contact']"
-            footer = "['name' => 'Home', 'url' => 'index.php'], ['name' => 'Privacy', 'url' => 'privacy.php'], ['name' => 'Terms', 'url' => 'terms.php']"
-        else:
-            nav = "['name' => 'Home', 'url' => 'index.php'], ['name' => 'Company', 'url' => 'company.php'], ['name' => 'Services', 'url' => 'services.php'], ['name' => 'Blog', 'url' => 'blog1.php'], ['name' => 'Contact', 'url' => 'contact.php']"
-            footer = "['name' => 'Home', 'url' => 'index.php'], ['name' => 'Company', 'url' => 'company.php'], ['name' => 'Services', 'url' => 'services.php'], ['name' => 'Contact', 'url' => 'contact.php'], ['name' => 'Privacy', 'url' => 'privacy.php']"
-        
-        php = f"""<?php
-require_once 'vendor/autoload.php';
-
-use Twig\\Loader\\FilesystemLoader;
-use Twig\\Environment;
-
-$loader = new FilesystemLoader('templates');
-$twig = new Environment($loader, ['cache' => false]);
-
-$globalData = [
-    'site_name' => '{site_name}',
-    'theme' => '{theme}',
-    'navigation' => [{nav}],
-    'footer_links' => [{footer}]
-];
-
-$indexData = array_merge($globalData, [
-    'page_title' => 'Home',
-    'services' => [
-        ['title' => 'Service One', 'description' => 'Comprehensive solution.', 'image' => 'images/service1.jpg', 'link' => 'contact.php'],
-        ['title' => 'Service Two', 'description' => 'Professional expertise.', 'image' => 'images/service2.jpg', 'link' => 'contact.php'],
-        ['title' => 'Service Three', 'description' => 'Innovative solutions.', 'image' => 'images/service3.jpg', 'link' => 'contact.php']
-    ]
-]);
-
-file_put_contents('index_twig.php', $twig->render('pages/index.twig', $indexData));
-echo "✓ index_twig.php\n";
-
-$contactData = array_merge($globalData, ['page_title' => 'Contact Us']);
-file_put_contents('contact_twig.php', $twig->render('pages/contact.twig', $contactData));
-echo "✓ contact_twig.php\n";
-
-echo "\n✨ Twig templates rendered!\n";
-?>"""
-        
-        with open(os.path.join(output_dir, 'render_twig.php'), 'w', encoding='utf-8') as f:
-            f.write(php)
-        
-        print("  ✓ render_twig.php создан")
-    
-    def create_readme_twig(self, output_dir):
-        """README для Twig"""
-        readme = f"""# {self.blueprint.get('site_name', 'Website')} - Twig Edition
-
-🎨 Этот сайт использует **Twig Template Engine** для профессиональной работы с шаблонами.
-
-## 🚀 Быстрый старт
-
-### 1. Установка Twig
-
-```bash
-composer install
-```
-
-### 2. Рендеринг шаблонов
-
-```bash
-php render_twig.php
-```
-
-Будут созданы:
-- `index_twig.php` - главная страница
-- `contact_twig.php` - страница контактов
-
-### 3. Запуск сервера
-
-```bash
-php -S localhost:8000
-```
-
-Откройте: http://localhost:8000/index_twig.php
-
-## 📁 Структура
-
-```
-.
-├── templates/              # Twig шаблоны
-│   ├── base.twig          # Базовый layout
-│   ├── components/        # Компоненты
-│   │   ├── hero.twig
-│   │   ├── service_card.twig
-│   │   └── contact_form.twig
-│   └── pages/             # Страницы
-│       ├── index.twig
-│       └── contact.twig
-├── images/                # Изображения
-├── composer.json          # Зависимости
-└── render_twig.php        # Рендеринг
-```
-
-## 🎨 Синтаксис Twig
-
-**Переменные:**
-```twig
-{{{{ variable }}}}
-```
-
-**Условия:**
-```twig
-{{% if condition %}}...{{% endif %}}
-```
-
-**Циклы:**
-```twig
-{{% for item in items %}}...{{% endfor %}}
-```
-
-**Наследование:**
-```twig
-{{% extends "base.twig" %}}
-{{% block content %}}...{{% endblock %}}
-```
-
-**Компоненты:**
-```twig
-{{% include "components/hero.twig" %}}
-```
-
-## 📚 Документация
-
-- Twig: https://twig.symfony.com/doc/
-- Tailwind: https://tailwindcss.com/docs
-
-## ✏️ Редактирование
-
-1. Измените файлы в `templates/`
-2. Запустите `php render_twig.php`
-3. Обновите страницу в браузере
-
-## 🔧 Troubleshooting
-
-**Ошибка: "Class 'Twig' not found"**
-→ Запустите: `composer install`
-
-**Изменения не видны:**
-→ Запустите: `php render_twig.php`
-→ Очистите кэш браузера
-
-Сгенерировано PHP Website Generator v2.3 с Twig Integration
-"""
-        
-        with open(os.path.join(output_dir, 'README_TWIG.md'), 'w', encoding='utf-8') as f:
-            f.write(readme)
-        
-        print("  ✓ README_TWIG.md создан")
-    
-    # ============= КОНЕЦ МЕТОДОВ TWIG =============
-    
-    
     def generate_website(self, user_prompt, output_dir="generated_website", data_dir="data", site_type="multipage"):
         """Основной метод генерации"""
         self.site_type = site_type
         
         print("=" * 60)
-        print(f"ГЕНЕРАТОР PHP {'ЛЕНДИНГОВ' if site_type == 'landing' else 'САЙТОВ'} v2.2")
+        print(f"ГЕНЕРАТОР PHP {'ЛЕНДИНГОВ' if site_type == 'landing' else 'САЙТОВ'} v2.4")
         print("=" * 60)
         
         Path(output_dir).mkdir(exist_ok=True)
@@ -3717,15 +3444,7 @@ php -S localhost:8000
         print("\n[6/7] Изображения (под сгенерированные страницы)...")
         self.generate_images_for_site(output_dir)
 
-        print("\n[7/7] Twig шаблоны и дополнительные файлы...")
-        
-        # Создаём Twig шаблоны если включено
-        if self.use_twig:
-            self.create_twig_templates(output_dir)
-            self.create_composer_json(output_dir)
-            self.create_twig_renderer_php(output_dir)
-            self.create_readme_twig(output_dir)
-            print("  ✓ Twig интеграция завершена")
+        print("\n[7/7] Дополнительные файлы...")
         self.generate_additional_files(output_dir)
         
         print("\n" + "=" * 60)
@@ -3755,9 +3474,9 @@ php -S localhost:8000
 
 if __name__ == "__main__":
     print("╔═══════════════════════════════════════════════════════════╗")
-    print("║        ГЕНЕРАТОР PHP САЙТОВ v2.3 TWIG Edition             ║")
+    print("║        ГЕНЕРАТОР PHP САЙТОВ v2.4                          ║")
+    print("║        4 шрифта + 5 Hero вариаций + вариации страниц     ║")
     print("║        Уникальные названия + цвета + дизайны              ║")
-    print("║        Работа с папкой data (любой путь)                  ║")
     print("║        + Исправлена форма Contact и Blog страницы         ║")
     print("╚═══════════════════════════════════════════════════════════╝")
     print()
