@@ -1048,19 +1048,21 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             footer_variants_map = {1: 1, 2: 2, 4: 3, 5: 4}
             print(f"  ✓ Footer создан (вариант {footer_variants_map.get(footer_variant, footer_variant)}/4) с навигацией (без соц. сетей)")
             
-            # CSS для header и footer
+            # CSS для header и footer (обязательный footer на всех страницах)
             self.header_footer_css = f"""<script src="https://cdn.tailwindcss.com"></script>
 <style>
     * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-    html {{ height: 100%; }}
-    body {{ 
-        font-family: 'Inter', system-ui, sans-serif; 
+    html {{ height: 100%; scroll-behavior: smooth; }}
+    body {{
+        font-family: 'Inter', system-ui, sans-serif;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
     }}
-    main {{ flex: 1; }}
-    footer {{ margin-top: auto; }}
+    main {{ flex: 1 0 auto; }}
+    footer {{ flex-shrink: 0; margin-top: auto; }}
+    /* Обеспечиваем footer всегда внизу */
+    #root, .page-wrapper {{ min-height: 100vh; display: flex; flex-direction: column; }}
 </style>"""
             
             return True
@@ -1165,6 +1167,526 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             f.write(favicon_svg)
         print(f"✓ Favicon создан: {letter} ({hex_color})")
     
+    def generate_home_sections(self):
+        """Генерация случайных секций для Home страницы"""
+        site_name = self.blueprint.get('site_name', 'Company')
+        theme = self.blueprint.get('theme', 'business')
+        colors = self.blueprint.get('color_scheme', {})
+        primary = colors.get('primary', 'blue-600')
+        hover = colors.get('hover', 'blue-700')
+
+        # Все доступные секции (кроме Hero - она статична)
+        all_sections = {
+            'image_text_about': f"""
+    <!-- Секция 'Изображение и Текст': О нас -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-4xl font-bold mb-6">About Us</h2>
+                    <p class="text-gray-700 mb-4 text-lg">
+                        We are dedicated to providing exceptional {theme} services that help our clients achieve their goals.
+                        With years of experience and a commitment to excellence, we deliver results that matter.
+                    </p>
+                    <p class="text-gray-700 mb-6">
+                        Our team of professionals brings expertise, innovation, and a customer-first approach to every project.
+                        We understand that every client is unique, and we tailor our solutions to meet your specific needs.
+                    </p>
+                    <a href="about.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg font-semibold transition">
+                        Learn More
+                    </a>
+                </div>
+                <div>
+                    <img src="images/about.jpg" alt="About Us" class="rounded-xl shadow-lg w-full h-96 object-cover">
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'gallery_centered': f"""
+    <!-- Галерея: Заголовок по центру, галерея ниже -->
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4">Our Gallery</h2>
+                <p class="text-gray-600 text-lg">Explore our latest projects and achievements</p>
+            </div>
+            <div class="grid md:grid-cols-4 gap-6">
+                <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <img src="images/gallery1.jpg" alt="Gallery 1" class="w-full h-64 object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-center justify-center">
+                        <p class="text-white text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            Professional Excellence
+                        </p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <img src="images/gallery2.jpg" alt="Gallery 2" class="w-full h-64 object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-center justify-center">
+                        <p class="text-white text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            Quality Service
+                        </p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <img src="images/gallery3.jpg" alt="Gallery 3" class="w-full h-64 object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-center justify-center">
+                        <p class="text-white text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            Innovation
+                        </p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <img src="images/gallery4.jpg" alt="Gallery 4" class="w-full h-64 object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-center justify-center">
+                        <p class="text-white text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            Trusted Partner
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'cards_3_animated': f"""
+    <!-- Секция из 3 карточек с анимацией -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-12">Our Services</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="group bg-white border border-gray-200 rounded-xl p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+                    <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-{primary} transition-colors">
+                        <svg class="w-8 h-8 text-{primary} group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 group-hover:text-{primary} transition-colors">Fast Service</h3>
+                    <p class="text-gray-600 mb-6">Quick turnaround times without compromising on quality. We deliver results when you need them.</p>
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-3 rounded-lg font-semibold transition opacity-0 group-hover:opacity-100">
+                        Get Started
+                    </a>
+                </div>
+                <div class="group bg-white border border-gray-200 rounded-xl p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+                    <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-{primary} transition-colors">
+                        <svg class="w-8 h-8 text-{primary} group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 group-hover:text-{primary} transition-colors">Quality Assured</h3>
+                    <p class="text-gray-600 mb-6">Every project undergoes rigorous quality checks to ensure excellence in every detail.</p>
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-3 rounded-lg font-semibold transition opacity-0 group-hover:opacity-100">
+                        Get Started
+                    </a>
+                </div>
+                <div class="group bg-white border border-gray-200 rounded-xl p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+                    <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-{primary} transition-colors">
+                        <svg class="w-8 h-8 text-{primary} group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 group-hover:text-{primary} transition-colors">Expert Team</h3>
+                    <p class="text-gray-600 mb-6">Our experienced professionals bring knowledge and dedication to every project we undertake.</p>
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-3 rounded-lg font-semibold transition opacity-0 group-hover:opacity-100">
+                        Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'image_text_alternating': f"""
+    <!-- Секция 'Изображение и Текст': чередующиеся блоки -->
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <!-- Блок 1: Изображение слева, текст справа -->
+            <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
+                <div>
+                    <img src="images/service1.jpg" alt="Our Approach" class="rounded-xl shadow-lg w-full h-80 object-cover">
+                </div>
+                <div>
+                    <h3 class="text-3xl font-bold mb-4">Our Approach</h3>
+                    <p class="text-gray-700 mb-4">
+                        We believe in a personalized approach to every project. Understanding your unique needs
+                        allows us to deliver tailored solutions that exceed expectations.
+                    </p>
+                    <p class="text-gray-700">
+                        Our methodology combines industry best practices with innovative thinking to ensure
+                        optimal results for your business.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Блок 2: Текст слева, изображение справа -->
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h3 class="text-3xl font-bold mb-4">Why Choose Us</h3>
+                    <p class="text-gray-700 mb-4">
+                        With years of experience in the {theme} industry, we've built a reputation for
+                        reliability, quality, and exceptional customer service.
+                    </p>
+                    <p class="text-gray-700">
+                        Our commitment to your success drives everything we do, from initial consultation
+                        to project completion and beyond.
+                    </p>
+                </div>
+                <div>
+                    <img src="images/service2.jpg" alt="Why Choose Us" class="rounded-xl shadow-lg w-full h-80 object-cover">
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'cards_6_grid': f"""
+    <!-- Секция из 6 карточек: два ряда по три -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-4">What We Offer</h2>
+            <p class="text-gray-600 text-center mb-12 text-lg">Comprehensive solutions tailored to your needs</p>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
+                    <h4 class="text-xl font-bold mb-3">Consultation</h4>
+                    <p class="text-gray-600 mb-4">Expert advice to help you make informed decisions about your project.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                        Learn More →
+                    </a>
+                </div>
+                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
+                    <h4 class="text-xl font-bold mb-3">Planning</h4>
+                    <p class="text-gray-600 mb-4">Strategic planning to ensure your project's success from start to finish.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                        Learn More →
+                    </a>
+                </div>
+                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
+                    <h4 class="text-xl font-bold mb-3">Implementation</h4>
+                    <p class="text-gray-600 mb-4">Professional execution with attention to every detail of your project.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                        Learn More →
+                    </a>
+                </div>
+                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
+                    <h4 class="text-xl font-bold mb-3">Testing</h4>
+                    <p class="text-gray-600 mb-4">Thorough testing to ensure quality and reliability in all deliverables.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                        Learn More →
+                    </a>
+                </div>
+                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
+                    <h4 class="text-xl font-bold mb-3">Support</h4>
+                    <p class="text-gray-600 mb-4">Ongoing support to help you get the most from your investment.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                        Learn More →
+                    </a>
+                </div>
+                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
+                    <h4 class="text-xl font-bold mb-3">Optimization</h4>
+                    <p class="text-gray-600 mb-4">Continuous improvement to keep your solution performing at its best.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                        Learn More →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'gallery_horizontal': f"""
+    <!-- Галерея: горизонтальная галерея из 4-5 карточек -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold mb-12">Our Work</h2>
+            <div class="grid md:grid-cols-5 gap-4">
+                <div class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                    <img src="images/gallery1.jpg" alt="Project 1" class="w-full h-48 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                        <p class="text-white font-semibold">Project Alpha</p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                    <img src="images/gallery2.jpg" alt="Project 2" class="w-full h-48 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                        <p class="text-white font-semibold">Project Beta</p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                    <img src="images/gallery3.jpg" alt="Project 3" class="w-full h-48 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                        <p class="text-white font-semibold">Project Gamma</p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                    <img src="images/gallery4.jpg" alt="Project 4" class="w-full h-48 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                        <p class="text-white font-semibold">Project Delta</p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                    <img src="images/service1.jpg" alt="Project 5" class="w-full h-48 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                        <p class="text-white font-semibold">Project Epsilon</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'cards_3_carousel_bg': f"""
+    <!-- Секция из 3 карточек с фоновой каруселью -->
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-12">Featured Solutions</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="relative overflow-hidden rounded-xl shadow-lg h-96 group">
+                    <img src="images/service1.jpg" alt="Solution 1" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                    <div class="relative h-full flex flex-col justify-end p-8">
+                        <h3 class="text-white text-2xl font-bold mb-3">Enterprise Solutions</h3>
+                        <p class="text-white/90 mb-4">Scalable solutions designed for large-scale operations and complex requirements.</p>
+                        <a href="contact.php" class="inline-block bg-white text-{primary} px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition w-fit">
+                            Contact Us
+                        </a>
+                    </div>
+                </div>
+                <div class="relative overflow-hidden rounded-xl shadow-lg h-96 group">
+                    <img src="images/service2.jpg" alt="Solution 2" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                    <div class="relative h-full flex flex-col justify-end p-8">
+                        <h3 class="text-white text-2xl font-bold mb-3">Custom Development</h3>
+                        <p class="text-white/90 mb-4">Tailored solutions built specifically for your unique business needs and goals.</p>
+                        <a href="contact.php" class="inline-block bg-white text-{primary} px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition w-fit">
+                            Contact Us
+                        </a>
+                    </div>
+                </div>
+                <div class="relative overflow-hidden rounded-xl shadow-lg h-96 group">
+                    <img src="images/service3.jpg" alt="Solution 3" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                    <div class="relative h-full flex flex-col justify-end p-8">
+                        <h3 class="text-white text-2xl font-bold mb-3">Consulting Services</h3>
+                        <p class="text-white/90 mb-4">Expert guidance to help you navigate challenges and achieve your objectives.</p>
+                        <a href="contact.php" class="inline-block bg-white text-{primary} px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition w-fit">
+                            Contact Us
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'carousel_workflow': f"""
+    <!-- Карусель: этапы работы -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-4">Our Process</h2>
+            <p class="text-gray-600 text-center mb-12 text-lg">Simple, transparent, and effective</p>
+            <div class="relative max-w-5xl mx-auto">
+                <div class="grid md:grid-cols-4 gap-6">
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-{primary} rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold shadow-lg">
+                            1
+                        </div>
+                        <div class="w-12 h-12 bg-{primary}/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="font-bold mb-2">Consultation</h4>
+                        <p class="text-gray-600 text-sm">We discuss your needs and goals</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-{primary} rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold shadow-lg">
+                            2
+                        </div>
+                        <div class="w-12 h-12 bg-{primary}/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                        </div>
+                        <h4 class="font-bold mb-2">Planning</h4>
+                        <p class="text-gray-600 text-sm">We create a detailed project plan</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-{primary} rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold shadow-lg">
+                            3
+                        </div>
+                        <div class="w-12 h-12 bg-{primary}/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                            </svg>
+                        </div>
+                        <h4 class="font-bold mb-2">Development</h4>
+                        <p class="text-gray-600 text-sm">We build your solution</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-{primary} rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold shadow-lg">
+                            4
+                        </div>
+                        <div class="w-12 h-12 bg-{primary}/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <h4 class="font-bold mb-2">Delivery</h4>
+                        <p class="text-gray-600 text-sm">We deliver and support your project</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'carousel_blog': f"""
+    <!-- Карусель: слайдер с новостями/статьями из блога -->
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="flex justify-between items-center mb-12">
+                <h2 class="text-4xl font-bold">Latest from Our Blog</h2>
+                <a href="blog.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                    View All →
+                </a>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <article class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+                    <img src="images/service1.jpg" alt="Blog Post 1" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <p class="text-gray-500 text-sm mb-2">November 15, 2025</p>
+                        <h3 class="text-xl font-bold mb-3">The Future of {theme}</h3>
+                        <p class="text-gray-600 mb-4">Explore the latest innovations and what they mean for your business...</p>
+                        <a href="blog1.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                            Read More →
+                        </a>
+                    </div>
+                </article>
+                <article class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+                    <img src="images/service2.jpg" alt="Blog Post 2" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <p class="text-gray-500 text-sm mb-2">November 10, 2025</p>
+                        <h3 class="text-xl font-bold mb-3">Top 5 Trends in {theme}</h3>
+                        <p class="text-gray-600 mb-4">Stay competitive with these emerging trends in the industry...</p>
+                        <a href="blog2.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                            Read More →
+                        </a>
+                    </div>
+                </article>
+                <article class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+                    <img src="images/service3.jpg" alt="Blog Post 3" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <p class="text-gray-500 text-sm mb-2">November 5, 2025</p>
+                        <h3 class="text-xl font-bold mb-3">How to Choose the Right Service</h3>
+                        <p class="text-gray-600 mb-4">A comprehensive guide to selecting the best solution for your needs...</p>
+                        <a href="blog3.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                            Read More →
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>""",
+
+            'contact_form_multistep': f"""
+    <!-- Контактная форма: многошаговая -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6 max-w-3xl">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4">Get Started Today</h2>
+                <p class="text-gray-600 text-lg">Tell us about your project in 3 simple steps</p>
+            </div>
+            <div class="bg-gray-50 rounded-xl p-8 shadow-lg">
+                <!-- Progress Steps -->
+                <div class="flex justify-between mb-8">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-{primary} text-white rounded-full flex items-center justify-center font-bold">1</div>
+                        <span class="ml-2 font-semibold text-{primary}">Contact Info</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gray-300 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                        <span class="ml-2 text-gray-500">Project Details</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gray-300 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                        <span class="ml-2 text-gray-500">Submit</span>
+                    </div>
+                </div>
+                <!-- Form -->
+                <form action="thanks_you.php" method="POST" class="space-y-6">
+                    <div>
+                        <label for="name" class="block text-gray-700 font-semibold mb-2">Your Name</label>
+                        <input type="text" id="name" name="name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-gray-700 font-semibold mb-2">Your Email</label>
+                        <input type="email" id="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent">
+                    </div>
+                    <div>
+                        <label for="message" class="block text-gray-700 font-semibold mb-2">Tell Us About Your Project</label>
+                        <textarea id="message" name="message" rows="4" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-{primary} hover:bg-{hover} text-white py-4 rounded-lg text-lg font-semibold transition">
+                        Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>""",
+
+            'cards_6_slider': f"""
+    <!-- Секция из 6 карточек: слайдер -->
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="flex justify-between items-center mb-12">
+                <h2 class="text-4xl font-bold">Our Locations</h2>
+                <div class="flex gap-4">
+                    <button class="w-10 h-10 bg-{primary} text-white rounded-full flex items-center justify-center hover:bg-{hover} transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <button class="w-10 h-10 bg-{primary} text-white rounded-full flex items-center justify-center hover:bg-{hover} transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
+                    <img src="images/gallery1.jpg" alt="Location 1" class="w-full h-40 object-cover rounded-lg mb-4">
+                    <h4 class="text-xl font-bold mb-2">New York Office</h4>
+                    <p class="text-gray-600 mb-4">Our headquarters serving the East Coast market with dedicated professionals.</p>
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
+                        Contact
+                    </a>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
+                    <img src="images/gallery2.jpg" alt="Location 2" class="w-full h-40 object-cover rounded-lg mb-4">
+                    <h4 class="text-xl font-bold mb-2">San Francisco Office</h4>
+                    <p class="text-gray-600 mb-4">West Coast hub bringing innovation and technology expertise to your doorstep.</p>
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
+                        Contact
+                    </a>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
+                    <img src="images/gallery3.jpg" alt="Location 3" class="w-full h-40 object-cover rounded-lg mb-4">
+                    <h4 class="text-xl font-bold mb-2">Chicago Office</h4>
+                    <p class="text-gray-600 mb-4">Central location serving clients across the Midwest with excellence.</p>
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
+                        Contact
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>"""
+        }
+
+        # Выбираем 5-6 случайных секций
+        section_keys = list(all_sections.keys())
+        random.shuffle(section_keys)
+        num_sections = random.randint(5, 6)
+        selected_sections = section_keys[:num_sections]
+
+        print(f"  ✓ Выбрано {num_sections} случайных секций для Home страницы: {', '.join(selected_sections)}")
+
+        # Возвращаем выбранные секции
+        return '\n'.join([all_sections[key] for key in selected_sections])
+
     def generate_page(self, page_name, output_dir):
         """Генерация страницы с максимальным качеством"""
         site_name = self.blueprint.get('site_name', 'Company')
@@ -1289,19 +1811,59 @@ Return ONLY the content for <main> tag."""
         if not config:
             print(f"    ⚠️  Неизвестная страница: {page_name}")
             return False
-        
-        # Генерируем контент через API
-        print(f"    📝 Генерация контента для {page_name}...")
-        response = self.call_api(config['prompt'], max_tokens=8000)
-        
-        if response:
-            main_content = self.clean_code_response(response)
-            # Оборачиваем в main если нужно
-            if not main_content.strip().startswith('<main'):
-                main_content = f"<main>\n{main_content}\n</main>"
+
+        # Для index страницы используем готовые секции со случайным выбором
+        if page_name == 'index':
+            print(f"    📝 Генерация Home страницы со случайными секциями...")
+            primary = colors.get('primary', 'blue-600')
+            hover = colors.get('hover', 'blue-700')
+
+            # Hero секция (статичная - всегда присутствует)
+            hero_section = f"""<main>
+    <!-- Hero Section (Static) -->
+    <section class="relative py-32 bg-gradient-to-br from-{primary}/10 via-white to-{primary}/5">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-{primary} to-{hover} bg-clip-text text-transparent">
+                    Welcome to {site_name}
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-600 mb-8">
+                    Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                        Get Started
+                    </a>
+                    <a href="about.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition">
+                        Learn More
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Decorative elements -->
+        <div class="absolute top-0 right-0 w-64 h-64 bg-{primary}/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-{hover}/10 rounded-full blur-3xl"></div>
+    </section>
+"""
+
+            # Добавляем случайные секции
+            random_sections = self.generate_home_sections()
+
+            # Собираем main_content
+            main_content = hero_section + random_sections + "\n</main>"
         else:
-            print(f"    ⚠️  API не ответил, используется fallback")
-            main_content = self.generate_fallback_content(page_name, site_name, colors)
+            # Генерируем контент через API для других страниц
+            print(f"    📝 Генерация контента для {page_name}...")
+            response = self.call_api(config['prompt'], max_tokens=8000)
+
+            if response:
+                main_content = self.clean_code_response(response)
+                # Оборачиваем в main если нужно
+                if not main_content.strip().startswith('<main'):
+                    main_content = f"<main>\n{main_content}\n</main>"
+            else:
+                print(f"    ⚠️  API не ответил, используется fallback")
+                main_content = self.generate_fallback_content(page_name, site_name, colors)
         
         # КРИТИЧЕСКИ ВАЖНО: Проверяем, что header и footer созданы
         if not self.header_code or not self.footer_code:
@@ -1570,39 +2132,39 @@ Return ONLY the content for <main> tag."""
         return fallbacks.get(page_name, f'<main><section class="py-20"><div class="container mx-auto px-6 text-center"><h1 class="text-4xl font-bold">{page_name.title()}</h1></div></section></main>')
     
     def generate_blog_page(self, page_name, output_dir):
-        """Генерация blog страниц с готовым контентом и переадресацией на Contact"""
+        """Генерация blog страниц с вариациями (с/без картинки, с/без стрелок)"""
         site_name = self.blueprint.get('site_name', 'Company')
         theme = self.blueprint.get('theme', 'business')
         colors = self.blueprint.get('color_scheme', {})
         primary = colors.get('primary', 'blue-600')
         hover = colors.get('hover', 'blue-700')
-        
+
         blog_titles = {
             'blog1': f'The Future of {theme}',
             'blog2': f'Top 5 Trends in {theme}',
             'blog3': f'How to Choose the Right {theme} Service'
         }
-        
+
         blog_contents = {
             'blog1': f"""
             <p class="text-lg text-gray-700 mb-6">
-                The {theme} industry is evolving rapidly, and staying ahead of the curve is essential for success. 
+                The {theme} industry is evolving rapidly, and staying ahead of the curve is essential for success.
                 In this article, we explore the latest innovations and what they mean for your business.
             </p>
             <h2 class="text-2xl font-bold mt-8 mb-4">Key Innovations</h2>
             <p class="text-gray-700 mb-6">
-                Recent technological advances have transformed how we approach {theme}. From automation to 
+                Recent technological advances have transformed how we approach {theme}. From automation to
                 personalized services, the landscape is changing faster than ever before.
             </p>
             <h2 class="text-2xl font-bold mt-8 mb-4">What This Means For You</h2>
             <p class="text-gray-700 mb-6">
-                Understanding these changes can help you make better decisions for your needs. Whether you're 
+                Understanding these changes can help you make better decisions for your needs. Whether you're
                 looking to upgrade your current setup or start fresh, staying informed is crucial.
             </p>
             """,
             'blog2': f"""
             <p class="text-lg text-gray-700 mb-6">
-                The {theme} sector is constantly evolving. Here are the top 5 trends you need to know about 
+                The {theme} sector is constantly evolving. Here are the top 5 trends you need to know about
                 to stay competitive in today's market.
             </p>
             <h2 class="text-2xl font-bold mt-8 mb-4">1. Digital Transformation</h2>
@@ -1620,77 +2182,114 @@ Return ONLY the content for <main> tag."""
             """,
             'blog3': f"""
             <p class="text-lg text-gray-700 mb-6">
-                Choosing the right {theme} service can be challenging. This guide will help you make an 
+                Choosing the right {theme} service can be challenging. This guide will help you make an
                 informed decision that's right for your needs.
             </p>
             <h2 class="text-2xl font-bold mt-8 mb-4">Assess Your Needs</h2>
             <p class="text-gray-700 mb-6">
-                Start by clearly defining what you need from a {theme} service. Consider your budget, 
+                Start by clearly defining what you need from a {theme} service. Consider your budget,
                 timeline, and specific requirements.
             </p>
             <h2 class="text-2xl font-bold mt-8 mb-4">Research Options</h2>
             <p class="text-gray-700 mb-6">
-                Take time to research different providers and compare their offerings. Look for reviews, 
+                Take time to research different providers and compare their offerings. Look for reviews,
                 testimonials, and case studies.
             </p>
             <h2 class="text-2xl font-bold mt-8 mb-4">Make Contact</h2>
             <p class="text-gray-700 mb-6">
-                Don't hesitate to reach out to providers directly. A good consultation can help you 
+                Don't hesitate to reach out to providers directly. A good consultation can help you
                 determine if they're the right fit for your needs.
             </p>
             """
         }
-        
+
+        blog_images = {
+            'blog1': 'images/service1.jpg',
+            'blog2': 'images/service2.jpg',
+            'blog3': 'images/service3.jpg'
+        }
+
         # Определяем навигацию между blog страницами
         blog_nav = {
             'blog1': {'prev': None, 'next': 'blog2.php'},
             'blog2': {'prev': 'blog1.php', 'next': 'blog3.php'},
             'blog3': {'prev': 'blog2.php', 'next': None}
         }
-        
+
+        # Вариации: blog1 - без картинки со стрелками, blog2 - с картинкой без стрелок, blog3 - без картинки без стрелок
+        blog_variations = {
+            'blog1': {'has_image': False, 'has_arrows': True},
+            'blog2': {'has_image': True, 'has_arrows': False},
+            'blog3': {'has_image': False, 'has_arrows': False}
+        }
+
         current_nav = blog_nav.get(page_name, {'prev': None, 'next': None})
-        
-        # Создаем навигационные кнопки
-        nav_buttons = '<div class="flex justify-between items-center mt-12 pt-8 border-t border-gray-200">'
-        
-        if current_nav['prev']:
-            nav_buttons += f'''
-                <a href="{current_nav['prev']}" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                    Previous Article
-                </a>
-            '''
+        current_variation = blog_variations.get(page_name, {'has_image': True, 'has_arrows': True})
+
+        # Создаем навигационные кнопки (только если has_arrows=True)
+        nav_buttons = ''
+        if current_variation['has_arrows']:
+            nav_buttons = '<div class="flex justify-between items-center mt-12 pt-8 border-t border-gray-200">'
+
+            if current_nav['prev']:
+                nav_buttons += f'''
+                    <a href="{current_nav['prev']}" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Previous Article
+                    </a>
+                '''
+            else:
+                nav_buttons += '<div></div>'
+
+            if current_nav['next']:
+                nav_buttons += f'''
+                    <a href="{current_nav['next']}" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition">
+                        Next Article
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                '''
+            else:
+                nav_buttons += '<div></div>'
+
+            nav_buttons += '</div>'
         else:
-            nav_buttons += '<div></div>'
-        
-        if current_nav['next']:
-            nav_buttons += f'''
-                <a href="{current_nav['next']}" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition">
-                    Next Article
-                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </a>
-            '''
-        else:
-            nav_buttons += '<div></div>'
-        
-        nav_buttons += '</div>'
-        
+            # Без стрелок - простые текстовые ссылки
+            nav_links = []
+            if current_nav['prev']:
+                nav_links.append(f'<a href="{current_nav["prev"]}" class="text-{primary} hover:text-{hover} font-semibold transition">Previous Article</a>')
+            if current_nav['next']:
+                nav_links.append(f'<a href="{current_nav["next"]}" class="text-{primary} hover:text-{hover} font-semibold transition">Next Article</a>')
+
+            if nav_links:
+                nav_buttons = f'<div class="flex justify-between items-center mt-12 pt-8 border-t border-gray-200">{" <span class=\"text-gray-400\">|</span> ".join(nav_links)}</div>'
+
+        # Создаем секцию с картинкой (если has_image=True)
+        image_section = ''
+        if current_variation['has_image']:
+            image_section = f'''
+        <div class="mb-8 rounded-xl overflow-hidden">
+            <img src="{blog_images[page_name]}" alt="{blog_titles[page_name]}" class="w-full h-96 object-cover">
+        </div>
+        '''
+
         main_content = f"""<main>
 <section class="py-20 bg-white">
     <div class="container mx-auto px-6 max-w-4xl">
         <h1 class="text-4xl md:text-5xl font-bold mb-4">{blog_titles[page_name]}</h1>
         <p class="text-gray-500 mb-8">Published on November 15, 2025 by {site_name} Team</p>
-        
+
+        {image_section}
+
         <div class="prose prose-lg max-w-none">
             {blog_contents[page_name]}
         </div>
-        
+
         {nav_buttons}
-        
+
         <!-- Call to Action -->
         <div class="mt-12 p-8 bg-gradient-to-br from-{primary}/10 to-{primary}/5 rounded-xl text-center">
             <h3 class="text-2xl font-bold mb-4">Interested in Our Services?</h3>
