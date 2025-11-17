@@ -542,6 +542,36 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 f.write(minimal_jpeg)
             return filename
     
+    def get_theme_specific_keywords(self, theme):
+        """Получение специфичных ключевых слов для темы/индустрии"""
+        theme_lower = theme.lower()
+
+        # Словарь специфичных элементов для каждой темы
+        theme_keywords = {
+            'travel': 'landmarks, destinations, scenic views, tourists exploring, vacation activities, cultural sites',
+            'tourism': 'tourist attractions, travel destinations, sightseeing, cultural experiences, adventure activities',
+            'hotel': 'hotel lobby, luxury rooms, hospitality services, comfortable accommodations, hotel amenities',
+            'restaurant': 'restaurant interior, food presentation, dining experience, culinary dishes, chef cooking',
+            'cafe': 'coffee shop atmosphere, barista, cozy seating, beverages, pastries display',
+            'bookstore': 'bookshelves, reading corner, book displays, literary atmosphere, customers browsing books',
+            'fitness': 'gym equipment, people exercising, workout sessions, athletic training, fitness activities',
+            'healthcare': 'medical facility, healthcare professionals, patient care, medical equipment, clinical environment',
+            'education': 'classroom, students learning, educational materials, teaching sessions, academic environment',
+            'technology': 'modern tech, digital innovation, computer systems, technological solutions, software development',
+            'it': 'computer technology, IT infrastructure, digital solutions, tech workspace, coding environment',
+            'real estate': 'properties, buildings, architecture, real estate showcase, interior spaces, home exteriors',
+            'shop': 'retail store, product displays, shopping experience, merchandise, customer service',
+            'ecommerce': 'online shopping, product photography, delivery, e-commerce platform, digital marketplace'
+        }
+
+        # Поиск подходящих ключевых слов
+        for key, keywords in theme_keywords.items():
+            if key in theme_lower:
+                return keywords
+
+        # Fallback для общих бизнес-тем
+        return 'professional setting, business environment, service quality, modern approach, industry-specific elements'
+
     def generate_images_for_site(self, output_dir):
         """Генерация уникальных изображений для каждой страницы сайта в папке images/"""
         # Создаем папку images
@@ -550,76 +580,80 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
 
         theme = self.blueprint.get('theme', 'business')
         site_name = self.blueprint.get('site_name', 'Company')
+        country = self.blueprint.get('country', 'USA')
 
-        # УНИКАЛЬНЫЕ изображения для каждой страницы
+        # Получаем специфичные ключевые слова для темы
+        theme_keywords = self.get_theme_specific_keywords(theme)
+
+        # УНИКАЛЬНЫЕ изображения для каждой страницы с КОНТЕКСТОМ темы
         images_to_generate = [
             # Главная страница - hero banner
             {
                 'filename': 'hero.jpg',
-                'prompt': f"Professional wide panoramic banner photo for {theme} business, modern office environment, clean background, bright lighting"
+                'prompt': f"Wide panoramic photo showcasing {theme} in {country}, featuring {theme_keywords}, professional photography, attractive composition"
             },
-            # О нас - команда
+            # О нас - команда или характерная сцена
             {
                 'filename': 'about.jpg',
-                'prompt': f"Professional team photo for {theme} company, diverse professionals working together, natural office setting, collaborative atmosphere"
+                'prompt': f"Professional photo representing {theme} business in {country}, {theme_keywords}, authentic atmosphere, welcoming scene"
             },
-            # Услуги - уникальные изображения для каждой услуги
+            # Услуги - специфичные для темы
             {
                 'filename': 'service1.jpg',
-                'prompt': f"First {theme} service visualization, professional workspace with modern equipment, detailed close-up view"
+                'prompt': f"First aspect of {theme} services, {theme_keywords}, detailed view, high quality, characteristic elements of {theme}"
             },
             {
                 'filename': 'service2.jpg',
-                'prompt': f"Second {theme} service concept, teamwork and collaboration in action, medium shot of professionals"
+                'prompt': f"Second aspect of {theme} offerings, {theme_keywords}, different perspective, showcasing variety in {theme}"
             },
             {
                 'filename': 'service3.jpg',
-                'prompt': f"Third {theme} service representation, innovation and technology focus, futuristic workplace scene"
+                'prompt': f"Third aspect of {theme} experience, {theme_keywords}, unique angle, highlighting {theme} quality"
             },
-            # Галерея - разнообразные композиции
+            # Галерея - разнообразные сцены из индустрии
             {
                 'filename': 'gallery1.jpg',
-                'prompt': f"Showcase photo for {theme} portfolio, interesting creative composition, wide angle view"
+                'prompt': f"Showcase image for {theme}, {theme_keywords}, creative composition, wide angle, representing {theme} in {country}"
             },
             {
                 'filename': 'gallery2.jpg',
-                'prompt': f"Professional {theme} project example, different perspective and angle, architectural shot"
+                'prompt': f"Portfolio photo for {theme}, {theme_keywords}, different angle, architectural or environmental context"
             },
             {
                 'filename': 'gallery3.jpg',
-                'prompt': f"Quality {theme} work demonstration, macro detail shot, professional lighting"
+                'prompt': f"Detail shot for {theme}, {theme_keywords}, close-up view, emphasizing quality and craftsmanship"
             },
             {
                 'filename': 'gallery4.jpg',
-                'prompt': f"Professional {theme} showcase final, panoramic overview, impressive scale"
+                'prompt': f"Panoramic showcase for {theme}, {theme_keywords}, impressive scale, overview perspective"
             },
-            # БЛОГ - ТРИ РАЗНЫЕ картинки для статей блога
+            # БЛОГ - контентные изображения по теме
             {
                 'filename': 'blog1.jpg',
-                'prompt': f"First blog article image for {theme}, professional writing and content creation scene, inspiring workspace with laptop and notebooks, creative atmosphere"
+                'prompt': f"Blog header for {theme} article, {theme_keywords}, editorial style, engaging composition related to {theme}"
             },
             {
                 'filename': 'blog2.jpg',
-                'prompt': f"Second blog article image for {theme}, modern office collaboration and brainstorming session, team discussing ideas, innovative workspace"
+                'prompt': f"Second blog image for {theme} content, {theme_keywords}, informative visual, different aspect of {theme}"
             },
             {
                 'filename': 'blog3.jpg',
-                'prompt': f"Third blog article image for {theme}, professional presentation and strategy planning, business meeting with charts and documents"
+                'prompt': f"Third blog illustration for {theme}, {theme_keywords}, story-telling image, authentic {theme} scene"
             },
-            # Контакты
+            # Контакты - приглашающая сцена
             {
                 'filename': 'contact.jpg',
-                'prompt': f"Contact page image for {theme} business, welcoming office reception area, friendly professional environment"
+                'prompt': f"Contact page image for {theme}, {theme_keywords}, welcoming atmosphere, inviting environment for {theme} business"
             },
-            # Privacy/Terms/Cookie - профессиональная документация
+            # Privacy - абстрактная безопасность
             {
                 'filename': 'privacy.jpg',
-                'prompt': f"Privacy policy concept for {theme}, data security and protection visualization, abstract professional design"
+                'prompt': f"Privacy and security concept, abstract professional design, data protection visualization, trust and confidentiality"
             },
             # Страница благодарности
             {
                 'filename': 'thanks.jpg',
-                'prompt': f"Thank you page image for {theme} company, celebration and success visualization, positive atmosphere"
+                'prompt': f"Thank you image for {theme} business, {theme_keywords}, positive atmosphere, celebration and satisfaction"
             }
         ]
 
