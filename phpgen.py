@@ -22,9 +22,9 @@ class PHPWebsiteGenerator:
         
         self.api_url = "https://openrouter.ai/api/v1/chat/completions"
         self.code_model = "google/gemini-2.5-pro"
-        self.max_tokens = 8000  
+        self.max_tokens = 16000  # Максимальное количество токенов
         self.use_symfony = False
-        self.use_twig = True  # Использовать Twig Template Engine
+        self.use_twig = False  # НЕ использовать Twig Template Engine
         self.site_type = "landing"  # "landing" или "multipage"
         self.blueprint = {}
         self.header_code = ""
@@ -45,13 +45,13 @@ class PHPWebsiteGenerator:
         )
         print(f"✓ Ark SDK готов\n")
         
-    def call_api(self, prompt, max_tokens=8000, model=None):
+    def call_api(self, prompt, max_tokens=16000, model=None):
         """Вызов API OpenRouter с retry логикой и обработкой всех типов ошибок"""
         if model is None:
             model = self.code_model
-        
-        if max_tokens > 8000:
-            max_tokens = 8000  # Ограничение для бесплатной модели
+
+        if max_tokens > 16000:
+            max_tokens = 16000  # Максимальное количество токенов
             
         headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -389,12 +389,28 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
     def generate_image_via_bytedance(self, prompt, filename, output_dir):
         """Генерация изображения через ByteDance Ark SDK"""
         print(f"    🎨 {filename}...", end=" ", flush=True)
-        
+
         try:
+            # Определяем этническую принадлежность для людей на изображениях
+            country = self.blueprint.get('country', 'USA')
+            european_countries = [
+                'USA', 'UK', 'Germany', 'France', 'Italy', 'Spain', 'Poland',
+                'Netherlands', 'Belgium', 'Austria', 'Switzerland', 'Sweden',
+                'Norway', 'Denmark', 'Finland', 'Ireland', 'Portugal', 'Greece',
+                'Czech Republic', 'Hungary', 'Romania', 'Bulgaria', 'Croatia',
+                'Slovakia', 'Slovenia', 'Lithuania', 'Latvia', 'Estonia', 'Luxembourg'
+            ]
+
+            # Если страна США или европейская, добавляем указание на европеоидов
+            ethnicity_hint = ""
+            if country in european_countries:
+                ethnicity_hint = ", people of European descent, Caucasian"
+
             # Генерация изображения через Ark API
+            # КРИТИЧЕСКИ ВАЖНО: строго запрещаем любой текст в изображениях
             imagesResponse = self.ark_client.images.generate(
                 model="seedream-4-0-250828",
-                prompt=f"{prompt}, professional photography, high quality, photorealistic, 4K, no text, no words, no letters",
+                prompt=f"{prompt}{ethnicity_hint}, professional photography, high quality, photorealistic, 4K, absolutely no text, no words, no letters, no numbers, no signs, no writing of any kind",
                 response_format="url",
                 size="2K",
                 stream=True,
@@ -505,55 +521,80 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             return filename
     
     def generate_images_for_site(self, output_dir):
-        """Генерация изображений для сайта в папке images/"""
+        """Генерация уникальных изображений для каждой страницы сайта в папке images/"""
         # Создаем папку images
         images_dir = os.path.join(output_dir, 'images')
         os.makedirs(images_dir, exist_ok=True)
-        
+
         theme = self.blueprint.get('theme', 'business')
         site_name = self.blueprint.get('site_name', 'Company')
-        
+
+        # УНИКАЛЬНЫЕ изображения для каждой страницы
         images_to_generate = [
+            # Главная страница - hero banner
             {
                 'filename': 'hero.jpg',
-                'prompt': f"Professional wide banner photo for {theme}, clean background, photorealistic"
+                'prompt': f"Professional wide panoramic banner photo for {theme} business, modern office environment, clean background, bright lighting"
             },
+            # О нас - команда
             {
                 'filename': 'about.jpg',
-                'prompt': f"Professional business photo for {theme}, people in natural setting"
+                'prompt': f"Professional team photo for {theme} company, diverse professionals working together, natural office setting, collaborative atmosphere"
             },
+            # Услуги - уникальные изображения для каждой услуги
             {
                 'filename': 'service1.jpg',
-                'prompt': f"{theme} service illustration, professional, clean design"
+                'prompt': f"First {theme} service visualization, professional workspace with modern equipment, detailed close-up view"
             },
             {
                 'filename': 'service2.jpg',
-                'prompt': f"{theme} teamwork, collaboration, modern office"
+                'prompt': f"Second {theme} service concept, teamwork and collaboration in action, medium shot of professionals"
             },
             {
                 'filename': 'service3.jpg',
-                'prompt': f"{theme} innovation, technology, future"
+                'prompt': f"Third {theme} service representation, innovation and technology focus, futuristic workplace scene"
             },
+            # Галерея - разнообразные композиции
             {
                 'filename': 'gallery1.jpg',
-                'prompt': f"Showcase photo for {theme}, interesting composition"
+                'prompt': f"Showcase photo for {theme} portfolio, interesting creative composition, wide angle view"
             },
             {
                 'filename': 'gallery2.jpg',
-                'prompt': f"Professional image for {theme}, different angle"
+                'prompt': f"Professional {theme} project example, different perspective and angle, architectural shot"
             },
             {
                 'filename': 'gallery3.jpg',
-                'prompt': f"Quality service photo for {theme}"
+                'prompt': f"Quality {theme} work demonstration, macro detail shot, professional lighting"
             },
             {
                 'filename': 'gallery4.jpg',
-                'prompt': f"Professional showcase for {theme}"
+                'prompt': f"Professional {theme} showcase final, panoramic overview, impressive scale"
+            },
+            # БЛОГ - одно изображение для главной страницы блога и всех статей
+            {
+                'filename': 'blog.jpg',
+                'prompt': f"Blog header image for {theme} articles, professional writing and content creation scene, inspiring workspace with laptop and notebooks"
+            },
+            # Контакты
+            {
+                'filename': 'contact.jpg',
+                'prompt': f"Contact page image for {theme} business, welcoming office reception area, friendly professional environment"
+            },
+            # Privacy/Terms/Cookie - профессиональная документация
+            {
+                'filename': 'privacy.jpg',
+                'prompt': f"Privacy policy concept for {theme}, data security and protection visualization, abstract professional design"
+            },
+            # Страница благодарности
+            {
+                'filename': 'thanks.jpg',
+                'prompt': f"Thank you page image for {theme} company, celebration and success visualization, positive atmosphere"
             }
         ]
-        
+
         self.generated_images = []
-        
+
         for img_data in images_to_generate:
             # Сначала пробуем ByteDance
             result = self.generate_image_via_bytedance(
@@ -561,7 +602,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 img_data['filename'],
                 images_dir  # Изображения в папке images/
             )
-            
+
             # Если не получилось, создаем placeholder
             if not result:
                 result = self.generate_placeholder_image(
@@ -569,7 +610,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                     images_dir,  # Изображения в папке images/
                     img_data['prompt']
                 )
-            
+
             if result:
                 # Сохраняем путь с префиксом images/
                 self.generated_images.append(f"images/{result}")
@@ -1177,8 +1218,12 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         
         # Для blog страниц используем готовый контент
         if page_name in ['blog1', 'blog2', 'blog3']:
-            return self.generate_blog_page(page_name, output_dir)
-        
+            # Генерируем обычную версию с навигацией
+            self.generate_blog_page(page_name, output_dir)
+            # Генерируем вариацию БЕЗ навигационных стрелок
+            self.generate_blog_page_no_nav(page_name, output_dir)
+            return True
+
         # Для главной страницы blog (список статей)
         if page_name == 'blog':
             return self.generate_blog_main_page(output_dir)
@@ -1684,11 +1729,16 @@ Return ONLY the content for <main> tag."""
     <div class="container mx-auto px-6 max-w-4xl">
         <h1 class="text-4xl md:text-5xl font-bold mb-4">{blog_titles[page_name]}</h1>
         <p class="text-gray-500 mb-8">Published on November 15, 2025 by {site_name} Team</p>
-        
+
+        <!-- Изображение блога (одинаковое для всех статей) -->
+        <div class="mb-8 rounded-xl overflow-hidden shadow-lg">
+            <img src="images/blog.jpg" alt="{blog_titles[page_name]}" class="w-full h-auto object-cover">
+        </div>
+
         <div class="prose prose-lg max-w-none">
             {blog_contents[page_name]}
         </div>
-        
+
         {nav_buttons}
         
         <!-- Call to Action -->
@@ -1732,7 +1782,138 @@ Return ONLY the content for <main> tag."""
         
         print(f"    ✓ {page_name}.php создана")
         return True
-    
+
+    def generate_blog_page_no_nav(self, page_name, output_dir):
+        """Генерация blog страниц БЕЗ стрелок навигации (альтернативная вариация)"""
+        site_name = self.blueprint.get('site_name', 'Company')
+        theme = self.blueprint.get('theme', 'business')
+        colors = self.blueprint.get('color_scheme', {})
+        primary = colors.get('primary', 'blue-600')
+        hover = colors.get('hover', 'blue-700')
+
+        blog_titles = {
+            'blog1': f'The Future of {theme}',
+            'blog2': f'Top 5 Trends in {theme}',
+            'blog3': f'How to Choose the Right {theme} Service'
+        }
+
+        blog_contents = {
+            'blog1': f"""
+            <p class="text-lg text-gray-700 mb-6">
+                The {theme} industry is evolving rapidly, and staying ahead of the curve is essential for success.
+                In this article, we explore the latest innovations and what they mean for your business.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Key Innovations</h2>
+            <p class="text-gray-700 mb-6">
+                Recent technological advances have transformed how we approach {theme}. From automation to
+                personalized services, the landscape is changing faster than ever before.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">What This Means For You</h2>
+            <p class="text-gray-700 mb-6">
+                Understanding these changes can help you make better decisions for your needs. Whether you're
+                looking to upgrade your current setup or start fresh, staying informed is crucial.
+            </p>
+            """,
+            'blog2': f"""
+            <p class="text-lg text-gray-700 mb-6">
+                The {theme} sector is constantly evolving. Here are the top 5 trends you need to know about
+                to stay competitive in today's market.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">1. Digital Transformation</h2>
+            <p class="text-gray-700 mb-6">
+                More businesses are embracing digital solutions to streamline operations and improve customer experience.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">2. Sustainability Focus</h2>
+            <p class="text-gray-700 mb-6">
+                Environmental responsibility is becoming a key differentiator in the {theme} industry.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">3. Personalization</h2>
+            <p class="text-gray-700 mb-6">
+                Customers expect tailored solutions that meet their specific needs and preferences.
+            </p>
+            """,
+            'blog3': f"""
+            <p class="text-lg text-gray-700 mb-6">
+                Choosing the right {theme} service can be challenging. This guide will help you make an
+                informed decision that's right for your needs.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Assess Your Needs</h2>
+            <p class="text-gray-700 mb-6">
+                Start by clearly defining what you need from a {theme} service. Consider your budget,
+                timeline, and specific requirements.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Research Options</h2>
+            <p class="text-gray-700 mb-6">
+                Take time to research different providers and compare their offerings. Look for reviews,
+                testimonials, and case studies.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Make Contact</h2>
+            <p class="text-gray-700 mb-6">
+                Don't hesitate to reach out to providers directly. A good consultation can help you
+                determine if they're the right fit for your needs.
+            </p>
+            """
+        }
+
+        # БЕЗ навигационных кнопок - вариация страницы
+        main_content = f"""<main>
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-6 max-w-4xl">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">{blog_titles[page_name]}</h1>
+        <p class="text-gray-500 mb-8">Published on November 15, 2025 by {site_name} Team</p>
+
+        <!-- Изображение блога (одинаковое для всех статей) -->
+        <div class="mb-8 rounded-xl overflow-hidden shadow-lg">
+            <img src="images/blog.jpg" alt="{blog_titles[page_name]}" class="w-full h-auto object-cover">
+        </div>
+
+        <div class="prose prose-lg max-w-none">
+            {blog_contents[page_name]}
+        </div>
+
+        <!-- Call to Action (БЕЗ навигационных стрелок) -->
+        <div class="mt-12 p-8 bg-gradient-to-br from-{primary}/10 to-{primary}/5 rounded-xl text-center">
+            <h3 class="text-2xl font-bold mb-4">Interested in Our Services?</h3>
+            <p class="text-gray-700 mb-6">Get in touch with us today to learn how we can help your business grow.</p>
+            <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition">
+                Contact Us
+            </a>
+        </div>
+    </div>
+</section>
+</main>"""
+
+        # КРИТИЧЕСКИ ВАЖНО: Проверяем, что header и footer созданы
+        if not self.header_code or not self.footer_code:
+            print(f"    ⚠️  Header/Footer не найдены, регенерация...")
+            self.generate_header_footer()
+
+        full_html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{blog_titles[page_name]} - {site_name}</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    {self.header_footer_css}
+</head>
+<body>
+    {self.header_code}
+
+    {main_content}
+
+    {self.footer_code}
+</body>
+</html>"""
+
+        # Создаем файл с суффиксом _no_nav для вариации без стрелок
+        page_path = os.path.join(output_dir, f"{page_name}_no_nav.php")
+        with open(page_path, 'w', encoding='utf-8') as f:
+            f.write(full_html)
+
+        print(f"    ✓ {page_name}_no_nav.php создана (вариация без навигации)")
+        return True
+
     def generate_blog_main_page(self, output_dir):
         """Генерация главной страницы blog со списком статей"""
         site_name = self.blueprint.get('site_name', 'Company')
@@ -1741,27 +1922,28 @@ Return ONLY the content for <main> tag."""
         primary = colors.get('primary', 'blue-600')
         hover = colors.get('hover', 'blue-700')
         
+        # Используем одинаковое изображение blog.jpg для всех статей блога
         blog_articles = [
             {
                 'title': f'The Future of {theme}',
                 'url': 'blog1.php',
                 'excerpt': f'Explore the latest innovations in {theme} and what they mean for your business.',
                 'date': 'November 15, 2025',
-                'image': 'images/service1.jpg'
+                'image': 'images/blog.jpg'
             },
             {
                 'title': f'Top 5 Trends in {theme}',
                 'url': 'blog2.php',
                 'excerpt': f'Stay competitive with these emerging trends in the {theme} industry.',
                 'date': 'November 10, 2025',
-                'image': 'images/service2.jpg'
+                'image': 'images/blog.jpg'
             },
             {
                 'title': f'How to Choose the Right {theme} Service',
                 'url': 'blog3.php',
                 'excerpt': f'A comprehensive guide to selecting the best {theme} solution for your needs.',
                 'date': 'November 5, 2025',
-                'image': 'images/service3.jpg'
+                'image': 'images/blog.jpg'
             }
         ]
         
