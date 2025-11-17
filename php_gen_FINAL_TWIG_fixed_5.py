@@ -1793,6 +1793,248 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
     </section>
 """
 
+    def generate_thankyou_page(self, site_name, primary, hover):
+        """Генерация Thanks You страницы с 6 вариациями"""
+        thanks_variant = random.randint(1, 6)
+
+        # Вариация 1: Простая с иконкой галочки
+        if thanks_variant == 1:
+            return f"""<main>
+    <section class="min-h-screen flex items-center justify-center bg-gradient-to-br from-{primary}/5 to-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-2xl mx-auto text-center">
+                <div class="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
+                    <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">Thank You!</h1>
+                <p class="text-xl text-gray-600 mb-8">Your message has been sent successfully. We'll get back to you soon.</p>
+                <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                    Return to Homepage
+                </a>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 2: Анимированная с конфетти эффектом
+        elif thanks_variant == 2:
+            return f"""<main>
+    <section class="min-h-screen flex items-center justify-center bg-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-{primary}/10 via-transparent to-{hover}/10"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="max-w-3xl mx-auto text-center">
+                <div class="mb-8 animate-bounce">
+                    <div class="w-32 h-32 bg-gradient-to-br from-{primary} to-{hover} rounded-full flex items-center justify-center mx-auto shadow-2xl">
+                        <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <h1 class="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-{primary} to-{hover} bg-clip-text text-transparent">
+                    Success!
+                </h1>
+                <p class="text-2xl text-gray-700 mb-4 font-semibold">Thank you for reaching out!</p>
+                <p class="text-lg text-gray-600 mb-10">We've received your message and will respond within 24 hours.</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-lg text-lg font-semibold transition transform hover:scale-105 shadow-xl">
+                        Back to Home
+                    </a>
+                    <a href="services.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-10 py-4 rounded-lg text-lg font-semibold transition transform hover:scale-105">
+                        View Services
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 3: С таймлайном процесса
+        elif thanks_variant == 3:
+            return f"""<main>
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-16">
+                    <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <h1 class="text-5xl font-bold mb-4">Message Sent Successfully!</h1>
+                    <p class="text-xl text-gray-600">Thank you for contacting {site_name}</p>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-xl p-10 mb-12">
+                    <h2 class="text-2xl font-bold mb-8 text-center">What Happens Next?</h2>
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold">1</div>
+                            <div class="ml-6">
+                                <h3 class="text-xl font-bold mb-2">We Review Your Message</h3>
+                                <p class="text-gray-600">Our team will carefully review your inquiry within the next few hours.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold">2</div>
+                            <div class="ml-6">
+                                <h3 class="text-xl font-bold mb-2">Personalized Response</h3>
+                                <p class="text-gray-600">We'll prepare a detailed response tailored to your specific needs.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold">3</div>
+                            <div class="ml-6">
+                                <h3 class="text-xl font-bold mb-2">Get Back to You</h3>
+                                <p class="text-gray-600">Expect a response from us within 24 hours via email.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                        Return to Homepage
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 4: Минималистичная
+        elif thanks_variant == 4:
+            return f"""<main>
+    <section class="min-h-screen flex items-center justify-center bg-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-xl mx-auto text-center">
+                <h1 class="text-7xl md:text-8xl font-bold mb-8 text-{primary}">Thanks!</h1>
+                <div class="w-24 h-1 bg-{primary} mx-auto mb-8"></div>
+                <p class="text-2xl text-gray-700 mb-4">We've received your message.</p>
+                <p class="text-lg text-gray-600 mb-12">Our team will respond shortly.</p>
+                <a href="index.php" class="text-{primary} hover:text-{hover} text-lg font-semibold transition border-b-2 border-{primary}">
+                    ← Back to Home
+                </a>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 5: С карточкой контактной информации
+        elif thanks_variant == 5:
+            return f"""<main>
+    <section class="py-20 bg-gradient-to-br from-{primary}/10 to-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white rounded-3xl shadow-2xl p-12">
+                    <div class="text-center mb-12">
+                        <div class="inline-block p-4 bg-green-100 rounded-full mb-6">
+                            <svg class="w-16 h-16 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h1 class="text-5xl font-bold mb-4">Thank You!</h1>
+                        <p class="text-xl text-gray-600">Your message has been successfully sent to our team.</p>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-8 mb-8">
+                        <div class="grid md:grid-cols-3 gap-6 text-center">
+                            <div>
+                                <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center mx-auto mb-3">
+                                    <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <p class="font-semibold text-gray-900">Response Time</p>
+                                <p class="text-sm text-gray-600">Within 24 hours</p>
+                            </div>
+                            <div>
+                                <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center mx-auto mb-3">
+                                    <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <p class="font-semibold text-gray-900">Email</p>
+                                <p class="text-sm text-gray-600">Check your inbox</p>
+                            </div>
+                            <div>
+                                <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center mx-auto mb-3">
+                                    <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    </svg>
+                                </div>
+                                <p class="font-semibold text-gray-900">Our Team</p>
+                                <p class="text-sm text-gray-600">Ready to help</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center pt-4">
+                        <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                            Back to Homepage
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 6: С социальными сетями и дополнительными ссылками
+        else:
+            return f"""<main>
+    <section class="min-h-screen flex items-center justify-center bg-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-3xl mx-auto">
+                <div class="text-center mb-12">
+                    <div class="relative inline-block mb-8">
+                        <div class="w-28 h-28 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-2xl">
+                            <svg class="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div class="absolute -top-2 -right-2 w-8 h-8 bg-{primary} rounded-full animate-ping"></div>
+                    </div>
+                    <h1 class="text-6xl font-bold mb-6">Message Received!</h1>
+                    <p class="text-2xl text-gray-700 mb-3">Thank you for contacting us.</p>
+                    <p class="text-lg text-gray-600 mb-10">We'll be in touch very soon!</p>
+                </div>
+
+                <div class="bg-gray-50 rounded-2xl p-8 mb-10">
+                    <h2 class="text-xl font-bold mb-6 text-center">While You Wait, Explore More</h2>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <a href="services.php" class="block p-6 bg-white rounded-xl hover:shadow-lg transition text-center">
+                            <svg class="w-8 h-8 text-{primary} mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                            <p class="font-semibold text-gray-900">Our Services</p>
+                        </a>
+                        <a href="company.php" class="block p-6 bg-white rounded-xl hover:shadow-lg transition text-center">
+                            <svg class="w-8 h-8 text-{primary} mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                            <p class="font-semibold text-gray-900">About Us</p>
+                        </a>
+                        <a href="blog.php" class="block p-6 bg-white rounded-xl hover:shadow-lg transition text-center">
+                            <svg class="w-8 h-8 text-{primary} mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                            <p class="font-semibold text-gray-900">Blog</p>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-12 py-4 rounded-full text-lg font-bold transition shadow-xl hover:shadow-2xl transform hover:scale-105">
+                        Return to Homepage
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>"""
+
     def generate_home_sections(self):
         """Генерация случайных секций для Home страницы"""
         site_name = self.blueprint.get('site_name', 'Company')
@@ -2569,6 +2811,13 @@ Return ONLY the content for <main> tag."""
 
             # Собираем main_content
             main_content = hero_section + random_sections + "\n</main>"
+        elif page_name == 'thanks_you':
+            print(f"    📝 Генерация Thank You страницы (1 из 6 вариаций)...")
+            primary = colors.get('primary', 'blue-600')
+            hover = colors.get('hover', 'blue-700')
+
+            # Генерируем одну из 6 вариаций
+            main_content = self.generate_thankyou_page(site_name, primary, hover)
         else:
             # Генерируем контент через API для других страниц
             print(f"    📝 Генерация контента для {page_name}...")
