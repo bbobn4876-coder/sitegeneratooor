@@ -535,6 +535,30 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 'prompt': f"{theme} innovation, technology, future"
             },
             {
+                'filename': 'blog1.jpg',
+                'prompt': f"Blog article header image for {theme}, creative composition, modern"
+            },
+            {
+                'filename': 'blog2.jpg',
+                'prompt': f"Blog featured image for {theme}, inspiring and professional"
+            },
+            {
+                'filename': 'blog3.jpg',
+                'prompt': f"Blog post image for {theme}, informative and engaging"
+            },
+            {
+                'filename': 'blog4.jpg',
+                'prompt': f"Blog article photo for {theme}, unique perspective"
+            },
+            {
+                'filename': 'blog5.jpg',
+                'prompt': f"Blog content image for {theme}, compelling visual story"
+            },
+            {
+                'filename': 'blog6.jpg',
+                'prompt': f"Blog header photo for {theme}, professional and attractive"
+            },
+            {
                 'filename': 'gallery1.jpg',
                 'prompt': f"Showcase photo for {theme}, interesting composition"
             },
@@ -1168,18 +1192,21 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         print(f"✓ Favicon создан: {letter} ({hex_color})")
     
     def generate_contact_page(self, output_dir):
-        """Генерация готовой Contact страницы с профессиональной формой"""
+        """Генерация Contact страницы с 5 вариациями"""
         site_name = self.blueprint.get('site_name', 'Company')
         theme = self.blueprint.get('theme', 'business')
         colors = self.blueprint.get('color_scheme', {})
         primary = colors.get('primary', 'blue-600')
         hover = colors.get('hover', 'blue-700')
 
-        main_content = f"""<main>
-    <!-- Contact Page -->
+        # Выбираем случайную вариацию от 1 до 5
+        variation = random.randint(1, 5)
+
+        # Вариация 1: Классический двухколоночный (форма слева, инфо справа)
+        if variation == 1:
+            main_content = f"""<main>
     <section class="py-20 bg-gradient-to-br from-{primary}/5 to-white">
         <div class="container mx-auto px-6">
-            <!-- Page Header -->
             <div class="text-center mb-16">
                 <h1 class="text-5xl md:text-6xl font-bold mb-6">Get In Touch</h1>
                 <p class="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -1188,176 +1215,366 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             </div>
 
             <div class="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
-                <!-- Contact Form -->
                 <div class="bg-white rounded-2xl shadow-xl p-8 md:p-10">
                     <h2 class="text-3xl font-bold mb-6">Send us a message</h2>
                     <form action="thanks_you.php" method="POST" class="space-y-6">
                         <div>
-                            <label for="name" class="block text-gray-700 font-semibold mb-2">
-                                Your Name <span class="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                id="name"
-                                name="name"
-                                required
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none"
-                                placeholder="John Doe"
-                            >
+                            <label for="name" class="block text-gray-700 font-semibold mb-2">Your Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="name" name="name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none" placeholder="John Doe">
                         </div>
-
                         <div>
-                            <label for="email" class="block text-gray-700 font-semibold mb-2">
-                                Your Email <span class="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                required
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none"
-                                placeholder="john@example.com"
-                            >
+                            <label for="email" class="block text-gray-700 font-semibold mb-2">Your Email <span class="text-red-500">*</span></label>
+                            <input type="email" id="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none" placeholder="john@example.com">
                         </div>
-
                         <div>
-                            <label for="phone" class="block text-gray-700 font-semibold mb-2">
-                                Phone Number
-                            </label>
-                            <input
-                                type="tel"
-                                id="phone"
-                                name="phone"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none"
-                                placeholder="+1 (555) 123-4567"
-                            >
+                            <label for="phone" class="block text-gray-700 font-semibold mb-2">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none" placeholder="+1 (555) 123-4567">
                         </div>
-
                         <div>
-                            <label for="message" class="block text-gray-700 font-semibold mb-2">
-                                Your Message <span class="text-red-500">*</span>
-                            </label>
-                            <textarea
-                                id="message"
-                                name="message"
-                                rows="5"
-                                required
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none resize-none"
-                                placeholder="Tell us about your project..."
-                            ></textarea>
+                            <label for="message" class="block text-gray-700 font-semibold mb-2">Your Message <span class="text-red-500">*</span></label>
+                            <textarea id="message" name="message" rows="5" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none resize-none" placeholder="Tell us about your project..."></textarea>
                         </div>
-
-                        <button
-                            type="submit"
-                            class="w-full bg-{primary} hover:bg-{hover} text-white py-4 rounded-lg text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                        >
-                            Send Message
-                        </button>
+                        <button type="submit" class="w-full bg-{primary} hover:bg-{hover} text-white py-4 rounded-lg text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">Send Message</button>
                     </form>
                 </div>
 
-                <!-- Contact Information -->
                 <div class="space-y-8">
                     <div class="bg-white rounded-2xl shadow-xl p-8">
                         <h2 class="text-3xl font-bold mb-6">Contact Information</h2>
-
                         <div class="space-y-6">
-                            <!-- Email -->
                             <div class="flex items-start">
                                 <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                    </svg>
+                                    <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                                 </div>
                                 <div class="ml-4">
                                     <h3 class="font-semibold text-gray-900 mb-1">Email</h3>
-                                    <a href="mailto:contact@{site_name.lower().replace(' ', '')}.com" class="text-gray-600 hover:text-{primary} transition">
-                                        contact@{site_name.lower().replace(' ', '')}.com
-                                    </a>
+                                    <a href="mailto:contact@{site_name.lower().replace(' ', '')}.com" class="text-gray-600 hover:text-{primary} transition">contact@{site_name.lower().replace(' ', '')}.com</a>
                                 </div>
                             </div>
-
-                            <!-- Phone -->
                             <div class="flex items-start">
                                 <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                                    </svg>
+                                    <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
                                 </div>
                                 <div class="ml-4">
                                     <h3 class="font-semibold text-gray-900 mb-1">Phone</h3>
-                                    <a href="tel:+15551234567" class="text-gray-600 hover:text-{primary} transition">
-                                        +1 (555) 123-4567
-                                    </a>
+                                    <a href="tel:+15551234567" class="text-gray-600 hover:text-{primary} transition">+1 (555) 123-4567</a>
                                 </div>
                             </div>
-
-                            <!-- Address -->
                             <div class="flex items-start">
                                 <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
+                                    <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                 </div>
                                 <div class="ml-4">
                                     <h3 class="font-semibold text-gray-900 mb-1">Address</h3>
-                                    <p class="text-gray-600">
-                                        123 Business Street<br>
-                                        Suite 100<br>
-                                        New York, NY 10001
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Business Hours -->
-                            <div class="flex items-start">
-                                <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                </div>
-                                <div class="ml-4">
-                                    <h3 class="font-semibold text-gray-900 mb-1">Business Hours</h3>
-                                    <p class="text-gray-600">
-                                        Monday - Friday: 9:00 AM - 6:00 PM<br>
-                                        Saturday: 10:00 AM - 4:00 PM<br>
-                                        Sunday: Closed
-                                    </p>
+                                    <p class="text-gray-600">123 Business Street<br>Suite 100<br>New York, NY 10001</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Social Links / Additional Info -->
                     <div class="bg-gradient-to-br from-{primary} to-{hover} rounded-2xl shadow-xl p-8 text-white">
                         <h3 class="text-2xl font-bold mb-4">Why Choose Us?</h3>
                         <ul class="space-y-3">
-                            <li class="flex items-center">
-                                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                </svg>
-                                Quick response within 24 hours
-                            </li>
-                            <li class="flex items-center">
-                                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                </svg>
-                                Professional and friendly team
-                            </li>
-                            <li class="flex items-center">
-                                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                </svg>
-                                Free initial consultation
-                            </li>
-                            <li class="flex items-center">
-                                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                </svg>
-                                Customized solutions for your needs
-                            </li>
+                            <li class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Quick response within 24 hours</li>
+                            <li class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Professional and friendly team</li>
+                            <li class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Free initial consultation</li>
                         </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 2: Центрированная форма с карточками контактов внизу
+        elif variation == 2:
+            main_content = f"""<main>
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">Contact Us</h1>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Let's discuss your project and bring your ideas to life</p>
+            </div>
+
+            <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl p-10 mb-16">
+                <form action="thanks_you.php" method="POST" class="space-y-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="name" class="block text-gray-700 font-semibold mb-2">Full Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="name" name="name" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none" placeholder="John Doe">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-gray-700 font-semibold mb-2">Email Address <span class="text-red-500">*</span></label>
+                            <input type="email" id="email" name="email" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none" placeholder="john@example.com">
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="phone" class="block text-gray-700 font-semibold mb-2">Phone</label>
+                            <input type="tel" id="phone" name="phone" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none" placeholder="+1 (555) 123-4567">
+                        </div>
+                        <div>
+                            <label for="company" class="block text-gray-700 font-semibold mb-2">Company</label>
+                            <input type="text" id="company" name="company" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none" placeholder="Your Company">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="message" class="block text-gray-700 font-semibold mb-2">Message <span class="text-red-500">*</span></label>
+                        <textarea id="message" name="message" rows="6" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none resize-none" placeholder="Tell us about your project..."></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-{primary} hover:bg-{hover} text-white py-4 rounded-lg text-lg font-bold transition-all shadow-lg hover:shadow-xl transform hover:scale-105">Send Message</button>
+                </form>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <div class="text-center p-8 bg-gradient-to-br from-{primary}/5 to-white rounded-xl hover:shadow-lg transition-shadow">
+                    <div class="w-16 h-16 bg-{primary} rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Email Us</h3>
+                    <p class="text-gray-600">contact@{site_name.lower().replace(' ', '')}.com</p>
+                </div>
+                <div class="text-center p-8 bg-gradient-to-br from-{primary}/5 to-white rounded-xl hover:shadow-lg transition-shadow">
+                    <div class="w-16 h-16 bg-{primary} rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Call Us</h3>
+                    <p class="text-gray-600">+1 (555) 123-4567</p>
+                </div>
+                <div class="text-center p-8 bg-gradient-to-br from-{primary}/5 to-white rounded-xl hover:shadow-lg transition-shadow">
+                    <div class="w-16 h-16 bg-{primary} rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Visit Us</h3>
+                    <p class="text-gray-600">New York, NY 10001</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 3: Split-screen с градиентом слева
+        elif variation == 3:
+            main_content = f"""<main>
+    <section class="min-h-screen flex items-center">
+        <div class="grid md:grid-cols-2 w-full">
+            <div class="bg-gradient-to-br from-{primary} to-{hover} p-12 md:p-20 flex flex-col justify-center text-white">
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">Let's Work Together</h1>
+                <p class="text-xl mb-12 opacity-90">Transform your vision into reality. We're here to help you succeed.</p>
+
+                <div class="space-y-8">
+                    <div class="flex items-center">
+                        <div class="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center mr-6">
+                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-75">Phone</p>
+                            <p class="text-lg font-semibold">+1 (555) 123-4567</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center mr-6">
+                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-75">Email</p>
+                            <p class="text-lg font-semibold">contact@{site_name.lower().replace(' ', '')}.com</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center mr-6">
+                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-75">Address</p>
+                            <p class="text-lg font-semibold">New York, NY 10001</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-12 md:p-20 flex flex-col justify-center">
+                <h2 class="text-3xl font-bold mb-8">Send a Message</h2>
+                <form action="thanks_you.php" method="POST" class="space-y-6">
+                    <div>
+                        <input type="text" name="name" required class="w-full px-0 py-3 border-0 border-b-2 border-gray-300 focus:border-{primary} transition-all outline-none text-lg" placeholder="Your Name *">
+                    </div>
+                    <div>
+                        <input type="email" name="email" required class="w-full px-0 py-3 border-0 border-b-2 border-gray-300 focus:border-{primary} transition-all outline-none text-lg" placeholder="Your Email *">
+                    </div>
+                    <div>
+                        <input type="tel" name="phone" class="w-full px-0 py-3 border-0 border-b-2 border-gray-300 focus:border-{primary} transition-all outline-none text-lg" placeholder="Phone Number">
+                    </div>
+                    <div>
+                        <textarea name="message" rows="5" required class="w-full px-0 py-3 border-0 border-b-2 border-gray-300 focus:border-{primary} transition-all outline-none resize-none text-lg" placeholder="Your Message *"></textarea>
+                    </div>
+                    <button type="submit" class="bg-{primary} hover:bg-{hover} text-white px-12 py-4 rounded-full text-lg font-bold transition-all shadow-lg hover:shadow-xl transform hover:scale-105">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 4: Полноширинная форма с плавающими карточками
+        elif variation == 4:
+            main_content = f"""<main>
+    <section class="py-20 bg-gray-50 relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">Start Your Journey</h1>
+                <p class="text-xl text-gray-600">Tell us about your project and let's create something amazing together</p>
+            </div>
+
+            <div class="max-w-5xl mx-auto relative">
+                <div class="bg-white rounded-3xl shadow-2xl p-10 md:p-16">
+                    <form action="thanks_you.php" method="POST" class="space-y-8">
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-3">NAME *</label>
+                                <input type="text" name="name" required class="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-{primary} focus:bg-white transition-all outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-3">EMAIL *</label>
+                                <input type="email" name="email" required class="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-{primary} focus:bg-white transition-all outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-3">PHONE</label>
+                                <input type="tel" name="phone" class="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-{primary} focus:bg-white transition-all outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-3">YOUR MESSAGE *</label>
+                            <textarea name="message" rows="6" required class="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-{primary} focus:bg-white transition-all outline-none resize-none"></textarea>
+                        </div>
+                        <div class="flex justify-center pt-4">
+                            <button type="submit" class="bg-{primary} hover:bg-{hover} text-white px-16 py-5 rounded-xl text-lg font-bold transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1">Submit</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6 mt-8 md:-mt-20 relative z-10">
+                    <div class="bg-white rounded-2xl shadow-xl p-6 text-center border-t-4 border-{primary}">
+                        <div class="w-12 h-12 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-gray-900 mb-1">Email</h3>
+                        <p class="text-sm text-gray-600">contact@{site_name.lower().replace(' ', '')}.com</p>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-xl p-6 text-center border-t-4 border-{primary}">
+                        <div class="w-12 h-12 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-gray-900 mb-1">Phone</h3>
+                        <p class="text-sm text-gray-600">+1 (555) 123-4567</p>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-xl p-6 text-center border-t-4 border-{primary}">
+                        <div class="w-12 h-12 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-gray-900 mb-1">Hours</h3>
+                        <p class="text-sm text-gray-600">Mon-Fri: 9AM-6PM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 5: Многошаговая форма с прогрессом
+        else:  # variation == 5
+            main_content = f"""<main>
+    <section class="py-20 bg-gradient-to-br from-gray-50 to-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">Get Started</h1>
+                <p class="text-xl text-gray-600">Fill out the form below and we'll get back to you shortly</p>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <div class="mb-12">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-{primary} rounded-full flex items-center justify-center text-white font-bold">1</div>
+                            <span class="ml-3 font-semibold text-{primary}">Contact Info</span>
+                        </div>
+                        <div class="flex items-center opacity-50">
+                            <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">2</div>
+                            <span class="ml-3 font-semibold text-gray-500">Message</span>
+                        </div>
+                        <div class="flex items-center opacity-50">
+                            <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">3</div>
+                            <span class="ml-3 font-semibold text-gray-500">Submit</span>
+                        </div>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-{primary} h-2 rounded-full transition-all duration-500" style="width: 33%"></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-2xl p-10 md:p-16">
+                    <form action="thanks_you.php" method="POST" class="space-y-8">
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                    Full Name <span class="text-red-500 ml-1">*</span>
+                                </label>
+                                <input type="text" name="name" required class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none" placeholder="John Doe">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                    Email Address <span class="text-red-500 ml-1">*</span>
+                                </label>
+                                <input type="email" name="email" required class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none" placeholder="john@example.com">
+                            </div>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                                    Phone Number
+                                </label>
+                                <input type="tel" name="phone" class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none" placeholder="+1 (555) 123-4567">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                    Company
+                                </label>
+                                <input type="text" name="company" class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none" placeholder="Your Company">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-3 flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+                                Your Message <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <textarea name="message" rows="6" required class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none resize-none" placeholder="Tell us about your project and how we can help..."></textarea>
+                        </div>
+
+                        <div class="flex justify-center pt-4">
+                            <button type="submit" class="bg-{primary} hover:bg-{hover} text-white px-16 py-5 rounded-xl text-lg font-bold transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center">
+                                Send Message
+                                <svg class="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="mt-12 pt-8 border-t border-gray-200 grid md:grid-cols-3 gap-6 text-center">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Email</p>
+                            <p class="font-semibold text-gray-900">contact@{site_name.lower().replace(' ', '')}.com</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Phone</p>
+                            <p class="font-semibold text-gray-900">+1 (555) 123-4567</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Response Time</p>
+                            <p class="font-semibold text-gray-900">Within 24 hours</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1701,62 +1918,89 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
     </section>""",
 
             'carousel_workflow': f"""
-    <!-- Карусель: этапы работы -->
-    <section class="py-20 bg-white">
-        <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center mb-4">Our Process</h2>
-            <p class="text-gray-600 text-center mb-12 text-lg">Simple, transparent, and effective</p>
-            <div class="relative max-w-5xl mx-auto">
-                <div class="grid md:grid-cols-4 gap-6">
-                    <div class="text-center">
-                        <div class="w-20 h-20 bg-{primary} rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold shadow-lg">
-                            1
+    <!-- Our Process: красивые блоки -->
+    <section class="py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
+        <!-- Decorative background -->
+        <div class="absolute top-0 right-0 w-96 h-96 bg-{primary}/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-{hover}/5 rounded-full blur-3xl"></div>
+
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">Our Process</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Simple, transparent, and effective workflow designed for your success</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+                <!-- Step 1 -->
+                <div class="group relative">
+                    <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
+                        <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
+                            01
                         </div>
-                        <div class="w-12 h-12 bg-{primary}/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-16 h-16 bg-gradient-to-br from-{primary} to-{hover} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                             </svg>
                         </div>
-                        <h4 class="font-bold mb-2">Consultation</h4>
-                        <p class="text-gray-600 text-sm">We discuss your needs and goals</p>
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Consultation</h3>
+                        <p class="text-gray-600 leading-relaxed">We listen to your needs, understand your goals, and identify the best approach for your project.</p>
                     </div>
-                    <div class="text-center">
-                        <div class="w-20 h-20 bg-{primary} rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold shadow-lg">
-                            2
+                </div>
+
+                <!-- Step 2 -->
+                <div class="group relative">
+                    <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
+                        <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
+                            02
                         </div>
-                        <div class="w-12 h-12 bg-{primary}/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-16 h-16 bg-gradient-to-br from-{primary} to-{hover} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                             </svg>
                         </div>
-                        <h4 class="font-bold mb-2">Planning</h4>
-                        <p class="text-gray-600 text-sm">We create a detailed project plan</p>
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Planning</h3>
+                        <p class="text-gray-600 leading-relaxed">We create a detailed roadmap with clear milestones, timelines, and deliverables for your project.</p>
                     </div>
-                    <div class="text-center">
-                        <div class="w-20 h-20 bg-{primary} rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold shadow-lg">
-                            3
+                </div>
+
+                <!-- Step 3 -->
+                <div class="group relative">
+                    <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
+                        <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
+                            03
                         </div>
-                        <div class="w-12 h-12 bg-{primary}/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-16 h-16 bg-gradient-to-br from-{primary} to-{hover} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
                             </svg>
                         </div>
-                        <h4 class="font-bold mb-2">Development</h4>
-                        <p class="text-gray-600 text-sm">We build your solution</p>
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Development</h3>
+                        <p class="text-gray-600 leading-relaxed">Our expert team brings your vision to life with cutting-edge technology and best practices.</p>
                     </div>
-                    <div class="text-center">
-                        <div class="w-20 h-20 bg-{primary} rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold shadow-lg">
-                            4
+                </div>
+
+                <!-- Step 4 -->
+                <div class="group relative">
+                    <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
+                        <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
+                            04
                         </div>
-                        <div class="w-12 h-12 bg-{primary}/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-16 h-16 bg-gradient-to-br from-{primary} to-{hover} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
                         </div>
-                        <h4 class="font-bold mb-2">Delivery</h4>
-                        <p class="text-gray-600 text-sm">We deliver and support your project</p>
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Delivery</h3>
+                        <p class="text-gray-600 leading-relaxed">We launch your project and provide ongoing support to ensure everything runs smoothly.</p>
                     </div>
                 </div>
+            </div>
+
+            <!-- CTA Button -->
+            <div class="text-center mt-16">
+                <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    Start Your Project
+                </a>
             </div>
         </div>
     </section>""",
@@ -1773,7 +2017,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             </div>
             <div class="grid md:grid-cols-3 gap-8">
                 <article class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
-                    <img src="images/service1.jpg" alt="Blog Post 1" class="w-full h-48 object-cover">
+                    <img src="images/blog1.jpg" alt="Blog Post 1" class="w-full h-48 object-cover">
                     <div class="p-6">
                         <p class="text-gray-500 text-sm mb-2">November 15, 2025</p>
                         <h3 class="text-xl font-bold mb-3">The Future of {theme}</h3>
@@ -1784,7 +2028,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                     </div>
                 </article>
                 <article class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
-                    <img src="images/service2.jpg" alt="Blog Post 2" class="w-full h-48 object-cover">
+                    <img src="images/blog2.jpg" alt="Blog Post 2" class="w-full h-48 object-cover">
                     <div class="p-6">
                         <p class="text-gray-500 text-sm mb-2">November 10, 2025</p>
                         <h3 class="text-xl font-bold mb-3">Top 5 Trends in {theme}</h3>
@@ -1795,7 +2039,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                     </div>
                 </article>
                 <article class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
-                    <img src="images/service3.jpg" alt="Blog Post 3" class="w-full h-48 object-cover">
+                    <img src="images/blog3.jpg" alt="Blog Post 3" class="w-full h-48 object-cover">
                     <div class="p-6">
                         <p class="text-gray-500 text-sm mb-2">November 5, 2025</p>
                         <h3 class="text-xl font-bold mb-3">How to Choose the Right Service</h3>
@@ -2522,9 +2766,9 @@ Return ONLY the content for <main> tag."""
         }
 
         blog_images = {
-            'blog1': 'images/service1.jpg',
-            'blog2': 'images/service2.jpg',
-            'blog3': 'images/service3.jpg'
+            'blog1': 'images/blog1.jpg',
+            'blog2': 'images/blog2.jpg',
+            'blog3': 'images/blog3.jpg'
         }
 
         # Определяем навигацию между blog страницами
@@ -2534,11 +2778,11 @@ Return ONLY the content for <main> tag."""
             'blog3': {'prev': 'blog2.php', 'next': None}
         }
 
-        # Вариации: blog1 - без картинки со стрелками, blog2 - с картинкой без стрелок, blog3 - без картинки без стрелок
+        # Вариации: случайный выбор картинки и стрелок для каждой статьи
         blog_variations = {
-            'blog1': {'has_image': False, 'has_arrows': True},
-            'blog2': {'has_image': True, 'has_arrows': False},
-            'blog3': {'has_image': False, 'has_arrows': False}
+            'blog1': {'has_image': random.choice([True, False]), 'has_arrows': True},
+            'blog2': {'has_image': random.choice([True, False]), 'has_arrows': False},
+            'blog3': {'has_image': random.choice([True, False]), 'has_arrows': False}
         }
 
         current_nav = blog_nav.get(page_name, {'prev': None, 'next': None})
@@ -2651,37 +2895,63 @@ Return ONLY the content for <main> tag."""
         return True
     
     def generate_blog_main_page(self, output_dir):
-        """Генерация главной страницы blog со списком статей"""
+        """Генерация главной страницы blog со списком статей (3 или 6 случайно)"""
         site_name = self.blueprint.get('site_name', 'Company')
         theme = self.blueprint.get('theme', 'business')
         colors = self.blueprint.get('color_scheme', {})
         primary = colors.get('primary', 'blue-600')
         hover = colors.get('hover', 'blue-700')
-        
-        blog_articles = [
+
+        # Полный список статей (6 штук)
+        all_blog_articles = [
             {
                 'title': f'The Future of {theme}',
                 'url': 'blog1.php',
                 'excerpt': f'Explore the latest innovations in {theme} and what they mean for your business.',
                 'date': 'November 15, 2025',
-                'image': 'images/service1.jpg'
+                'image': 'images/blog1.jpg'
             },
             {
                 'title': f'Top 5 Trends in {theme}',
                 'url': 'blog2.php',
                 'excerpt': f'Stay competitive with these emerging trends in the {theme} industry.',
                 'date': 'November 10, 2025',
-                'image': 'images/service2.jpg'
+                'image': 'images/blog2.jpg'
             },
             {
                 'title': f'How to Choose the Right {theme} Service',
                 'url': 'blog3.php',
                 'excerpt': f'A comprehensive guide to selecting the best {theme} solution for your needs.',
                 'date': 'November 5, 2025',
-                'image': 'images/service3.jpg'
+                'image': 'images/blog3.jpg'
+            },
+            {
+                'title': f'Best Practices for {theme} Success',
+                'url': 'blog1.php',
+                'excerpt': f'Learn proven strategies and techniques to maximize your {theme} results.',
+                'date': 'November 1, 2025',
+                'image': 'images/blog4.jpg'
+            },
+            {
+                'title': f'Common {theme} Mistakes to Avoid',
+                'url': 'blog2.php',
+                'excerpt': f'Discover the pitfalls that could derail your {theme} projects and how to avoid them.',
+                'date': 'October 28, 2025',
+                'image': 'images/blog5.jpg'
+            },
+            {
+                'title': f'The Complete {theme} Guide',
+                'url': 'blog3.php',
+                'excerpt': f'Everything you need to know about {theme} in one comprehensive resource.',
+                'date': 'October 25, 2025',
+                'image': 'images/blog6.jpg'
             }
         ]
-        
+
+        # Случайно выбираем 3 или 6 статей
+        num_articles = random.choice([3, 6])
+        blog_articles = all_blog_articles[:num_articles]
+
         # Создаем карточки статей
         article_cards = ''
         for article in blog_articles:
@@ -3425,12 +3695,9 @@ php -S localhost:8000
         
         print("\n[4/7] Favicon...")
         self.generate_favicon(output_dir)
-        
-        print("\n[5/7] Изображения...")
-        self.generate_images_for_site(output_dir)
-        
-        print("\n[6/7] Страницы...")
-        
+
+        print("\n[5/7] Страницы...")
+
         if site_type == "landing":
             # Лендинг - только главная страница с секциями + служебные страницы
             pages_to_generate = ['index', 'thanks_you', 'privacy', 'terms', 'cookie']
@@ -3439,14 +3706,17 @@ php -S localhost:8000
             # Многостраничный сайт - все основные страницы включая blog
             pages_to_generate = ['index', 'company', 'services', 'contact', 'blog', 'blog1', 'blog2', 'blog3', 'privacy', 'terms', 'cookie', 'thanks_you']
             print("  Режим: МНОГОСТРАНИЧНЫЙ САЙТ (все страницы + blog главная + статьи)")
-        
+
         # Генерируем каждую страницу с повышенным вниманием
         for page in pages_to_generate:
             print(f"  Генерация {page}.php...")
             success = self.generate_page(page, output_dir)
             if not success:
                 print(f"    ⚠️  Ошибка генерации {page}.php, создан fallback")
-        
+
+        print("\n[6/7] Изображения (под сгенерированные страницы)...")
+        self.generate_images_for_site(output_dir)
+
         print("\n[7/7] Twig шаблоны и дополнительные файлы...")
         
         # Создаём Twig шаблоны если включено
