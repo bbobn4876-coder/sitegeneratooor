@@ -789,8 +789,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             "header_layout": header_layout,
             "footer_layout": footer_layout,
             "sections": sections,
-            "menu": ["Home", "Services", "About", "Blog", "Contact"],
-            "pages": ["index", "about", "services", "contact", "blog1", "blog2", "blog3", "privacy", "terms", "cookie", "thanks"]
+            "menu": ["Home", "Services", "Company", "Blog", "Contact"],
+            "pages": ["index", "company", "services", "contact", "blog1", "blog2", "blog3", "privacy", "terms", "cookie", "thanks"]
         }
         
         print(f"✓ Blueprint создан: {site_name}")
@@ -804,7 +804,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         """Генерация Header и Footer с гарантированным меню и футером"""
         try:
             site_name = self.blueprint.get('site_name', 'Company')
-            menu = self.blueprint.get('menu', ['Home', 'Services', 'About', 'Blog', 'Contact'])
+            menu = self.blueprint.get('menu', ['Home', 'Services', 'Company', 'Blog', 'Contact'])
             colors = self.blueprint.get('color_scheme', {})
             header_layout = self.blueprint.get('header_layout', 'left-aligned')
             footer_layout = self.blueprint.get('footer_layout', 'columns-3')
@@ -822,7 +822,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             else:
                 nav_pages = [
                     ('Home', 'index.php'),
-                    ('About', 'about.php'),
+                    ('Company', 'company.php'),
                     ('Services', 'services.php'),
                     ('Blog', 'blog.php'),
                     ('Contact', 'contact.php')
@@ -915,7 +915,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             ]
             
             if self.site_type == "multipage":
-                footer_links.insert(1, ('About', 'about.php'))
+                footer_links.insert(1, ('Company', 'company.php'))
                 footer_links.insert(2, ('Services', 'services.php'))
                 footer_links.insert(3, ('Blog', 'blog.php'))
                 footer_links.insert(4, ('Contact', 'contact.php'))
@@ -1089,7 +1089,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         <p class="text-gray-400 text-sm mb-4">Your trusted partner in {theme}.</p>
         <div class="flex flex-wrap justify-center gap-4 text-sm">
             <a href="index.php" class="text-gray-400 hover:text-blue-400">Home</a>
-            <a href="about.php" class="text-gray-400 hover:text-blue-400">About</a>
+            <a href="company.php" class="text-gray-400 hover:text-blue-400">Company</a>
             <a href="services.php" class="text-gray-400 hover:text-blue-400">Services</a>
             <a href="contact.php" class="text-gray-400 hover:text-blue-400">Contact</a>
             <a href="privacy.php" class="text-gray-400 hover:text-blue-400">Privacy</a>
@@ -1420,7 +1420,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                         Our team of professionals brings expertise, innovation, and a customer-first approach to every project.
                         We understand that every client is unique, and we tailor our solutions to meet your specific needs.
                     </p>
-                    <a href="about.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg font-semibold transition">
+                    <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg font-semibold transition">
                         Learn More
                     </a>
                 </div>
@@ -1862,45 +1862,149 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             <div class="flex justify-between items-center mb-12">
                 <h2 class="text-4xl font-bold">Our Locations</h2>
                 <div class="flex gap-4">
-                    <button class="w-10 h-10 bg-{primary} text-white rounded-full flex items-center justify-center hover:bg-{hover} transition">
+                    <button id="locations-prev" class="w-10 h-10 bg-{primary} text-white rounded-full flex items-center justify-center hover:bg-{hover} transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                         </svg>
                     </button>
-                    <button class="w-10 h-10 bg-{primary} text-white rounded-full flex items-center justify-center hover:bg-{hover} transition">
+                    <button id="locations-next" class="w-10 h-10 bg-{primary} text-white rounded-full flex items-center justify-center hover:bg-{hover} transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                         </svg>
                     </button>
                 </div>
             </div>
-            <div class="grid md:grid-cols-3 gap-6">
-                <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
-                    <img src="images/gallery1.jpg" alt="Location 1" class="w-full h-40 object-cover rounded-lg mb-4">
-                    <h4 class="text-xl font-bold mb-2">New York Office</h4>
-                    <p class="text-gray-600 mb-4">Our headquarters serving the East Coast market with dedicated professionals.</p>
-                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
-                        Contact
-                    </a>
-                </div>
-                <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
-                    <img src="images/gallery2.jpg" alt="Location 2" class="w-full h-40 object-cover rounded-lg mb-4">
-                    <h4 class="text-xl font-bold mb-2">San Francisco Office</h4>
-                    <p class="text-gray-600 mb-4">West Coast hub bringing innovation and technology expertise to your doorstep.</p>
-                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
-                        Contact
-                    </a>
-                </div>
-                <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
-                    <img src="images/gallery3.jpg" alt="Location 3" class="w-full h-40 object-cover rounded-lg mb-4">
-                    <h4 class="text-xl font-bold mb-2">Chicago Office</h4>
-                    <p class="text-gray-600 mb-4">Central location serving clients across the Midwest with excellence.</p>
-                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
-                        Contact
-                    </a>
+
+            <div class="relative overflow-hidden">
+                <div id="locations-slider" class="flex transition-transform duration-500 ease-in-out">
+                    <!-- Card 1 -->
+                    <div class="w-full md:w-1/3 flex-shrink-0 px-3">
+                        <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
+                            <img src="images/gallery1.jpg" alt="Location 1" class="w-full h-40 object-cover rounded-lg mb-4">
+                            <h4 class="text-xl font-bold mb-2">New York Office</h4>
+                            <p class="text-gray-600 mb-4">Our headquarters serving the East Coast market with dedicated professionals.</p>
+                            <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
+                                Contact
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="w-full md:w-1/3 flex-shrink-0 px-3">
+                        <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
+                            <img src="images/gallery2.jpg" alt="Location 2" class="w-full h-40 object-cover rounded-lg mb-4">
+                            <h4 class="text-xl font-bold mb-2">San Francisco Office</h4>
+                            <p class="text-gray-600 mb-4">West Coast hub bringing innovation and technology expertise to your doorstep.</p>
+                            <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
+                                Contact
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div class="w-full md:w-1/3 flex-shrink-0 px-3">
+                        <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
+                            <img src="images/gallery3.jpg" alt="Location 3" class="w-full h-40 object-cover rounded-lg mb-4">
+                            <h4 class="text-xl font-bold mb-2">Chicago Office</h4>
+                            <p class="text-gray-600 mb-4">Central location serving clients across the Midwest with excellence.</p>
+                            <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
+                                Contact
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Card 4 -->
+                    <div class="w-full md:w-1/3 flex-shrink-0 px-3">
+                        <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
+                            <img src="images/gallery4.jpg" alt="Location 4" class="w-full h-40 object-cover rounded-lg mb-4">
+                            <h4 class="text-xl font-bold mb-2">Miami Office</h4>
+                            <p class="text-gray-600 mb-4">Southern operations center providing exceptional service to our clients.</p>
+                            <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
+                                Contact
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Card 5 -->
+                    <div class="w-full md:w-1/3 flex-shrink-0 px-3">
+                        <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
+                            <img src="images/service1.jpg" alt="Location 5" class="w-full h-40 object-cover rounded-lg mb-4">
+                            <h4 class="text-xl font-bold mb-2">Seattle Office</h4>
+                            <p class="text-gray-600 mb-4">Pacific Northwest headquarters for innovation and growth initiatives.</p>
+                            <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
+                                Contact
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Card 6 -->
+                    <div class="w-full md:w-1/3 flex-shrink-0 px-3">
+                        <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
+                            <img src="images/service2.jpg" alt="Location 6" class="w-full h-40 object-cover rounded-lg mb-4">
+                            <h4 class="text-xl font-bold mb-2">Boston Office</h4>
+                            <p class="text-gray-600 mb-4">Northeast regional office delivering quality service and expertise.</p>
+                            <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
+                                Contact
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Slider indicators -->
+            <div class="flex justify-center mt-8 gap-2">
+                <button class="location-indicator w-3 h-3 rounded-full bg-{primary} transition" data-index="0"></button>
+                <button class="location-indicator w-3 h-3 rounded-full bg-gray-300 transition" data-index="1"></button>
+                <button class="location-indicator w-3 h-3 rounded-full bg-gray-300 transition" data-index="2"></button>
+                <button class="location-indicator w-3 h-3 rounded-full bg-gray-300 transition" data-index="3"></button>
+            </div>
         </div>
+
+        <script>
+        (function() {{
+            const slider = document.getElementById('locations-slider');
+            const prevBtn = document.getElementById('locations-prev');
+            const nextBtn = document.getElementById('locations-next');
+            const indicators = document.querySelectorAll('.location-indicator');
+            let currentIndex = 0;
+            const totalCards = 6;
+            const cardsPerView = window.innerWidth >= 768 ? 3 : 1;
+            const maxIndex = totalCards - cardsPerView;
+
+            function updateSlider() {{
+                const offset = -(currentIndex * (100 / cardsPerView));
+                slider.style.transform = `translateX(${{offset}}%)`;
+
+                // Update indicators
+                indicators.forEach((indicator, idx) => {{
+                    if (idx === currentIndex) {{
+                        indicator.classList.add('bg-{primary}');
+                        indicator.classList.remove('bg-gray-300');
+                    }} else {{
+                        indicator.classList.remove('bg-{primary}');
+                        indicator.classList.add('bg-gray-300');
+                    }}
+                }});
+            }}
+
+            prevBtn.addEventListener('click', function() {{
+                currentIndex = currentIndex > 0 ? currentIndex - 1 : maxIndex;
+                updateSlider();
+            }});
+
+            nextBtn.addEventListener('click', function() {{
+                currentIndex = currentIndex < maxIndex ? currentIndex + 1 : 0;
+                updateSlider();
+            }});
+
+            indicators.forEach((indicator) => {{
+                indicator.addEventListener('click', function() {{
+                    currentIndex = parseInt(this.getAttribute('data-index'));
+                    updateSlider();
+                }});
+            }});
+        }})();
+        </script>
     </section>"""
         }
 
@@ -1950,28 +2054,28 @@ REQUIREMENTS:
 - About Us preview section with:
   * MUST include an image on the right side: <img src="images/about.jpg" alt="About Us" class="...">
   * Text content on the left describing the company
-  * "Learn More" button that links to about.php: <a href="about.php" class="...">Learn More</a>
+  * "Learn More" button that links to company.php: <a href="company.php" class="...">Learn More</a>
   * Responsive grid layout (text left, image right on desktop; stacked on mobile)
 - Services showcase section (3 services) with CTA buttons to contact.php
 - Testimonials section (2-3 testimonials with circular avatar badges containing initials, NO images)
 - For testimonials: use colored circles with white text initials (e.g. JD, MS) instead of photos
 - Call-to-action section at the end with button to contact.php
-- ALL other CTA buttons on the page MUST link to contact.php (except the About Us "Learn More" which goes to about.php)
+- ALL other CTA buttons on the page MUST link to contact.php (except the About Us "Learn More" which goes to company.php)
 - Use images for hero, about section, and services (images/hero.jpg, images/about.jpg, images/service1.jpg)
 - Modern, professional design with Tailwind CSS
 - Color scheme: {colors.get('primary')} primary, {colors.get('hover')} hover
 - Include proper spacing, padding, and responsive design
 - NO emojis, NO prices, NO currency symbols
 
-CRITICAL: About Us section MUST have images/about.jpg image and "Learn More" button linking to about.php
+CRITICAL: About Us section MUST have images/about.jpg image and "Learn More" button linking to company.php
 CRITICAL: Every OTHER button on this page MUST have href="contact.php"
 CRITICAL: Testimonials MUST use avatar circles with initials, NOT images
 
 Return ONLY the content for <main> tag (not full HTML)."""
             },
-            'about': {
-                'title': 'About Us',
-                'prompt': f"""Create a professional ABOUT page for {site_name} - a {theme} business.
+            'company': {
+                'title': 'Company',
+                'prompt': f"""Create a professional COMPANY page for {site_name} - a {theme} business.
 
 REQUIREMENTS:
 - Heading section with page title
@@ -2048,7 +2152,7 @@ Return ONLY the content for <main> tag."""
                     <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
                         Get Started
                     </a>
-                    <a href="about.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition">
+                    <a href="company.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition">
                         Learn More
                     </a>
                 </div>
@@ -2177,7 +2281,7 @@ Return ONLY the content for <main> tag."""
                         We are dedicated to providing excellent service and building lasting relationships with our clients. 
                         Our team brings years of experience and expertise to every project.
                     </p>
-                    <a href="about.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition">
+                    <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition">
                         Learn More
                     </a>
                 </div>
@@ -2258,10 +2362,10 @@ Return ONLY the content for <main> tag."""
         </div>
     </section>
 </main>""",
-            'about': f"""<main>
+            'company': f"""<main>
     <section class="py-20">
         <div class="container mx-auto px-6">
-            <h1 class="text-5xl font-bold text-center mb-12">About {site_name}</h1>
+            <h1 class="text-5xl font-bold text-center mb-12">Company - {site_name}</h1>
             <div class="max-w-4xl mx-auto">
                 <p class="text-xl text-gray-600 mb-6">
                     We are dedicated to providing excellent service and building lasting relationships with our clients.
@@ -3146,8 +3250,8 @@ Return ONLY the content for <main> tag."""
             nav = "['name' => 'Home', 'url' => 'index.php'], ['name' => 'Contact', 'url' => 'index.php#contact']"
             footer = "['name' => 'Home', 'url' => 'index.php'], ['name' => 'Privacy', 'url' => 'privacy.php'], ['name' => 'Terms', 'url' => 'terms.php']"
         else:
-            nav = "['name' => 'Home', 'url' => 'index.php'], ['name' => 'About', 'url' => 'about.php'], ['name' => 'Services', 'url' => 'services.php'], ['name' => 'Blog', 'url' => 'blog1.php'], ['name' => 'Contact', 'url' => 'contact.php']"
-            footer = "['name' => 'Home', 'url' => 'index.php'], ['name' => 'About', 'url' => 'about.php'], ['name' => 'Services', 'url' => 'services.php'], ['name' => 'Contact', 'url' => 'contact.php'], ['name' => 'Privacy', 'url' => 'privacy.php']"
+            nav = "['name' => 'Home', 'url' => 'index.php'], ['name' => 'Company', 'url' => 'company.php'], ['name' => 'Services', 'url' => 'services.php'], ['name' => 'Blog', 'url' => 'blog1.php'], ['name' => 'Contact', 'url' => 'contact.php']"
+            footer = "['name' => 'Home', 'url' => 'index.php'], ['name' => 'Company', 'url' => 'company.php'], ['name' => 'Services', 'url' => 'services.php'], ['name' => 'Contact', 'url' => 'contact.php'], ['name' => 'Privacy', 'url' => 'privacy.php']"
         
         php = f"""<?php
 require_once 'vendor/autoload.php';
@@ -3333,7 +3437,7 @@ php -S localhost:8000
             print("  Режим: ЛЕНДИНГ (одна страница с секциями)")
         else:
             # Многостраничный сайт - все основные страницы включая blog
-            pages_to_generate = ['index', 'about', 'services', 'contact', 'blog', 'blog1', 'blog2', 'blog3', 'privacy', 'terms', 'cookie', 'thanks_you']
+            pages_to_generate = ['index', 'company', 'services', 'contact', 'blog', 'blog1', 'blog2', 'blog3', 'privacy', 'terms', 'cookie', 'thanks_you']
             print("  Режим: МНОГОСТРАНИЧНЫЙ САЙТ (все страницы + blog главная + статьи)")
         
         # Генерируем каждую страницу с повышенным вниманием
