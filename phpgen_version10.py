@@ -2624,7 +2624,12 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             
             footer_variants_map = {1: 1, 2: 2, 4: 3, 5: 4}
             print(f"  ✓ Footer создан (вариант {footer_variants_map.get(footer_variant, footer_variant)}/4) с навигацией (без соц. сетей)")
-            
+
+            # Генерируем Cookie Notice и добавляем к footer
+            cookie_notice = self.generate_cookie_notice()
+            self.footer_code += cookie_notice
+            print(f"  ✓ Cookie Notice добавлен к footer")
+
             # CSS для header и footer (обязательный footer на всех страницах)
             self.header_footer_css = f"""<script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -2642,7 +2647,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
     /* Обеспечиваем footer всегда внизу */
     #root, .page-wrapper {{ min-height: 100vh; display: flex; flex-direction: column; }}
 </style>"""
-            
+
             return True
             
         except Exception as e:
@@ -2676,7 +2681,11 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         <p class="text-gray-400 text-sm mt-4">&copy; 2025 {site_name}. All rights reserved.</p>
     </div>
 </footer>"""
-            
+
+            # Добавляем Cookie Notice даже в fallback режиме
+            cookie_notice = self.generate_cookie_notice()
+            self.footer_code += cookie_notice
+
             # Минимальный CSS (используем Inter по умолчанию при ошибке)
             self.header_footer_css = """<script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -2692,7 +2701,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
     main { flex: 1; }
     footer { margin-top: auto; }
 </style>"""
-            
+
             print(f"  ✓ Базовый header/footer создан (fallback режим)")
             return True
     
@@ -2745,7 +2754,321 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         with open(favicon_path, 'w', encoding='utf-8') as f:
             f.write(favicon_svg)
         print(f"✓ Favicon создан: {letter} ({hex_color})")
-    
+
+    def generate_cookie_notice(self):
+        """Генерация Cookie Notice с 9 вариациями (3 баннера снизу + 3 поп-ап справа + 3 маленьких)"""
+        colors = self.blueprint.get('color_scheme', {})
+        primary = colors.get('primary', 'blue-600')
+        hover = colors.get('hover', 'blue-700')
+        site_name = self.blueprint.get('site_name', 'Company')
+
+        # Выбираем случайный вариант из 9
+        variation = random.randint(1, 9)
+
+        if variation <= 3:
+            # Баннер снизу (3 вариации)
+            if variation == 1:
+                # Баннер 1: Классический по центру
+                return f"""
+<!-- Cookie Notice Banner (Bottom Center) -->
+<div id="cookie-notice" class="fixed bottom-0 left-0 right-0 bg-gray-900 text-white py-4 px-6 shadow-lg z-50 hidden">
+    <div class="container mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <svg class="w-6 h-6 flex-shrink-0 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="text-sm">We use cookies to enhance your browsing experience. By continuing, you agree to our <a href="cookie.php" class="underline hover:text-{primary} transition">Cookie Policy</a>.</p>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="acceptCookies()" class="bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg text-sm font-semibold transition">
+                Accept
+            </button>
+            <button onclick="dismissCookieNotice()" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-lg text-sm font-semibold transition">
+                Decline
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+function showCookieNotice() {{
+    if (!localStorage.getItem('cookiesAccepted')) {{
+        document.getElementById('cookie-notice').classList.remove('hidden');
+    }}
+}}
+function acceptCookies() {{
+    localStorage.setItem('cookiesAccepted', 'true');
+    document.getElementById('cookie-notice').classList.add('hidden');
+}}
+function dismissCookieNotice() {{
+    document.getElementById('cookie-notice').classList.add('hidden');
+}}
+setTimeout(showCookieNotice, 1000);
+</script>
+"""
+            elif variation == 2:
+                # Баннер 2: Широкий с иконкой cookie
+                return f"""
+<!-- Cookie Notice Banner (Full Width) -->
+<div id="cookie-notice" class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-{primary} shadow-2xl py-6 px-6 z-50 hidden">
+    <div class="container mx-auto">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-start gap-4">
+                <div class="text-4xl">🍪</div>
+                <div>
+                    <h3 class="font-bold text-lg mb-1">Cookie Consent</h3>
+                    <p class="text-gray-600 text-sm">This website uses cookies to ensure you get the best experience. <a href="cookie.php" class="text-{primary} underline hover:text-{hover} transition">Learn more</a></p>
+                </div>
+            </div>
+            <div class="flex gap-3 flex-shrink-0">
+                <button onclick="acceptCookies()" class="bg-{primary} hover:bg-{hover} text-white px-8 py-3 rounded-lg font-semibold transition shadow-lg">
+                    Accept All
+                </button>
+                <button onclick="dismissCookieNotice()" class="border-2 border-gray-300 hover:border-gray-400 text-gray-700 px-8 py-3 rounded-lg font-semibold transition">
+                    Decline
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function showCookieNotice() {{
+    if (!localStorage.getItem('cookiesAccepted')) {{
+        document.getElementById('cookie-notice').classList.remove('hidden');
+    }}
+}}
+function acceptCookies() {{
+    localStorage.setItem('cookiesAccepted', 'true');
+    document.getElementById('cookie-notice').classList.add('hidden');
+}}
+function dismissCookieNotice() {{
+    document.getElementById('cookie-notice').classList.add('hidden');
+}}
+setTimeout(showCookieNotice, 1000);
+</script>
+"""
+            else:  # variation == 3
+                # Баннер 3: Минималистичный
+                return f"""
+<!-- Cookie Notice Banner (Minimal) -->
+<div id="cookie-notice" class="fixed bottom-0 left-0 right-0 bg-{primary} text-white py-3 px-6 z-50 hidden">
+    <div class="container mx-auto flex items-center justify-between">
+        <p class="text-sm">🍪 We use cookies. <a href="cookie.php" class="underline font-semibold hover:opacity-80 transition">Cookie Policy</a></p>
+        <div class="flex gap-2">
+            <button onclick="acceptCookies()" class="bg-white text-{primary} px-4 py-1 rounded font-semibold text-sm hover:opacity-90 transition">
+                OK
+            </button>
+            <button onclick="dismissCookieNotice()" class="border border-white text-white px-4 py-1 rounded font-semibold text-sm hover:bg-white hover:text-{primary} transition">
+                ✕
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+function showCookieNotice() {{
+    if (!localStorage.getItem('cookiesAccepted')) {{
+        document.getElementById('cookie-notice').classList.remove('hidden');
+    }}
+}}
+function acceptCookies() {{
+    localStorage.setItem('cookiesAccepted', 'true');
+    document.getElementById('cookie-notice').classList.add('hidden');
+}}
+function dismissCookieNotice() {{
+    document.getElementById('cookie-notice').classList.add('hidden');
+}}
+setTimeout(showCookieNotice, 1000);
+</script>
+"""
+
+        elif variation <= 6:
+            # Поп-ап справа снизу (3 вариации)
+            if variation == 4:
+                # Поп-ап 1: Карточка с тенью
+                return f"""
+<!-- Cookie Notice Popup (Bottom Right Card) -->
+<div id="cookie-notice" class="fixed bottom-6 right-6 bg-white rounded-xl shadow-2xl p-6 max-w-md z-50 hidden border border-gray-200">
+    <div class="flex items-start gap-3 mb-4">
+        <div class="w-10 h-10 bg-{primary}/10 rounded-full flex items-center justify-center flex-shrink-0">
+            <svg class="w-6 h-6 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+        </div>
+        <div>
+            <h3 class="font-bold text-lg mb-2">Cookie Settings</h3>
+            <p class="text-gray-600 text-sm">We use cookies to improve your experience. By using our site, you accept our <a href="cookie.php" class="text-{primary} underline hover:text-{hover}">cookie policy</a>.</p>
+        </div>
+        <button onclick="dismissCookieNotice()" class="text-gray-400 hover:text-gray-600 flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    </div>
+    <div class="flex gap-3">
+        <button onclick="acceptCookies()" class="flex-1 bg-{primary} hover:bg-{hover} text-white py-2 rounded-lg font-semibold transition">
+            Accept
+        </button>
+        <button onclick="dismissCookieNotice()" class="flex-1 border-2 border-gray-300 hover:border-gray-400 text-gray-700 py-2 rounded-lg font-semibold transition">
+            Decline
+        </button>
+    </div>
+</div>
+<script>
+function showCookieNotice() {{
+    if (!localStorage.getItem('cookiesAccepted')) {{
+        document.getElementById('cookie-notice').classList.remove('hidden');
+    }}
+}}
+function acceptCookies() {{
+    localStorage.setItem('cookiesAccepted', 'true');
+    document.getElementById('cookie-notice').classList.add('hidden');
+}}
+function dismissCookieNotice() {{
+    document.getElementById('cookie-notice').classList.add('hidden');
+}}
+setTimeout(showCookieNotice, 1000);
+</script>
+"""
+            elif variation == 5:
+                # Поп-ап 2: Темный с градиентом
+                return f"""
+<!-- Cookie Notice Popup (Dark Gradient) -->
+<div id="cookie-notice" class="fixed bottom-6 right-6 bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-2xl shadow-2xl p-6 max-w-sm z-50 hidden">
+    <div class="mb-4">
+        <div class="flex items-center justify-between mb-3">
+            <span class="text-3xl">🍪</span>
+            <button onclick="dismissCookieNotice()" class="text-gray-400 hover:text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        <h3 class="font-bold text-xl mb-2">Cookies Notice</h3>
+        <p class="text-gray-300 text-sm">We value your privacy. Read our <a href="cookie.php" class="text-{primary} underline hover:opacity-80">cookie policy</a> to learn more.</p>
+    </div>
+    <button onclick="acceptCookies()" class="w-full bg-{primary} hover:bg-{hover} text-white py-3 rounded-xl font-bold transition shadow-lg">
+        Accept Cookies
+    </button>
+</div>
+<script>
+function showCookieNotice() {{
+    if (!localStorage.getItem('cookiesAccepted')) {{
+        document.getElementById('cookie-notice').classList.remove('hidden');
+    }}
+}}
+function acceptCookies() {{
+    localStorage.setItem('cookiesAccepted', 'true');
+    document.getElementById('cookie-notice').classList.add('hidden');
+}}
+function dismissCookieNotice() {{
+    document.getElementById('cookie-notice').classList.add('hidden');
+}}
+setTimeout(showCookieNotice, 1000);
+</script>
+"""
+            else:  # variation == 6
+                # Поп-ап 3: Компактный с border
+                return f"""
+<!-- Cookie Notice Popup (Compact) -->
+<div id="cookie-notice" class="fixed bottom-6 right-6 bg-white rounded-lg shadow-xl p-5 max-w-xs z-50 hidden border-l-4 border-{primary}">
+    <div class="flex items-center justify-between mb-3">
+        <h4 class="font-bold text-gray-900">Cookie Notice</h4>
+        <button onclick="dismissCookieNotice()" class="text-gray-400 hover:text-gray-600">✕</button>
+    </div>
+    <p class="text-gray-600 text-sm mb-4">We use cookies to personalize content. <a href="cookie.php" class="text-{primary} font-semibold hover:underline">Details</a></p>
+    <button onclick="acceptCookies()" class="w-full bg-{primary} hover:bg-{hover} text-white py-2 rounded-lg font-semibold text-sm transition">
+        Got it!
+    </button>
+</div>
+<script>
+function showCookieNotice() {{
+    if (!localStorage.getItem('cookiesAccepted')) {{
+        document.getElementById('cookie-notice').classList.remove('hidden');
+    }}
+}}
+function acceptCookies() {{
+    localStorage.setItem('cookiesAccepted', 'true');
+    document.getElementById('cookie-notice').classList.add('hidden');
+}}
+function dismissCookieNotice() {{
+    document.getElementById('cookie-notice').classList.add('hidden');
+}}
+setTimeout(showCookieNotice, 1000);
+</script>
+"""
+
+        else:
+            # Маленькие уведомления (3 вариации)
+            if variation == 7:
+                # Маленькое 1: Таблетка снизу справа
+                return f"""
+<!-- Cookie Notice (Small Pill) -->
+<div id="cookie-notice" class="fixed bottom-6 right-6 bg-gray-900 text-white rounded-full px-5 py-3 shadow-lg z-50 hidden flex items-center gap-3">
+    <span class="text-sm">🍪 Cookies</span>
+    <button onclick="acceptCookies()" class="bg-{primary} hover:bg-{hover} text-white px-4 py-1 rounded-full text-xs font-semibold transition">
+        OK
+    </button>
+</div>
+<script>
+function showCookieNotice() {{
+    if (!localStorage.getItem('cookiesAccepted')) {{
+        document.getElementById('cookie-notice').classList.remove('hidden');
+    }}
+}}
+function acceptCookies() {{
+    localStorage.setItem('cookiesAccepted', 'true');
+    document.getElementById('cookie-notice').classList.add('hidden');
+}}
+setTimeout(showCookieNotice, 1000);
+</script>
+"""
+            elif variation == 8:
+                # Маленькое 2: Badge с иконкой
+                return f"""
+<!-- Cookie Notice (Small Badge) -->
+<div id="cookie-notice" class="fixed bottom-6 right-6 bg-white border-2 border-{primary} rounded-xl px-4 py-3 shadow-lg z-50 hidden">
+    <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-{primary} rounded-full flex items-center justify-center text-white font-bold text-sm">C</div>
+        <div>
+            <p class="text-xs text-gray-700 font-semibold">Cookies active</p>
+            <button onclick="acceptCookies()" class="text-{primary} text-xs underline hover:no-underline">Agree</button>
+        </div>
+    </div>
+</div>
+<script>
+function showCookieNotice() {{
+    if (!localStorage.getItem('cookiesAccepted')) {{
+        document.getElementById('cookie-notice').classList.remove('hidden');
+    }}
+}}
+function acceptCookies() {{
+    localStorage.setItem('cookiesAccepted', 'true');
+    document.getElementById('cookie-notice').classList.add('hidden');
+}}
+setTimeout(showCookieNotice, 1000);
+</script>
+"""
+            else:  # variation == 9
+                # Маленькое 3: Minimal toast
+                return f"""
+<!-- Cookie Notice (Minimal Toast) -->
+<div id="cookie-notice" class="fixed bottom-6 right-6 bg-{primary} text-white rounded-lg px-6 py-3 shadow-lg z-50 hidden flex items-center gap-3">
+    <span class="text-sm font-medium">Cookies in use</span>
+    <button onclick="acceptCookies()" class="text-white hover:opacity-80 font-bold text-lg">×</button>
+</div>
+<script>
+function showCookieNotice() {{
+    if (!localStorage.getItem('cookiesAccepted')) {{
+        document.getElementById('cookie-notice').classList.remove('hidden');
+    }}
+}}
+function acceptCookies() {{
+    localStorage.setItem('cookiesAccepted', 'true');
+    document.getElementById('cookie-notice').classList.add('hidden');
+}}
+setTimeout(showCookieNotice, 1000);
+</script>
+"""
+
     def generate_contact_page(self, output_dir):
         """Генерация Contact страницы с 5 вариациями"""
         site_name = self.blueprint.get('site_name', 'Company')
@@ -4949,11 +5272,11 @@ Return ONLY the content for <main> tag."""
 
 if __name__ == "__main__":
     print("┌──────────────────────────────────────────────────────────┐")
-    print("│     ✦   ____  __  __ ____   ____  _____ _   _   ✦        │")
-    print("│     ✦  |  _ \\|  \\/  |  _ \\ / ___|| ____| \\ | | ✦         │")
-    print("│     ✦  | |_) | |\\/| | |_) | |  _ |  _| |  \\| | ✦         │")
-    print("│     ✦  |  __/| |  | |  __/| |_| || |___| |\\  | ✦         │")
-    print("│     ✦  |_|   |_|  |_|_|    \\____||_____|_| \\_| ✦         │")
+    print("│     ✦   ____  _   _ ____   ____  _____ _   _    ✦        │")
+    print("│     ✦  |  _ \\| | | |  _ \\ / ___|| ____| \\ | |   ✦        │")
+    print("│     ✦  | |_) | |_| | |_) | |  _ |  _| |  \\| |   ✦        │")
+    print("│     ✦  |  __/|  _  |  __/| |_| || |___| |\\  |   ✦        │")
+    print("│     ✦  |_|   |_| |_|_|    \\____||_____|_| \\_|   ✦        │")
     print("│                                                          │")
     print("│                      PHPGEN v12                          │")
     print("│                  by Gosha Chepchik                       │")
