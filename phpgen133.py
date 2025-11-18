@@ -165,48 +165,32 @@ class PHPWebsiteGenerator:
     
     def generate_unique_site_name(self, country, theme):
         """Генерация уникального названия сайта через API с учетом тематики"""
-        
-        # Специализированные промпты для разных тематик
-        theme_specific_examples = {
-            "Bookstore": "PageTurn, StoryNest, BookHaven, ReadCraft, NovelVault, ChapterHouse",
-            "Restaurant": "TasteHub, FlavorCraft, DishDash, CulinaryNest, PlateFlow, BiteSpot",
-            "Hotel": "StayNest, RoomHaven, RestPoint, LodgeHub, SleepCraft, InnFlow",
-            "Shop": "ShopFlow, CartCraft, MarketNest, StoreHub, BuyPoint, TradeSpot",
-            "Fitness": "FitFlow, PowerNest, GymCraft, StrengthHub, ActivePoint, MuscleSpot",
-            "Healthcare": "CareNest, MediFlow, HealthHub, WellCraft, CurePoint, VitalSpot",
-            "Education": "LearnHub, KnowNest, StudyCraft, EduFlow, BrainPoint, SkillSpot",
-            "IT": "CodeNest, TechFlow, ByteCraft, DataHub, CloudPoint, DevSpot",
-            "Real Estate": "PropertyNest, HomeHub, EstateFlow, DwellCraft, SpacePoint, HouseSpot",
-            "Travel": "WanderHub, TripNest, JourneyCraft, TravelFlow, RoutePoint, TourSpot"
-        }
-        
-        # Получаем примеры для конкретной тематики
-        examples = theme_specific_examples.get(theme, "TechWave, CloudNest, DataSphere, CodeCraft, ByteForge")
-        
+
         prompt = f"""Generate a unique, creative website name for a {theme} company based in {country}.
 
 CRITICAL REQUIREMENTS:
-- The name MUST be directly related to {theme} industry in {country}
+- The name MUST be directly related to {theme} industry
 - The name should reflect the nature of {theme} business
 - Consider the cultural and geographical context of {country}
 - 1-3 words maximum
-- DO NOT use generic tech words like "Digital", "Tech", "Cyber", "Web", "Net" unless the theme is IT/Technology
+- DO NOT use generic tech words like "Digital", "Tech", "Cyber", "Web", "Net" unless the theme is IT/Technology/Software
 - DO NOT use the exact words "{theme}" or "{country}" in the name
-- Use creative combinations, metaphors, or related terms specific to {theme}
+- Use creative combinations, metaphors, or related terms specific to {theme} industry
 - The name should sound appropriate for a company operating in {country}
+- Be creative and industry-specific
 
-Examples of good names for {theme}: {examples}
+For {theme} industry:
+- Focus on terms and concepts directly related to this industry
+- Use imagery and metaphors that customers in this industry would understand
+- Avoid technology jargon unless the industry is technology-focused
 
-Industry-specific guidance for {theme}:
-{self._get_industry_guidance(theme)}
-
-Geographic and cultural context for {country}:
+Geographic context for {country}:
 - Consider local business naming conventions in {country}
 - The name should resonate with customers in {country}
-- Avoid names that might be culturally inappropriate or confusing in {country}
+- Avoid names that might be culturally inappropriate in {country}
 
 Return ONLY the site name, nothing else. No quotes, no punctuation, no explanations."""
-        
+
         response = self.call_api(prompt, max_tokens=50)
         if response:
             # Очистка от лишних символов
@@ -216,34 +200,18 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             # Ограничиваем длину
             if len(site_name) > 30:
                 site_name = site_name[:30].strip()
-            
+
             # Проверяем, что название не содержит запрещенные слова для неIT тематик
             forbidden_for_non_it = ['digital', 'tech', 'cyber', 'web', 'net', 'byte', 'data', 'cloud', 'code']
             if theme not in ['IT', 'Technology', 'Software', 'Digital'] and any(word in site_name.lower() for word in forbidden_for_non_it):
                 # Если название неподходящее, используем fallback для тематики
                 return self._get_fallback_name(theme)
-            
+
             return site_name if site_name else self._get_fallback_name(theme)
-        
+
         # Fallback если API не ответил
         return self._get_fallback_name(theme)
-    
-    def _get_industry_guidance(self, theme):
-        """Возвращает специфические рекомендации по названию для каждой индустрии"""
-        guidance = {
-            "Bookstore": "Focus on reading, stories, pages, chapters, authors. Avoid tech terms.",
-            "Restaurant": "Focus on food, taste, flavor, cuisine, dishes. Avoid tech terms.",
-            "Hotel": "Focus on accommodation, rest, stay, rooms, comfort. Avoid tech terms.",
-            "Shop": "Focus on products, shopping, stores, marketplace. Can use tech for e-commerce.",
-            "Fitness": "Focus on health, strength, workout, training, body. Avoid tech terms.",
-            "Healthcare": "Focus on health, care, wellness, medical, healing. Avoid tech terms.",
-            "Education": "Focus on learning, knowledge, teaching, skills. Can use tech for e-learning.",
-            "IT": "Focus on technology, software, code, data, digital solutions.",
-            "Real Estate": "Focus on property, homes, spaces, dwellings. Avoid tech terms.",
-            "Travel": "Focus on journey, destinations, adventure, exploration. Avoid tech terms."
-        }
-        return guidance.get(theme, "Create a name that reflects the core business values and services.")
-    
+
     def _get_fallback_name(self, theme):
         """Возвращает fallback название специфичное для тематики"""
         fallback_names = {
@@ -256,10 +224,16 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             "Education": ["LearnHub", "KnowNest", "StudyCraft", "EduFlow", "BrainPoint"],
             "IT": ["TechWave", "CloudNest", "DataSphere", "CodeCraft", "ByteForge"],
             "Real Estate": ["PropertyNest", "HomeHub", "EstateFlow", "DwellCraft", "SpacePoint"],
-            "Travel": ["WanderHub", "TripNest", "JourneyCraft", "TravelFlow", "RoutePoint"]
+            "Travel": ["WanderHub", "TripNest", "JourneyCraft", "TravelFlow", "RoutePoint"],
+            "Cryptocurrency": ["CoinVault", "BlockChain", "CryptoNest", "TokenHub", "DigitalAsset"]
         }
-        names = fallback_names.get(theme, ["TechWave", "CloudNest", "DataSphere", "CodeCraft", "ByteForge"])
-        return random.choice(names)
+        # Проверяем тему с учетом lowercase для более гибкого поиска
+        theme_lower = theme.lower()
+        for key in fallback_names.keys():
+            if key.lower() in theme_lower or theme_lower in key.lower():
+                return random.choice(fallback_names[key])
+        # Default fallback
+        return random.choice(["TechWave", "CloudNest", "DataSphere", "CodeCraft", "ByteForge"])
 
     def get_country_contact_data(self, country):
         """Возвращает разные номера телефонов и адреса в зависимости от страны"""
