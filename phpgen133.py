@@ -2554,6 +2554,59 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             
             # CSS для header и footer (обязательный footer на всех страницах)
             self.header_footer_css = f"""<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {{
+        safelist: [
+            // All possible color classes from color schemes
+            'bg-blue-600', 'bg-blue-700', 'bg-blue-50', 'bg-blue-100',
+            'bg-purple-600', 'bg-purple-700', 'bg-purple-50', 'bg-purple-100', 'bg-purple-400',
+            'bg-emerald-600', 'bg-emerald-700', 'bg-emerald-50', 'bg-emerald-100',
+            'bg-orange-600', 'bg-orange-700', 'bg-orange-50', 'bg-orange-100',
+            'bg-rose-600', 'bg-rose-700', 'bg-rose-50', 'bg-rose-100',
+            'bg-sky-600', 'bg-sky-700', 'bg-sky-50', 'bg-sky-100',
+            'bg-violet-600', 'bg-violet-700', 'bg-violet-50', 'bg-violet-100',
+            'bg-fuchsia-600', 'bg-fuchsia-700', 'bg-fuchsia-50', 'bg-fuchsia-100',
+            'bg-indigo-600', 'bg-pink-600', 'bg-teal-600', 'bg-amber-600', 'bg-red-600',
+            'bg-cyan-500', 'bg-cyan-400', 'bg-green-500', 'bg-yellow-500', 'bg-pink-500', 'bg-indigo-500',
+            'text-blue-600', 'text-blue-700', 'text-purple-600', 'text-purple-700',
+            'text-emerald-600', 'text-emerald-700', 'text-orange-600', 'text-orange-700',
+            'text-rose-600', 'text-rose-700', 'text-sky-600', 'text-sky-700',
+            'text-violet-600', 'text-violet-700', 'text-fuchsia-600', 'text-fuchsia-700',
+            'text-indigo-600', 'text-pink-600', 'text-teal-600', 'text-amber-600', 'text-red-600',
+            'text-cyan-500', 'text-cyan-400', 'text-green-500', 'text-yellow-500', 'text-pink-500', 'text-indigo-500',
+            'hover:bg-blue-600', 'hover:bg-blue-700', 'hover:bg-purple-600', 'hover:bg-purple-700',
+            'hover:bg-emerald-600', 'hover:bg-emerald-700', 'hover:bg-orange-600', 'hover:bg-orange-700',
+            'hover:bg-rose-600', 'hover:bg-rose-700', 'hover:bg-sky-600', 'hover:bg-sky-700',
+            'hover:bg-violet-600', 'hover:bg-violet-700', 'hover:bg-fuchsia-600', 'hover:bg-fuchsia-700',
+            'hover:text-blue-600', 'hover:text-blue-700', 'hover:text-purple-600', 'hover:text-purple-700',
+            'hover:text-emerald-600', 'hover:text-emerald-700', 'hover:text-orange-600', 'hover:text-orange-700',
+            'hover:text-rose-600', 'hover:text-rose-700', 'hover:text-sky-600', 'hover:text-sky-700',
+            'hover:text-violet-600', 'hover:text-violet-700', 'hover:text-fuchsia-600', 'hover:text-fuchsia-700',
+            'border-blue-600', 'border-blue-700', 'border-purple-600', 'border-purple-700',
+            'border-emerald-600', 'border-emerald-700', 'border-orange-600', 'border-orange-700',
+            'border-rose-600', 'border-rose-700', 'border-sky-600', 'border-sky-700',
+            'border-violet-600', 'border-violet-700', 'border-fuchsia-600', 'border-fuchsia-700',
+            'from-blue-600', 'from-blue-700', 'from-blue-50', 'from-blue-100',
+            'from-purple-600', 'from-purple-700', 'from-purple-50', 'from-purple-100',
+            'from-emerald-600', 'from-emerald-700', 'from-emerald-50', 'from-emerald-100',
+            'from-orange-600', 'from-orange-700', 'from-orange-50', 'from-orange-100',
+            'from-rose-600', 'from-rose-700', 'from-rose-50', 'from-rose-100',
+            'from-sky-600', 'from-sky-700', 'from-sky-50', 'from-sky-100',
+            'from-violet-600', 'from-violet-700', 'from-violet-50', 'from-violet-100',
+            'from-fuchsia-600', 'from-fuchsia-700', 'from-fuchsia-50', 'from-fuchsia-100',
+            'to-blue-600', 'to-blue-700', 'to-blue-50', 'to-blue-100',
+            'to-purple-600', 'to-purple-700', 'to-purple-50', 'to-purple-100',
+            'to-emerald-600', 'to-emerald-700', 'to-emerald-50', 'to-emerald-100',
+            'to-orange-600', 'to-orange-700', 'to-orange-50', 'to-orange-100',
+            'to-rose-600', 'to-rose-700', 'to-rose-50', 'to-rose-100',
+            'to-sky-600', 'to-sky-700', 'to-sky-50', 'to-sky-100',
+            'to-violet-600', 'to-violet-700', 'to-violet-50', 'to-violet-100',
+            'to-fuchsia-600', 'to-fuchsia-700', 'to-fuchsia-50', 'to-fuchsia-100',
+            'ring-blue-600', 'ring-purple-600', 'ring-emerald-600', 'ring-orange-600',
+            'ring-rose-600', 'ring-sky-600', 'ring-violet-600', 'ring-fuchsia-600'
+        ]
+    }}
+</script>
 <style>
     {selected_font['import']}
     * {{ margin: 0; padding: 0; box-sizing: border-box; }}
@@ -2606,6 +2659,59 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             
             # Минимальный CSS (используем Inter по умолчанию при ошибке)
             self.header_footer_css = """<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        safelist: [
+            // All possible color classes from color schemes
+            'bg-blue-600', 'bg-blue-700', 'bg-blue-50', 'bg-blue-100',
+            'bg-purple-600', 'bg-purple-700', 'bg-purple-50', 'bg-purple-100', 'bg-purple-400',
+            'bg-emerald-600', 'bg-emerald-700', 'bg-emerald-50', 'bg-emerald-100',
+            'bg-orange-600', 'bg-orange-700', 'bg-orange-50', 'bg-orange-100',
+            'bg-rose-600', 'bg-rose-700', 'bg-rose-50', 'bg-rose-100',
+            'bg-sky-600', 'bg-sky-700', 'bg-sky-50', 'bg-sky-100',
+            'bg-violet-600', 'bg-violet-700', 'bg-violet-50', 'bg-violet-100',
+            'bg-fuchsia-600', 'bg-fuchsia-700', 'bg-fuchsia-50', 'bg-fuchsia-100',
+            'bg-indigo-600', 'bg-pink-600', 'bg-teal-600', 'bg-amber-600', 'bg-red-600',
+            'bg-cyan-500', 'bg-cyan-400', 'bg-green-500', 'bg-yellow-500', 'bg-pink-500', 'bg-indigo-500',
+            'text-blue-600', 'text-blue-700', 'text-purple-600', 'text-purple-700',
+            'text-emerald-600', 'text-emerald-700', 'text-orange-600', 'text-orange-700',
+            'text-rose-600', 'text-rose-700', 'text-sky-600', 'text-sky-700',
+            'text-violet-600', 'text-violet-700', 'text-fuchsia-600', 'text-fuchsia-700',
+            'text-indigo-600', 'text-pink-600', 'text-teal-600', 'text-amber-600', 'text-red-600',
+            'text-cyan-500', 'text-cyan-400', 'text-green-500', 'text-yellow-500', 'text-pink-500', 'text-indigo-500',
+            'hover:bg-blue-600', 'hover:bg-blue-700', 'hover:bg-purple-600', 'hover:bg-purple-700',
+            'hover:bg-emerald-600', 'hover:bg-emerald-700', 'hover:bg-orange-600', 'hover:bg-orange-700',
+            'hover:bg-rose-600', 'hover:bg-rose-700', 'hover:bg-sky-600', 'hover:bg-sky-700',
+            'hover:bg-violet-600', 'hover:bg-violet-700', 'hover:bg-fuchsia-600', 'hover:bg-fuchsia-700',
+            'hover:text-blue-600', 'hover:text-blue-700', 'hover:text-purple-600', 'hover:text-purple-700',
+            'hover:text-emerald-600', 'hover:text-emerald-700', 'hover:text-orange-600', 'hover:text-orange-700',
+            'hover:text-rose-600', 'hover:text-rose-700', 'hover:text-sky-600', 'hover:text-sky-700',
+            'hover:text-violet-600', 'hover:text-violet-700', 'hover:text-fuchsia-600', 'hover:text-fuchsia-700',
+            'border-blue-600', 'border-blue-700', 'border-purple-600', 'border-purple-700',
+            'border-emerald-600', 'border-emerald-700', 'border-orange-600', 'border-orange-700',
+            'border-rose-600', 'border-rose-700', 'border-sky-600', 'border-sky-700',
+            'border-violet-600', 'border-violet-700', 'border-fuchsia-600', 'border-fuchsia-700',
+            'from-blue-600', 'from-blue-700', 'from-blue-50', 'from-blue-100',
+            'from-purple-600', 'from-purple-700', 'from-purple-50', 'from-purple-100',
+            'from-emerald-600', 'from-emerald-700', 'from-emerald-50', 'from-emerald-100',
+            'from-orange-600', 'from-orange-700', 'from-orange-50', 'from-orange-100',
+            'from-rose-600', 'from-rose-700', 'from-rose-50', 'from-rose-100',
+            'from-sky-600', 'from-sky-700', 'from-sky-50', 'from-sky-100',
+            'from-violet-600', 'from-violet-700', 'from-violet-50', 'from-violet-100',
+            'from-fuchsia-600', 'from-fuchsia-700', 'from-fuchsia-50', 'from-fuchsia-100',
+            'to-blue-600', 'to-blue-700', 'to-blue-50', 'to-blue-100',
+            'to-purple-600', 'to-purple-700', 'to-purple-50', 'to-purple-100',
+            'to-emerald-600', 'to-emerald-700', 'to-emerald-50', 'to-emerald-100',
+            'to-orange-600', 'to-orange-700', 'to-orange-50', 'to-orange-100',
+            'to-rose-600', 'to-rose-700', 'to-rose-50', 'to-rose-100',
+            'to-sky-600', 'to-sky-700', 'to-sky-50', 'to-sky-100',
+            'to-violet-600', 'to-violet-700', 'to-violet-50', 'to-violet-100',
+            'to-fuchsia-600', 'to-fuchsia-700', 'to-fuchsia-50', 'to-fuchsia-100',
+            'ring-blue-600', 'ring-purple-600', 'ring-emerald-600', 'ring-orange-600',
+            'ring-rose-600', 'ring-sky-600', 'ring-violet-600', 'ring-fuchsia-600'
+        ]
+    }
+</script>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
