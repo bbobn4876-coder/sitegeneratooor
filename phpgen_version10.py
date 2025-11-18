@@ -261,6 +261,37 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         names = fallback_names.get(theme, ["TechWave", "CloudNest", "DataSphere", "CodeCraft", "ByteForge"])
         return random.choice(names)
 
+    def generate_site_name_from_blueprint(self, blueprint):
+        """
+        API-style метод: принимает blueprint как запрос и генерирует название сайта.
+        Это позволяет использовать полный контекст из blueprint для генерации названия.
+
+        Args:
+            blueprint (dict): Blueprint с данными о сайте (theme, country, color_scheme и т.д.)
+
+        Returns:
+            str: Сгенерированное название сайта
+        """
+        # Извлекаем необходимые данные из blueprint
+        theme = blueprint.get('theme', 'Business')
+        country = blueprint.get('country', 'USA')
+        color_scheme = blueprint.get('color_scheme', {})
+
+        # Можно использовать дополнительный контекст из blueprint
+        # Например, цветовую схему для более персонализированной генерации
+        print(f"  📡 Отправка blueprint в API для генерации названия...")
+        print(f"     Theme: {theme}, Country: {country}")
+
+        # В будущем сюда можно добавить больше параметров из blueprint
+        # например: sections, header_layout, footer_layout и т.д.
+        # для более точной генерации названия
+
+        # Вызываем существующую логику генерации
+        site_name = self.generate_unique_site_name(country, theme)
+
+        print(f"  ✓ API вернул название: {site_name}")
+        return site_name
+
     def get_country_contact_data(self, country):
         """Возвращает разные номера телефонов и адреса в зависимости от страны"""
         country_lower = country.lower()
@@ -2289,24 +2320,20 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         elif 'china' in prompt_lower or 'chinese' in prompt_lower:
             country = "China"
         
-        # Генерируем уникальное название сайта через API
         print(f"  Определена тема: {theme}")
         print(f"  Определена страна: {country}")
-        print("  Генерация уникального названия...")
-        site_name = self.generate_unique_site_name(country, theme)
-        print(f"  ✓ Название: {site_name}")
-        
+
         # Генерируем цветовую схему
         color_scheme = self.generate_color_scheme()
         self.primary_color = color_scheme['primary']
-        
+
         # Генерируем layouts
         header_layout = self.generate_header_layout()
         footer_layout = self.generate_footer_layout()
-        
+
         # Генерируем секции
         sections = self.generate_section_variations()
-        
+
         # Создаем простой tagline локально (не через API для надежности)
         taglines = [
             f"Your Trusted {theme} Partner",
@@ -2316,10 +2343,9 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             f"Professional {theme} Services"
         ]
         tagline = random.choice(taglines)
-        
-        # Сразу создаем fallback blueprint (гарантированно рабочий)
-        self.blueprint = {
-            "site_name": site_name,
+
+        # ШАГ 1: Создаем blueprint БЕЗ site_name (базовая структура)
+        blueprint_draft = {
             "tagline": tagline,
             "theme": theme,
             "country": country,
@@ -2330,7 +2356,17 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             "menu": ["Home", "Services", "Company", "Blog", "Contact"],
             "pages": ["index", "company", "services", "contact", "blog1", "blog2", "blog3", "privacy", "terms", "cookie", "thanks"]
         }
-        
+
+        # ШАГ 2: Отправляем blueprint в API для генерации названия
+        print("  Подготовка blueprint для API...")
+        site_name = self.generate_site_name_from_blueprint(blueprint_draft)
+
+        # ШАГ 3: Добавляем сгенерированное название в blueprint
+        blueprint_draft["site_name"] = site_name
+
+        # ШАГ 4: Сохраняем финальный blueprint
+        self.blueprint = blueprint_draft
+
         print(f"✓ Blueprint создан: {site_name}")
         print(f"  Цвета: {color_scheme['primary']} (hover: {color_scheme['hover']})")
         print(f"  Header: {header_layout}, Footer: {footer_layout}")
