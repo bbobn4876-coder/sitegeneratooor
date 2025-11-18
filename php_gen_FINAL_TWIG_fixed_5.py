@@ -1289,9 +1289,15 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         """Генерация Contact страницы с 5 вариациями"""
         site_name = self.blueprint.get('site_name', 'Company')
         theme = self.blueprint.get('theme', 'business')
+        country = self.blueprint.get('country', 'USA')
         colors = self.blueprint.get('color_scheme', {})
         primary = colors.get('primary', 'blue-600')
         hover = colors.get('hover', 'blue-700')
+
+        # Получаем 3 разных набора контактных данных для разнообразия
+        contact_data_1 = self.get_country_contact_data(country)
+        contact_data_2 = self.get_country_contact_data(country)
+        contact_data_3 = self.get_country_contact_data(country)
 
         # Выбираем случайную вариацию от 1 до 5
         variation = random.randint(1, 5)
@@ -1351,7 +1357,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                                 </div>
                                 <div class="ml-4">
                                     <h3 class="font-semibold text-gray-900 mb-1">Phone</h3>
-                                    <a href="tel:+15551234567" class="text-gray-600 hover:text-{primary} transition">+1 (555) 123-4567</a>
+                                    <a href="tel:{contact_data_1["phone"].replace(" ", "")}" class="text-gray-600 hover:text-{primary} transition">{contact_data_1["phone"]}</a>
                                 </div>
                             </div>
                             <div class="flex items-start">
@@ -1360,7 +1366,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                                 </div>
                                 <div class="ml-4">
                                     <h3 class="font-semibold text-gray-900 mb-1">Address</h3>
-                                    <p class="text-gray-600">123 Business Street<br>Suite 100<br>New York, NY 10001</p>
+                                    <p class="text-gray-600">{contact_data_1["address"]}</p>
                                 </div>
                             </div>
                         </div>
@@ -1432,14 +1438,14 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                         <svg class="w-8 h-8 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
                     </div>
                     <h3 class="text-xl font-bold mb-2">Call Us</h3>
-                    <p class="text-gray-600">+1 (555) 123-4567</p>
+                    <p class="text-gray-600">{contact_data_2["phone"]}</p>
                 </div>
                 <div class="text-center p-8 bg-gradient-to-br from-{primary}/5 to-white rounded-xl hover:shadow-lg transition-shadow">
                     <div class="w-16 h-16 bg-{primary} rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg class="w-8 h-8 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     </div>
                     <h3 class="text-xl font-bold mb-2">Visit Us</h3>
-                    <p class="text-gray-600">New York, NY 10001</p>
+                    <p class="text-gray-600">{contact_data_2["address"]}</p>
                 </div>
             </div>
         </div>
@@ -1462,7 +1468,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                         </div>
                         <div>
                             <p class="text-sm opacity-75">Phone</p>
-                            <p class="text-lg font-semibold">+1 (555) 123-4567</p>
+                            <p class="text-lg font-semibold">{contact_data_3["phone"]}</p>
                         </div>
                     </div>
                     <div class="flex items-center">
@@ -1480,7 +1486,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                         </div>
                         <div>
                             <p class="text-sm opacity-75">Address</p>
-                            <p class="text-lg font-semibold">New York, NY 10001</p>
+                            <p class="text-lg font-semibold">{contact_data_3["address"]}</p>
                         </div>
                     </div>
                 </div>
@@ -1558,7 +1564,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                             <svg class="w-6 h-6 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
                         </div>
                         <h3 class="font-bold text-gray-900 mb-1">Phone</h3>
-                        <p class="text-sm text-gray-600">+1 (555) 123-4567</p>
+                        <p class="text-sm text-gray-600">{contact_data_1["phone"]}</p>
                     </div>
                     <div class="bg-white rounded-2xl shadow-xl p-6 text-center border-t-4 border-{primary}">
                         <div class="w-12 h-12 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -1663,7 +1669,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                         </div>
                         <div>
                             <p class="text-sm text-gray-500 mb-1">Phone</p>
-                            <p class="font-semibold text-gray-900">+1 (555) 123-4567</p>
+                            <p class="font-semibold text-gray-900">{contact_data_2["phone"]}</p>
                         </div>
                         <div>
                             <p class="text-sm text-gray-500 mb-1">Response Time</p>
