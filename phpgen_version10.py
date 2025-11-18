@@ -2256,25 +2256,25 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         
         return None
     
-    def create_blueprint(self, user_prompt):
+    def create_blueprint(self, user_prompt, site_name):
         """Создание Blueprint сайта с улучшенной обработкой"""
         # Улучшенное извлечение темы и страны из промпта
         country = "USA"
         theme = "Business"
-        
+
         # Ищем явное указание country и theme
         country_match = re.search(r'country[:\s]+([^,\n]+)', user_prompt, re.IGNORECASE)
         theme_match = re.search(r'theme[:\s]+([^,\n]+)', user_prompt, re.IGNORECASE)
-        
+
         if country_match:
             country = country_match.group(1).strip()
-        
+
         if theme_match:
             theme = theme_match.group(1).strip()
         else:
             # Если theme не указана явно, пробуем определить из контекста промпта
             prompt_lower = user_prompt.lower()
-            
+
             # Определяем тему по ключевым словам
             if any(word in prompt_lower for word in ['book', 'bookstore', 'library', 'книг', 'книжн']):
                 theme = "Bookstore"
@@ -2296,7 +2296,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                 theme = "Real Estate"
             elif any(word in prompt_lower for word in ['travel', 'tour', 'туризм', 'путешеств']):
                 theme = "Travel"
-            
+
         # Ищем страну в тексте
         prompt_lower = user_prompt.lower()
         if any(word in prompt_lower for word in ['netherlands', 'dutch', 'holland', 'amsterdam', 'нидерланды', 'голландия']):
@@ -2319,9 +2319,10 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             country = "Japan"
         elif 'china' in prompt_lower or 'chinese' in prompt_lower:
             country = "China"
-        
+
         print(f"  Определена тема: {theme}")
         print(f"  Определена страна: {country}")
+        print(f"  Используется название: {site_name}")
 
         # Генерируем цветовую схему
         color_scheme = self.generate_color_scheme()
@@ -2344,8 +2345,13 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         ]
         tagline = random.choice(taglines)
 
-        # ШАГ 1: Создаем blueprint БЕЗ site_name (базовая структура)
-        blueprint_draft = {
+        # Генерируем контактные данные для страны ОДИН РАЗ и сохраняем в blueprint
+        contact_data = self.get_country_contact_data(country)
+        print(f"  Контактные данные: {contact_data['phone']}")
+
+        # Создаем финальный blueprint с введенным названием
+        self.blueprint = {
+            "site_name": site_name,
             "tagline": tagline,
             "theme": theme,
             "country": country,
@@ -2354,24 +2360,15 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             "footer_layout": footer_layout,
             "sections": sections,
             "menu": ["Home", "Services", "Company", "Blog", "Contact"],
-            "pages": ["index", "company", "services", "contact", "blog1", "blog2", "blog3", "privacy", "terms", "cookie", "thanks"]
+            "pages": ["index", "company", "services", "contact", "blog1", "blog2", "blog3", "privacy", "terms", "cookie", "thanks"],
+            "contact_data": contact_data  # Сохраняем контактные данные в blueprint
         }
-
-        # ШАГ 2: Отправляем blueprint в API для генерации названия
-        print("  Подготовка blueprint для API...")
-        site_name = self.generate_site_name_from_blueprint(blueprint_draft)
-
-        # ШАГ 3: Добавляем сгенерированное название в blueprint
-        blueprint_draft["site_name"] = site_name
-
-        # ШАГ 4: Сохраняем финальный blueprint
-        self.blueprint = blueprint_draft
 
         print(f"✓ Blueprint создан: {site_name}")
         print(f"  Цвета: {color_scheme['primary']} (hover: {color_scheme['hover']})")
         print(f"  Header: {header_layout}, Footer: {footer_layout}")
         print(f"  Секции: {len(sections)}")
-        
+
         return True
     
     def generate_header_footer(self):
@@ -2561,6 +2558,8 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             
             elif footer_variant == 4:
                 # Вариант 4: 2 колонки (основные ссылки слева вертикально, policy + контакт справа)
+                # Получаем контактные данные из blueprint
+                contact_data = self.blueprint.get('contact_data', {'phone': '+1 (555) 123-4567', 'address': '123 Business Street'})
                 self.footer_code = f"""<footer class="bg-gray-900 text-white py-12 mt-auto">
     <div class="container mx-auto px-6">
         <div class="grid md:grid-cols-2 gap-8">
@@ -2571,7 +2570,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     {' '.join([f'<a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors">{link[0]}</a>' for link in main_links])}
                 </nav>
             </div>
-            
+
             <div>
                 <h4 class="text-lg font-semibold mb-4">Legal Information</h4>
                 <nav class="flex flex-col space-y-2">
@@ -2579,11 +2578,11 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                 </nav>
                 <div class="mt-6">
                     <p class="text-gray-400">Email: {site_name.lower().replace(' ', '')}@gmail.com</p>
-                    <p class="text-gray-400">Phone: +1 (555) 123-4567</p>
+                    <p class="text-gray-400">Phone: {contact_data['phone']}</p>
                 </div>
             </div>
         </div>
-        
+
         <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
             <p>&copy; 2025 {site_name}. All rights reserved.</p>
         </div>
@@ -2744,8 +2743,9 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         primary = colors.get('primary', 'blue-600')
         hover = colors.get('hover', 'blue-700')
 
-        # Получаем 3 разных набора контактных данных для разнообразия
-        contact_data_1 = self.get_country_contact_data(country)
+        # Используем сохраненные контактные данные из blueprint (те же что и в footer)
+        contact_data_1 = self.blueprint.get('contact_data', self.get_country_contact_data(country))
+        # Для разнообразия можем генерировать дополнительные контакты, но основной остается из blueprint
         contact_data_2 = self.get_country_contact_data(country)
         contact_data_3 = self.get_country_contact_data(country)
 
@@ -4848,21 +4848,21 @@ Return ONLY the content for <main> tag."""
         print(f"    ✓ {page_name}.php создана")
         return True
 
-    def generate_website(self, user_prompt, output_dir="generated_website", data_dir="data", site_type="multipage"):
+    def generate_website(self, user_prompt, site_name, output_dir="generated_website", data_dir="data", site_type="multipage"):
         """Основной метод генерации"""
         self.site_type = site_type
-        
+
         print("=" * 60)
         print(f"ГЕНЕРАТОР PHP {'ЛЕНДИНГОВ' if site_type == 'landing' else 'САЙТОВ'} v10")
         print("=" * 60)
-        
+
         Path(output_dir).mkdir(exist_ok=True)
-        
+
         print("\n[1/7] Загрузка БД...")
         self.load_database(data_dir)
-        
-        print("\n[2/7] Blueprint (уникальное название, цвета, layouts)...")
-        if not self.create_blueprint(user_prompt):
+
+        print("\n[2/7] Blueprint (название, цвета, layouts)...")
+        if not self.create_blueprint(user_prompt, site_name):
             print("⚠️  Ошибка Blueprint (использован fallback)")
         
         print("\n[3/7] Header и Footer (без соц. сетей, единый hover)...")
@@ -4963,9 +4963,17 @@ if __name__ == "__main__":
     print("   1. Лендинг (одна страница)")
     print("   2. Многостраничный сайт")
     site_type_choice = input("Выберите (1 или 2): ").strip()
-    
+
     site_type = "landing" if site_type_choice == "1" else "multipage"
-    
+
+    print("\n✏️  Название сайта:")
+    print("   (Введите название для вашего сайта)")
+    site_name = input(">>> ").strip()
+
+    if not site_name:
+        print("❌ Название не может быть пустым!")
+        exit(1)
+
     print("\n📁 Путь к папке data:")
     print("   (по умолчанию: data)")
     data_dir = input(">>> ").strip()
@@ -4983,16 +4991,17 @@ if __name__ == "__main__":
     print()
     print("=" * 60)
     print(f"🚀 Старт генерации...")
+    print(f"✏️  Название: {site_name}")
     print(f"📂 Папка данных: {data_dir}")
     print(f"📂 Папка вывода: {output_dir}")
     print(f"🎯 Тип: {'ЛЕНДИНГ' if site_type == 'landing' else 'МНОГОСТРАНИЧНЫЙ'}")
     print("=" * 60)
     print()
-    
+
     generator = PHPWebsiteGenerator()
-    
+
     try:
-        success = generator.generate_website(user_prompt, output_dir=output_dir, data_dir=data_dir, site_type=site_type)
+        success = generator.generate_website(user_prompt, site_name=site_name, output_dir=output_dir, data_dir=data_dir, site_type=site_type)
         
         if success:
             print("\n✨ Готово!")
