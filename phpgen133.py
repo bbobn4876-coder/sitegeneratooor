@@ -2244,7 +2244,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
     </section>
 </main>"""
 
-        # Вариация 5: Многошаговая форма с прогрессом
+        # Вариация 5: Форма с расширенными полями
         else:  # variation == 5
             main_content = f"""<main>
     <section class="py-20 bg-gradient-to-br from-gray-50 to-white">
@@ -2255,26 +2255,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             </div>
 
             <div class="max-w-4xl mx-auto">
-                <div class="mb-12">
-                    <div class="flex justify-between items-center mb-4">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-{primary} rounded-full flex items-center justify-center text-white font-bold">1</div>
-                            <span class="ml-3 font-semibold text-{primary}">Contact Info</span>
-                        </div>
-                        <div class="flex items-center opacity-50">
-                            <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">2</div>
-                            <span class="ml-3 font-semibold text-gray-500">Message</span>
-                        </div>
-                        <div class="flex items-center opacity-50">
-                            <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">3</div>
-                            <span class="ml-3 font-semibold text-gray-500">Submit</span>
-                        </div>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-{primary} h-2 rounded-full transition-all duration-500" style="width: 33%"></div>
-                    </div>
-                </div>
-
                 <div class="bg-white rounded-3xl shadow-2xl p-10 md:p-16">
                     <form action="thanks_you.php" method="POST" class="space-y-8">
                         <div class="grid md:grid-cols-2 gap-8">
