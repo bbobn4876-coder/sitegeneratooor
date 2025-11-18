@@ -34,6 +34,7 @@ class PHPWebsiteGenerator:
         self.generated_images = []
         self.primary_color = ""  # Основной цвет сайта
         self.num_blog_articles = 3  # Количество статей блога (3 или 6)
+        self.theme_content_cache = {}  # Кэш для контента на основе темы
 
         # Инициализация Ark клиента для ByteDance Seedream-4.0
         print(f"🔑 Инициализация ByteDance Ark SDK...")
@@ -319,6 +320,131 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             'phone': '+1 (555) 123-4567',
             'address': '123 Business Street, Suite 100, New York, NY 10001'
         }
+
+    def generate_theme_content_via_api(self, theme, content_type, num_items=4):
+        """
+        Генерирует контент на основе темы через API
+
+        Args:
+            theme: Тема сайта (например, "Travel", "Restaurant", "Cryptocurrency")
+            content_type: Тип контента ("process_steps", "featured_solutions", "approach_content", "services")
+            num_items: Количество элементов для генерации
+
+        Returns:
+            Структурированный контент в виде списка словарей или словаря
+        """
+        # Проверяем кэш
+        cache_key = f"{theme}_{content_type}_{num_items}"
+        if cache_key in self.theme_content_cache:
+            return self.theme_content_cache[cache_key]
+
+        # Создаем промпт в зависимости от типа контента
+        if content_type == "process_steps":
+            prompt = f"""Generate {num_items} process steps for a {theme} business/website.
+Return the result as a JSON array of objects, where each object has:
+- "title": short step title (2-4 words)
+- "description": detailed step description (1-2 sentences)
+
+Make the content highly specific to the {theme} industry. Use industry-specific terminology and realistic workflow.
+
+Example format:
+[
+  {{"title": "Step Title", "description": "Detailed description of this step."}},
+  ...
+]
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "featured_solutions":
+            prompt = f"""Generate {num_items} featured solutions/services for a {theme} business.
+Return the result as a JSON array of objects, where each object has:
+- "title": solution/service name (2-4 words)
+- "description": compelling description (1-2 sentences)
+- "image": placeholder image filename like "service1.jpg", "service2.jpg", etc.
+
+Make the content highly specific to the {theme} industry. Focus on real solutions that such a business would offer.
+
+Example format:
+[
+  {{"title": "Solution Name", "description": "Description of the solution.", "image": "service1.jpg"}},
+  ...
+]
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "approach_content":
+            prompt = f"""Generate approach/philosophy content for a {theme} business.
+Return the result as a JSON object with these exact keys:
+- "approach_title": Section title (e.g., "Our Approach")
+- "approach_text1": First paragraph about approach (2-3 sentences)
+- "approach_text2": Second paragraph about approach (2-3 sentences)
+- "why_title": Why choose us section title (e.g., "Why Choose Us")
+- "why_text1": First paragraph about why choose (2-3 sentences, include "{theme}" in the text)
+- "why_text2": Second paragraph about why choose (2-3 sentences)
+
+Make the content highly specific to the {theme} industry and business model.
+
+Example format:
+{{
+  "approach_title": "Our Approach",
+  "approach_text1": "...",
+  "approach_text2": "...",
+  "why_title": "Why Choose Us",
+  "why_text1": "...",
+  "why_text2": "..."
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "services":
+            prompt = f"""Generate {num_items} services/offerings for a {theme} business.
+Return the result as a JSON array of objects, where each object has:
+- "title": service name (2-4 words)
+- "description": service description (1-2 sentences)
+
+Make the content highly specific to the {theme} industry. These should be core services that such a business would realistically offer.
+
+Example format:
+[
+  {{"title": "Service Name", "description": "Description of the service."}},
+  ...
+]
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        else:
+            return None
+
+        # Вызываем API
+        print(f"    🤖 Генерация контента для темы '{theme}' ({content_type})...")
+        response = self.call_api(prompt, max_tokens=2000)
+
+        if not response:
+            print(f"    ✗ API не вернул ответ для {content_type}")
+            return None
+
+        try:
+            # Очищаем ответ от markdown форматирования если есть
+            response = response.strip()
+            if response.startswith('```'):
+                # Удаляем markdown code blocks
+                lines = response.split('\n')
+                response = '\n'.join(lines[1:-1]) if len(lines) > 2 else response
+                response = response.replace('```json', '').replace('```', '').strip()
+
+            # Парсим JSON
+            content = json.loads(response)
+
+            # Сохраняем в кэш
+            self.theme_content_cache[cache_key] = content
+
+            print(f"    ✓ Контент успешно сгенерирован для '{theme}'")
+            return content
+
+        except json.JSONDecodeError as e:
+            print(f"    ✗ Ошибка парсинга JSON для {content_type}: {e}")
+            print(f"    Ответ API: {response[:200]}...")
+            return None
 
     def get_theme_based_process_steps(self, theme):
         """Возвращает 4 шага процесса на основе темы"""
@@ -750,7 +876,11 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
 
     def generate_image_text_alternating_section(self, site_name, theme, primary, hover):
         """Генерирует секцию Image Text Alternating с тематическим контентом"""
-        content = self.get_theme_based_approach_content(theme)
+        content = self.generate_theme_content_via_api(theme, "approach_content", 1)
+
+        # Fallback если API не вернул результат
+        if not content:
+            content = self.get_theme_based_approach_content(theme)
 
         return f"""
     <section class="py-20 bg-gray-50">
@@ -881,7 +1011,11 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
 
     def generate_featured_solutions_section(self, site_name, theme, primary, hover):
         """Генерирует секцию Featured Solutions с тематическим контентом"""
-        solutions = self.get_theme_based_featured_solutions(theme)
+        solutions = self.generate_theme_content_via_api(theme, "featured_solutions", 3)
+
+        # Fallback если API не вернул результат
+        if not solutions:
+            solutions = self.get_theme_based_featured_solutions(theme)
 
         return f"""
     <section class="py-20 bg-gray-50">
@@ -928,7 +1062,11 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
     def generate_our_process_section(self, site_name, theme, primary, hover):
         """Генерирует одну из 3 вариаций секции Our Process"""
         variation = random.randint(1, 3)
-        steps = self.get_theme_based_process_steps(theme)
+        steps = self.generate_theme_content_via_api(theme, "process_steps", 4)
+
+        # Fallback если API не вернул результат
+        if not steps:
+            steps = self.get_theme_based_process_steps(theme)
 
         if variation == 1:
             return f"""
@@ -1172,7 +1310,11 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
     def generate_what_we_offer_section(self, site_name, theme, primary, hover):
         """Генерирует одну из 3 вариаций секции What We Offer (6 карточек)"""
         variation = random.randint(1, 3)
-        services = self.get_theme_based_what_we_offer(theme)
+        services = self.generate_theme_content_via_api(theme, "services", 6)
+
+        # Fallback если API не вернул результат
+        if not services:
+            services = self.get_theme_based_what_we_offer(theme)
 
         if variation == 1:
             return f"""
@@ -4254,7 +4396,8 @@ Return ONLY the content for <main> tag."""
                 nav_links.append(f'<a href="{current_nav["next"]}" class="text-{primary} hover:text-{hover} font-semibold transition">Next Article</a>')
 
             if nav_links:
-                nav_buttons = f'<div class="flex justify-between items-center mt-12 pt-8 border-t border-gray-200">{" <span class=\"text-gray-400\">|</span> ".join(nav_links)}</div>'
+                separator = ' <span class="text-gray-400">|</span> '
+                nav_buttons = f'<div class="flex justify-between items-center mt-12 pt-8 border-t border-gray-200">{separator.join(nav_links)}</div>'
 
         # Создаем секцию с картинкой (если has_image=True)
         image_section = ''
