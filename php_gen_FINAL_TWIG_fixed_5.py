@@ -33,7 +33,8 @@ class PHPWebsiteGenerator:
         self.template_sites = []
         self.generated_images = []
         self.primary_color = ""  # Основной цвет сайта
-        
+        self.num_blog_articles = 3  # Количество статей блога (3 или 6)
+
         # Инициализация Ark клиента для ByteDance Seedream-4.0
         print(f"🔑 Инициализация ByteDance Ark SDK...")
         print(f"   API Key: {self.bytedance_key[:20]}...")
@@ -518,29 +519,30 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
 
         theme = self.blueprint.get('theme', 'business')
         site_name = self.blueprint.get('site_name', 'Company')
+        country = self.blueprint.get('country', 'USA')
 
-        # Создаем детальные контекстные промпты в зависимости от темы
-        theme_lower = theme.lower()
+        # Создаем детальные контекстные промпты в зависимости от СТРАНЫ (не темы!)
+        country_lower = country.lower()
 
-        # Определяем географический и этнический контекст темы
+        # Определяем географический и этнический контекст на основе СТРАНЫ
         location_context = ""
         ethnicity_context = ""
 
-        if any(word in theme_lower for word in ['netherlands', 'dutch', 'amsterdam', 'holland', 'нидерланды', 'голландия']):
-            location_context = "in the Netherlands, Dutch architecture, windmills, canals, tulip fields, traditional Dutch buildings"
-            ethnicity_context = "European people, Dutch ethnicity, Caucasian"
-        elif any(word in theme_lower for word in ['europe', 'european', 'европа']):
-            location_context = "in Europe, European cities, historic architecture"
-            ethnicity_context = "European people, Caucasian"
-        elif any(word in theme_lower for word in ['asia', 'asian', 'japan', 'china', 'азия']):
-            location_context = "in Asia, Asian cities"
-            ethnicity_context = "Asian people"
-        elif any(word in theme_lower for word in ['america', 'usa', 'american', 'америка']):
-            location_context = "in America, American cities"
-            ethnicity_context = "diverse American people"
+        if any(word in country_lower for word in ['netherlands', 'dutch', 'holland']):
+            location_context = "in the Netherlands, Dutch architecture, windmills, canals, tulip fields, traditional Dutch buildings, European countryside"
+            ethnicity_context = "European people, Dutch ethnicity, Caucasian, Northern European features"
+        elif any(word in country_lower for word in ['europe', 'european', 'uk', 'britain', 'germany', 'france', 'italy', 'spain']):
+            location_context = "in Europe, European cities, historic architecture, European landmarks"
+            ethnicity_context = "European people, Caucasian, diverse European ethnicities"
+        elif any(word in country_lower for word in ['asia', 'asian', 'japan', 'china', 'singapore', 'korea', 'thailand']):
+            location_context = "in Asia, Asian cities, Asian architecture"
+            ethnicity_context = "Asian people, East Asian ethnicity"
+        elif any(word in country_lower for word in ['america', 'usa', 'united states']):
+            location_context = "in America, American cities, modern American architecture"
+            ethnicity_context = "diverse American people, multicultural"
         else:
             # Нейтральный контекст
-            location_context = "in a modern setting"
+            location_context = "in a modern professional setting"
             ethnicity_context = "diverse people"
 
         # Детальные промпты с учетом темы, локации и этничности
@@ -908,17 +910,14 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 self.header_code = f"""<header class="bg-white shadow-md sticky top-0 z-50">
     <div class="container mx-auto px-6 py-4">
         <div class="flex justify-between items-center">
-            <!-- Logo -->
             <div class="text-2xl font-bold text-{primary_color}">
                 {site_name}
             </div>
             
-            <!-- Desktop Navigation - Right Aligned -->
             <nav class="hidden md:flex space-x-8">
                 {' '.join([f'<a href="{page[1]}" class="text-gray-700 hover:text-{hover_color} transition-colors">{page[0]}</a>' for page in nav_pages])}
             </nav>
             
-            <!-- Mobile Menu Button -->
             <button id="mobile-menu-btn" class="md:hidden text-gray-700 hover:text-{hover_color}">
                 <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
@@ -926,7 +925,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             </button>
         </div>
         
-        <!-- Mobile Navigation -->
         <nav id="mobile-menu" class="hidden md:hidden mt-4 pb-4">
             {' '.join([f'<a href="{page[1]}" class="block py-2 text-gray-700 hover:text-{hover_color} transition-colors">{page[0]}</a>' for page in nav_pages])}
         </nav>
@@ -944,17 +942,14 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 self.header_code = f"""<header class="bg-white shadow-md sticky top-0 z-50">
     <div class="container mx-auto px-6 py-4">
         <div class="flex flex-col items-center">
-            <!-- Logo -->
             <div class="text-2xl font-bold text-{primary_color} mb-4">
                 {site_name}
             </div>
             
-            <!-- Desktop Navigation - Center Aligned -->
             <nav class="hidden md:flex space-x-8">
                 {' '.join([f'<a href="{page[1]}" class="text-gray-700 hover:text-{hover_color} transition-colors">{page[0]}</a>' for page in nav_pages])}
             </nav>
             
-            <!-- Mobile Menu Button -->
             <button id="mobile-menu-btn" class="md:hidden text-gray-700 hover:text-{hover_color} absolute right-6 top-4">
                 <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
@@ -962,7 +957,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             </button>
         </div>
         
-        <!-- Mobile Navigation -->
         <nav id="mobile-menu" class="hidden md:hidden mt-4 pb-4 text-center">
             {' '.join([f'<a href="{page[1]}" class="block py-2 text-gray-700 hover:text-{hover_color} transition-colors">{page[0]}</a>' for page in nav_pages])}
         </nav>
@@ -1004,13 +998,11 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 self.footer_code = f"""<footer class="bg-gray-900 text-white py-12 mt-auto">
     <div class="container mx-auto px-6">
         <div class="grid md:grid-cols-3 gap-8">
-            <!-- Company Info -->
             <div>
                 <h3 class="text-xl font-bold mb-4">{site_name}</h3>
                 <p class="text-gray-400">Your trusted partner in {theme}.</p>
             </div>
             
-            <!-- Main Links -->
             <div>
                 <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
                 <ul class="space-y-2">
@@ -1018,7 +1010,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 </ul>
             </div>
             
-            <!-- Policy Links -->
             <div>
                 <h4 class="text-lg font-semibold mb-4">Legal</h4>
                 <ul class="space-y-2">
@@ -1043,12 +1034,10 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         </div>
         
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <!-- Main Links (horizontal) -->
             <nav class="flex flex-wrap gap-4">
                 {' '.join([f'<a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors">{link[0]}</a>' for link in main_links])}
             </nav>
             
-            <!-- Policy Links (horizontal) -->
             <nav class="flex flex-wrap gap-4">
                 {' '.join([f'<a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors">{link[0]}</a>' for link in policy_links])}
             </nav>
@@ -1065,7 +1054,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 self.footer_code = f"""<footer class="bg-gray-900 text-white py-12 mt-auto">
     <div class="container mx-auto px-6">
         <div class="grid md:grid-cols-2 gap-8">
-            <!-- Left: Company + Main Links -->
             <div>
                 <h3 class="text-xl font-bold mb-4">{site_name}</h3>
                 <p class="text-gray-400 mb-6">Your trusted partner in {theme}.</p>
@@ -1074,14 +1062,13 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 </nav>
             </div>
             
-            <!-- Right: Legal Links -->
             <div>
                 <h4 class="text-lg font-semibold mb-4">Legal Information</h4>
                 <nav class="flex flex-col space-y-2">
                     {' '.join([f'<a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors">{link[0]}</a>' for link in policy_links])}
                 </nav>
                 <div class="mt-6">
-                    <p class="text-gray-400">Email: contact@{site_name.lower().replace(' ', '')}.com</p>
+                    <p class="text-gray-400">Email: {site_name.lower().replace(' ', '')}@gmail.com</p>
                     <p class="text-gray-400">Phone: +1 (555) 123-4567</p>
                 </div>
             </div>
@@ -1098,18 +1085,15 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 self.footer_code = f"""<footer class="bg-gray-900 text-white py-8 mt-auto">
     <div class="container mx-auto px-6">
         <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-            <!-- Left: Site Name + Copyright -->
             <div class="text-center md:text-left">
                 <p class="font-bold text-lg">{site_name}</p>
                 <p class="text-gray-400 text-sm">&copy; 2025 All rights reserved.</p>
             </div>
             
-            <!-- Center: Main Links -->
             <nav class="flex flex-wrap justify-center gap-4">
                 {' '.join([f'<a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors text-sm">{link[0]}</a>' for link in main_links])}
             </nav>
             
-            <!-- Right: Policy Links -->
             <nav class="flex flex-wrap justify-center gap-4">
                 {' '.join([f'<a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors text-sm">{link[0]}</a>' for link in policy_links])}
             </nav>
@@ -1298,7 +1282,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                                 </div>
                                 <div class="ml-4">
                                     <h3 class="font-semibold text-gray-900 mb-1">Email</h3>
-                                    <a href="mailto:contact@{site_name.lower().replace(' ', '')}.com" class="text-gray-600 hover:text-{primary} transition">contact@{site_name.lower().replace(' ', '')}.com</a>
+                                    <a href="mailto:{site_name.lower().replace(' ', '')}@gmail.com" class="text-gray-600 hover:text-{primary} transition">{site_name.lower().replace(' ', '')}@gmail.com</a>
                                 </div>
                             </div>
                             <div class="flex items-start">
@@ -1381,7 +1365,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                         <svg class="w-8 h-8 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     </div>
                     <h3 class="text-xl font-bold mb-2">Email Us</h3>
-                    <p class="text-gray-600">contact@{site_name.lower().replace(' ', '')}.com</p>
+                    <p class="text-gray-600">{site_name.lower().replace(' ', '')}@gmail.com</p>
                 </div>
                 <div class="text-center p-8 bg-gradient-to-br from-{primary}/5 to-white rounded-xl hover:shadow-lg transition-shadow">
                     <div class="w-16 h-16 bg-{primary} rounded-full flex items-center justify-center mx-auto mb-4">
@@ -1427,7 +1411,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                         </div>
                         <div>
                             <p class="text-sm opacity-75">Email</p>
-                            <p class="text-lg font-semibold">contact@{site_name.lower().replace(' ', '')}.com</p>
+                            <p class="text-lg font-semibold">{site_name.lower().replace(' ', '')}@gmail.com</p>
                         </div>
                     </div>
                     <div class="flex items-center">
@@ -1507,7 +1491,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                             <svg class="w-6 h-6 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                         </div>
                         <h3 class="font-bold text-gray-900 mb-1">Email</h3>
-                        <p class="text-sm text-gray-600">contact@{site_name.lower().replace(' ', '')}.com</p>
+                        <p class="text-sm text-gray-600">{site_name.lower().replace(' ', '')}@gmail.com</p>
                     </div>
                     <div class="bg-white rounded-2xl shadow-xl p-6 text-center border-t-4 border-{primary}">
                         <div class="w-12 h-12 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -1615,7 +1599,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                     <div class="mt-12 pt-8 border-t border-gray-200 grid md:grid-cols-3 gap-6 text-center">
                         <div>
                             <p class="text-sm text-gray-500 mb-1">Email</p>
-                            <p class="font-semibold text-gray-900">contact@{site_name.lower().replace(' ', '')}.com</p>
+                            <p class="font-semibold text-gray-900">{site_name.lower().replace(' ', '')}@gmail.com</p>
                         </div>
                         <div>
                             <p class="text-sm text-gray-500 mb-1">Phone</p>
@@ -1669,7 +1653,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         # Вариация 1: Фотография справа
         if hero_variant == 1:
             return f"""<main>
-    <!-- Hero: Image Right -->
     <section class="py-20 bg-gradient-to-br from-{primary}/5 to-white">
         <div class="container mx-auto px-6">
             <div class="grid md:grid-cols-2 gap-12 items-center">
@@ -1696,9 +1679,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         # Вариация 2: Карусель с фотографиями на фоне
         elif hero_variant == 2:
             return f"""<main>
-    <!-- Hero: Carousel Background -->
     <section class="relative py-32 overflow-hidden">
-        <!-- Carousel Background -->
         <div class="absolute inset-0 z-0">
             <div id="hero-carousel" class="w-full h-full">
                 <div class="carousel-item active absolute inset-0 transition-opacity duration-1000">
@@ -1716,7 +1697,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             </div>
         </div>
 
-        <!-- Content -->
         <div class="container mx-auto px-6 relative z-10">
             <div class="max-w-4xl mx-auto text-center text-white">
                 <h1 class="text-5xl md:text-7xl font-bold mb-6 drop-shadow-lg">Welcome to {site_name}</h1>
@@ -1755,7 +1735,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         # Вариация 3: Без фотографии (центрированная)
         elif hero_variant == 3:
             return f"""<main>
-    <!-- Hero: No Image -->
     <section class="relative py-32 bg-gradient-to-br from-{primary}/10 via-white to-{primary}/5">
         <div class="container mx-auto px-6">
             <div class="max-w-4xl mx-auto text-center">
@@ -1775,7 +1754,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 </div>
             </div>
         </div>
-        <!-- Decorative elements -->
         <div class="absolute top-0 right-0 w-64 h-64 bg-{primary}/10 rounded-full blur-3xl"></div>
         <div class="absolute bottom-0 left-0 w-96 h-96 bg-{hover}/10 rounded-full blur-3xl"></div>
     </section>
@@ -1784,7 +1762,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         # Вариация 4: Картинка на фоне
         elif hero_variant == 4:
             return f"""<main>
-    <!-- Hero: Background Image -->
     <section class="relative py-40 overflow-hidden">
         <div class="absolute inset-0 z-0">
             <img src="images/hero.jpg" alt="{site_name}" class="w-full h-full object-cover">
@@ -1808,7 +1785,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         # Вариация 5: Фотография слева
         else:
             return f"""<main>
-    <!-- Hero: Image Left -->
     <section class="py-20 bg-gradient-to-br from-{primary}/5 to-white">
         <div class="container mx-auto px-6">
             <div class="grid md:grid-cols-2 gap-12 items-center">
@@ -2085,7 +2061,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         # Все доступные секции (кроме Hero - она статична)
         all_sections = {
             'image_text_about': f"""
-    <!-- Секция 'Изображение и Текст': О нас -->
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
             <div class="grid md:grid-cols-2 gap-12 items-center">
@@ -2111,7 +2086,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
     </section>""",
 
             'gallery_centered': f"""
-    <!-- Галерея: Заголовок по центру, галерея ниже -->
     <section class="py-20 bg-gray-50">
         <div class="container mx-auto px-6">
             <div class="text-center mb-12">
@@ -2156,7 +2130,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
     </section>""",
 
             'cards_3_animated': f"""
-    <!-- Секция из 3 карточек с анимацией -->
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
             <h2 class="text-4xl font-bold text-center mb-12">Our Services</h2>
@@ -2202,10 +2175,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
     </section>""",
 
             'image_text_alternating': f"""
-    <!-- Секция 'Изображение и Текст': чередующиеся блоки -->
     <section class="py-20 bg-gray-50">
         <div class="container mx-auto px-6">
-            <!-- Блок 1: Изображение слева, текст справа -->
             <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
                 <div>
                     <img src="images/service1.jpg" alt="Our Approach" class="rounded-xl shadow-lg w-full h-80 object-cover">
@@ -2223,7 +2194,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 </div>
             </div>
 
-            <!-- Блок 2: Текст слева, изображение справа -->
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 <div>
                     <h3 class="text-3xl font-bold mb-4">Why Choose Us</h3>
@@ -2244,7 +2214,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
     </section>""",
 
             'cards_6_grid': f"""
-    <!-- Секция из 6 карточек: два ряда по три -->
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
             <h2 class="text-4xl font-bold text-center mb-4">What We Offer</h2>
@@ -2297,7 +2266,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
     </section>""",
 
             'gallery_horizontal': f"""
-    <!-- Галерея: горизонтальная галерея из 4-5 карточек -->
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
             <h2 class="text-4xl font-bold mb-12">Our Work</h2>
@@ -2337,7 +2305,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
     </section>""",
 
             'cards_3_carousel_bg': f"""
-    <!-- Секция из 3 карточек с фоновой каруселью -->
     <section class="py-20 bg-gray-50">
         <div class="container mx-auto px-6">
             <h2 class="text-4xl font-bold text-center mb-12">Featured Solutions</h2>
@@ -2380,9 +2347,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
     </section>""",
 
             'carousel_workflow': f"""
-    <!-- Our Process: красивые блоки -->
     <section class="py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
-        <!-- Decorative background -->
         <div class="absolute top-0 right-0 w-96 h-96 bg-{primary}/5 rounded-full blur-3xl"></div>
         <div class="absolute bottom-0 left-0 w-96 h-96 bg-{hover}/5 rounded-full blur-3xl"></div>
 
@@ -2393,7 +2358,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             </div>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-                <!-- Step 1 -->
                 <div class="group relative">
                     <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
                         <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
@@ -2409,7 +2373,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                     </div>
                 </div>
 
-                <!-- Step 2 -->
                 <div class="group relative">
                     <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
                         <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
@@ -2425,7 +2388,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                     </div>
                 </div>
 
-                <!-- Step 3 -->
                 <div class="group relative">
                     <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
                         <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
@@ -2441,7 +2403,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                     </div>
                 </div>
 
-                <!-- Step 4 -->
                 <div class="group relative">
                     <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
                         <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
@@ -2458,7 +2419,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 </div>
             </div>
 
-            <!-- CTA Button -->
             <div class="text-center mt-16">
                 <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                     Start Your Project
@@ -2468,7 +2428,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
     </section>""",
 
             'carousel_blog': f"""
-    <!-- Карусель: слайдер с новостями/статьями из блога -->
     <section class="py-20 bg-gray-50">
         <div class="container mx-auto px-6">
             <div class="flex justify-between items-center mb-12">
@@ -2516,7 +2475,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
     </section>""",
 
             'contact_form_multistep': f"""
-    <!-- Контактная форма -->
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6 max-w-3xl">
             <div class="text-center mb-12">
@@ -2550,7 +2508,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
     </section>""",
 
             'cards_6_slider': f"""
-    <!-- Секция из 6 карточек: слайдер -->
     <section class="py-20 pb-28 bg-gray-50">
         <div class="container mx-auto px-6">
             <div class="flex justify-between items-center mb-12">
@@ -2571,7 +2528,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
 
             <div class="relative overflow-hidden pb-4">
                 <div id="locations-slider" class="flex transition-transform duration-500 ease-in-out">
-                    <!-- Card 1 -->
                     <div class="w-full md:w-1/3 flex-shrink-0 px-3">
                         <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
                             <img src="images/gallery1.jpg" alt="Location 1" class="w-full h-40 object-cover rounded-lg mb-4">
@@ -2583,7 +2539,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                         </div>
                     </div>
 
-                    <!-- Card 2 -->
                     <div class="w-full md:w-1/3 flex-shrink-0 px-3">
                         <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
                             <img src="images/gallery2.jpg" alt="Location 2" class="w-full h-40 object-cover rounded-lg mb-4">
@@ -2595,7 +2550,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                         </div>
                     </div>
 
-                    <!-- Card 3 -->
                     <div class="w-full md:w-1/3 flex-shrink-0 px-3">
                         <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
                             <img src="images/gallery3.jpg" alt="Location 3" class="w-full h-40 object-cover rounded-lg mb-4">
@@ -2607,7 +2561,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                         </div>
                     </div>
 
-                    <!-- Card 4 -->
                     <div class="w-full md:w-1/3 flex-shrink-0 px-3">
                         <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
                             <img src="images/gallery4.jpg" alt="Location 4" class="w-full h-40 object-cover rounded-lg mb-4">
@@ -2619,7 +2572,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                         </div>
                     </div>
 
-                    <!-- Card 5 -->
                     <div class="w-full md:w-1/3 flex-shrink-0 px-3">
                         <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
                             <img src="images/service1.jpg" alt="Location 5" class="w-full h-40 object-cover rounded-lg mb-4">
@@ -2631,7 +2583,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                         </div>
                     </div>
 
-                    <!-- Card 6 -->
                     <div class="w-full md:w-1/3 flex-shrink-0 px-3">
                         <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
                             <img src="images/service2.jpg" alt="Location 6" class="w-full h-40 object-cover rounded-lg mb-4">
@@ -2645,7 +2596,6 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 </div>
             </div>
 
-            <!-- Slider indicators -->
             <div class="flex justify-center mt-8 gap-2">
                 <button class="location-indicator w-3 h-3 rounded-full bg-{primary} transition" data-index="0"></button>
                 <button class="location-indicator w-3 h-3 rounded-full bg-gray-300 transition" data-index="1"></button>
@@ -2903,7 +2853,6 @@ Return ONLY the content for <main> tag."""
         
         fallbacks = {
             'index': f"""<main>
-    <!-- Hero Section -->
     <section class="py-20 bg-gradient-to-br from-{primary}/10 to-white">
         <div class="container mx-auto px-6">
             <div class="max-w-4xl mx-auto text-center">
@@ -2916,7 +2865,6 @@ Return ONLY the content for <main> tag."""
         </div>
     </section>
     
-    <!-- Features Section -->
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
             <h2 class="text-4xl font-bold text-center mb-12">Why Choose Us</h2>
@@ -2952,7 +2900,6 @@ Return ONLY the content for <main> tag."""
         </div>
     </section>
     
-    <!-- About Preview Section -->
     <section class="py-20 bg-gray-50">
         <div class="container mx-auto px-6">
             <div class="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
@@ -2973,7 +2920,6 @@ Return ONLY the content for <main> tag."""
         </div>
     </section>
     
-    <!-- Services Section -->
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
             <h2 class="text-4xl font-bold text-center mb-12">Our Services</h2>
@@ -2997,7 +2943,6 @@ Return ONLY the content for <main> tag."""
         </div>
     </section>
     
-    <!-- Testimonials Section -->
     <section class="py-20 bg-gray-50">
         <div class="container mx-auto px-6">
             <h2 class="text-4xl font-bold text-center mb-12">What Our Clients Say</h2>
@@ -3030,7 +2975,6 @@ Return ONLY the content for <main> tag."""
         </div>
     </section>
     
-    <!-- Final CTA Section -->
     <section class="py-20 bg-gradient-to-br from-{primary} to-{hover} text-white">
         <div class="container mx-auto px-6">
             <div class="max-w-4xl mx-auto text-center">
@@ -3289,7 +3233,6 @@ Return ONLY the content for <main> tag."""
 
         {nav_buttons}
 
-        <!-- Call to Action -->
         <div class="mt-12 p-8 bg-gradient-to-br from-{primary}/10 to-{primary}/5 rounded-xl text-center">
             <h3 class="text-2xl font-bold mb-4">Interested in Our Services?</h3>
             <p class="text-gray-700 mb-6">Get in touch with us today to learn how we can help your business grow.</p>
@@ -3364,21 +3307,21 @@ Return ONLY the content for <main> tag."""
             },
             {
                 'title': f'Best Practices for {theme} Success',
-                'url': 'blog1.php',
+                'url': 'blog4.php',
                 'excerpt': f'Learn proven strategies and techniques to maximize your {theme} results.',
                 'date': 'November 1, 2025',
                 'image': 'images/blog4.jpg'
             },
             {
                 'title': f'Common {theme} Mistakes to Avoid',
-                'url': 'blog2.php',
+                'url': 'blog5.php',
                 'excerpt': f'Discover the pitfalls that could derail your {theme} projects and how to avoid them.',
                 'date': 'October 28, 2025',
                 'image': 'images/blog5.jpg'
             },
             {
                 'title': f'The Complete {theme} Guide',
-                'url': 'blog3.php',
+                'url': 'blog6.php',
                 'excerpt': f'Everything you need to know about {theme} in one comprehensive resource.',
                 'date': 'October 25, 2025',
                 'image': 'images/blog6.jpg'
@@ -3387,6 +3330,7 @@ Return ONLY the content for <main> tag."""
 
         # Случайно выбираем 3 или 6 статей
         num_articles = random.choice([3, 6])
+        self.num_blog_articles = num_articles  # Сохраняем для генерации страниц
         blog_articles = all_blog_articles[:num_articles]
 
         # Создаем карточки статей
@@ -3429,7 +3373,6 @@ Return ONLY the content for <main> tag."""
     </div>
 </section>
 
-<!-- CTA Section -->
 <section class="py-20 bg-gray-50">
     <div class="container mx-auto px-6">
         <div class="max-w-4xl mx-auto text-center">
@@ -3534,7 +3477,7 @@ Return ONLY the content for <main> tag."""
         
         <h2 class="text-2xl font-bold mt-8 mb-4">6. Contact Us</h2>
         <p>If you have any questions about this Privacy Policy, please contact us at:</p>
-        <p class="mt-2">Email: privacy@{site_name.lower().replace(' ', '')}.com</p>
+        <p class="mt-2">Email: {site_name.lower().replace(' ', '')}@gmail.com</p>
         </div>
     </div>
 </section>
@@ -3583,7 +3526,7 @@ Return ONLY the content for <main> tag."""
         
         <h2 class="text-2xl font-bold mt-8 mb-4">7. Contact Information</h2>
         <p>For questions about these Terms of Service, please contact us at:</p>
-        <p class="mt-2">Email: legal@{site_name.lower().replace(' ', '')}.com</p>
+        <p class="mt-2">Email: {site_name.lower().replace(' ', '')}@gmail.com</p>
         </div>
     </div>
 </section>
@@ -3633,7 +3576,7 @@ Return ONLY the content for <main> tag."""
         
         <h2 class="text-2xl font-bold mt-8 mb-4">6. Contact Us</h2>
         <p>If you have questions about our use of cookies, please contact us at:</p>
-        <p class="mt-2">Email: cookies@{site_name.lower().replace(' ', '')}.com</p>
+        <p class="mt-2">Email: {site_name.lower().replace(' ', '')}@gmail.com</p>
         </div>
     </div>
 </section>
@@ -3712,8 +3655,10 @@ Return ONLY the content for <main> tag."""
             print("  Режим: ЛЕНДИНГ (одна страница с секциями)")
         else:
             # Многостраничный сайт - все основные страницы включая blog
-            pages_to_generate = ['index', 'company', 'services', 'contact', 'blog', 'blog1', 'blog2', 'blog3', 'privacy', 'terms', 'cookie', 'thanks_you']
+            # Сначала генерируем blog главную, чтобы узнать количество статей
             print("  Режим: МНОГОСТРАНИЧНЫЙ САЙТ (все страницы + blog главная + статьи)")
+            pages_to_generate = ['index', 'company', 'services', 'contact', 'blog', 'privacy', 'terms', 'cookie', 'thanks_you']
+            # Добавляем страницы блога в зависимости от num_blog_articles (будет установлено при генерации blog главной)
 
         # Генерируем каждую страницу с повышенным вниманием
         for page in pages_to_generate:
@@ -3721,6 +3666,16 @@ Return ONLY the content for <main> tag."""
             success = self.generate_page(page, output_dir)
             if not success:
                 print(f"    ⚠️  Ошибка генерации {page}.php, создан fallback")
+
+        # Для многостраничного сайта генерируем страницы статей блога
+        if site_type == "multipage":
+            print(f"  Генерация страниц статей блога ({self.num_blog_articles} статей)...")
+            for i in range(1, self.num_blog_articles + 1):
+                blog_page = f'blog{i}'
+                print(f"    Генерация {blog_page}.php...")
+                success = self.generate_page(blog_page, output_dir)
+                if not success:
+                    print(f"      ⚠️  Ошибка генерации {blog_page}.php, создан fallback")
 
         print("\n[6/7] Изображения (под сгенерированные страницы)...")
         self.generate_images_for_site(output_dir)
