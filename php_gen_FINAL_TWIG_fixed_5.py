@@ -320,6 +320,647 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             'address': '123 Business Street, Suite 100, New York, NY 10001'
         }
 
+    def generate_our_process_section(self, site_name, theme, primary, hover):
+        """Генерирует одну из 3 вариаций секции Our Process"""
+        variation = random.randint(1, 3)
+
+        if variation == 1:
+            return f"""
+    <section class="py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-96 h-96 bg-{primary}/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-{hover}/5 rounded-full blur-3xl"></div>
+
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">Our Process</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Simple, transparent, and effective workflow designed for your success</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+                <div class="group relative">
+                    <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
+                        <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
+                            01
+                        </div>
+                        <div class="w-16 h-16 bg-gradient-to-br from-{primary} to-{hover} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <svg class="w-8 h-8 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Consultation</h3>
+                        <p class="text-gray-600 leading-relaxed">We listen to your needs, understand your goals, and identify the best approach for your project.</p>
+                    </div>
+                </div>
+
+                <div class="group relative">
+                    <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
+                        <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
+                            02
+                        </div>
+                        <div class="w-16 h-16 bg-gradient-to-br from-{primary} to-{hover} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <svg class="w-8 h-8 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Planning</h3>
+                        <p class="text-gray-600 leading-relaxed">We create a detailed roadmap with clear milestones, timelines, and deliverables for your project.</p>
+                    </div>
+                </div>
+
+                <div class="group relative">
+                    <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
+                        <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
+                            03
+                        </div>
+                        <div class="w-16 h-16 bg-gradient-to-br from-{primary} to-{hover} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <svg class="w-8 h-8 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Development</h3>
+                        <p class="text-gray-600 leading-relaxed">Our expert team brings your vision to life with cutting-edge technology and best practices.</p>
+                    </div>
+                </div>
+
+                <div class="group relative">
+                    <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
+                        <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
+                            04
+                        </div>
+                        <div class="w-16 h-16 bg-gradient-to-br from-{primary} to-{hover} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <svg class="w-8 h-8 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Delivery</h3>
+                        <p class="text-gray-600 leading-relaxed">We launch your project and provide ongoing support to ensure everything runs smoothly.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-16">
+                <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    Start Your Project
+                </a>
+            </div>
+        </div>
+    </section>"""
+
+        elif variation == 2:
+            return f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-20">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">Our Process</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">A proven methodology to transform your ideas into reality</p>
+            </div>
+
+            <div class="max-w-6xl mx-auto">
+                <div class="relative">
+                    <div class="hidden md:block absolute top-24 left-0 right-0 h-1 bg-gradient-to-r from-{primary} via-{hover} to-{primary}"></div>
+
+                    <div class="grid md:grid-cols-4 gap-8 relative">
+                        <div class="text-center group">
+                            <div class="inline-flex items-center justify-center w-20 h-20 bg-{primary} rounded-full mb-6 shadow-xl relative z-10 group-hover:scale-110 transition-transform">
+                                <svg class="w-10 h-10 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </div>
+                            <div class="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                                <div class="text-{primary} font-bold text-lg mb-2">Step 1</div>
+                                <h3 class="text-xl font-bold mb-3">Discovery</h3>
+                                <p class="text-gray-600">We analyze your needs and define project scope together.</p>
+                            </div>
+                        </div>
+
+                        <div class="text-center group">
+                            <div class="inline-flex items-center justify-center w-20 h-20 bg-{primary} rounded-full mb-6 shadow-xl relative z-10 group-hover:scale-110 transition-transform">
+                                <svg class="w-10 h-10 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                                </svg>
+                            </div>
+                            <div class="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                                <div class="text-{primary} font-bold text-lg mb-2">Step 2</div>
+                                <h3 class="text-xl font-bold mb-3">Design</h3>
+                                <p class="text-gray-600">We craft beautiful solutions tailored to your brand.</p>
+                            </div>
+                        </div>
+
+                        <div class="text-center group">
+                            <div class="inline-flex items-center justify-center w-20 h-20 bg-{primary} rounded-full mb-6 shadow-xl relative z-10 group-hover:scale-110 transition-transform">
+                                <svg class="w-10 h-10 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <div class="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                                <div class="text-{primary} font-bold text-lg mb-2">Step 3</div>
+                                <h3 class="text-xl font-bold mb-3">Build</h3>
+                                <p class="text-gray-600">We develop your solution with precision and quality.</p>
+                            </div>
+                        </div>
+
+                        <div class="text-center group">
+                            <div class="inline-flex items-center justify-center w-20 h-20 bg-{primary} rounded-full mb-6 shadow-xl relative z-10 group-hover:scale-110 transition-transform">
+                                <svg class="w-10 h-10 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                                </svg>
+                            </div>
+                            <div class="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                                <div class="text-{primary} font-bold text-lg mb-2">Step 4</div>
+                                <h3 class="text-xl font-bold mb-3">Launch</h3>
+                                <p class="text-gray-600">We deploy and support your success from day one.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-16">
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        Get Started Today
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>"""
+
+        else:
+            return f"""
+    <section class="py-20 bg-gradient-to-b from-white to-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-20">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">Our Process</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Every great project starts with a solid plan</p>
+            </div>
+
+            <div class="max-w-4xl mx-auto space-y-12">
+                <div class="flex flex-col md:flex-row items-center gap-8 group">
+                    <div class="md:w-1/2 md:text-right">
+                        <div class="inline-block bg-{primary} text-white px-4 py-2 rounded-full text-sm font-bold mb-4">STEP 01</div>
+                        <h3 class="text-3xl font-bold mb-4">Initial Contact</h3>
+                        <p class="text-gray-600 text-lg leading-relaxed">Reach out to us with your vision. We'll schedule a free consultation to discuss your goals, challenges, and how we can help bring your project to life.</p>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center">
+                        <div class="w-32 h-32 bg-gradient-to-br from-{primary} to-{hover} rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+                            <svg class="w-16 h-16 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row-reverse items-center gap-8 group">
+                    <div class="md:w-1/2 md:text-left">
+                        <div class="inline-block bg-{primary} text-white px-4 py-2 rounded-full text-sm font-bold mb-4">STEP 02</div>
+                        <h3 class="text-3xl font-bold mb-4">Strategy Session</h3>
+                        <p class="text-gray-600 text-lg leading-relaxed">We dive deep into your requirements, analyze the market, and create a comprehensive strategy that aligns with your business objectives.</p>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center">
+                        <div class="w-32 h-32 bg-gradient-to-br from-{primary} to-{hover} rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+                            <svg class="w-16 h-16 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center gap-8 group">
+                    <div class="md:w-1/2 md:text-right">
+                        <div class="inline-block bg-{primary} text-white px-4 py-2 rounded-full text-sm font-bold mb-4">STEP 03</div>
+                        <h3 class="text-3xl font-bold mb-4">Development</h3>
+                        <p class="text-gray-600 text-lg leading-relaxed">Our team gets to work, keeping you informed every step of the way. We use agile methodologies to ensure flexibility and quality throughout development.</p>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center">
+                        <div class="w-32 h-32 bg-gradient-to-br from-{primary} to-{hover} rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+                            <svg class="w-16 h-16 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row-reverse items-center gap-8 group">
+                    <div class="md:w-1/2 md:text-left">
+                        <div class="inline-block bg-{primary} text-white px-4 py-2 rounded-full text-sm font-bold mb-4">STEP 04</div>
+                        <h3 class="text-3xl font-bold mb-4">Launch & Support</h3>
+                        <p class="text-gray-600 text-lg leading-relaxed">After thorough testing, we launch your project. Our relationship doesn't end there - we provide ongoing support and optimization to ensure continued success.</p>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center">
+                        <div class="w-32 h-32 bg-gradient-to-br from-{primary} to-{hover} rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+                            <svg class="w-16 h-16 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-16">
+                <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    Start Your Journey
+                </a>
+            </div>
+        </div>
+    </section>"""
+
+    def generate_what_we_offer_section(self, site_name, theme, primary, hover):
+        """Генерирует одну из 3 вариаций секции What We Offer (6 карточек)"""
+        variation = random.randint(1, 3)
+
+        if variation == 1:
+            return f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-4">What We Offer</h2>
+            <p class="text-gray-600 text-center mb-12 text-lg">Comprehensive solutions tailored to your needs</p>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
+                    <h4 class="text-xl font-bold mb-3">Consultation</h4>
+                    <p class="text-gray-600 mb-4">Expert advice to help you make informed decisions about your project.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                        Learn More →
+                    </a>
+                </div>
+                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
+                    <h4 class="text-xl font-bold mb-3">Planning</h4>
+                    <p class="text-gray-600 mb-4">Strategic planning to ensure your project's success from start to finish.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                        Learn More →
+                    </a>
+                </div>
+                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
+                    <h4 class="text-xl font-bold mb-3">Implementation</h4>
+                    <p class="text-gray-600 mb-4">Professional execution with attention to every detail of your project.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                        Learn More →
+                    </a>
+                </div>
+                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
+                    <h4 class="text-xl font-bold mb-3">Testing</h4>
+                    <p class="text-gray-600 mb-4">Thorough testing to ensure quality and reliability in all deliverables.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                        Learn More →
+                    </a>
+                </div>
+                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
+                    <h4 class="text-xl font-bold mb-3">Support</h4>
+                    <p class="text-gray-600 mb-4">Ongoing support to help you get the most from your investment.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                        Learn More →
+                    </a>
+                </div>
+                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
+                    <h4 class="text-xl font-bold mb-3">Optimization</h4>
+                    <p class="text-gray-600 mb-4">Continuous improvement to keep your solution performing at its best.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                        Learn More →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>"""
+
+        elif variation == 2:
+            return f"""
+    <section class="py-20 bg-gradient-to-br from-gray-50 to-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">What We Offer</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Discover our range of professional services designed to elevate your business</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                <div class="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-{primary}/20">
+                    <div class="w-14 h-14 bg-{primary} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Strategy & Planning</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">Comprehensive strategic planning to align your goals with actionable roadmaps and measurable outcomes.</p>
+                    <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
+                        Explore <span class="ml-2">→</span>
+                    </a>
+                </div>
+
+                <div class="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-{primary}/20">
+                    <div class="w-14 h-14 bg-{primary} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Research & Analysis</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">In-depth market research and data analysis to uncover insights that drive informed business decisions.</p>
+                    <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
+                        Explore <span class="ml-2">→</span>
+                    </a>
+                </div>
+
+                <div class="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-{primary}/20">
+                    <div class="w-14 h-14 bg-{primary} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Custom Development</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">Tailored solutions built with cutting-edge technology to meet your unique business requirements.</p>
+                    <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
+                        Explore <span class="ml-2">→</span>
+                    </a>
+                </div>
+
+                <div class="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-{primary}/20">
+                    <div class="w-14 h-14 bg-{primary} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Quality Assurance</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">Rigorous testing and quality control to ensure flawless performance and reliability.</p>
+                    <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
+                        Explore <span class="ml-2">→</span>
+                    </a>
+                </div>
+
+                <div class="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-{primary}/20">
+                    <div class="w-14 h-14 bg-{primary} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Fast Deployment</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">Rapid implementation and seamless integration to get your solutions live quickly and efficiently.</p>
+                    <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
+                        Explore <span class="ml-2">→</span>
+                    </a>
+                </div>
+
+                <div class="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-{primary}/20">
+                    <div class="w-14 h-14 bg-{primary} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Ongoing Support</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">Dedicated maintenance and continuous optimization to keep your systems running perfectly.</p>
+                    <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
+                        Explore <span class="ml-2">→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>"""
+
+        else:
+            return f"""
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">What We Offer</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Six core services that drive exceptional results</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                <div class="group relative bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition-all duration-300">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-{primary} to-{hover} rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                        01
+                    </div>
+                    <div class="pt-4">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Consultation Services</h3>
+                        <p class="text-gray-600 leading-relaxed mb-6">Expert guidance and professional advice to help you navigate complex challenges and opportunities.</p>
+                        <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
+                            Get Started <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group relative bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition-all duration-300">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-{primary} to-{hover} rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                        02
+                    </div>
+                    <div class="pt-4">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Strategic Planning</h3>
+                        <p class="text-gray-600 leading-relaxed mb-6">Comprehensive roadmaps and actionable strategies tailored to your business objectives and growth goals.</p>
+                        <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
+                            Get Started <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group relative bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition-all duration-300">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-{primary} to-{hover} rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                        03
+                    </div>
+                    <div class="pt-4">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Technical Execution</h3>
+                        <p class="text-gray-600 leading-relaxed mb-6">Professional implementation with modern technology and industry best practices for superior results.</p>
+                        <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
+                            Get Started <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group relative bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition-all duration-300">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-{primary} to-{hover} rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                        04
+                    </div>
+                    <div class="pt-4">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Performance Testing</h3>
+                        <p class="text-gray-600 leading-relaxed mb-6">Thorough quality assurance and performance optimization to ensure reliability and efficiency.</p>
+                        <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
+                            Get Started <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group relative bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition-all duration-300">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-{primary} to-{hover} rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                        05
+                    </div>
+                    <div class="pt-4">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Launch & Deploy</h3>
+                        <p class="text-gray-600 leading-relaxed mb-6">Seamless deployment and go-live support to ensure smooth transitions and successful launches.</p>
+                        <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
+                            Get Started <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group relative bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition-all duration-300">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-{primary} to-{hover} rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                        06
+                    </div>
+                    <div class="pt-4">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Continuous Support</h3>
+                        <p class="text-gray-600 leading-relaxed mb-6">Ongoing maintenance, updates, and optimization to keep your solutions performing at peak levels.</p>
+                        <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
+                            Get Started <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-16">
+                <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    Discuss Your Project
+                </a>
+            </div>
+        </div>
+    </section>"""
+
+    def generate_our_locations_section(self, country, primary, hover):
+        """Генерирует секцию Our Locations с городами из указанной страны"""
+        country_lower = country.lower()
+
+        # Данные по странам для локаций
+        country_locations = {
+            'netherlands': [
+                {'city': 'Amsterdam', 'description': 'Our headquarters in the heart of Netherlands, serving clients with expertise and innovation.'},
+                {'city': 'Rotterdam', 'description': 'Major port city office providing comprehensive solutions for business growth.'},
+                {'city': 'Utrecht', 'description': 'Central Netherlands hub delivering excellence in service and support.'},
+                {'city': 'The Hague', 'description': 'Government city office specializing in corporate and institutional services.'},
+                {'city': 'Eindhoven', 'description': 'Technology hub bringing cutting-edge innovation to our clients.'},
+                {'city': 'Groningen', 'description': 'Northern office serving the region with dedication and professionalism.'}
+            ],
+            'usa': [
+                {'city': 'New York', 'description': 'Our headquarters serving the East Coast market with dedicated professionals.'},
+                {'city': 'San Francisco', 'description': 'West Coast hub bringing innovation and technology expertise to your doorstep.'},
+                {'city': 'Chicago', 'description': 'Central location serving clients across the Midwest with excellence.'},
+                {'city': 'Miami', 'description': 'Southern operations center providing exceptional service to our clients.'},
+                {'city': 'Seattle', 'description': 'Pacific Northwest headquarters for innovation and growth initiatives.'},
+                {'city': 'Boston', 'description': 'Northeast regional office delivering quality service and expertise.'}
+            ],
+            'uk': [
+                {'city': 'London', 'description': 'Our main UK headquarters in the financial heart of the country.'},
+                {'city': 'Manchester', 'description': 'Northern powerhouse office driving business growth and innovation.'},
+                {'city': 'Birmingham', 'description': 'Midlands hub serving clients with comprehensive business solutions.'},
+                {'city': 'Edinburgh', 'description': 'Scottish office providing exceptional service across the region.'},
+                {'city': 'Bristol', 'description': 'Southwest operations center for technology and creative industries.'},
+                {'city': 'Leeds', 'description': 'Yorkshire office delivering professional services and expertise.'}
+            ],
+            'germany': [
+                {'city': 'Berlin', 'description': 'Capital city headquarters driving innovation and digital transformation.'},
+                {'city': 'Munich', 'description': 'Bavarian office serving clients with precision and excellence.'},
+                {'city': 'Frankfurt', 'description': 'Financial hub providing corporate and enterprise solutions.'},
+                {'city': 'Hamburg', 'description': 'Northern office specializing in international business services.'},
+                {'city': 'Cologne', 'description': 'West German operations center for creative and media industries.'},
+                {'city': 'Stuttgart', 'description': 'Southwest office delivering engineering and technology expertise.'}
+            ],
+            'france': [
+                {'city': 'Paris', 'description': 'Capital headquarters serving French and European markets with elegance.'},
+                {'city': 'Lyon', 'description': 'Second city office providing comprehensive business solutions.'},
+                {'city': 'Marseille', 'description': 'Mediterranean hub for international trade and commerce.'},
+                {'city': 'Toulouse', 'description': 'Aerospace city office specializing in technology and innovation.'},
+                {'city': 'Nice', 'description': 'Côte d\'Azur office serving the French Riviera market.'},
+                {'city': 'Bordeaux', 'description': 'Southwest regional office delivering professional excellence.'}
+            ]
+        }
+
+        # Выбираем города для страны или используем USA по умолчанию
+        locations = None
+        for key in country_locations.keys():
+            if key in country_lower:
+                locations = country_locations[key]
+                break
+
+        if not locations:
+            locations = country_locations['usa']
+
+        # Генерируем HTML с 6 локациями
+        location_cards = ""
+        for i, location in enumerate(locations, 1):
+            location_cards += f"""
+                    <div class="w-full md:w-1/3 flex-shrink-0 px-3">
+                        <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
+                            <img src="images/location{i}.jpg" alt="{location['city']}" class="w-full h-40 object-cover rounded-lg mb-4">
+                            <h4 class="text-xl font-bold mb-2">{location['city']} Office</h4>
+                            <p class="text-gray-600 mb-4">{location['description']}</p>
+                            <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
+                                Contact
+                            </a>
+                        </div>
+                    </div>
+"""
+
+        return f"""
+    <section class="py-20 pb-28 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="flex justify-between items-center mb-12">
+                <h2 class="text-4xl font-bold">Our Locations</h2>
+                <div class="flex gap-4">
+                    <button id="locations-prev" class="w-10 h-10 bg-{primary} text-white rounded-full flex items-center justify-center hover:bg-{hover} transition">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <button id="locations-next" class="w-10 h-10 bg-{primary} text-white rounded-full flex items-center justify-center hover:bg-{hover} transition">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="relative overflow-hidden pb-4">
+                <div id="locations-slider" class="flex transition-transform duration-500 ease-in-out">{location_cards}
+                </div>
+            </div>
+
+            <div class="flex justify-center mt-8 gap-2">
+                <button class="location-indicator w-3 h-3 rounded-full bg-{primary} transition" data-index="0"></button>
+                <button class="location-indicator w-3 h-3 rounded-full bg-gray-300 transition" data-index="1"></button>
+                <button class="location-indicator w-3 h-3 rounded-full bg-gray-300 transition" data-index="2"></button>
+                <button class="location-indicator w-3 h-3 rounded-full bg-gray-300 transition" data-index="3"></button>
+            </div>
+        </div>
+
+        <script>
+        (function() {{
+            const slider = document.getElementById('locations-slider');
+            const prevBtn = document.getElementById('locations-prev');
+            const nextBtn = document.getElementById('locations-next');
+            const indicators = document.querySelectorAll('.location-indicator');
+            let currentIndex = 0;
+            const totalCards = 6;
+            const cardsPerView = window.innerWidth >= 768 ? 3 : 1;
+            const maxIndex = totalCards - cardsPerView;
+
+            function updateSlider() {{
+                const offset = -(currentIndex * (100 / cardsPerView));
+                slider.style.transform = `translateX(${{offset}}%)`;
+
+                // Update indicators
+                indicators.forEach((indicator, idx) => {{
+                    if (idx === currentIndex) {{
+                        indicator.classList.remove('bg-gray-300');
+                        indicator.classList.add('bg-{primary}');
+                    }} else {{
+                        indicator.classList.remove('bg-{primary}');
+                        indicator.classList.add('bg-gray-300');
+                    }}
+                }});
+            }}
+
+            prevBtn.addEventListener('click', () => {{
+                currentIndex = Math.max(0, currentIndex - 1);
+                updateSlider();
+            }});
+
+            nextBtn.addEventListener('click', () => {{
+                currentIndex = Math.min(maxIndex, currentIndex + 1);
+                updateSlider();
+            }});
+
+            indicators.forEach((indicator, idx) => {{
+                indicator.addEventListener('click', () => {{
+                    currentIndex = idx;
+                    updateSlider();
+                }});
+            }});
+        }})();
+        </script>
+    </section>"""
+
     def generate_color_scheme(self):
         """Генерация уникальной цветовой схемы для сайта"""
         color_schemes = [
@@ -666,6 +1307,30 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             {
                 'filename': 'gallery4.jpg',
                 'prompt': f"Professional portfolio piece for {theme} company. {location_context}. High-quality craftsmanship, finished project, authentic work, professional photography, photorealistic."
+            },
+            {
+                'filename': 'location1.jpg',
+                'prompt': f"Beautiful cityscape photograph of a major city {location_context}. Iconic architecture, vibrant urban landscape, famous landmarks, clear blue sky, natural daylight, professional travel photography, photorealistic, 8k quality."
+            },
+            {
+                'filename': 'location2.jpg',
+                'prompt': f"Stunning city view photograph {location_context}. Historic district, charming streets, cultural landmarks, authentic urban environment, golden hour lighting, professional cityscape photography, photorealistic."
+            },
+            {
+                'filename': 'location3.jpg',
+                'prompt': f"Professional city photograph {location_context}. Modern business district, contemporary architecture, dynamic city life, clean composition, bright daylight, high-quality urban photography, photorealistic."
+            },
+            {
+                'filename': 'location4.jpg',
+                'prompt': f"Attractive cityscape showing urban beauty {location_context}. Waterfront view, riverside or canal scene, scenic city landscape, natural lighting, professional travel photography, photorealistic, detailed."
+            },
+            {
+                'filename': 'location5.jpg',
+                'prompt': f"Impressive city photograph {location_context}. Cultural center, historic buildings, city square or plaza, authentic urban setting, clear weather, professional cityscape photography, photorealistic."
+            },
+            {
+                'filename': 'location6.jpg',
+                'prompt': f"High-quality urban photograph {location_context}. Residential and business areas, typical city architecture, local character, natural daylight, professional photography, photorealistic, vibrant colors."
             }
         ]
         
@@ -2120,6 +2785,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         """Генерация случайных секций для Home страницы"""
         site_name = self.blueprint.get('site_name', 'Company')
         theme = self.blueprint.get('theme', 'business')
+        country = self.blueprint.get('country', 'USA')
         colors = self.blueprint.get('color_scheme', {})
         primary = colors.get('primary', 'blue-600')
         hover = colors.get('hover', 'blue-700')
@@ -2279,57 +2945,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         </div>
     </section>""",
 
-            'cards_6_grid': f"""
-    <section class="py-20 bg-white">
-        <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center mb-4">What We Offer</h2>
-            <p class="text-gray-600 text-center mb-12 text-lg">Comprehensive solutions tailored to your needs</p>
-            <div class="grid md:grid-cols-3 gap-6">
-                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
-                    <h4 class="text-xl font-bold mb-3">Consultation</h4>
-                    <p class="text-gray-600 mb-4">Expert advice to help you make informed decisions about your project.</p>
-                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                        Learn More →
-                    </a>
-                </div>
-                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
-                    <h4 class="text-xl font-bold mb-3">Planning</h4>
-                    <p class="text-gray-600 mb-4">Strategic planning to ensure your project's success from start to finish.</p>
-                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                        Learn More →
-                    </a>
-                </div>
-                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
-                    <h4 class="text-xl font-bold mb-3">Implementation</h4>
-                    <p class="text-gray-600 mb-4">Professional execution with attention to every detail of your project.</p>
-                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                        Learn More →
-                    </a>
-                </div>
-                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
-                    <h4 class="text-xl font-bold mb-3">Testing</h4>
-                    <p class="text-gray-600 mb-4">Thorough testing to ensure quality and reliability in all deliverables.</p>
-                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                        Learn More →
-                    </a>
-                </div>
-                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
-                    <h4 class="text-xl font-bold mb-3">Support</h4>
-                    <p class="text-gray-600 mb-4">Ongoing support to help you get the most from your investment.</p>
-                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                        Learn More →
-                    </a>
-                </div>
-                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
-                    <h4 class="text-xl font-bold mb-3">Optimization</h4>
-                    <p class="text-gray-600 mb-4">Continuous improvement to keep your solution performing at its best.</p>
-                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                        Learn More →
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>""",
+            'cards_6_grid': self.generate_what_we_offer_section(site_name, theme, primary, hover),
 
             'gallery_horizontal': f"""
     <section class="py-20 bg-white">
@@ -2412,86 +3028,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         </div>
     </section>""",
 
-            'carousel_workflow': f"""
-    <section class="py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-96 h-96 bg-{primary}/5 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-0 left-0 w-96 h-96 bg-{hover}/5 rounded-full blur-3xl"></div>
-
-        <div class="container mx-auto px-6 relative z-10">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold mb-4">Our Process</h2>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Simple, transparent, and effective workflow designed for your success</p>
-            </div>
-
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-                <div class="group relative">
-                    <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
-                        <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
-                            01
-                        </div>
-                        <div class="w-16 h-16 bg-gradient-to-br from-{primary} to-{hover} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                            <svg class="w-8 h-8 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Consultation</h3>
-                        <p class="text-gray-600 leading-relaxed">We listen to your needs, understand your goals, and identify the best approach for your project.</p>
-                    </div>
-                </div>
-
-                <div class="group relative">
-                    <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
-                        <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
-                            02
-                        </div>
-                        <div class="w-16 h-16 bg-gradient-to-br from-{primary} to-{hover} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                            <svg class="w-8 h-8 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Planning</h3>
-                        <p class="text-gray-600 leading-relaxed">We create a detailed roadmap with clear milestones, timelines, and deliverables for your project.</p>
-                    </div>
-                </div>
-
-                <div class="group relative">
-                    <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
-                        <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
-                            03
-                        </div>
-                        <div class="w-16 h-16 bg-gradient-to-br from-{primary} to-{hover} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                            <svg class="w-8 h-8 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Development</h3>
-                        <p class="text-gray-600 leading-relaxed">Our expert team brings your vision to life with cutting-edge technology and best practices.</p>
-                    </div>
-                </div>
-
-                <div class="group relative">
-                    <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
-                        <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
-                            04
-                        </div>
-                        <div class="w-16 h-16 bg-gradient-to-br from-{primary} to-{hover} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                            <svg class="w-8 h-8 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Delivery</h3>
-                        <p class="text-gray-600 leading-relaxed">We launch your project and provide ongoing support to ensure everything runs smoothly.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="text-center mt-16">
-                <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                    Start Your Project
-                </a>
-            </div>
-        </div>
-    </section>""",
+            'carousel_workflow': self.generate_our_process_section(site_name, theme, primary, hover),
 
             'carousel_blog': f"""
     <section class="py-20 bg-gray-50">
@@ -2573,149 +3110,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         </div>
     </section>""",
 
-            'cards_6_slider': f"""
-    <section class="py-20 pb-28 bg-gray-50">
-        <div class="container mx-auto px-6">
-            <div class="flex justify-between items-center mb-12">
-                <h2 class="text-4xl font-bold">Our Locations</h2>
-                <div class="flex gap-4">
-                    <button id="locations-prev" class="w-10 h-10 bg-{primary} text-white rounded-full flex items-center justify-center hover:bg-{hover} transition">
-                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                        </svg>
-                    </button>
-                    <button id="locations-next" class="w-10 h-10 bg-{primary} text-white rounded-full flex items-center justify-center hover:bg-{hover} transition">
-                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            <div class="relative overflow-hidden pb-4">
-                <div id="locations-slider" class="flex transition-transform duration-500 ease-in-out">
-                    <div class="w-full md:w-1/3 flex-shrink-0 px-3">
-                        <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
-                            <img src="images/gallery1.jpg" alt="Location 1" class="w-full h-40 object-cover rounded-lg mb-4">
-                            <h4 class="text-xl font-bold mb-2">New York Office</h4>
-                            <p class="text-gray-600 mb-4">Our headquarters serving the East Coast market with dedicated professionals.</p>
-                            <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
-                                Contact
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="w-full md:w-1/3 flex-shrink-0 px-3">
-                        <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
-                            <img src="images/gallery2.jpg" alt="Location 2" class="w-full h-40 object-cover rounded-lg mb-4">
-                            <h4 class="text-xl font-bold mb-2">San Francisco Office</h4>
-                            <p class="text-gray-600 mb-4">West Coast hub bringing innovation and technology expertise to your doorstep.</p>
-                            <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
-                                Contact
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="w-full md:w-1/3 flex-shrink-0 px-3">
-                        <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
-                            <img src="images/gallery3.jpg" alt="Location 3" class="w-full h-40 object-cover rounded-lg mb-4">
-                            <h4 class="text-xl font-bold mb-2">Chicago Office</h4>
-                            <p class="text-gray-600 mb-4">Central location serving clients across the Midwest with excellence.</p>
-                            <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
-                                Contact
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="w-full md:w-1/3 flex-shrink-0 px-3">
-                        <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
-                            <img src="images/gallery4.jpg" alt="Location 4" class="w-full h-40 object-cover rounded-lg mb-4">
-                            <h4 class="text-xl font-bold mb-2">Miami Office</h4>
-                            <p class="text-gray-600 mb-4">Southern operations center providing exceptional service to our clients.</p>
-                            <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
-                                Contact
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="w-full md:w-1/3 flex-shrink-0 px-3">
-                        <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
-                            <img src="images/service1.jpg" alt="Location 5" class="w-full h-40 object-cover rounded-lg mb-4">
-                            <h4 class="text-xl font-bold mb-2">Seattle Office</h4>
-                            <p class="text-gray-600 mb-4">Pacific Northwest headquarters for innovation and growth initiatives.</p>
-                            <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
-                                Contact
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="w-full md:w-1/3 flex-shrink-0 px-3">
-                        <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
-                            <img src="images/service2.jpg" alt="Location 6" class="w-full h-40 object-cover rounded-lg mb-4">
-                            <h4 class="text-xl font-bold mb-2">Boston Office</h4>
-                            <p class="text-gray-600 mb-4">Northeast regional office delivering quality service and expertise.</p>
-                            <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
-                                Contact
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex justify-center mt-8 gap-2">
-                <button class="location-indicator w-3 h-3 rounded-full bg-{primary} transition" data-index="0"></button>
-                <button class="location-indicator w-3 h-3 rounded-full bg-gray-300 transition" data-index="1"></button>
-                <button class="location-indicator w-3 h-3 rounded-full bg-gray-300 transition" data-index="2"></button>
-                <button class="location-indicator w-3 h-3 rounded-full bg-gray-300 transition" data-index="3"></button>
-            </div>
-        </div>
-
-        <script>
-        (function() {{
-            const slider = document.getElementById('locations-slider');
-            const prevBtn = document.getElementById('locations-prev');
-            const nextBtn = document.getElementById('locations-next');
-            const indicators = document.querySelectorAll('.location-indicator');
-            let currentIndex = 0;
-            const totalCards = 6;
-            const cardsPerView = window.innerWidth >= 768 ? 3 : 1;
-            const maxIndex = totalCards - cardsPerView;
-
-            function updateSlider() {{
-                const offset = -(currentIndex * (100 / cardsPerView));
-                slider.style.transform = `translateX(${{offset}}%)`;
-
-                // Update indicators
-                indicators.forEach((indicator, idx) => {{
-                    if (idx === currentIndex) {{
-                        indicator.classList.add('bg-{primary}');
-                        indicator.classList.remove('bg-gray-300');
-                    }} else {{
-                        indicator.classList.remove('bg-{primary}');
-                        indicator.classList.add('bg-gray-300');
-                    }}
-                }});
-            }}
-
-            prevBtn.addEventListener('click', function() {{
-                currentIndex = currentIndex > 0 ? currentIndex - 1 : maxIndex;
-                updateSlider();
-            }});
-
-            nextBtn.addEventListener('click', function() {{
-                currentIndex = currentIndex < maxIndex ? currentIndex + 1 : 0;
-                updateSlider();
-            }});
-
-            indicators.forEach((indicator) => {{
-                indicator.addEventListener('click', function() {{
-                    currentIndex = parseInt(this.getAttribute('data-index'));
-                    updateSlider();
-                }});
-            }});
-        }})();
-        </script>
-    </section>"""
+            'cards_6_slider': self.generate_our_locations_section(country, primary, hover),
         }
 
         # Выбираем 5-6 случайных секций
