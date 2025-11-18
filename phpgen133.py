@@ -1,0 +1,4318 @@
+import requests
+import json
+import os
+import re
+import zipfile
+import shutil
+import base64
+import random
+from pathlib import Path
+from byteplussdkarkruntime import Ark
+from byteplussdkarkruntime.types.images.images import SequentialImageGenerationOptions
+from dotenv import load_dotenv
+
+# Загрузка переменных окружения из .env файла (если есть)
+load_dotenv()
+
+class PHPWebsiteGenerator:
+    def __init__(self):
+        # API ключи (жестко заданные - всегда работают!)
+        self.api_key = "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"
+        self.bytedance_key = "03324c9d-d15f-4b35-a234-2bdd0b30a569"
+        
+        self.api_url = "https://openrouter.ai/api/v1/chat/completions"
+        self.code_model = "google/gemini-2.5-pro"
+        self.max_tokens = 16000
+        self.use_symfony = False
+        self.site_type = "landing"  # "landing" или "multipage"
+        self.blueprint = {}
+        self.header_code = ""
+        self.footer_code = ""
+        self.header_footer_css = ""
+        self.database_content = ""
+        self.template_sites = []
+        self.generated_images = []
+        self.primary_color = ""  # Основной цвет сайта
+        self.num_blog_articles = 3  # Количество статей блога (3 или 6)
+
+        # Инициализация Ark клиента для ByteDance Seedream-4.0
+        print(f"🔑 Инициализация ByteDance Ark SDK...")
+        print(f"   API Key: {self.bytedance_key[:20]}...")
+        
+        self.ark_client = Ark(
+            base_url="https://ark.ap-southeast.bytepluses.com/api/v3",
+            api_key=self.bytedance_key
+        )
+        print(f"✓ Ark SDK готов\n")
+        
+    def call_api(self, prompt, max_tokens=16000, model=None):
+        """Вызов API OpenRouter с retry логикой и обработкой всех типов ошибок"""
+        if model is None:
+            model = self.code_model
+        
+        if max_tokens > 16000:
+            max_tokens = 16000  # Ограничение для бесплатной модели
+            
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://php-generator.local",
+            "X-Title": "PHP Website Generator"
+        }
+        
+        data = {
+            "model": model,
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": max_tokens
+        }
+        
+        # Retry до 5 раз при ошибках
+        for attempt in range(5):
+            try:
+                response = requests.post(
+                    self.api_url, 
+                    headers=headers, 
+                    data=json.dumps(data), 
+                    timeout=240,  # Увеличен таймаут до 4 минут
+                    verify=True   # SSL проверка
+                )
+                response.raise_for_status()
+                result = response.json()
+                return result['choices'][0]['message']['content']
+                
+            except requests.exceptions.ChunkedEncodingError as e:
+                # Ошибка "Response ended prematurely"
+                if attempt < 4:
+                    print(f"    ⚠️  Соединение прервано, попытка {attempt + 2}/5...")
+                    import time
+                    time.sleep(5)  # Увеличенная пауза
+                    continue
+                else:
+                    print(f"    ✗ Соединение прервано после 5 попыток")
+                    return None
+                    
+            except requests.exceptions.ConnectionError as e:
+                # Ошибки соединения
+                if attempt < 4:
+                    print(f"    ⚠️  Ошибка соединения, попытка {attempt + 2}/5...")
+                    import time
+                    time.sleep(5)
+                    continue
+                else:
+                    print(f"    ✗ Ошибка соединения после 5 попыток")
+                    return None
+                    
+            except requests.exceptions.SSLError as e:
+                # SSL ошибка - пробуем еще раз
+                if attempt < 4:
+                    print(f"    ⚠️  SSL ошибка, попытка {attempt + 2}/5...")
+                    import time
+                    time.sleep(3)
+                    continue
+                else:
+                    print(f"    ✗ SSL ошибка после 5 попыток")
+                    return None
+                    
+            except requests.exceptions.Timeout as e:
+                # Таймаут
+                if attempt < 4:
+                    print(f"    ⚠️  Таймаут запроса, попытка {attempt + 2}/5...")
+                    import time
+                    time.sleep(5)
+                    continue
+                else:
+                    print(f"    ✗ Таймаут после 5 попыток")
+                    return None
+                    
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code >= 500:
+                    if attempt < 4:
+                        print(f"    ⚠️  Ошибка сервера {e.response.status_code}, попытка {attempt + 2}/5...")
+                        import time
+                        time.sleep(3)
+                        continue
+                    else:
+                        print(f"    ✗ Ошибка API после 5 попыток: {e.response.status_code}")
+                        return None
+                else:
+                    print(f"    ✗ Ошибка API: {e.response.status_code}")
+                    return None
+                    
+            except (KeyError, ValueError, json.JSONDecodeError) as e:
+                # Ошибки парсинга JSON ответа
+                if attempt < 4:
+                    print(f"    ⚠️  Некорректный ответ API, попытка {attempt + 2}/5...")
+                    import time
+                    time.sleep(3)
+                    continue
+                else:
+                    print(f"    ✗ Некорректный ответ после 5 попыток")
+                    return None
+                    
+            except Exception as e:
+                # Любые другие ошибки
+                error_msg = str(e)
+                if attempt < 4:
+                    print(f"    ⚠️  Ошибка: {error_msg[:50]}, попытка {attempt + 2}/5...")
+                    import time
+                    time.sleep(3)
+                    continue
+                print(f"    ✗ Ошибка после 5 попыток: {error_msg[:100]}")
+                return None
+        
+        return None
+    
+    def generate_unique_site_name(self, country, theme):
+        """Генерация уникального названия сайта через API с учетом тематики"""
+        
+        # Специализированные промпты для разных тематик
+        theme_specific_examples = {
+            "Bookstore": "PageTurn, StoryNest, BookHaven, ReadCraft, NovelVault, ChapterHouse",
+            "Restaurant": "TasteHub, FlavorCraft, DishDash, CulinaryNest, PlateFlow, BiteSpot",
+            "Hotel": "StayNest, RoomHaven, RestPoint, LodgeHub, SleepCraft, InnFlow",
+            "Shop": "ShopFlow, CartCraft, MarketNest, StoreHub, BuyPoint, TradeSpot",
+            "Fitness": "FitFlow, PowerNest, GymCraft, StrengthHub, ActivePoint, MuscleSpot",
+            "Healthcare": "CareNest, MediFlow, HealthHub, WellCraft, CurePoint, VitalSpot",
+            "Education": "LearnHub, KnowNest, StudyCraft, EduFlow, BrainPoint, SkillSpot",
+            "IT": "CodeNest, TechFlow, ByteCraft, DataHub, CloudPoint, DevSpot",
+            "Real Estate": "PropertyNest, HomeHub, EstateFlow, DwellCraft, SpacePoint, HouseSpot",
+            "Travel": "WanderHub, TripNest, JourneyCraft, TravelFlow, RoutePoint, TourSpot"
+        }
+        
+        # Получаем примеры для конкретной тематики
+        examples = theme_specific_examples.get(theme, "TechWave, CloudNest, DataSphere, CodeCraft, ByteForge")
+        
+        prompt = f"""Generate a unique, creative website name for a {theme} company based in {country}.
+
+CRITICAL REQUIREMENTS:
+- The name MUST be directly related to {theme} industry in {country}
+- The name should reflect the nature of {theme} business
+- Consider the cultural and geographical context of {country}
+- 1-3 words maximum
+- DO NOT use generic tech words like "Digital", "Tech", "Cyber", "Web", "Net" unless the theme is IT/Technology
+- DO NOT use the exact words "{theme}" or "{country}" in the name
+- Use creative combinations, metaphors, or related terms specific to {theme}
+- The name should sound appropriate for a company operating in {country}
+
+Examples of good names for {theme}: {examples}
+
+Industry-specific guidance for {theme}:
+{self._get_industry_guidance(theme)}
+
+Geographic and cultural context for {country}:
+- Consider local business naming conventions in {country}
+- The name should resonate with customers in {country}
+- Avoid names that might be culturally inappropriate or confusing in {country}
+
+Return ONLY the site name, nothing else. No quotes, no punctuation, no explanations."""
+        
+        response = self.call_api(prompt, max_tokens=50)
+        if response:
+            # Очистка от лишних символов
+            site_name = response.strip().replace('"', '').replace("'", "").replace(".", "").replace(",", "")
+            # Берем только первую строку если вернулось несколько
+            site_name = site_name.split('\n')[0].strip()
+            # Ограничиваем длину
+            if len(site_name) > 30:
+                site_name = site_name[:30].strip()
+            
+            # Проверяем, что название не содержит запрещенные слова для неIT тематик
+            forbidden_for_non_it = ['digital', 'tech', 'cyber', 'web', 'net', 'byte', 'data', 'cloud', 'code']
+            if theme not in ['IT', 'Technology', 'Software', 'Digital'] and any(word in site_name.lower() for word in forbidden_for_non_it):
+                # Если название неподходящее, используем fallback для тематики
+                return self._get_fallback_name(theme)
+            
+            return site_name if site_name else self._get_fallback_name(theme)
+        
+        # Fallback если API не ответил
+        return self._get_fallback_name(theme)
+    
+    def _get_industry_guidance(self, theme):
+        """Возвращает специфические рекомендации по названию для каждой индустрии"""
+        guidance = {
+            "Bookstore": "Focus on reading, stories, pages, chapters, authors. Avoid tech terms.",
+            "Restaurant": "Focus on food, taste, flavor, cuisine, dishes. Avoid tech terms.",
+            "Hotel": "Focus on accommodation, rest, stay, rooms, comfort. Avoid tech terms.",
+            "Shop": "Focus on products, shopping, stores, marketplace. Can use tech for e-commerce.",
+            "Fitness": "Focus on health, strength, workout, training, body. Avoid tech terms.",
+            "Healthcare": "Focus on health, care, wellness, medical, healing. Avoid tech terms.",
+            "Education": "Focus on learning, knowledge, teaching, skills. Can use tech for e-learning.",
+            "IT": "Focus on technology, software, code, data, digital solutions.",
+            "Real Estate": "Focus on property, homes, spaces, dwellings. Avoid tech terms.",
+            "Travel": "Focus on journey, destinations, adventure, exploration. Avoid tech terms."
+        }
+        return guidance.get(theme, "Create a name that reflects the core business values and services.")
+    
+    def _get_fallback_name(self, theme):
+        """Возвращает fallback название специфичное для тематики"""
+        fallback_names = {
+            "Bookstore": ["PageTurn", "StoryNest", "BookHaven", "ReadCraft", "NovelVault", "ChapterHouse"],
+            "Restaurant": ["TasteHub", "FlavorCraft", "DishDash", "CulinaryNest", "PlateFlow"],
+            "Hotel": ["StayNest", "RoomHaven", "RestPoint", "LodgeHub", "SleepCraft"],
+            "Shop": ["ShopFlow", "CartCraft", "MarketNest", "StoreHub", "BuyPoint"],
+            "Fitness": ["FitFlow", "PowerNest", "GymCraft", "StrengthHub", "ActivePoint"],
+            "Healthcare": ["CareNest", "MediFlow", "HealthHub", "WellCraft", "CurePoint"],
+            "Education": ["LearnHub", "KnowNest", "StudyCraft", "EduFlow", "BrainPoint"],
+            "IT": ["TechWave", "CloudNest", "DataSphere", "CodeCraft", "ByteForge"],
+            "Real Estate": ["PropertyNest", "HomeHub", "EstateFlow", "DwellCraft", "SpacePoint"],
+            "Travel": ["WanderHub", "TripNest", "JourneyCraft", "TravelFlow", "RoutePoint"]
+        }
+        names = fallback_names.get(theme, ["TechWave", "CloudNest", "DataSphere", "CodeCraft", "ByteForge"])
+        return random.choice(names)
+
+    def get_country_contact_data(self, country):
+        """Возвращает разные номера телефонов и адреса в зависимости от страны"""
+        country_lower = country.lower()
+
+        # Данные по странам
+        country_data = {
+            'netherlands': {
+                'phones': ['+31 20 123 4567', '+31 10 987 6543', '+31 30 555 7890'],
+                'cities': ['Amsterdam', 'Rotterdam', 'Utrecht', 'The Hague', 'Eindhoven', 'Groningen'],
+                'streets': ['Damrak', 'Kalverstraat', 'Leidsestraat', 'Nieuwendijk', 'Rokin'],
+                'postal_codes': ['1012', '3011', '3512', '2511', '5611']
+            },
+            'usa': {
+                'phones': ['+1 (555) 123-4567', '+1 (555) 987-6543', '+1 (555) 555-7890'],
+                'cities': ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia'],
+                'streets': ['Main Street', 'Broadway', 'Park Avenue', 'Wall Street', 'Market Street'],
+                'postal_codes': ['10001', '90001', '60601', '77001', '85001']
+            },
+            'uk': {
+                'phones': ['+44 20 1234 5678', '+44 161 987 6543', '+44 131 555 7890'],
+                'cities': ['London', 'Manchester', 'Birmingham', 'Edinburgh', 'Liverpool', 'Bristol'],
+                'streets': ['High Street', 'King Street', 'Oxford Street', 'Queen Street', 'Victoria Road'],
+                'postal_codes': ['SW1A', 'M1 1AD', 'B1 1AA', 'EH1 1YZ', 'L1 8JQ']
+            },
+            'germany': {
+                'phones': ['+49 30 1234 5678', '+49 89 9876 543', '+49 40 555 7890'],
+                'cities': ['Berlin', 'Munich', 'Hamburg', 'Frankfurt', 'Cologne', 'Stuttgart'],
+                'streets': ['Hauptstraße', 'Bahnhofstraße', 'Marktplatz', 'Kirchstraße', 'Schulstraße'],
+                'postal_codes': ['10115', '80331', '20095', '60311', '50667']
+            },
+            'france': {
+                'phones': ['+33 1 23 45 67 89', '+33 4 98 76 54 32', '+33 5 55 57 89 01'],
+                'cities': ['Paris', 'Lyon', 'Marseille', 'Toulouse', 'Nice', 'Bordeaux'],
+                'streets': ['Rue de la Paix', 'Avenue des Champs-Élysées', 'Rue Royale', 'Boulevard Haussmann'],
+                'postal_codes': ['75001', '69001', '13001', '31000', '06000']
+            }
+        }
+
+        # Определяем страну
+        for key in country_data.keys():
+            if key in country_lower:
+                data = country_data[key]
+                # Генерируем случайный номер и адрес
+                phone = random.choice(data['phones'])
+                city = random.choice(data['cities'])
+                street_num = random.randint(1, 999)
+                street = random.choice(data['streets'])
+                postal = random.choice(data['postal_codes'])
+
+                return {
+                    'phone': phone,
+                    'address': f"{street_num} {street}, {city} {postal}"
+                }
+
+        # Fallback если страна не найдена
+        return {
+            'phone': '+1 (555) 123-4567',
+            'address': '123 Business Street, Suite 100, New York, NY 10001'
+        }
+
+    def generate_our_process_section(self, site_name, theme, primary, hover):
+        """Генерирует одну из 3 вариаций секции Our Process"""
+        variation = random.randint(1, 3)
+
+        if variation == 1:
+            return f"""
+    <section class="py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-96 h-96 bg-{primary}/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-{hover}/5 rounded-full blur-3xl"></div>
+
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">Our Process</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Simple, transparent, and effective workflow designed for your success</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+                <div class="group relative">
+                    <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
+                        <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
+                            01
+                        </div>
+                        <div class="w-16 h-16 bg-gradient-to-br from-{primary} to-{hover} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <svg class="w-8 h-8 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Consultation</h3>
+                        <p class="text-gray-600 leading-relaxed">We listen to your needs, understand your goals, and identify the best approach for your project.</p>
+                    </div>
+                </div>
+
+                <div class="group relative">
+                    <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
+                        <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
+                            02
+                        </div>
+                        <div class="w-16 h-16 bg-gradient-to-br from-{primary} to-{hover} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <svg class="w-8 h-8 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Planning</h3>
+                        <p class="text-gray-600 leading-relaxed">We create a detailed roadmap with clear milestones, timelines, and deliverables for your project.</p>
+                    </div>
+                </div>
+
+                <div class="group relative">
+                    <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
+                        <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
+                            03
+                        </div>
+                        <div class="w-16 h-16 bg-gradient-to-br from-{primary} to-{hover} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <svg class="w-8 h-8 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Development</h3>
+                        <p class="text-gray-600 leading-relaxed">Our expert team brings your vision to life with cutting-edge technology and best practices.</p>
+                    </div>
+                </div>
+
+                <div class="group relative">
+                    <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 h-full border-2 border-transparent hover:border-{primary}/20">
+                        <div class="absolute -top-4 -right-4 w-12 h-12 bg-{primary} rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform group-hover:scale-110 transition-transform">
+                            04
+                        </div>
+                        <div class="w-16 h-16 bg-gradient-to-br from-{primary} to-{hover} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <svg class="w-8 h-8 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Delivery</h3>
+                        <p class="text-gray-600 leading-relaxed">We launch your project and provide ongoing support to ensure everything runs smoothly.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-16">
+                <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    Start Your Project
+                </a>
+            </div>
+        </div>
+    </section>"""
+
+        elif variation == 2:
+            return f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-20">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">Our Process</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">A proven methodology to transform your ideas into reality</p>
+            </div>
+
+            <div class="max-w-6xl mx-auto">
+                <div class="relative">
+                    <div class="hidden md:block absolute top-24 left-0 right-0 h-1 bg-gradient-to-r from-{primary} via-{hover} to-{primary}"></div>
+
+                    <div class="grid md:grid-cols-4 gap-8 relative">
+                        <div class="text-center group">
+                            <div class="inline-flex items-center justify-center w-20 h-20 bg-{primary} rounded-full mb-6 shadow-xl relative z-10 group-hover:scale-110 transition-transform">
+                                <svg class="w-10 h-10 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </div>
+                            <div class="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                                <div class="text-{primary} font-bold text-lg mb-2">Step 1</div>
+                                <h3 class="text-xl font-bold mb-3">Discovery</h3>
+                                <p class="text-gray-600">We analyze your needs and define project scope together.</p>
+                            </div>
+                        </div>
+
+                        <div class="text-center group">
+                            <div class="inline-flex items-center justify-center w-20 h-20 bg-{primary} rounded-full mb-6 shadow-xl relative z-10 group-hover:scale-110 transition-transform">
+                                <svg class="w-10 h-10 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                                </svg>
+                            </div>
+                            <div class="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                                <div class="text-{primary} font-bold text-lg mb-2">Step 2</div>
+                                <h3 class="text-xl font-bold mb-3">Design</h3>
+                                <p class="text-gray-600">We craft beautiful solutions tailored to your brand.</p>
+                            </div>
+                        </div>
+
+                        <div class="text-center group">
+                            <div class="inline-flex items-center justify-center w-20 h-20 bg-{primary} rounded-full mb-6 shadow-xl relative z-10 group-hover:scale-110 transition-transform">
+                                <svg class="w-10 h-10 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <div class="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                                <div class="text-{primary} font-bold text-lg mb-2">Step 3</div>
+                                <h3 class="text-xl font-bold mb-3">Build</h3>
+                                <p class="text-gray-600">We develop your solution with precision and quality.</p>
+                            </div>
+                        </div>
+
+                        <div class="text-center group">
+                            <div class="inline-flex items-center justify-center w-20 h-20 bg-{primary} rounded-full mb-6 shadow-xl relative z-10 group-hover:scale-110 transition-transform">
+                                <svg class="w-10 h-10 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                                </svg>
+                            </div>
+                            <div class="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                                <div class="text-{primary} font-bold text-lg mb-2">Step 4</div>
+                                <h3 class="text-xl font-bold mb-3">Launch</h3>
+                                <p class="text-gray-600">We deploy and support your success from day one.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-16">
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        Get Started Today
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>"""
+
+        else:
+            return f"""
+    <section class="py-20 bg-gradient-to-b from-white to-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-20">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">Our Process</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Every great project starts with a solid plan</p>
+            </div>
+
+            <div class="max-w-4xl mx-auto space-y-12">
+                <div class="flex flex-col md:flex-row items-center gap-8 group">
+                    <div class="md:w-1/2 md:text-right">
+                        <div class="inline-block bg-{primary} text-white px-4 py-2 rounded-full text-sm font-bold mb-4">STEP 01</div>
+                        <h3 class="text-3xl font-bold mb-4">Initial Contact</h3>
+                        <p class="text-gray-600 text-lg leading-relaxed">Reach out to us with your vision. We'll schedule a free consultation to discuss your goals, challenges, and how we can help bring your project to life.</p>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center">
+                        <div class="w-32 h-32 bg-gradient-to-br from-{primary} to-{hover} rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+                            <svg class="w-16 h-16 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row-reverse items-center gap-8 group">
+                    <div class="md:w-1/2 md:text-left">
+                        <div class="inline-block bg-{primary} text-white px-4 py-2 rounded-full text-sm font-bold mb-4">STEP 02</div>
+                        <h3 class="text-3xl font-bold mb-4">Strategy Session</h3>
+                        <p class="text-gray-600 text-lg leading-relaxed">We dive deep into your requirements, analyze the market, and create a comprehensive strategy that aligns with your business objectives.</p>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center">
+                        <div class="w-32 h-32 bg-gradient-to-br from-{primary} to-{hover} rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+                            <svg class="w-16 h-16 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center gap-8 group">
+                    <div class="md:w-1/2 md:text-right">
+                        <div class="inline-block bg-{primary} text-white px-4 py-2 rounded-full text-sm font-bold mb-4">STEP 03</div>
+                        <h3 class="text-3xl font-bold mb-4">Development</h3>
+                        <p class="text-gray-600 text-lg leading-relaxed">Our team gets to work, keeping you informed every step of the way. We use agile methodologies to ensure flexibility and quality throughout development.</p>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center">
+                        <div class="w-32 h-32 bg-gradient-to-br from-{primary} to-{hover} rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+                            <svg class="w-16 h-16 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row-reverse items-center gap-8 group">
+                    <div class="md:w-1/2 md:text-left">
+                        <div class="inline-block bg-{primary} text-white px-4 py-2 rounded-full text-sm font-bold mb-4">STEP 04</div>
+                        <h3 class="text-3xl font-bold mb-4">Launch & Support</h3>
+                        <p class="text-gray-600 text-lg leading-relaxed">After thorough testing, we launch your project. Our relationship doesn't end there - we provide ongoing support and optimization to ensure continued success.</p>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center">
+                        <div class="w-32 h-32 bg-gradient-to-br from-{primary} to-{hover} rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+                            <svg class="w-16 h-16 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-16">
+                <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    Start Your Journey
+                </a>
+            </div>
+        </div>
+    </section>"""
+
+    def generate_what_we_offer_section(self, site_name, theme, primary, hover):
+        """Генерирует одну из 3 вариаций секции What We Offer (6 карточек)"""
+        variation = random.randint(1, 3)
+
+        if variation == 1:
+            return f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-4">What We Offer</h2>
+            <p class="text-gray-600 text-center mb-12 text-lg">Comprehensive solutions tailored to your needs</p>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
+                    <h4 class="text-xl font-bold mb-3">Consultation</h4>
+                    <p class="text-gray-600 mb-4">Expert advice to help you make informed decisions about your project.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                        Learn More →
+                    </a>
+                </div>
+                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
+                    <h4 class="text-xl font-bold mb-3">Planning</h4>
+                    <p class="text-gray-600 mb-4">Strategic planning to ensure your project's success from start to finish.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                        Learn More →
+                    </a>
+                </div>
+                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
+                    <h4 class="text-xl font-bold mb-3">Implementation</h4>
+                    <p class="text-gray-600 mb-4">Professional execution with attention to every detail of your project.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                        Learn More →
+                    </a>
+                </div>
+                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
+                    <h4 class="text-xl font-bold mb-3">Testing</h4>
+                    <p class="text-gray-600 mb-4">Thorough testing to ensure quality and reliability in all deliverables.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                        Learn More →
+                    </a>
+                </div>
+                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
+                    <h4 class="text-xl font-bold mb-3">Support</h4>
+                    <p class="text-gray-600 mb-4">Ongoing support to help you get the most from your investment.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                        Learn More →
+                    </a>
+                </div>
+                <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
+                    <h4 class="text-xl font-bold mb-3">Optimization</h4>
+                    <p class="text-gray-600 mb-4">Continuous improvement to keep your solution performing at its best.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                        Learn More →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>"""
+
+        elif variation == 2:
+            return f"""
+    <section class="py-20 bg-gradient-to-br from-gray-50 to-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">What We Offer</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Discover our range of professional services designed to elevate your business</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                <div class="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-{primary}/20">
+                    <div class="w-14 h-14 bg-{primary} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Strategy & Planning</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">Comprehensive strategic planning to align your goals with actionable roadmaps and measurable outcomes.</p>
+                    <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
+                        Explore <span class="ml-2">→</span>
+                    </a>
+                </div>
+
+                <div class="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-{primary}/20">
+                    <div class="w-14 h-14 bg-{primary} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Research & Analysis</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">In-depth market research and data analysis to uncover insights that drive informed business decisions.</p>
+                    <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
+                        Explore <span class="ml-2">→</span>
+                    </a>
+                </div>
+
+                <div class="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-{primary}/20">
+                    <div class="w-14 h-14 bg-{primary} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Custom Development</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">Tailored solutions built with cutting-edge technology to meet your unique business requirements.</p>
+                    <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
+                        Explore <span class="ml-2">→</span>
+                    </a>
+                </div>
+
+                <div class="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-{primary}/20">
+                    <div class="w-14 h-14 bg-{primary} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Quality Assurance</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">Rigorous testing and quality control to ensure flawless performance and reliability.</p>
+                    <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
+                        Explore <span class="ml-2">→</span>
+                    </a>
+                </div>
+
+                <div class="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-{primary}/20">
+                    <div class="w-14 h-14 bg-{primary} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Fast Deployment</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">Rapid implementation and seamless integration to get your solutions live quickly and efficiently.</p>
+                    <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
+                        Explore <span class="ml-2">→</span>
+                    </a>
+                </div>
+
+                <div class="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-{primary}/20">
+                    <div class="w-14 h-14 bg-{primary} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Ongoing Support</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">Dedicated maintenance and continuous optimization to keep your systems running perfectly.</p>
+                    <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
+                        Explore <span class="ml-2">→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>"""
+
+        else:
+            return f"""
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">What We Offer</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Six core services that drive exceptional results</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                <div class="group relative bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition-all duration-300">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-{primary} to-{hover} rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                        01
+                    </div>
+                    <div class="pt-4">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Consultation Services</h3>
+                        <p class="text-gray-600 leading-relaxed mb-6">Expert guidance and professional advice to help you navigate complex challenges and opportunities.</p>
+                        <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
+                            Get Started <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group relative bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition-all duration-300">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-{primary} to-{hover} rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                        02
+                    </div>
+                    <div class="pt-4">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Strategic Planning</h3>
+                        <p class="text-gray-600 leading-relaxed mb-6">Comprehensive roadmaps and actionable strategies tailored to your business objectives and growth goals.</p>
+                        <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
+                            Get Started <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group relative bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition-all duration-300">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-{primary} to-{hover} rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                        03
+                    </div>
+                    <div class="pt-4">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Technical Execution</h3>
+                        <p class="text-gray-600 leading-relaxed mb-6">Professional implementation with modern technology and industry best practices for superior results.</p>
+                        <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
+                            Get Started <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group relative bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition-all duration-300">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-{primary} to-{hover} rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                        04
+                    </div>
+                    <div class="pt-4">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Performance Testing</h3>
+                        <p class="text-gray-600 leading-relaxed mb-6">Thorough quality assurance and performance optimization to ensure reliability and efficiency.</p>
+                        <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
+                            Get Started <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group relative bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition-all duration-300">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-{primary} to-{hover} rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                        05
+                    </div>
+                    <div class="pt-4">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Launch & Deploy</h3>
+                        <p class="text-gray-600 leading-relaxed mb-6">Seamless deployment and go-live support to ensure smooth transitions and successful launches.</p>
+                        <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
+                            Get Started <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group relative bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition-all duration-300">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-{primary} to-{hover} rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                        06
+                    </div>
+                    <div class="pt-4">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Continuous Support</h3>
+                        <p class="text-gray-600 leading-relaxed mb-6">Ongoing maintenance, updates, and optimization to keep your solutions performing at peak levels.</p>
+                        <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
+                            Get Started <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-16">
+                <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    Discuss Your Project
+                </a>
+            </div>
+        </div>
+    </section>"""
+
+    def generate_our_locations_section(self, country, primary, hover):
+        """Генерирует секцию Our Locations с городами из указанной страны"""
+        country_lower = country.lower()
+
+        # Данные по странам для локаций
+        country_locations = {
+            'netherlands': [
+                {'city': 'Amsterdam', 'description': 'Our headquarters in the heart of Netherlands, serving clients with expertise and innovation.'},
+                {'city': 'Rotterdam', 'description': 'Major port city office providing comprehensive solutions for business growth.'},
+                {'city': 'Utrecht', 'description': 'Central Netherlands hub delivering excellence in service and support.'},
+                {'city': 'The Hague', 'description': 'Government city office specializing in corporate and institutional services.'},
+                {'city': 'Eindhoven', 'description': 'Technology hub bringing cutting-edge innovation to our clients.'},
+                {'city': 'Groningen', 'description': 'Northern office serving the region with dedication and professionalism.'}
+            ],
+            'usa': [
+                {'city': 'New York', 'description': 'Our headquarters serving the East Coast market with dedicated professionals.'},
+                {'city': 'San Francisco', 'description': 'West Coast hub bringing innovation and technology expertise to your doorstep.'},
+                {'city': 'Chicago', 'description': 'Central location serving clients across the Midwest with excellence.'},
+                {'city': 'Miami', 'description': 'Southern operations center providing exceptional service to our clients.'},
+                {'city': 'Seattle', 'description': 'Pacific Northwest headquarters for innovation and growth initiatives.'},
+                {'city': 'Boston', 'description': 'Northeast regional office delivering quality service and expertise.'}
+            ],
+            'uk': [
+                {'city': 'London', 'description': 'Our main UK headquarters in the financial heart of the country.'},
+                {'city': 'Manchester', 'description': 'Northern powerhouse office driving business growth and innovation.'},
+                {'city': 'Birmingham', 'description': 'Midlands hub serving clients with comprehensive business solutions.'},
+                {'city': 'Edinburgh', 'description': 'Scottish office providing exceptional service across the region.'},
+                {'city': 'Bristol', 'description': 'Southwest operations center for technology and creative industries.'},
+                {'city': 'Leeds', 'description': 'Yorkshire office delivering professional services and expertise.'}
+            ],
+            'germany': [
+                {'city': 'Berlin', 'description': 'Capital city headquarters driving innovation and digital transformation.'},
+                {'city': 'Munich', 'description': 'Bavarian office serving clients with precision and excellence.'},
+                {'city': 'Frankfurt', 'description': 'Financial hub providing corporate and enterprise solutions.'},
+                {'city': 'Hamburg', 'description': 'Northern office specializing in international business services.'},
+                {'city': 'Cologne', 'description': 'West German operations center for creative and media industries.'},
+                {'city': 'Stuttgart', 'description': 'Southwest office delivering engineering and technology expertise.'}
+            ],
+            'france': [
+                {'city': 'Paris', 'description': 'Capital headquarters serving French and European markets with elegance.'},
+                {'city': 'Lyon', 'description': 'Second city office providing comprehensive business solutions.'},
+                {'city': 'Marseille', 'description': 'Mediterranean hub for international trade and commerce.'},
+                {'city': 'Toulouse', 'description': 'Aerospace city office specializing in technology and innovation.'},
+                {'city': 'Nice', 'description': 'Côte d\'Azur office serving the French Riviera market.'},
+                {'city': 'Bordeaux', 'description': 'Southwest regional office delivering professional excellence.'}
+            ]
+        }
+
+        # Выбираем города для страны или используем USA по умолчанию
+        locations = None
+        for key in country_locations.keys():
+            if key in country_lower:
+                locations = country_locations[key]
+                break
+
+        if not locations:
+            locations = country_locations['usa']
+
+        # Генерируем HTML с 6 локациями
+        location_cards = ""
+        for i, location in enumerate(locations, 1):
+            location_cards += f"""
+                    <div class="w-full md:w-1/3 flex-shrink-0 px-3">
+                        <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow">
+                            <img src="images/location{i}.jpg" alt="{location['city']}" class="w-full h-40 object-cover rounded-lg mb-4">
+                            <h4 class="text-xl font-bold mb-2">{location['city']} Office</h4>
+                            <p class="text-gray-600 mb-4">{location['description']}</p>
+                            <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
+                                Contact
+                            </a>
+                        </div>
+                    </div>
+"""
+
+        return f"""
+    <section class="py-20 pb-28 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="flex justify-between items-center mb-12">
+                <h2 class="text-4xl font-bold">Our Locations</h2>
+                <div class="flex gap-4">
+                    <button id="locations-prev" class="w-10 h-10 bg-{primary} text-white rounded-full flex items-center justify-center hover:bg-{hover} transition">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <button id="locations-next" class="w-10 h-10 bg-{primary} text-white rounded-full flex items-center justify-center hover:bg-{hover} transition">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="relative overflow-hidden pb-4">
+                <div id="locations-slider" class="flex transition-transform duration-500 ease-in-out">{location_cards}
+                </div>
+            </div>
+
+            <div class="flex justify-center mt-8 gap-2">
+                <button class="location-indicator w-3 h-3 rounded-full bg-{primary} transition" data-index="0"></button>
+                <button class="location-indicator w-3 h-3 rounded-full bg-gray-300 transition" data-index="1"></button>
+                <button class="location-indicator w-3 h-3 rounded-full bg-gray-300 transition" data-index="2"></button>
+                <button class="location-indicator w-3 h-3 rounded-full bg-gray-300 transition" data-index="3"></button>
+            </div>
+        </div>
+
+        <script>
+        (function() {{
+            const slider = document.getElementById('locations-slider');
+            const prevBtn = document.getElementById('locations-prev');
+            const nextBtn = document.getElementById('locations-next');
+            const indicators = document.querySelectorAll('.location-indicator');
+            let currentIndex = 0;
+            const totalCards = 6;
+            const cardsPerView = window.innerWidth >= 768 ? 3 : 1;
+            const maxIndex = totalCards - cardsPerView;
+
+            function updateSlider() {{
+                const offset = -(currentIndex * (100 / cardsPerView));
+                slider.style.transform = `translateX(${{offset}}%)`;
+
+                // Update indicators
+                indicators.forEach((indicator, idx) => {{
+                    if (idx === currentIndex) {{
+                        indicator.classList.remove('bg-gray-300');
+                        indicator.classList.add('bg-{primary}');
+                    }} else {{
+                        indicator.classList.remove('bg-{primary}');
+                        indicator.classList.add('bg-gray-300');
+                    }}
+                }});
+            }}
+
+            prevBtn.addEventListener('click', () => {{
+                currentIndex = Math.max(0, currentIndex - 1);
+                updateSlider();
+            }});
+
+            nextBtn.addEventListener('click', () => {{
+                currentIndex = Math.min(maxIndex, currentIndex + 1);
+                updateSlider();
+            }});
+
+            indicators.forEach((indicator, idx) => {{
+                indicator.addEventListener('click', () => {{
+                    currentIndex = idx;
+                    updateSlider();
+                }});
+            }});
+        }})();
+        </script>
+    </section>"""
+
+    def generate_color_scheme(self):
+        """Генерация уникальной цветовой схемы для сайта"""
+        color_schemes = [
+            {
+                'primary': 'blue-600',
+                'secondary': 'indigo-600',
+                'accent': 'cyan-500',
+                'hover': 'blue-700',
+                'bg_light': 'blue-50',
+                'bg_dark': 'blue-100'
+            },
+            {
+                'primary': 'purple-600',
+                'secondary': 'pink-600',
+                'accent': 'purple-400',
+                'hover': 'purple-700',
+                'bg_light': 'purple-50',
+                'bg_dark': 'purple-100'
+            },
+            {
+                'primary': 'emerald-600',
+                'secondary': 'teal-600',
+                'accent': 'green-500',
+                'hover': 'emerald-700',
+                'bg_light': 'emerald-50',
+                'bg_dark': 'emerald-100'
+            },
+            {
+                'primary': 'orange-600',
+                'secondary': 'amber-600',
+                'accent': 'yellow-500',
+                'hover': 'orange-700',
+                'bg_light': 'orange-50',
+                'bg_dark': 'orange-100'
+            },
+            {
+                'primary': 'rose-600',
+                'secondary': 'red-600',
+                'accent': 'pink-500',
+                'hover': 'rose-700',
+                'bg_light': 'rose-50',
+                'bg_dark': 'rose-100'
+            },
+            {
+                'primary': 'sky-600',
+                'secondary': 'blue-600',
+                'accent': 'cyan-400',
+                'hover': 'sky-700',
+                'bg_light': 'sky-50',
+                'bg_dark': 'sky-100'
+            },
+            {
+                'primary': 'violet-600',
+                'secondary': 'purple-600',
+                'accent': 'indigo-500',
+                'hover': 'violet-700',
+                'bg_light': 'violet-50',
+                'bg_dark': 'violet-100'
+            },
+            {
+                'primary': 'fuchsia-600',
+                'secondary': 'pink-600',
+                'accent': 'purple-500',
+                'hover': 'fuchsia-700',
+                'bg_light': 'fuchsia-50',
+                'bg_dark': 'fuchsia-100'
+            }
+        ]
+        
+        return random.choice(color_schemes)
+    
+    def generate_header_layout(self):
+        """Генерация случайного варианта расположения header"""
+        layouts = [
+            'centered',  # Логотип по центру, меню по бокам
+            'left-aligned',  # Логотип слева, меню справа
+            'split',  # Логотип слева, меню по центру, CTA справа
+            'minimal',  # Минималистичный header
+            'bold'  # Жирный header с большим логотипом
+        ]
+        return random.choice(layouts)
+    
+    def generate_footer_layout(self):
+        """Генерация случайного варианта расположения footer"""
+        layouts = [
+            'columns-3',  # 3 колонки
+            'columns-4',  # 4 колонки
+            'centered',  # Центрированный
+            'minimal',  # Минимальный
+            'split'  # Разделенный (info слева, links справа)
+        ]
+        return random.choice(layouts)
+    
+    def generate_section_variations(self):
+        """Генерация случайных вариантов секций для сайта"""
+        all_sections = [
+            'hero_full_screen',
+            'hero_split',
+            'hero_minimal',
+            'features_grid_3',
+            'features_grid_4',
+            'features_cards',
+            'services_carousel',
+            'services_tabs',
+            'services_accordion',
+            'testimonials_slider',
+            'testimonials_grid',
+            'testimonials_masonry',
+            'cta_banner',
+            'cta_modal',
+            'cta_sidebar',
+            'stats_counter',
+            'stats_charts',
+            'team_grid',
+            'team_list',
+            'portfolio_masonry',
+            'portfolio_grid',
+            'blog_cards',
+            'blog_list',
+            'pricing_tables',
+            'pricing_cards',
+            'faq_accordion',
+            'faq_tabs',
+            'contact_form_inline',
+            'contact_form_modal',
+            'newsletter_popup',
+            'newsletter_footer'
+        ]
+        
+        # Выбираем 5-8 случайных секций
+        num_sections = random.randint(5, 8)
+        return random.sample(all_sections, num_sections)
+    
+    def generate_image_via_bytedance(self, prompt, filename, output_dir):
+        """Генерация изображения через ByteDance Ark SDK"""
+        print(f"    🎨 {filename}...", end=" ", flush=True)
+        
+        try:
+            # Генерация изображения через Ark API
+            imagesResponse = self.ark_client.images.generate(
+                model="seedream-4-0-250828",
+                prompt=f"{prompt}, professional photography, high quality, photorealistic, 4K, no text, no words, no letters",
+                response_format="url",
+                size="2K",
+                stream=True,
+                watermark=False
+            )
+            
+            image_url = None
+            for event in imagesResponse:
+                if event is None:
+                    continue
+                    
+                if event.type == "image_generation.partial_failed":
+                    print(f"✗ (Error: {event.error})")
+                    if event.error is not None and hasattr(event.error, 'code') and event.error.code == "InternalServiceError":
+                        return None
+                        
+                elif event.type == "image_generation.partial_succeeded":
+                    if event.error is None and event.url:
+                        image_url = event.url
+                        
+                elif event.type == "image_generation.completed":
+                    if event.error is None:
+                        break
+            
+            # Скачивание изображения
+            if image_url:
+                img_response = requests.get(image_url, timeout=60)
+                img_response.raise_for_status()
+                
+                image_path = os.path.join(output_dir, filename)
+                with open(image_path, 'wb') as f:
+                    f.write(img_response.content)
+                
+                print("✓")
+                return filename
+            else:
+                print("⚠️")
+                return None
+                
+        except Exception as e:
+            print(f"✗ ({str(e)[:50]})")
+            return None
+    
+    def generate_placeholder_image(self, filename, output_dir, description=""):
+        """Создание placeholder изображения"""
+        try:
+            from PIL import Image, ImageDraw, ImageFont
+            
+            if 'hero' in filename:
+                width, height = 1920, 1080
+            elif 'service' in filename or 'gallery' in filename:
+                width, height = 600, 600
+            else:
+                width, height = 1024, 768
+            
+            img = Image.new('RGB', (width, height))
+            draw = ImageDraw.Draw(img)
+            
+            theme = self.blueprint.get('theme', '').lower()
+            
+            if any(word in theme for word in ['it', 'tech', 'software', 'digital', 'education']):
+                colors = [(59, 130, 246), (139, 92, 246), (16, 185, 129), (34, 211, 238), (249, 115, 22)]
+            else:
+                colors = [(74, 144, 226), (80, 227, 194), (245, 158, 11), (239, 68, 68), (168, 85, 247)]
+            
+            color1, color2 = random.sample(colors, 2)
+            
+            for y in range(height):
+                ratio = y / height
+                r = int(color1[0] * (1 - ratio) + color2[0] * ratio)
+                g = int(color1[1] * (1 - ratio) + color2[1] * ratio)
+                b = int(color1[2] * (1 - ratio) + color2[2] * ratio)
+                draw.line([(0, y), (width, y)], fill=(r, g, b))
+            
+            try:
+                font_size = 60 if width > 1000 else 40
+                font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
+            except:
+                font = ImageFont.load_default()
+            
+            text = filename.replace('.jpg', '').replace('_', ' ').upper()
+            bbox = draw.textbbox((0, 0), text, font=font)
+            text_width = bbox[2] - bbox[0]
+            text_height = bbox[3] - bbox[1]
+            x = (width - text_width) / 2
+            y = (height - text_height) / 2
+            draw.text((x+2, y+2), text, fill=(0, 0, 0, 128), font=font)
+            draw.text((x, y), text, fill=(255, 255, 255), font=font)
+            
+            image_path = os.path.join(output_dir, filename)
+            img.save(image_path, 'JPEG', quality=85)
+            
+            return filename
+            
+        except Exception as e:
+            print(f"⚠️  Ошибка placeholder {filename}: {e}")
+            # Minimal 1x1 JPEG
+            minimal_jpeg = base64.b64decode(
+                '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBAMFBwYHBwcG'
+                'BwcICQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsMDAz/2wBDAQICAgMDAwYDAwYMCAcIDAwMDAwM'
+                'DAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/wAARCAABAAEDASIA'
+                'AhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEB'
+                'AQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAA8='
+            )
+            image_path = os.path.join(output_dir, filename)
+            with open(image_path, 'wb') as f:
+                f.write(minimal_jpeg)
+            return filename
+    
+    def generate_images_for_site(self, output_dir):
+        """Генерация изображений для сайта в папке images/"""
+        # Создаем папку images
+        images_dir = os.path.join(output_dir, 'images')
+        os.makedirs(images_dir, exist_ok=True)
+
+        theme = self.blueprint.get('theme', 'business')
+        site_name = self.blueprint.get('site_name', 'Company')
+        country = self.blueprint.get('country', 'USA')
+
+        # Создаем детальные контекстные промпты в зависимости от СТРАНЫ (не темы!)
+        country_lower = country.lower()
+
+        # Определяем географический и этнический контекст на основе СТРАНЫ
+        location_context = ""
+        ethnicity_context = ""
+
+        if any(word in country_lower for word in ['netherlands', 'dutch', 'holland']):
+            location_context = "in the Netherlands, Dutch architecture, windmills, canals, tulip fields, traditional Dutch buildings, European countryside"
+            ethnicity_context = "European people, Dutch ethnicity, Caucasian, Northern European features"
+        elif any(word in country_lower for word in ['europe', 'european', 'uk', 'britain', 'germany', 'france', 'italy', 'spain']):
+            location_context = "in Europe, European cities, historic architecture, European landmarks"
+            ethnicity_context = "European people, Caucasian, diverse European ethnicities"
+        elif any(word in country_lower for word in ['asia', 'asian', 'japan', 'china', 'singapore', 'korea', 'thailand']):
+            location_context = "in Asia, Asian cities, Asian architecture"
+            ethnicity_context = "Asian people, East Asian ethnicity"
+        elif any(word in country_lower for word in ['america', 'usa', 'united states']):
+            location_context = "in America, American cities, modern American architecture"
+            ethnicity_context = "diverse American people, multicultural"
+        else:
+            # Нейтральный контекст
+            location_context = "in a modern professional setting"
+            ethnicity_context = "diverse people"
+
+        # Детальные промпты с учетом темы, локации и этничности
+        images_to_generate = [
+            {
+                'filename': 'hero.jpg',
+                'prompt': f"Professional wide banner photograph for {theme} website. {location_context}. Clean composition, natural lighting, high quality, photorealistic, 8k resolution. {ethnicity_context} if people are visible. No text or logos."
+            },
+            {
+                'filename': 'about.jpg',
+                'prompt': f"Professional business photograph showing {theme} company culture. {location_context}. {ethnicity_context} in natural professional setting, authentic workplace environment, candid moments, warm atmosphere, photorealistic."
+            },
+            {
+                'filename': 'service1.jpg',
+                'prompt': f"High-quality photograph representing {theme} services. {location_context}. Professional service delivery, real-world application, authentic setting, natural lighting, clean composition, photorealistic. {ethnicity_context} if people are shown."
+            },
+            {
+                'filename': 'service2.jpg',
+                'prompt': f"Professional teamwork photograph for {theme} business. {location_context}. {ethnicity_context} collaborating in modern office, natural interaction, authentic workplace, productive atmosphere, photorealistic, bright natural light."
+            },
+            {
+                'filename': 'service3.jpg',
+                'prompt': f"Professional service photograph for {theme} company. {location_context}. Expert professionals at work, quality service delivery, attention to detail, authentic workplace setting, natural lighting, photorealistic. {ethnicity_context} visible."
+            },
+            {
+                'filename': 'blog1.jpg',
+                'prompt': f"Engaging blog header photograph related to {theme} topic. {location_context}. Creative composition, storytelling visual, authentic scene, natural colors, high quality, photorealistic. {ethnicity_context} if people present."
+            },
+            {
+                'filename': 'blog2.jpg',
+                'prompt': f"Inspiring blog featured photograph for {theme} article. {location_context}. Professional quality, engaging composition, relevant to topic, authentic setting, natural lighting, photorealistic."
+            },
+            {
+                'filename': 'blog3.jpg',
+                'prompt': f"Informative blog post photograph about {theme}. {location_context}. Clear visual storytelling, educational value, authentic scene, natural environment, high-quality photography, photorealistic."
+            },
+            {
+                'filename': 'blog4.jpg',
+                'prompt': f"Unique perspective blog photograph for {theme} content. {location_context}. Creative angle, interesting composition, authentic moment, natural lighting, professional photography, photorealistic."
+            },
+            {
+                'filename': 'blog5.jpg',
+                'prompt': f"Compelling blog content photograph representing {theme}. {location_context}. Strong visual narrative, authentic scene, engaging composition, natural colors, high quality, photorealistic."
+            },
+            {
+                'filename': 'blog6.jpg',
+                'prompt': f"Professional blog header photograph for {theme} article. {location_context}. Attractive composition, relevant content, authentic setting, clear subject, natural lighting, photorealistic."
+            },
+            {
+                'filename': 'gallery1.jpg',
+                'prompt': f"Showcase photograph highlighting {theme} work. {location_context}. Portfolio quality, interesting composition, professional execution, authentic project, natural lighting, photorealistic."
+            },
+            {
+                'filename': 'gallery2.jpg',
+                'prompt': f"Professional portfolio photograph of {theme} project. {location_context}. Different perspective, quality craftsmanship, authentic work, detailed shot, natural light, photorealistic."
+            },
+            {
+                'filename': 'gallery3.jpg',
+                'prompt': f"Quality showcase photograph for {theme} services. {location_context}. Professional presentation, real project example, clean composition, authentic work, photorealistic."
+            },
+            {
+                'filename': 'gallery4.jpg',
+                'prompt': f"Professional portfolio piece for {theme} company. {location_context}. High-quality craftsmanship, finished project, authentic work, professional photography, photorealistic."
+            },
+            {
+                'filename': 'location1.jpg',
+                'prompt': f"Beautiful cityscape photograph of a major city {location_context}. Iconic architecture, vibrant urban landscape, famous landmarks, clear blue sky, natural daylight, professional travel photography, photorealistic, 8k quality."
+            },
+            {
+                'filename': 'location2.jpg',
+                'prompt': f"Stunning city view photograph {location_context}. Historic district, charming streets, cultural landmarks, authentic urban environment, golden hour lighting, professional cityscape photography, photorealistic."
+            },
+            {
+                'filename': 'location3.jpg',
+                'prompt': f"Professional city photograph {location_context}. Modern business district, contemporary architecture, dynamic city life, clean composition, bright daylight, high-quality urban photography, photorealistic."
+            },
+            {
+                'filename': 'location4.jpg',
+                'prompt': f"Attractive cityscape showing urban beauty {location_context}. Waterfront view, riverside or canal scene, scenic city landscape, natural lighting, professional travel photography, photorealistic, detailed."
+            },
+            {
+                'filename': 'location5.jpg',
+                'prompt': f"Impressive city photograph {location_context}. Cultural center, historic buildings, city square or plaza, authentic urban setting, clear weather, professional cityscape photography, photorealistic."
+            },
+            {
+                'filename': 'location6.jpg',
+                'prompt': f"High-quality urban photograph {location_context}. Residential and business areas, typical city architecture, local character, natural daylight, professional photography, photorealistic, vibrant colors."
+            }
+        ]
+        
+        self.generated_images = []
+        
+        for img_data in images_to_generate:
+            # Сначала пробуем ByteDance
+            result = self.generate_image_via_bytedance(
+                img_data['prompt'],
+                img_data['filename'],
+                images_dir  # Изображения в папке images/
+            )
+            
+            # Если не получилось, создаем placeholder
+            if not result:
+                result = self.generate_placeholder_image(
+                    img_data['filename'],
+                    images_dir,  # Изображения в папке images/
+                    img_data['prompt']
+                )
+            
+            if result:
+                # Сохраняем путь с префиксом images/
+                self.generated_images.append(f"images/{result}")
+    
+    def load_database(self, data_dir="data"):
+        """Загрузка данных из папки data (работа с любым путем)"""
+        # Нормализуем путь для Windows/Linux
+        data_dir = os.path.normpath(data_dir)
+        
+        if not os.path.exists(data_dir):
+            # Пробуем найти в разных местах
+            possible_paths = [
+                data_dir,
+                os.path.join(".", data_dir),
+                os.path.join(os.getcwd(), data_dir),
+                os.path.join(os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else os.getcwd(), data_dir)
+            ]
+            
+            found = False
+            for path in possible_paths:
+                if os.path.exists(path):
+                    data_dir = path
+                    found = True
+                    break
+            
+            if not found:
+                print(f"⚠️  Папка {data_dir} не найдена. Создание...")
+                os.makedirs(data_dir, exist_ok=True)
+                print(f"   Поместите туда ZIP/папки с PHP сайтами или текстовые файлы.")
+                return False
+        
+        all_data = []
+        files = os.listdir(data_dir)
+        
+        if not files:
+            print(f"⚠️  Папка {data_dir} пуста")
+            return False
+        
+        print(f"\n📂 Загрузка данных из {data_dir}:")
+        
+        # Распаковываем ZIP файлы
+        for filename in files:
+            filepath = os.path.join(data_dir, filename)
+            if filename.endswith('.zip') and os.path.isfile(filepath):
+                print(f"  📦 Распаковка {filename}...")
+                try:
+                    extract_dir = os.path.join(data_dir, filename[:-4])
+                    if os.path.exists(extract_dir):
+                        shutil.rmtree(extract_dir)
+                    with zipfile.ZipFile(filepath, 'r') as zip_ref:
+                        zip_ref.extractall(extract_dir)
+                    print(f"    ✓ Распаковано")
+                except Exception as e:
+                    print(f"    ✗ Ошибка: {e}")
+        
+        # Обновляем список файлов после распаковки
+        files = os.listdir(data_dir)
+        
+        # Загружаем PHP сайты как шаблоны
+        for item in files:
+            itempath = os.path.join(data_dir, item)
+            if os.path.isdir(itempath):
+                print(f"  📁 Анализ {item}/...")
+                site_data = self.analyze_php_site(itempath, item)
+                if site_data:
+                    self.template_sites.append(site_data)
+                    print(f"    ✓ Загружен как шаблон")
+        
+        # Загружаем текстовые файлы
+        for filename in files:
+            filepath = os.path.join(data_dir, filename)
+            if os.path.isfile(filepath) and not filename.endswith('.zip'):
+                try:
+                    ext = os.path.splitext(filename)[1].lower()
+                    if ext in ['.txt', '.json', '.csv', '.md', '.html', '.php']:
+                        with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+                            content = f.read()
+                            all_data.append(f"\n--- {filename} ---\n{content}\n")
+                            print(f"  ✓ {filename} ({len(content)} символов)")
+                except Exception as e:
+                    print(f"  ✗ Ошибка {filename}: {e}")
+        
+        if all_data:
+            self.database_content = "\n".join(all_data)
+        
+        print(f"\n✓ Загружено: Шаблонов: {len(self.template_sites)}, Данных: {len(self.database_content)} символов")
+        return len(self.template_sites) > 0 or len(self.database_content) > 0
+    
+    def analyze_php_site(self, site_dir, site_name):
+        """Анализ PHP сайта и извлечение структуры"""
+        site_data = {
+            'name': site_name,
+            'pages': [],
+            'structure': {},
+            'has_header': False,
+            'has_footer': False
+        }
+        
+        try:
+            for root, dirs, files in os.walk(site_dir):
+                for file in files:
+                    if file.endswith('.php') or file.endswith('.html'):
+                        filepath = os.path.join(root, file)
+                        rel_path = os.path.relpath(filepath, site_dir)
+                        site_data['pages'].append(rel_path)
+                        
+                        # Проверяем наличие header/footer
+                        try:
+                            with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+                                content = f.read().lower()
+                                if 'header' in content or '<nav' in content:
+                                    site_data['has_header'] = True
+                                if 'footer' in content:
+                                    site_data['has_footer'] = True
+                        except:
+                            pass
+            
+            if site_data['pages']:
+                return site_data
+        except Exception as e:
+            print(f"    ⚠️  Ошибка анализа: {e}")
+        
+        return None
+    
+    def create_blueprint(self, user_prompt):
+        """Создание Blueprint сайта с улучшенной обработкой"""
+        # Улучшенное извлечение темы и страны из промпта
+        country = "USA"
+        theme = "Business"
+        
+        # Ищем явное указание country и theme
+        country_match = re.search(r'country[:\s]+([^,\n]+)', user_prompt, re.IGNORECASE)
+        theme_match = re.search(r'theme[:\s]+([^,\n]+)', user_prompt, re.IGNORECASE)
+        
+        if country_match:
+            country = country_match.group(1).strip()
+        
+        if theme_match:
+            theme = theme_match.group(1).strip()
+        else:
+            # Если theme не указана явно, пробуем определить из контекста промпта
+            prompt_lower = user_prompt.lower()
+            
+            # Определяем тему по ключевым словам
+            if any(word in prompt_lower for word in ['book', 'bookstore', 'library', 'книг', 'книжн']):
+                theme = "Bookstore"
+            elif any(word in prompt_lower for word in ['restaurant', 'cafe', 'food', 'ресторан', 'кафе']):
+                theme = "Restaurant"
+            elif any(word in prompt_lower for word in ['hotel', 'accommodation', 'отель', 'гостиниц']):
+                theme = "Hotel"
+            elif any(word in prompt_lower for word in ['shop', 'store', 'магазин', 'товар']):
+                theme = "Shop"
+            elif any(word in prompt_lower for word in ['fitness', 'gym', 'sport', 'фитнес', 'спорт']):
+                theme = "Fitness"
+            elif any(word in prompt_lower for word in ['clinic', 'medical', 'health', 'клиника', 'медицин']):
+                theme = "Healthcare"
+            elif any(word in prompt_lower for word in ['education', 'school', 'course', 'обучени', 'школ']):
+                theme = "Education"
+            elif any(word in prompt_lower for word in ['tech', 'it', 'software', 'digital', 'технолог']):
+                theme = "IT"
+            elif any(word in prompt_lower for word in ['real estate', 'property', 'недвижим']):
+                theme = "Real Estate"
+            elif any(word in prompt_lower for word in ['travel', 'tour', 'туризм', 'путешеств']):
+                theme = "Travel"
+            
+        # Ищем страну в тексте
+        prompt_lower = user_prompt.lower()
+        if any(word in prompt_lower for word in ['netherlands', 'dutch', 'holland', 'amsterdam', 'нидерланды', 'голландия']):
+            country = "Netherlands"
+        elif 'singapore' in prompt_lower:
+            country = "Singapore"
+        elif 'usa' in prompt_lower or 'america' in prompt_lower:
+            country = "USA"
+        elif 'uk' in prompt_lower or 'britain' in prompt_lower:
+            country = "UK"
+        elif 'germany' in prompt_lower or 'german' in prompt_lower:
+            country = "Germany"
+        elif 'france' in prompt_lower or 'french' in prompt_lower:
+            country = "France"
+        elif 'italy' in prompt_lower or 'italian' in prompt_lower:
+            country = "Italy"
+        elif 'spain' in prompt_lower or 'spanish' in prompt_lower:
+            country = "Spain"
+        elif 'japan' in prompt_lower or 'japanese' in prompt_lower:
+            country = "Japan"
+        elif 'china' in prompt_lower or 'chinese' in prompt_lower:
+            country = "China"
+        
+        # Генерируем уникальное название сайта через API
+        print(f"  Определена тема: {theme}")
+        print(f"  Определена страна: {country}")
+        print("  Генерация уникального названия...")
+        site_name = self.generate_unique_site_name(country, theme)
+        print(f"  ✓ Название: {site_name}")
+        
+        # Генерируем цветовую схему
+        color_scheme = self.generate_color_scheme()
+        self.primary_color = color_scheme['primary']
+        
+        # Генерируем layouts
+        header_layout = self.generate_header_layout()
+        footer_layout = self.generate_footer_layout()
+        
+        # Генерируем секции
+        sections = self.generate_section_variations()
+        
+        # Создаем простой tagline локально (не через API для надежности)
+        taglines = [
+            f"Your Trusted {theme} Partner",
+            f"Leading {theme} Solutions",
+            f"Innovation in {theme}",
+            f"Excellence in {theme}",
+            f"Professional {theme} Services"
+        ]
+        tagline = random.choice(taglines)
+        
+        # Сразу создаем fallback blueprint (гарантированно рабочий)
+        self.blueprint = {
+            "site_name": site_name,
+            "tagline": tagline,
+            "theme": theme,
+            "country": country,
+            "color_scheme": color_scheme,
+            "header_layout": header_layout,
+            "footer_layout": footer_layout,
+            "sections": sections,
+            "menu": ["Home", "Services", "Company", "Blog", "Contact"],
+            "pages": ["index", "company", "services", "contact", "blog1", "blog2", "blog3", "privacy", "terms", "cookie", "thanks"]
+        }
+        
+        print(f"✓ Blueprint создан: {site_name}")
+        print(f"  Цвета: {color_scheme['primary']} (hover: {color_scheme['hover']})")
+        print(f"  Header: {header_layout}, Footer: {footer_layout}")
+        print(f"  Секции: {len(sections)}")
+        
+        return True
+    
+    def generate_header_footer(self):
+        """Генерация Header и Footer с гарантированным меню и футером"""
+        try:
+            site_name = self.blueprint.get('site_name', 'Company')
+            menu = self.blueprint.get('menu', ['Home', 'Services', 'Company', 'Blog', 'Contact'])
+            colors = self.blueprint.get('color_scheme', {})
+            header_layout = self.blueprint.get('header_layout', 'left-aligned')
+            footer_layout = self.blueprint.get('footer_layout', 'columns-3')
+            
+            hover_color = colors.get('hover', 'blue-700')
+            primary_color = colors.get('primary', 'blue-600')
+            theme = self.blueprint.get('theme', 'business')
+
+            # Случайный выбор шрифта (4 варианта)
+            font_options = [
+                {'name': 'Inter', 'import': '@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap");', 'family': "'Inter', sans-serif"},
+                {'name': 'Poppins', 'import': '@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap");', 'family': "'Poppins', sans-serif"},
+                {'name': 'Montserrat', 'import': '@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap");', 'family': "'Montserrat', sans-serif"},
+                {'name': 'Roboto', 'import': '@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap");', 'family': "'Roboto', sans-serif"}
+            ]
+            selected_font = random.choice(font_options)
+            self.selected_font = selected_font  # Сохраняем для использования в других местах
+
+            # Определяем страницы в зависимости от типа сайта
+            if self.site_type == "landing":
+                nav_pages = [
+                    ('Home', 'index.php'),
+                    ('Contact', 'index.php#contact')
+                ]
+            else:
+                nav_pages = [
+                    ('Home', 'index.php'),
+                    ('Company', 'company.php'),
+                    ('Services', 'services.php'),
+                    ('Blog', 'blog.php'),
+                    ('Contact', 'contact.php')
+                ]
+            
+            # Случайный выбор варианта header (2 варианта)
+            header_variant = random.randint(1, 2)
+            
+            if header_variant == 1:
+                # Вариант 1: Меню справа (классический)
+                self.header_code = f"""<header class="bg-white shadow-md sticky top-0 z-50">
+    <div class="container mx-auto px-6 py-4">
+        <div class="flex justify-between items-center">
+            <div class="text-2xl font-bold text-{primary_color}">
+                {site_name}
+            </div>
+            
+            <nav class="hidden md:flex space-x-8">
+                {' '.join([f'<a href="{page[1]}" class="text-gray-700 hover:text-{hover_color} transition-colors">{page[0]}</a>' for page in nav_pages])}
+            </nav>
+            
+            <button id="mobile-menu-btn" class="md:hidden text-gray-700 hover:text-{hover_color}">
+                <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <nav id="mobile-menu" class="hidden md:hidden mt-4 pb-4">
+            {' '.join([f'<a href="{page[1]}" class="block py-2 text-gray-700 hover:text-{hover_color} transition-colors">{page[0]}</a>' for page in nav_pages])}
+        </nav>
+    </div>
+    
+    <script>
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {{
+            var menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }});
+    </script>
+</header>"""
+            else:
+                # Вариант 2: Меню по центру
+                self.header_code = f"""<header class="bg-white shadow-md sticky top-0 z-50">
+    <div class="container mx-auto px-6 py-4">
+        <div class="flex flex-col items-center">
+            <div class="text-2xl font-bold text-{primary_color} mb-4">
+                {site_name}
+            </div>
+            
+            <nav class="hidden md:flex space-x-8">
+                {' '.join([f'<a href="{page[1]}" class="text-gray-700 hover:text-{hover_color} transition-colors">{page[0]}</a>' for page in nav_pages])}
+            </nav>
+            
+            <button id="mobile-menu-btn" class="md:hidden text-gray-700 hover:text-{hover_color} absolute right-6 top-4">
+                <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <nav id="mobile-menu" class="hidden md:hidden mt-4 pb-4 text-center">
+            {' '.join([f'<a href="{page[1]}" class="block py-2 text-gray-700 hover:text-{hover_color} transition-colors">{page[0]}</a>' for page in nav_pages])}
+        </nav>
+    </div>
+    
+    <script>
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {{
+            var menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }});
+    </script>
+</header>"""
+            
+            print(f"  ✓ Header создан (вариант {header_variant}/2) с навигацией")
+            
+            # ГАРАНТИРОВАННЫЙ FOOTER (всегда создается, даже если API не отвечает)
+            footer_links = [
+                ('Home', 'index.php'),
+                ('Privacy Policy', 'privacy.php'),
+                ('Terms of Service', 'terms.php'),
+                ('Cookie Policy', 'cookie.php')
+            ]
+            
+            if self.site_type == "multipage":
+                footer_links.insert(1, ('Company', 'company.php'))
+                footer_links.insert(2, ('Services', 'services.php'))
+                footer_links.insert(3, ('Blog', 'blog.php'))
+                footer_links.insert(4, ('Contact', 'contact.php'))
+            
+            # Разделяем ссылки на основные страницы и policy страницы
+            main_links = [link for link in footer_links if link[0] not in ['Privacy Policy', 'Terms of Service', 'Cookie Policy']]
+            policy_links = [link for link in footer_links if link[0] in ['Privacy Policy', 'Terms of Service', 'Cookie Policy']]
+            
+            # Случайный выбор варианта footer (4 варианта - убран вариант 3)
+            footer_variant = random.choice([1, 2, 4, 5])  # Пропускаем вариант 3
+            
+            if footer_variant == 1:
+                # Вариант 1: Классический 3-колоночный (название + основные ссылки + policy)
+                self.footer_code = f"""<footer class="bg-gray-900 text-white py-12 mt-auto">
+    <div class="container mx-auto px-6">
+        <div class="grid md:grid-cols-3 gap-8">
+            <div>
+                <h3 class="text-xl font-bold mb-4">{site_name}</h3>
+                <p class="text-gray-400">Your trusted partner in {theme}.</p>
+            </div>
+            
+            <div>
+                <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                <ul class="space-y-2">
+                    {' '.join([f'<li><a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors">{link[0]}</a></li>' for link in main_links])}
+                </ul>
+            </div>
+            
+            <div>
+                <h4 class="text-lg font-semibold mb-4">Legal</h4>
+                <ul class="space-y-2">
+                    {' '.join([f'<li><a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors">{link[0]}</a></li>' for link in policy_links])}
+                </ul>
+            </div>
+        </div>
+        
+        <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2025 {site_name}. All rights reserved.</p>
+        </div>
+    </div>
+</footer>"""
+            
+            elif footer_variant == 2:
+                # Вариант 2: Горизонтальный (ссылки слева, policy справа, название сверху)
+                self.footer_code = f"""<footer class="bg-gray-900 text-white py-12 mt-auto">
+    <div class="container mx-auto px-6">
+        <div class="text-center mb-8">
+            <h3 class="text-2xl font-bold">{site_name}</h3>
+            <p class="text-gray-400 mt-2">Your trusted partner in {theme}.</p>
+        </div>
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <nav class="flex flex-wrap gap-4">
+                {' '.join([f'<a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors">{link[0]}</a>' for link in main_links])}
+            </nav>
+            
+            <nav class="flex flex-wrap gap-4">
+                {' '.join([f'<a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors">{link[0]}</a>' for link in policy_links])}
+            </nav>
+        </div>
+        
+        <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2025 {site_name}. All rights reserved.</p>
+        </div>
+    </div>
+</footer>"""
+            
+            elif footer_variant == 4:
+                # Вариант 4: 2 колонки (основные ссылки слева вертикально, policy + контакт справа)
+                self.footer_code = f"""<footer class="bg-gray-900 text-white py-12 mt-auto">
+    <div class="container mx-auto px-6">
+        <div class="grid md:grid-cols-2 gap-8">
+            <div>
+                <h3 class="text-xl font-bold mb-4">{site_name}</h3>
+                <p class="text-gray-400 mb-6">Your trusted partner in {theme}.</p>
+                <nav class="flex flex-col space-y-2">
+                    {' '.join([f'<a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors">{link[0]}</a>' for link in main_links])}
+                </nav>
+            </div>
+            
+            <div>
+                <h4 class="text-lg font-semibold mb-4">Legal Information</h4>
+                <nav class="flex flex-col space-y-2">
+                    {' '.join([f'<a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors">{link[0]}</a>' for link in policy_links])}
+                </nav>
+                <div class="mt-6">
+                    <p class="text-gray-400">Email: {site_name.lower().replace(' ', '')}@gmail.com</p>
+                    <p class="text-gray-400">Phone: +1 (555) 123-4567</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2025 {site_name}. All rights reserved.</p>
+        </div>
+    </div>
+</footer>"""
+            
+            else:  # footer_variant == 5
+                # Вариант 5: Минималистичный (все в одну строку горизонтально, без названия компании вверху)
+                self.footer_code = f"""<footer class="bg-gray-900 text-white py-8 mt-auto">
+    <div class="container mx-auto px-6">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="text-center md:text-left">
+                <p class="font-bold text-lg">{site_name}</p>
+                <p class="text-gray-400 text-sm">&copy; 2025 All rights reserved.</p>
+            </div>
+            
+            <nav class="flex flex-wrap justify-center gap-4">
+                {' '.join([f'<a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors text-sm">{link[0]}</a>' for link in main_links])}
+            </nav>
+            
+            <nav class="flex flex-wrap justify-center gap-4">
+                {' '.join([f'<a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors text-sm">{link[0]}</a>' for link in policy_links])}
+            </nav>
+        </div>
+    </div>
+</footer>"""
+            
+            footer_variants_map = {1: 1, 2: 2, 4: 3, 5: 4}
+            print(f"  ✓ Footer создан (вариант {footer_variants_map.get(footer_variant, footer_variant)}/4) с навигацией (без соц. сетей)")
+            
+            # CSS для header и footer (обязательный footer на всех страницах)
+            self.header_footer_css = f"""<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    {selected_font['import']}
+    * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+    html {{ height: 100%; scroll-behavior: smooth; }}
+    body {{
+        font-family: {selected_font['family']};
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }}
+    main {{ flex: 1 0 auto; }}
+    footer {{ flex-shrink: 0; margin-top: auto; }}
+    /* Обеспечиваем footer всегда внизу */
+    #root, .page-wrapper {{ min-height: 100vh; display: flex; flex-direction: column; }}
+</style>"""
+            
+            return True
+            
+        except Exception as e:
+            # Если произошла ЛЮБАЯ ошибка - создаем минимальный, но рабочий header/footer
+            print(f"  ⚠️  Ошибка генерации header/footer: {str(e)[:50]}")
+            print(f"  🔧 Создание базового header/footer...")
+            
+            site_name = self.blueprint.get('site_name', 'Company')
+            theme = self.blueprint.get('theme', 'business')
+            
+            # Минимальный header
+            self.header_code = f"""<header class="bg-white shadow-md sticky top-0 z-50">
+    <div class="container mx-auto px-6 py-4">
+        <div class="text-2xl font-bold text-blue-600">{site_name}</div>
+    </div>
+</header>"""
+            
+            # Минимальный footer
+            self.footer_code = f"""<footer class="bg-gray-900 text-white py-8 mt-auto">
+    <div class="container mx-auto px-6 text-center">
+        <p class="font-bold text-lg mb-2">{site_name}</p>
+        <p class="text-gray-400 text-sm mb-4">Your trusted partner in {theme}.</p>
+        <div class="flex flex-wrap justify-center gap-4 text-sm">
+            <a href="index.php" class="text-gray-400 hover:text-blue-400">Home</a>
+            <a href="company.php" class="text-gray-400 hover:text-blue-400">Company</a>
+            <a href="services.php" class="text-gray-400 hover:text-blue-400">Services</a>
+            <a href="contact.php" class="text-gray-400 hover:text-blue-400">Contact</a>
+            <a href="privacy.php" class="text-gray-400 hover:text-blue-400">Privacy</a>
+            <a href="terms.php" class="text-gray-400 hover:text-blue-400">Terms</a>
+        </div>
+        <p class="text-gray-400 text-sm mt-4">&copy; 2025 {site_name}. All rights reserved.</p>
+    </div>
+</footer>"""
+            
+            # Минимальный CSS (используем Inter по умолчанию при ошибке)
+            self.header_footer_css = """<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { height: 100%; }
+    body {
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    main { flex: 1; }
+    footer { margin-top: auto; }
+</style>"""
+            
+            print(f"  ✓ Базовый header/footer создан (fallback режим)")
+            return True
+    
+    def clean_code_response(self, response):
+        """Очистка кода от markdown и лишних тегов"""
+        code = response.strip()
+        
+        # Удаляем markdown code blocks
+        if code.startswith('```'):
+            lines = code.split('\n')
+            code = '\n'.join(lines[1:])
+        if code.endswith('```'):
+            code = code[:-3]
+        
+        # Удаляем ```html если есть
+        code = code.replace('```html', '').replace('```php', '').replace('```', '')
+        
+        return code.strip()
+    
+    def generate_favicon(self, output_dir):
+        """Генерация простого SVG favicon"""
+        site_name = self.blueprint.get('site_name', 'Site')
+        colors = self.blueprint.get('color_scheme', {})
+        primary = colors.get('primary', 'blue-600')
+        
+        # Конвертируем Tailwind цвет в hex
+        color_map = {
+            'blue-600': '#2563eb',
+            'purple-600': '#9333ea',
+            'emerald-600': '#059669',
+            'orange-600': '#ea580c',
+            'rose-600': '#e11d48',
+            'sky-600': '#0284c7',
+            'violet-600': '#7c3aed',
+            'fuchsia-600': '#c026d3'
+        }
+        
+        hex_color = color_map.get(primary, '#2563eb')
+        
+        # Берем первую букву названия
+        letter = site_name[0].upper()
+        
+        favicon_svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <rect width="100" height="100" fill="{hex_color}" rx="20"/>
+    <text x="50" y="70" font-family="Arial, sans-serif" font-size="60" font-weight="bold" 
+          fill="white" text-anchor="middle">{letter}</text>
+</svg>"""
+        
+        favicon_path = os.path.join(output_dir, 'favicon.svg')
+        with open(favicon_path, 'w', encoding='utf-8') as f:
+            f.write(favicon_svg)
+        print(f"✓ Favicon создан: {letter} ({hex_color})")
+    
+    def generate_contact_page(self, output_dir):
+        """Генерация Contact страницы с 5 вариациями"""
+        site_name = self.blueprint.get('site_name', 'Company')
+        theme = self.blueprint.get('theme', 'business')
+        country = self.blueprint.get('country', 'USA')
+        colors = self.blueprint.get('color_scheme', {})
+        primary = colors.get('primary', 'blue-600')
+        hover = colors.get('hover', 'blue-700')
+
+        # Получаем 3 разных набора контактных данных для разнообразия
+        contact_data_1 = self.get_country_contact_data(country)
+        contact_data_2 = self.get_country_contact_data(country)
+        contact_data_3 = self.get_country_contact_data(country)
+
+        # Выбираем случайную вариацию от 1 до 5
+        variation = random.randint(1, 5)
+
+        # Вариация 1: Классический двухколоночный (форма слева, инфо справа)
+        if variation == 1:
+            main_content = f"""<main>
+    <section class="py-20 bg-gradient-to-br from-{primary}/5 to-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">Get In Touch</h1>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Have a question or want to work together? We'd love to hear from you.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+                <div class="bg-white rounded-2xl shadow-xl p-8 md:p-10">
+                    <h2 class="text-3xl font-bold mb-6">Send us a message</h2>
+                    <form action="thanks_you.php" method="POST" class="space-y-6">
+                        <div>
+                            <label for="name" class="block text-gray-700 font-semibold mb-2">Your Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="name" name="name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none" placeholder="John Doe">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-gray-700 font-semibold mb-2">Your Email <span class="text-red-500">*</span></label>
+                            <input type="email" id="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none" placeholder="john@example.com">
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-gray-700 font-semibold mb-2">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none" placeholder="+1 (555) 123-4567">
+                        </div>
+                        <div>
+                            <label for="message" class="block text-gray-700 font-semibold mb-2">Your Message <span class="text-red-500">*</span></label>
+                            <textarea id="message" name="message" rows="5" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none resize-none" placeholder="Tell us about your project..."></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-{primary} hover:bg-{hover} text-white py-4 rounded-lg text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">Send Message</button>
+                    </form>
+                </div>
+
+                <div class="space-y-8">
+                    <div class="bg-white rounded-2xl shadow-xl p-8">
+                        <h2 class="text-3xl font-bold mb-6">Contact Information</h2>
+                        <div class="space-y-6">
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-6 h-6 flex-shrink-0 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-semibold text-gray-900 mb-1">Email</h3>
+                                    <a href="mailto:{site_name.lower().replace(' ', '')}@gmail.com" class="text-gray-600 hover:text-{primary} transition">{site_name.lower().replace(' ', '')}@gmail.com</a>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-6 h-6 flex-shrink-0 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-semibold text-gray-900 mb-1">Phone</h3>
+                                    <a href="tel:{contact_data_1["phone"].replace(" ", "")}" class="text-gray-600 hover:text-{primary} transition">{contact_data_1["phone"]}</a>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-6 h-6 flex-shrink-0 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-semibold text-gray-900 mb-1">Address</h3>
+                                    <p class="text-gray-600">{contact_data_1["address"]}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-br from-{primary} to-{hover} rounded-2xl shadow-xl p-8 text-white">
+                        <h3 class="text-2xl font-bold mb-4">Why Choose Us?</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Quick response within 24 hours</li>
+                            <li class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Professional and friendly team</li>
+                            <li class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Free initial consultation</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 2: Центрированная форма с карточками контактов внизу
+        elif variation == 2:
+            main_content = f"""<main>
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">Contact Us</h1>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Let's discuss your project and bring your ideas to life</p>
+            </div>
+
+            <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl p-10 mb-16">
+                <form action="thanks_you.php" method="POST" class="space-y-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="name" class="block text-gray-700 font-semibold mb-2">Full Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="name" name="name" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none" placeholder="John Doe">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-gray-700 font-semibold mb-2">Email Address <span class="text-red-500">*</span></label>
+                            <input type="email" id="email" name="email" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none" placeholder="john@example.com">
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="phone" class="block text-gray-700 font-semibold mb-2">Phone</label>
+                            <input type="tel" id="phone" name="phone" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none" placeholder="+1 (555) 123-4567">
+                        </div>
+                        <div>
+                            <label for="company" class="block text-gray-700 font-semibold mb-2">Company</label>
+                            <input type="text" id="company" name="company" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none" placeholder="Your Company">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="message" class="block text-gray-700 font-semibold mb-2">Message <span class="text-red-500">*</span></label>
+                        <textarea id="message" name="message" rows="6" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none resize-none" placeholder="Tell us about your project..."></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-{primary} hover:bg-{hover} text-white py-4 rounded-lg text-lg font-bold transition-all shadow-lg hover:shadow-xl transform hover:scale-105">Send Message</button>
+                </form>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <div class="text-center p-8 bg-gradient-to-br from-{primary}/5 to-white rounded-xl hover:shadow-lg transition-shadow">
+                    <div class="w-16 h-16 bg-{primary} rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Email Us</h3>
+                    <p class="text-gray-600">{site_name.lower().replace(' ', '')}@gmail.com</p>
+                </div>
+                <div class="text-center p-8 bg-gradient-to-br from-{primary}/5 to-white rounded-xl hover:shadow-lg transition-shadow">
+                    <div class="w-16 h-16 bg-{primary} rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Call Us</h3>
+                    <p class="text-gray-600">{contact_data_2["phone"]}</p>
+                </div>
+                <div class="text-center p-8 bg-gradient-to-br from-{primary}/5 to-white rounded-xl hover:shadow-lg transition-shadow">
+                    <div class="w-16 h-16 bg-{primary} rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Visit Us</h3>
+                    <p class="text-gray-600">{contact_data_2["address"]}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 3: Split-screen с градиентом слева
+        elif variation == 3:
+            main_content = f"""<main>
+    <section class="min-h-screen flex items-center">
+        <div class="grid md:grid-cols-2 w-full">
+            <div class="bg-gradient-to-br from-{primary} to-{hover} p-12 md:p-20 flex flex-col justify-center text-white">
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">Let's Work Together</h1>
+                <p class="text-xl mb-12 opacity-90">Transform your vision into reality. We're here to help you succeed.</p>
+
+                <div class="space-y-8">
+                    <div class="flex items-center">
+                        <div class="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center mr-6 flex-shrink-0">
+                            <svg class="w-7 h-7 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-75">Phone</p>
+                            <p class="text-lg font-semibold">{contact_data_3["phone"]}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center mr-6 flex-shrink-0">
+                            <svg class="w-7 h-7 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-75">Email</p>
+                            <p class="text-lg font-semibold">{site_name.lower().replace(' ', '')}@gmail.com</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center mr-6 flex-shrink-0">
+                            <svg class="w-7 h-7 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-75">Address</p>
+                            <p class="text-lg font-semibold">{contact_data_3["address"]}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-12 md:p-20 flex flex-col justify-center">
+                <h2 class="text-3xl font-bold mb-8">Send a Message</h2>
+                <form action="thanks_you.php" method="POST" class="space-y-6">
+                    <div>
+                        <input type="text" name="name" required class="w-full px-0 py-3 border-0 border-b-2 border-gray-300 focus:border-{primary} transition-all outline-none text-lg" placeholder="Your Name *">
+                    </div>
+                    <div>
+                        <input type="email" name="email" required class="w-full px-0 py-3 border-0 border-b-2 border-gray-300 focus:border-{primary} transition-all outline-none text-lg" placeholder="Your Email *">
+                    </div>
+                    <div>
+                        <input type="tel" name="phone" class="w-full px-0 py-3 border-0 border-b-2 border-gray-300 focus:border-{primary} transition-all outline-none text-lg" placeholder="Phone Number">
+                    </div>
+                    <div>
+                        <textarea name="message" rows="5" required class="w-full px-0 py-3 border-0 border-b-2 border-gray-300 focus:border-{primary} transition-all outline-none resize-none text-lg" placeholder="Your Message *"></textarea>
+                    </div>
+                    <button type="submit" class="bg-{primary} hover:bg-{hover} text-white px-12 py-4 rounded-full text-lg font-bold transition-all shadow-lg hover:shadow-xl transform hover:scale-105">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 4: Полноширинная форма с плавающими карточками
+        elif variation == 4:
+            main_content = f"""<main>
+    <section class="py-20 bg-gray-50 relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">Start Your Journey</h1>
+                <p class="text-xl text-gray-600">Tell us about your project and let's create something amazing together</p>
+            </div>
+
+            <div class="max-w-5xl mx-auto relative">
+                <div class="bg-white rounded-3xl shadow-2xl p-10 md:p-16">
+                    <form action="thanks_you.php" method="POST" class="space-y-8">
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-3">NAME *</label>
+                                <input type="text" name="name" required class="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-{primary} focus:bg-white transition-all outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-3">EMAIL *</label>
+                                <input type="email" name="email" required class="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-{primary} focus:bg-white transition-all outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-3">PHONE</label>
+                                <input type="tel" name="phone" class="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-{primary} focus:bg-white transition-all outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-3">YOUR MESSAGE *</label>
+                            <textarea name="message" rows="6" required class="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-{primary} focus:bg-white transition-all outline-none resize-none"></textarea>
+                        </div>
+                        <div class="flex justify-center pt-4">
+                            <button type="submit" class="bg-{primary} hover:bg-{hover} text-white px-16 py-5 rounded-xl text-lg font-bold transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1">Submit</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6 mt-12">
+                    <div class="bg-white rounded-2xl shadow-xl p-6 text-center border-t-4 border-{primary}">
+                        <div class="w-12 h-12 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-6 h-6 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-gray-900 mb-1">Email</h3>
+                        <p class="text-sm text-gray-600">{site_name.lower().replace(' ', '')}@gmail.com</p>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-xl p-6 text-center border-t-4 border-{primary}">
+                        <div class="w-12 h-12 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-6 h-6 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-gray-900 mb-1">Phone</h3>
+                        <p class="text-sm text-gray-600">{contact_data_1["phone"]}</p>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-xl p-6 text-center border-t-4 border-{primary}">
+                        <div class="w-12 h-12 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-6 h-6 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h3 class="font-bold text-gray-900 mb-1">Hours</h3>
+                        <p class="text-sm text-gray-600">Mon-Fri: 9AM-6PM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 5: Многошаговая форма с прогрессом
+        else:  # variation == 5
+            main_content = f"""<main>
+    <section class="py-20 bg-gradient-to-br from-gray-50 to-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">Get Started</h1>
+                <p class="text-xl text-gray-600">Fill out the form below and we'll get back to you shortly</p>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <div class="mb-12">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-{primary} rounded-full flex items-center justify-center text-white font-bold">1</div>
+                            <span class="ml-3 font-semibold text-{primary}">Contact Info</span>
+                        </div>
+                        <div class="flex items-center opacity-50">
+                            <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">2</div>
+                            <span class="ml-3 font-semibold text-gray-500">Message</span>
+                        </div>
+                        <div class="flex items-center opacity-50">
+                            <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">3</div>
+                            <span class="ml-3 font-semibold text-gray-500">Submit</span>
+                        </div>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-{primary} h-2 rounded-full transition-all duration-500" style="width: 33%"></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-2xl p-10 md:p-16">
+                    <form action="thanks_you.php" method="POST" class="space-y-8">
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                    Full Name <span class="text-red-500 ml-1">*</span>
+                                </label>
+                                <input type="text" name="name" required class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none" placeholder="John Doe">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                    Email Address <span class="text-red-500 ml-1">*</span>
+                                </label>
+                                <input type="email" name="email" required class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none" placeholder="john@example.com">
+                            </div>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                                    Phone Number
+                                </label>
+                                <input type="tel" name="phone" class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none" placeholder="+1 (555) 123-4567">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                    Company
+                                </label>
+                                <input type="text" name="company" class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none" placeholder="Your Company">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-3 flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+                                Your Message <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <textarea name="message" rows="6" required class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none resize-none" placeholder="Tell us about your project and how we can help..."></textarea>
+                        </div>
+
+                        <div class="flex justify-center pt-4">
+                            <button type="submit" class="bg-{primary} hover:bg-{hover} text-white px-16 py-5 rounded-xl text-lg font-bold transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center">
+                                Send Message
+                                <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="mt-12 pt-8 border-t border-gray-200 grid md:grid-cols-3 gap-6 text-center">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Email</p>
+                            <p class="font-semibold text-gray-900">{site_name.lower().replace(' ', '')}@gmail.com</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Phone</p>
+                            <p class="font-semibold text-gray-900">{contact_data_2["phone"]}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Response Time</p>
+                            <p class="font-semibold text-gray-900">Within 24 hours</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # КРИТИЧЕСКИ ВАЖНО: Проверяем, что header и footer созданы
+        if not self.header_code or not self.footer_code:
+            print(f"    ⚠️  Header/Footer не найдены, регенерация...")
+            self.generate_header_footer()
+
+        full_html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - {site_name}</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    {self.header_footer_css}
+</head>
+<body>
+    {self.header_code}
+
+    {main_content}
+
+    {self.footer_code}
+</body>
+</html>"""
+
+        page_path = os.path.join(output_dir, "contact.php")
+        with open(page_path, 'w', encoding='utf-8') as f:
+            f.write(full_html)
+
+        print(f"    ✓ contact.php создана (готовый шаблон)")
+        return True
+
+    def generate_hero_section(self, site_name, theme, primary, hover):
+        """Генерация Hero секции с 5 вариациями"""
+        hero_variant = random.randint(1, 5)
+
+        # Вариация 1: Фотография справа
+        if hero_variant == 1:
+            return f"""<main>
+    <section class="py-20 bg-gradient-to-br from-{primary}/5 to-white">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h1 class="text-5xl md:text-6xl font-bold mb-6">Welcome to {site_name}</h1>
+                    <p class="text-xl text-gray-600 mb-8">Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.</p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl text-center">
+                            About Us
+                        </a>
+                        <a href="contact.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition text-center">
+                            Contact
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <img src="images/hero.jpg" alt="{site_name}" class="rounded-2xl shadow-2xl w-full h-96 object-cover">
+                </div>
+            </div>
+        </div>
+    </section>
+"""
+
+        # Вариация 2: Карусель с фотографиями на фоне
+        elif hero_variant == 2:
+            return f"""<main>
+    <section class="relative py-32 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <div id="hero-carousel" class="w-full h-full">
+                <div class="carousel-item active absolute inset-0 transition-opacity duration-1000">
+                    <img src="images/hero.jpg" alt="Slide 1" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/50"></div>
+                </div>
+                <div class="carousel-item absolute inset-0 transition-opacity duration-1000 opacity-0">
+                    <img src="images/about.jpg" alt="Slide 2" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/50"></div>
+                </div>
+                <div class="carousel-item absolute inset-0 transition-opacity duration-1000 opacity-0">
+                    <img src="images/service1.jpg" alt="Slide 3" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/50"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="max-w-4xl mx-auto text-center text-white">
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 drop-shadow-lg">Welcome to {site_name}</h1>
+                <p class="text-xl md:text-2xl mb-8 drop-shadow-lg">Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="company.php" class="inline-block bg-white hover:bg-gray-100 text-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                        About Us
+                    </a>
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                        Contact
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        (function() {{
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.carousel-item');
+            const totalSlides = slides.length;
+
+            function nextSlide() {{
+                slides[currentSlide].classList.remove('opacity-100');
+                slides[currentSlide].classList.add('opacity-0');
+                currentSlide = (currentSlide + 1) % totalSlides;
+                slides[currentSlide].classList.remove('opacity-0');
+                slides[currentSlide].classList.add('opacity-100');
+            }}
+
+            setInterval(nextSlide, 4000);
+        }})();
+        </script>
+    </section>
+"""
+
+        # Вариация 3: Без фотографии (центрированная)
+        elif hero_variant == 3:
+            return f"""<main>
+    <section class="relative py-32 bg-gradient-to-br from-{primary}/10 via-white to-{primary}/5">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-{primary} to-{hover} bg-clip-text text-transparent">
+                    Welcome to {site_name}
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-600 mb-8">
+                    Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                        About Us
+                    </a>
+                    <a href="contact.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition">
+                        Contact
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="absolute top-0 right-0 w-64 h-64 bg-{primary}/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-{hover}/10 rounded-full blur-3xl"></div>
+    </section>
+"""
+
+        # Вариация 4: Картинка на фоне
+        elif hero_variant == 4:
+            return f"""<main>
+    <section class="relative py-40 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="images/hero.jpg" alt="{site_name}" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70"></div>
+        </div>
+
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="max-w-4xl mx-auto text-center text-white">
+                <h1 class="text-6xl md:text-8xl font-bold mb-6 drop-shadow-2xl">Welcome to {site_name}</h1>
+                <p class="text-2xl md:text-3xl mb-12 drop-shadow-lg">Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.</p>
+                <div class="flex justify-center">
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-12 py-5 rounded-lg text-xl font-bold transition shadow-2xl hover:shadow-3xl transform hover:-translate-y-1">
+                        Contact Us
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+"""
+
+        # Вариация 5: Фотография слева
+        else:
+            return f"""<main>
+    <section class="py-20 bg-gradient-to-br from-{primary}/5 to-white">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="order-2 md:order-1">
+                    <img src="images/hero.jpg" alt="{site_name}" class="rounded-2xl shadow-2xl w-full h-96 object-cover">
+                </div>
+                <div class="order-1 md:order-2">
+                    <h1 class="text-5xl md:text-6xl font-bold mb-6">Welcome to {site_name}</h1>
+                    <p class="text-xl text-gray-600 mb-8">Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.</p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl text-center">
+                            About Us
+                        </a>
+                        <a href="contact.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition text-center">
+                            Contact
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+"""
+
+    def generate_thankyou_page(self, site_name, primary, hover):
+        """Генерация Thanks You страницы с 6 вариациями"""
+        thanks_variant = random.randint(1, 6)
+
+        # Вариация 1: Простая с иконкой галочки
+        if thanks_variant == 1:
+            return f"""<main>
+    <section class="min-h-screen flex items-center justify-center bg-gradient-to-br from-{primary}/5 to-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-2xl mx-auto text-center">
+                <div class="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
+                    <svg class="w-12 h-12 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">Thank You!</h1>
+                <p class="text-xl text-gray-600 mb-8">Your message has been sent successfully. We'll get back to you soon.</p>
+                <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                    Return to Homepage
+                </a>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 2: Анимированная с конфетти эффектом
+        elif thanks_variant == 2:
+            return f"""<main>
+    <section class="min-h-screen flex items-center justify-center bg-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-{primary}/10 via-transparent to-{hover}/10"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="max-w-3xl mx-auto text-center">
+                <div class="mb-8 animate-bounce">
+                    <div class="w-32 h-32 bg-gradient-to-br from-{primary} to-{hover} rounded-full flex items-center justify-center mx-auto shadow-2xl">
+                        <svg class="w-16 h-16 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <h1 class="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-{primary} to-{hover} bg-clip-text text-transparent">
+                    Success!
+                </h1>
+                <p class="text-2xl text-gray-700 mb-4 font-semibold">Thank you for reaching out!</p>
+                <p class="text-lg text-gray-600 mb-10">We've received your message and will respond within 24 hours.</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-lg text-lg font-semibold transition transform hover:scale-105 shadow-xl">
+                        Back to Home
+                    </a>
+                    <a href="services.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-10 py-4 rounded-lg text-lg font-semibold transition transform hover:scale-105">
+                        View Services
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 3: С таймлайном процесса
+        elif thanks_variant == 3:
+            return f"""<main>
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-16">
+                    <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-10 h-10 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <h1 class="text-5xl font-bold mb-4">Message Sent Successfully!</h1>
+                    <p class="text-xl text-gray-600">Thank you for contacting {site_name}</p>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-xl p-10 mb-12">
+                    <h2 class="text-2xl font-bold mb-8 text-center">What Happens Next?</h2>
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold">1</div>
+                            <div class="ml-6">
+                                <h3 class="text-xl font-bold mb-2">We Review Your Message</h3>
+                                <p class="text-gray-600">Our team will carefully review your inquiry within the next few hours.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold">2</div>
+                            <div class="ml-6">
+                                <h3 class="text-xl font-bold mb-2">Personalized Response</h3>
+                                <p class="text-gray-600">We'll prepare a detailed response tailored to your specific needs.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold">3</div>
+                            <div class="ml-6">
+                                <h3 class="text-xl font-bold mb-2">Get Back to You</h3>
+                                <p class="text-gray-600">Expect a response from us within 24 hours via email.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                        Return to Homepage
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 4: Минималистичная
+        elif thanks_variant == 4:
+            return f"""<main>
+    <section class="min-h-screen flex items-center justify-center bg-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-xl mx-auto text-center">
+                <h1 class="text-7xl md:text-8xl font-bold mb-8 text-{primary}">Thanks!</h1>
+                <div class="w-24 h-1 bg-{primary} mx-auto mb-8"></div>
+                <p class="text-2xl text-gray-700 mb-4">We've received your message.</p>
+                <p class="text-lg text-gray-600 mb-12">Our team will respond shortly.</p>
+                <a href="index.php" class="text-{primary} hover:text-{hover} text-lg font-semibold transition border-b-2 border-{primary}">
+                    ← Back to Home
+                </a>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 5: С карточкой контактной информации
+        elif thanks_variant == 5:
+            return f"""<main>
+    <section class="py-20 bg-gradient-to-br from-{primary}/10 to-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white rounded-3xl shadow-2xl p-12">
+                    <div class="text-center mb-12">
+                        <div class="inline-block p-4 bg-green-100 rounded-full mb-6">
+                            <svg class="w-16 h-16 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h1 class="text-5xl font-bold mb-4">Thank You!</h1>
+                        <p class="text-xl text-gray-600">Your message has been successfully sent to our team.</p>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-8 mb-8">
+                        <div class="grid md:grid-cols-3 gap-6 text-center">
+                            <div>
+                                <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center mx-auto mb-3">
+                                    <svg class="w-6 h-6 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <p class="font-semibold text-gray-900">Response Time</p>
+                                <p class="text-sm text-gray-600">Within 24 hours</p>
+                            </div>
+                            <div>
+                                <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center mx-auto mb-3">
+                                    <svg class="w-6 h-6 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <p class="font-semibold text-gray-900">Email</p>
+                                <p class="text-sm text-gray-600">Check your inbox</p>
+                            </div>
+                            <div>
+                                <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center mx-auto mb-3">
+                                    <svg class="w-6 h-6 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    </svg>
+                                </div>
+                                <p class="font-semibold text-gray-900">Our Team</p>
+                                <p class="text-sm text-gray-600">Ready to help</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center pt-4">
+                        <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                            Back to Homepage
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 6: С социальными сетями и дополнительными ссылками
+        else:
+            return f"""<main>
+    <section class="min-h-screen flex items-center justify-center bg-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-3xl mx-auto">
+                <div class="text-center mb-12">
+                    <div class="relative inline-block mb-8">
+                        <div class="w-28 h-28 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-2xl">
+                            <svg class="w-14 h-14 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div class="absolute -top-2 -right-2 w-8 h-8 bg-{primary} rounded-full animate-ping"></div>
+                    </div>
+                    <h1 class="text-6xl font-bold mb-6">Message Received!</h1>
+                    <p class="text-2xl text-gray-700 mb-3">Thank you for contacting us.</p>
+                    <p class="text-lg text-gray-600 mb-10">We'll be in touch very soon!</p>
+                </div>
+
+                <div class="bg-gray-50 rounded-2xl p-8 mb-10">
+                    <h2 class="text-xl font-bold mb-6 text-center">While You Wait, Explore More</h2>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <a href="services.php" class="block p-6 bg-white rounded-xl hover:shadow-lg transition text-center">
+                            <svg class="w-8 h-8 text-{primary} mx-auto mb-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                            <p class="font-semibold text-gray-900">Our Services</p>
+                        </a>
+                        <a href="company.php" class="block p-6 bg-white rounded-xl hover:shadow-lg transition text-center">
+                            <svg class="w-8 h-8 text-{primary} mx-auto mb-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                            <p class="font-semibold text-gray-900">About Us</p>
+                        </a>
+                        <a href="blog.php" class="block p-6 bg-white rounded-xl hover:shadow-lg transition text-center">
+                            <svg class="w-8 h-8 text-{primary} mx-auto mb-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                            <p class="font-semibold text-gray-900">Blog</p>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-12 py-4 rounded-full text-lg font-bold transition shadow-xl hover:shadow-2xl transform hover:scale-105">
+                        Return to Homepage
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+    def generate_home_sections(self):
+        """Генерация случайных секций для Home страницы"""
+        site_name = self.blueprint.get('site_name', 'Company')
+        theme = self.blueprint.get('theme', 'business')
+        country = self.blueprint.get('country', 'USA')
+        colors = self.blueprint.get('color_scheme', {})
+        primary = colors.get('primary', 'blue-600')
+        hover = colors.get('hover', 'blue-700')
+
+        # Все доступные секции (кроме Hero - она статична)
+        all_sections = {
+            'image_text_about': f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-4xl font-bold mb-6">About Us</h2>
+                    <p class="text-gray-700 mb-4 text-lg">
+                        We are dedicated to providing exceptional {theme} services that help our clients achieve their goals.
+                        With years of experience and a commitment to excellence, we deliver results that matter.
+                    </p>
+                    <p class="text-gray-700 mb-6">
+                        Our team of professionals brings expertise, innovation, and a customer-first approach to every project.
+                        We understand that every client is unique, and we tailor our solutions to meet your specific needs.
+                    </p>
+                    <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg font-semibold transition">
+                        Learn More
+                    </a>
+                </div>
+                <div>
+                    <img src="images/about.jpg" alt="About Us" class="rounded-xl shadow-lg w-full h-96 object-cover">
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'gallery_centered': f"""
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4">Our Gallery</h2>
+                <p class="text-gray-600 text-lg">Explore our latest projects and achievements</p>
+            </div>
+            <div class="grid md:grid-cols-4 gap-6">
+                <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <img src="images/gallery1.jpg" alt="Gallery 1" class="w-full h-64 object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-center justify-center">
+                        <p class="text-white text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            Professional Excellence
+                        </p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <img src="images/gallery2.jpg" alt="Gallery 2" class="w-full h-64 object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-center justify-center">
+                        <p class="text-white text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            Quality Service
+                        </p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <img src="images/gallery3.jpg" alt="Gallery 3" class="w-full h-64 object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-center justify-center">
+                        <p class="text-white text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            Innovation
+                        </p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <img src="images/gallery4.jpg" alt="Gallery 4" class="w-full h-64 object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-center justify-center">
+                        <p class="text-white text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            Trusted Partner
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'cards_3_animated': f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-12">Our Services</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="group bg-white border border-gray-200 rounded-xl p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+                    <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-{primary} transition-colors">
+                        <svg class="w-8 h-8 text-{primary} group-hover:text-white transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 group-hover:text-{primary} transition-colors">Fast Service</h3>
+                    <p class="text-gray-600 mb-6">Quick turnaround times without compromising on quality. We deliver results when you need them.</p>
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-3 rounded-lg font-semibold transition opacity-0 group-hover:opacity-100">
+                        Get Started
+                    </a>
+                </div>
+                <div class="group bg-white border border-gray-200 rounded-xl p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+                    <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-{primary} transition-colors">
+                        <svg class="w-8 h-8 text-{primary} group-hover:text-white transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 group-hover:text-{primary} transition-colors">Quality Assured</h3>
+                    <p class="text-gray-600 mb-6">Every project undergoes rigorous quality checks to ensure excellence in every detail.</p>
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-3 rounded-lg font-semibold transition opacity-0 group-hover:opacity-100">
+                        Get Started
+                    </a>
+                </div>
+                <div class="group bg-white border border-gray-200 rounded-xl p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+                    <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-{primary} transition-colors">
+                        <svg class="w-8 h-8 text-{primary} group-hover:text-white transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 group-hover:text-{primary} transition-colors">Expert Team</h3>
+                    <p class="text-gray-600 mb-6">Our experienced professionals bring knowledge and dedication to every project we undertake.</p>
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-3 rounded-lg font-semibold transition opacity-0 group-hover:opacity-100">
+                        Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'image_text_alternating': f"""
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
+                <div>
+                    <img src="images/service1.jpg" alt="Our Approach" class="rounded-xl shadow-lg w-full h-80 object-cover">
+                </div>
+                <div>
+                    <h3 class="text-3xl font-bold mb-4">Our Approach</h3>
+                    <p class="text-gray-700 mb-4">
+                        We believe in a personalized approach to every project. Understanding your unique needs
+                        allows us to deliver tailored solutions that exceed expectations.
+                    </p>
+                    <p class="text-gray-700">
+                        Our methodology combines industry best practices with innovative thinking to ensure
+                        optimal results for your business.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h3 class="text-3xl font-bold mb-4">Why Choose Us</h3>
+                    <p class="text-gray-700 mb-4">
+                        With years of experience in the {theme} industry, we've built a reputation for
+                        reliability, quality, and exceptional customer service.
+                    </p>
+                    <p class="text-gray-700">
+                        Our commitment to your success drives everything we do, from initial consultation
+                        to project completion and beyond.
+                    </p>
+                </div>
+                <div>
+                    <img src="images/service2.jpg" alt="Why Choose Us" class="rounded-xl shadow-lg w-full h-80 object-cover">
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'cards_6_grid': self.generate_what_we_offer_section(site_name, theme, primary, hover),
+
+            'gallery_horizontal': f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold mb-12">Our Work</h2>
+            <div class="grid md:grid-cols-5 gap-4">
+                <div class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                    <img src="images/gallery1.jpg" alt="Project 1" class="w-full h-48 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                        <p class="text-white font-semibold">Project Alpha</p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                    <img src="images/gallery2.jpg" alt="Project 2" class="w-full h-48 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                        <p class="text-white font-semibold">Project Beta</p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                    <img src="images/gallery3.jpg" alt="Project 3" class="w-full h-48 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                        <p class="text-white font-semibold">Project Gamma</p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                    <img src="images/gallery4.jpg" alt="Project 4" class="w-full h-48 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                        <p class="text-white font-semibold">Project Delta</p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                    <img src="images/service1.jpg" alt="Project 5" class="w-full h-48 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                        <p class="text-white font-semibold">Project Epsilon</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'cards_3_carousel_bg': f"""
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-12">Featured Solutions</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="relative overflow-hidden rounded-xl shadow-lg h-96 group">
+                    <img src="images/service1.jpg" alt="Solution 1" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                    <div class="relative h-full flex flex-col justify-end p-8">
+                        <h3 class="text-white text-2xl font-bold mb-3">Enterprise Solutions</h3>
+                        <p class="text-white/90 mb-4">Scalable solutions designed for large-scale operations and complex requirements.</p>
+                        <a href="contact.php" class="inline-block bg-white text-{primary} px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition w-fit">
+                            Contact Us
+                        </a>
+                    </div>
+                </div>
+                <div class="relative overflow-hidden rounded-xl shadow-lg h-96 group">
+                    <img src="images/service2.jpg" alt="Solution 2" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                    <div class="relative h-full flex flex-col justify-end p-8">
+                        <h3 class="text-white text-2xl font-bold mb-3">Custom Development</h3>
+                        <p class="text-white/90 mb-4">Tailored solutions built specifically for your unique business needs and goals.</p>
+                        <a href="contact.php" class="inline-block bg-white text-{primary} px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition w-fit">
+                            Contact Us
+                        </a>
+                    </div>
+                </div>
+                <div class="relative overflow-hidden rounded-xl shadow-lg h-96 group">
+                    <img src="images/service3.jpg" alt="Solution 3" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                    <div class="relative h-full flex flex-col justify-end p-8">
+                        <h3 class="text-white text-2xl font-bold mb-3">Consulting Services</h3>
+                        <p class="text-white/90 mb-4">Expert guidance to help you navigate challenges and achieve your objectives.</p>
+                        <a href="contact.php" class="inline-block bg-white text-{primary} px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition w-fit">
+                            Contact Us
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'carousel_workflow': self.generate_our_process_section(site_name, theme, primary, hover),
+
+            'carousel_blog': f"""
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="flex justify-between items-center mb-12">
+                <h2 class="text-4xl font-bold">Latest from Our Blog</h2>
+                <a href="blog.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                    View All →
+                </a>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <article class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+                    <img src="images/blog1.jpg" alt="Blog Post 1" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <p class="text-gray-500 text-sm mb-2">November 15, 2025</p>
+                        <h3 class="text-xl font-bold mb-3">The Future of {theme}</h3>
+                        <p class="text-gray-600 mb-4">Explore the latest innovations and what they mean for your business...</p>
+                        <a href="blog1.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                            Read More →
+                        </a>
+                    </div>
+                </article>
+                <article class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+                    <img src="images/blog2.jpg" alt="Blog Post 2" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <p class="text-gray-500 text-sm mb-2">November 10, 2025</p>
+                        <h3 class="text-xl font-bold mb-3">Top 5 Trends in {theme}</h3>
+                        <p class="text-gray-600 mb-4">Stay competitive with these emerging trends in the industry...</p>
+                        <a href="blog2.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                            Read More →
+                        </a>
+                    </div>
+                </article>
+                <article class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+                    <img src="images/blog3.jpg" alt="Blog Post 3" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <p class="text-gray-500 text-sm mb-2">November 5, 2025</p>
+                        <h3 class="text-xl font-bold mb-3">How to Choose the Right Service</h3>
+                        <p class="text-gray-600 mb-4">A comprehensive guide to selecting the best solution for your needs...</p>
+                        <a href="blog3.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                            Read More →
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>""",
+
+            'contact_form_multistep': f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6 max-w-3xl">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4">Get Started Today</h2>
+                <p class="text-gray-600 text-lg">Tell us about your project and we'll get back to you soon</p>
+            </div>
+            <div class="bg-gray-50 rounded-xl p-8 shadow-lg">
+                <form action="thanks_you.php" method="POST" class="space-y-6">
+                    <div>
+                        <label for="name" class="block text-gray-700 font-semibold mb-2">Your Name</label>
+                        <input type="text" id="name" name="name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-gray-700 font-semibold mb-2">Your Email</label>
+                        <input type="email" id="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent">
+                    </div>
+                    <div>
+                        <label for="phone" class="block text-gray-700 font-semibold mb-2">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent">
+                    </div>
+                    <div>
+                        <label for="message" class="block text-gray-700 font-semibold mb-2">Tell Us About Your Project</label>
+                        <textarea id="message" name="message" rows="4" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-{primary} hover:bg-{hover} text-white py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                        Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>""",
+
+            'cards_6_slider': self.generate_our_locations_section(country, primary, hover),
+        }
+
+        # Выбираем 5-6 случайных секций
+        section_keys = list(all_sections.keys())
+        random.shuffle(section_keys)
+        num_sections = random.randint(5, 6)
+        selected_sections = section_keys[:num_sections]
+
+        # Если contact_form_multistep в выбранных секциях, переместить ее в конец
+        if 'contact_form_multistep' in selected_sections:
+            selected_sections.remove('contact_form_multistep')
+            selected_sections.append('contact_form_multistep')
+
+        print(f"  ✓ Выбрано {num_sections} случайных секций для Home страницы: {', '.join(selected_sections)}")
+
+        # Возвращаем выбранные секции
+        return '\n'.join([all_sections[key] for key in selected_sections])
+
+    def generate_page(self, page_name, output_dir):
+        """Генерация страницы с максимальным качеством"""
+        site_name = self.blueprint.get('site_name', 'Company')
+        theme = self.blueprint.get('theme', 'business')
+        colors = self.blueprint.get('color_scheme', {})
+        
+        # Для policy страниц используем готовый контент
+        if page_name in ['privacy', 'terms', 'cookie']:
+            return self.generate_policy_page(page_name, output_dir)
+        
+        # Для blog страниц используем готовый контент
+        if page_name in ['blog1', 'blog2', 'blog3', 'blog4', 'blog5', 'blog6']:
+            return self.generate_blog_page(page_name, output_dir)
+        
+        # Для главной страницы blog (список статей)
+        if page_name == 'blog':
+            return self.generate_blog_main_page(output_dir)
+
+        # Для Contact страницы используем готовый профессиональный шаблон
+        if page_name == 'contact':
+            return self.generate_contact_page(output_dir)
+
+        # Для основных страниц генерируем через API с детальными промптами
+        page_configs = {
+            'index': {
+                'title': 'Home',
+                'prompt': f"""Create a professional HOME page for {site_name} - a {theme} website.
+
+REQUIREMENTS:
+- Hero section with eye-catching headline and CTA button that links to contact.php
+- CTA button MUST use: href="contact.php" (NOT #services or any other link)
+- Features/benefits section (3-4 features with icons)
+- About Us preview section with:
+  * MUST include an image on the right side: <img src="images/about.jpg" alt="About Us" class="...">
+  * Text content on the left describing the company
+  * "Learn More" button that links to company.php: <a href="company.php" class="...">Learn More</a>
+  * Responsive grid layout (text left, image right on desktop; stacked on mobile)
+- Services showcase section (3 services) with CTA buttons to contact.php
+- Testimonials section (2-3 testimonials with circular avatar badges containing initials, NO images)
+- For testimonials: use colored circles with white text initials (e.g. JD, MS) instead of photos
+- Call-to-action section at the end with button to contact.php
+- ALL other CTA buttons on the page MUST link to contact.php (except the About Us "Learn More" which goes to company.php)
+- Use images for hero, about section, and services (images/hero.jpg, images/about.jpg, images/service1.jpg)
+- Modern, professional design with Tailwind CSS
+- Color scheme: {colors.get('primary')} primary, {colors.get('hover')} hover
+- Include proper spacing, padding, and responsive design
+- NO emojis, NO prices, NO currency symbols
+
+CRITICAL: About Us section MUST have images/about.jpg image and "Learn More" button linking to company.php
+CRITICAL: Every OTHER button on this page MUST have href="contact.php"
+CRITICAL: Testimonials MUST use avatar circles with initials, NOT images
+
+Return ONLY the content for <main> tag (not full HTML)."""
+            },
+            'company': {
+                'title': 'Company',
+                'prompt': f"""Create a professional COMPANY page for {site_name} - a {theme} business.
+
+REQUIREMENTS:
+- Heading section with page title
+- Company story/mission section
+- Team or values section
+- Image + text layout (use images/about.jpg)
+- MUST include a call-to-action button at the bottom that redirects to contact.php: <a href="contact.php" class="...">Contact Us</a>
+- Modern, professional design with Tailwind CSS
+- Color scheme: {colors.get('primary')} primary, {colors.get('hover')} hover
+- Responsive design
+- NO emojis, NO prices
+
+CRITICAL: Page MUST have a CTA button at the bottom that links to contact.php
+
+Return ONLY the content for <main> tag."""
+            },
+            'services': {
+                'title': 'Services',
+                'prompt': f"""Create a professional SERVICES page for {site_name} - a {theme} business.
+
+REQUIREMENTS:
+- Grid of service cards (3-4 services)
+- Each card: image, title, description
+- Use images: images/service1.jpg, images/service2.jpg, images/service3.jpg
+- Call-to-action buttons linking to contact.php
+- Modern, professional design with Tailwind CSS
+- Color scheme: {colors.get('primary')} primary, {colors.get('hover')} hover
+- Responsive grid layout
+- NO emojis, NO prices, NO currency
+
+Return ONLY the content for <main> tag."""
+            },
+            'thanks_you': {
+                'title': 'Thank You',
+                'prompt': f"""Create a simple THANK YOU page for {site_name}.
+
+REQUIREMENTS:
+- Large "Thank You" heading
+- Message: "Your message has been sent successfully. We'll get back to you soon."
+- Button to return to homepage (href="index.php")
+- Simple, clean design with Tailwind CSS
+- Color scheme: {colors.get('primary')} primary, {colors.get('hover')} hover
+- Centered layout
+- NO emojis
+
+Return ONLY the content for <main> tag."""
+            }
+        }
+        
+        config = page_configs.get(page_name)
+        if not config:
+            print(f"    ⚠️  Неизвестная страница: {page_name}")
+            return False
+
+        # Для index страницы используем готовые секции со случайным выбором
+        if page_name == 'index':
+            print(f"    📝 Генерация Home страницы со случайными секциями...")
+            primary = colors.get('primary', 'blue-600')
+            hover = colors.get('hover', 'blue-700')
+
+            # Hero секция (5 вариаций со случайным выбором)
+            hero_section = self.generate_hero_section(site_name, theme, primary, hover)
+
+            # Добавляем случайные секции
+            random_sections = self.generate_home_sections()
+
+            # Собираем main_content
+            main_content = hero_section + random_sections + "\n</main>"
+        elif page_name == 'thanks_you':
+            print(f"    📝 Генерация Thank You страницы (1 из 6 вариаций)...")
+            primary = colors.get('primary', 'blue-600')
+            hover = colors.get('hover', 'blue-700')
+
+            # Генерируем одну из 6 вариаций
+            main_content = self.generate_thankyou_page(site_name, primary, hover)
+        else:
+            # Генерируем контент через API для других страниц
+            print(f"    📝 Генерация контента для {page_name}...")
+            response = self.call_api(config['prompt'], max_tokens=8000)
+
+            if response:
+                main_content = self.clean_code_response(response)
+                # Оборачиваем в main если нужно
+                if not main_content.strip().startswith('<main'):
+                    main_content = f"<main>\n{main_content}\n</main>"
+            else:
+                print(f"    ⚠️  API не ответил, используется fallback")
+                main_content = self.generate_fallback_content(page_name, site_name, colors)
+        
+        # КРИТИЧЕСКИ ВАЖНО: Проверяем, что header и footer созданы
+        if not self.header_code or not self.footer_code:
+            print(f"    ⚠️  Header/Footer не найдены, регенерация...")
+            self.generate_header_footer()
+        
+        # Собираем полную страницу
+        full_html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{config['title']} - {site_name}</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    {self.header_footer_css}
+</head>
+<body>
+    {self.header_code}
+    
+    {main_content}
+    
+    {self.footer_code}
+</body>
+</html>"""
+        
+        # Сохраняем файл
+        page_path = os.path.join(output_dir, f"{page_name}.php")
+        with open(page_path, 'w', encoding='utf-8') as f:
+            f.write(full_html)
+        
+        print(f"    ✓ {page_name}.php создана")
+        return True
+    
+    def generate_fallback_content(self, page_name, site_name, colors):
+        """Генерация fallback контента для страницы"""
+        primary = colors.get('primary', 'blue-600')
+        hover = colors.get('hover', 'blue-700')
+        
+        fallbacks = {
+            'index': f"""<main>
+    <section class="py-20 bg-gradient-to-br from-{primary}/10 to-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">Welcome to {site_name}</h1>
+                <p class="text-xl md:text-2xl text-gray-600 mb-8">Your trusted partner in excellence</p>
+                <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition">
+                    Get Started
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-12">Why Choose Us</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center p-6">
+                    <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Quality Service</h3>
+                    <p class="text-gray-600">We deliver exceptional quality in everything we do.</p>
+                </div>
+                <div class="text-center p-6">
+                    <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Fast Delivery</h3>
+                    <p class="text-gray-600">Quick turnaround times without compromising quality.</p>
+                </div>
+                <div class="text-center p-6">
+                    <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Expert Team</h3>
+                    <p class="text-gray-600">Experienced professionals dedicated to your success.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+                <div>
+                    <h2 class="text-4xl font-bold mb-6">About {site_name}</h2>
+                    <p class="text-xl text-gray-600 mb-8">
+                        We are dedicated to providing excellent service and building lasting relationships with our clients. 
+                        Our team brings years of experience and expertise to every project.
+                    </p>
+                    <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition">
+                        Learn More
+                    </a>
+                </div>
+                <div class="rounded-xl overflow-hidden shadow-lg">
+                    <img src="images/about.jpg" alt="About Us" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-12">Our Services</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition">
+                    <h3 class="text-2xl font-bold mb-4">Service One</h3>
+                    <p class="text-gray-600 mb-4">Comprehensive solutions tailored to your needs.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold">Get Started →</a>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition">
+                    <h3 class="text-2xl font-bold mb-4">Service Two</h3>
+                    <p class="text-gray-600 mb-4">Professional expertise you can trust.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold">Get Started →</a>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition">
+                    <h3 class="text-2xl font-bold mb-4">Service Three</h3>
+                    <p class="text-gray-600 mb-4">Innovative solutions for modern challenges.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold">Get Started →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-12">What Our Clients Say</h2>
+            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <p class="text-gray-600 mb-6 italic">"Excellent service and professional team. Highly recommended!"</p>
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-{primary} flex items-center justify-center text-white font-bold mr-4">
+                            JS
+                        </div>
+                        <div>
+                            <p class="font-bold">John Smith</p>
+                            <p class="text-sm text-gray-500">CEO, Tech Corp</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <p class="text-gray-600 mb-6 italic">"They exceeded our expectations in every way. Amazing results!"</p>
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-{primary} flex items-center justify-center text-white font-bold mr-4">
+                            SJ
+                        </div>
+                        <div>
+                            <p class="font-bold">Sarah Johnson</p>
+                            <p class="text-sm text-gray-500">Founder, StartupXYZ</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="py-20 bg-gradient-to-br from-{primary} to-{hover} text-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-4xl font-bold mb-6">Ready to Get Started?</h2>
+                <p class="text-xl mb-8 opacity-90">Contact us today and let's discuss how we can help you achieve your goals.</p>
+                <a href="contact.php" class="inline-block bg-white text-{primary} px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition">
+                    Contact Us Now
+                </a>
+            </div>
+        </div>
+    </section>
+</main>""",
+            'company': f"""<main>
+    <section class="py-20">
+        <div class="container mx-auto px-6">
+            <h1 class="text-5xl font-bold text-center mb-12">Company - {site_name}</h1>
+            <div class="max-w-4xl mx-auto">
+                <p class="text-xl text-gray-600 mb-6">
+                    We are dedicated to providing excellent service and building lasting relationships with our clients.
+                </p>
+                <p class="text-xl text-gray-600 mb-8">
+                    Our team of professionals brings years of experience and expertise to every project.
+                </p>
+                <div class="text-center mt-12">
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition">
+                        Contact Us
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>""",
+            'services': f"""<main>
+    <section class="py-20">
+        <div class="container mx-auto px-6">
+            <h1 class="text-5xl font-bold text-center mb-12">Our Services</h1>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-bold mb-4">Service One</h3>
+                    <p class="text-gray-600 mb-4">Comprehensive solution for your needs.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold">Learn More →</a>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-bold mb-4">Service Two</h3>
+                    <p class="text-gray-600 mb-4">Professional expertise you can trust.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold">Learn More →</a>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-bold mb-4">Service Three</h3>
+                    <p class="text-gray-600 mb-4">Innovative solutions for modern challenges.</p>
+                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold">Learn More →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>""",
+            'contact': f"""<main>
+    <section class="py-20">
+        <div class="container mx-auto px-6">
+            <h1 class="text-5xl font-bold text-center mb-12">Contact Us</h1>
+            <div class="max-w-2xl mx-auto">
+                <form action="thanks_you.php" method="POST" class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Name</label>
+                        <input type="text" name="name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-{primary}">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Email</label>
+                        <input type="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-{primary}">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Message</label>
+                        <textarea name="message" rows="5" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-{primary}"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition">
+                        Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+</main>""",
+            'thanks_you': f"""<main>
+    <section class="py-20">
+        <div class="container mx-auto px-6">
+            <div class="max-w-2xl mx-auto text-center">
+                <h1 class="text-5xl font-bold mb-6">Thank You!</h1>
+                <p class="text-xl text-gray-600 mb-8">Your message has been sent successfully. We'll get back to you soon.</p>
+                <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition">
+                    Return to Home
+                </a>
+            </div>
+        </div>
+    </section>
+</main>"""
+        }
+        
+        return fallbacks.get(page_name, f'<main><section class="py-20"><div class="container mx-auto px-6 text-center"><h1 class="text-4xl font-bold">{page_name.title()}</h1></div></section></main>')
+    
+    def generate_blog_page(self, page_name, output_dir):
+        """Генерация blog страниц с вариациями (с/без картинки, с/без стрелок)"""
+        site_name = self.blueprint.get('site_name', 'Company')
+        theme = self.blueprint.get('theme', 'business')
+        colors = self.blueprint.get('color_scheme', {})
+        primary = colors.get('primary', 'blue-600')
+        hover = colors.get('hover', 'blue-700')
+
+        blog_titles = {
+            'blog1': f'The Future of {theme}',
+            'blog2': f'Top 5 Trends in {theme}',
+            'blog3': f'How to Choose the Right {theme} Service',
+            'blog4': f'Best Practices for {theme} Success',
+            'blog5': f'Common {theme} Mistakes to Avoid',
+            'blog6': f'The Complete {theme} Guide'
+        }
+
+        blog_contents = {
+            'blog1': f"""
+            <p class="text-lg text-gray-700 mb-6">
+                The {theme} industry is evolving rapidly, and staying ahead of the curve is essential for success.
+                In this article, we explore the latest innovations and what they mean for your business.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Key Innovations</h2>
+            <p class="text-gray-700 mb-6">
+                Recent technological advances have transformed how we approach {theme}. From automation to
+                personalized services, the landscape is changing faster than ever before.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">What This Means For You</h2>
+            <p class="text-gray-700 mb-6">
+                Understanding these changes can help you make better decisions for your needs. Whether you're
+                looking to upgrade your current setup or start fresh, staying informed is crucial.
+            </p>
+            """,
+            'blog2': f"""
+            <p class="text-lg text-gray-700 mb-6">
+                The {theme} sector is constantly evolving. Here are the top 5 trends you need to know about
+                to stay competitive in today's market.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">1. Digital Transformation</h2>
+            <p class="text-gray-700 mb-6">
+                More businesses are embracing digital solutions to streamline operations and improve customer experience.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">2. Sustainability Focus</h2>
+            <p class="text-gray-700 mb-6">
+                Environmental responsibility is becoming a key differentiator in the {theme} industry.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">3. Personalization</h2>
+            <p class="text-gray-700 mb-6">
+                Customers expect tailored solutions that meet their specific needs and preferences.
+            </p>
+            """,
+            'blog3': f"""
+            <p class="text-lg text-gray-700 mb-6">
+                Choosing the right {theme} service can be challenging. This guide will help you make an
+                informed decision that's right for your needs.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Assess Your Needs</h2>
+            <p class="text-gray-700 mb-6">
+                Start by clearly defining what you need from a {theme} service. Consider your budget,
+                timeline, and specific requirements.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Research Options</h2>
+            <p class="text-gray-700 mb-6">
+                Take time to research different providers and compare their offerings. Look for reviews,
+                testimonials, and case studies.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Make Contact</h2>
+            <p class="text-gray-700 mb-6">
+                Don't hesitate to reach out to providers directly. A good consultation can help you
+                determine if they're the right fit for your needs.
+            </p>
+            """,
+            'blog4': f"""
+            <p class="text-lg text-gray-700 mb-6">
+                Achieving success in {theme} requires following proven strategies and techniques. Learn from
+                industry experts and implement these best practices to maximize your results.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Set Clear Goals</h2>
+            <p class="text-gray-700 mb-6">
+                Define specific, measurable objectives for your {theme} initiatives. Clear goals provide
+                direction and help you track progress effectively.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Plan Strategically</h2>
+            <p class="text-gray-700 mb-6">
+                Develop a comprehensive plan that outlines the steps needed to achieve your goals. Include
+                timelines, resources, and key milestones.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Execute Consistently</h2>
+            <p class="text-gray-700 mb-6">
+                Consistency is key to success. Implement your strategies methodically and make adjustments
+                based on performance data and feedback.
+            </p>
+            """,
+            'blog5': f"""
+            <p class="text-lg text-gray-700 mb-6">
+                Avoiding common pitfalls can save you time, money, and frustration. Discover the most frequent
+                mistakes in {theme} and learn how to prevent them.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Mistake 1: Lack of Planning</h2>
+            <p class="text-gray-700 mb-6">
+                Rushing into {theme} projects without proper planning often leads to costly delays and
+                suboptimal results. Take time to plan thoroughly.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Mistake 2: Ignoring Expert Advice</h2>
+            <p class="text-gray-700 mb-6">
+                Trying to handle everything yourself can backfire. Consult with professionals who have
+                experience in {theme} to avoid common pitfalls.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Mistake 3: Cutting Corners</h2>
+            <p class="text-gray-700 mb-6">
+                Quality matters in {theme}. Choosing the cheapest option or skipping important steps often
+                results in poor outcomes that cost more to fix later.
+            </p>
+            """,
+            'blog6': f"""
+            <p class="text-lg text-gray-700 mb-6">
+                This comprehensive guide covers everything you need to know about {theme}. Whether you're a
+                beginner or looking to deepen your knowledge, this resource has you covered.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Understanding the Basics</h2>
+            <p class="text-gray-700 mb-6">
+                Start with the fundamentals of {theme}. Learn key concepts, terminology, and principles
+                that form the foundation of successful implementation.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Advanced Techniques</h2>
+            <p class="text-gray-700 mb-6">
+                Once you've mastered the basics, explore advanced strategies that can take your {theme}
+                efforts to the next level. Discover professional tips and insider knowledge.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Putting It All Together</h2>
+            <p class="text-gray-700 mb-6">
+                Learn how to integrate everything you've learned into a cohesive approach. Create a roadmap
+                for success and start implementing your {theme} strategy today.
+            </p>
+            """
+        }
+
+        blog_images = {
+            'blog1': 'images/blog1.jpg',
+            'blog2': 'images/blog2.jpg',
+            'blog3': 'images/blog3.jpg',
+            'blog4': 'images/blog4.jpg',
+            'blog5': 'images/blog5.jpg',
+            'blog6': 'images/blog6.jpg'
+        }
+
+        # Определяем навигацию между blog страницами
+        blog_nav = {
+            'blog1': {'prev': None, 'next': 'blog2.php'},
+            'blog2': {'prev': 'blog1.php', 'next': 'blog3.php'},
+            'blog3': {'prev': 'blog2.php', 'next': 'blog4.php'},
+            'blog4': {'prev': 'blog3.php', 'next': 'blog5.php'},
+            'blog5': {'prev': 'blog4.php', 'next': 'blog6.php'},
+            'blog6': {'prev': 'blog5.php', 'next': None}
+        }
+
+        # Вариации: случайный выбор картинки и стрелок для каждой статьи
+        blog_variations = {
+            'blog1': {'has_image': random.choice([True, False]), 'has_arrows': True},
+            'blog2': {'has_image': random.choice([True, False]), 'has_arrows': False},
+            'blog3': {'has_image': random.choice([True, False]), 'has_arrows': False},
+            'blog4': {'has_image': random.choice([True, False]), 'has_arrows': True},
+            'blog5': {'has_image': random.choice([True, False]), 'has_arrows': False},
+            'blog6': {'has_image': random.choice([True, False]), 'has_arrows': True}
+        }
+
+        current_nav = blog_nav.get(page_name, {'prev': None, 'next': None})
+        current_variation = blog_variations.get(page_name, {'has_image': True, 'has_arrows': True})
+
+        # Создаем навигационные кнопки (только если has_arrows=True)
+        nav_buttons = ''
+        if current_variation['has_arrows']:
+            nav_buttons = '<div class="flex justify-between items-center mt-12 pt-8 border-t border-gray-200">'
+
+            if current_nav['prev']:
+                nav_buttons += f'''
+                    <a href="{current_nav['prev']}" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition">
+                        <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Previous Article
+                    </a>
+                '''
+            else:
+                nav_buttons += '<div></div>'
+
+            if current_nav['next']:
+                nav_buttons += f'''
+                    <a href="{current_nav['next']}" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition">
+                        Next Article
+                        <svg class="w-5 h-5 ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                '''
+            else:
+                nav_buttons += '<div></div>'
+
+            nav_buttons += '</div>'
+        else:
+            # Без стрелок - простые текстовые ссылки
+            nav_links = []
+            if current_nav['prev']:
+                nav_links.append(f'<a href="{current_nav["prev"]}" class="text-{primary} hover:text-{hover} font-semibold transition">Previous Article</a>')
+            if current_nav['next']:
+                nav_links.append(f'<a href="{current_nav["next"]}" class="text-{primary} hover:text-{hover} font-semibold transition">Next Article</a>')
+
+            if nav_links:
+                nav_buttons = f'<div class="flex justify-between items-center mt-12 pt-8 border-t border-gray-200">{" <span class=\"text-gray-400\">|</span> ".join(nav_links)}</div>'
+
+        # Создаем секцию с картинкой (если has_image=True)
+        image_section = ''
+        if current_variation['has_image']:
+            image_section = f'''
+        <div class="mb-8 rounded-xl overflow-hidden">
+            <img src="{blog_images[page_name]}" alt="{blog_titles[page_name]}" class="w-full h-96 object-cover">
+        </div>
+        '''
+
+        main_content = f"""<main>
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-6 max-w-4xl">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">{blog_titles[page_name]}</h1>
+        <p class="text-gray-500 mb-8">Published on November 15, 2025 by {site_name} Team</p>
+
+        {image_section}
+
+        <div class="prose prose-lg max-w-none">
+            {blog_contents[page_name]}
+        </div>
+
+        {nav_buttons}
+
+        <div class="mt-12 p-8 bg-gradient-to-br from-{primary}/10 to-{primary}/5 rounded-xl text-center">
+            <h3 class="text-2xl font-bold mb-4">Interested in Our Services?</h3>
+            <p class="text-gray-700 mb-6">Get in touch with us today to learn how we can help your business grow.</p>
+            <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition">
+                Contact Us
+            </a>
+        </div>
+    </div>
+</section>
+</main>"""
+        
+        # КРИТИЧЕСКИ ВАЖНО: Проверяем, что header и footer созданы
+        if not self.header_code or not self.footer_code:
+            print(f"    ⚠️  Header/Footer не найдены, регенерация...")
+            self.generate_header_footer()
+        
+        full_html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{blog_titles[page_name]} - {site_name}</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    {self.header_footer_css}
+</head>
+<body>
+    {self.header_code}
+    
+    {main_content}
+    
+    {self.footer_code}
+</body>
+</html>"""
+        
+        page_path = os.path.join(output_dir, f"{page_name}.php")
+        with open(page_path, 'w', encoding='utf-8') as f:
+            f.write(full_html)
+        
+        print(f"    ✓ {page_name}.php создана")
+        return True
+    
+    def generate_blog_main_page(self, output_dir):
+        """Генерация главной страницы blog со списком статей (3 или 6 случайно)"""
+        site_name = self.blueprint.get('site_name', 'Company')
+        theme = self.blueprint.get('theme', 'business')
+        colors = self.blueprint.get('color_scheme', {})
+        primary = colors.get('primary', 'blue-600')
+        hover = colors.get('hover', 'blue-700')
+
+        # Полный список статей (6 штук)
+        all_blog_articles = [
+            {
+                'title': f'The Future of {theme}',
+                'url': 'blog1.php',
+                'excerpt': f'Explore the latest innovations in {theme} and what they mean for your business.',
+                'date': 'November 15, 2025',
+                'image': 'images/blog1.jpg'
+            },
+            {
+                'title': f'Top 5 Trends in {theme}',
+                'url': 'blog2.php',
+                'excerpt': f'Stay competitive with these emerging trends in the {theme} industry.',
+                'date': 'November 10, 2025',
+                'image': 'images/blog2.jpg'
+            },
+            {
+                'title': f'How to Choose the Right {theme} Service',
+                'url': 'blog3.php',
+                'excerpt': f'A comprehensive guide to selecting the best {theme} solution for your needs.',
+                'date': 'November 5, 2025',
+                'image': 'images/blog3.jpg'
+            },
+            {
+                'title': f'Best Practices for {theme} Success',
+                'url': 'blog4.php',
+                'excerpt': f'Learn proven strategies and techniques to maximize your {theme} results.',
+                'date': 'November 1, 2025',
+                'image': 'images/blog4.jpg'
+            },
+            {
+                'title': f'Common {theme} Mistakes to Avoid',
+                'url': 'blog5.php',
+                'excerpt': f'Discover the pitfalls that could derail your {theme} projects and how to avoid them.',
+                'date': 'October 28, 2025',
+                'image': 'images/blog5.jpg'
+            },
+            {
+                'title': f'The Complete {theme} Guide',
+                'url': 'blog6.php',
+                'excerpt': f'Everything you need to know about {theme} in one comprehensive resource.',
+                'date': 'October 25, 2025',
+                'image': 'images/blog6.jpg'
+            }
+        ]
+
+        # Случайно выбираем 3 или 6 статей
+        num_articles = random.choice([3, 6])
+        self.num_blog_articles = num_articles  # Сохраняем для генерации страниц
+        blog_articles = all_blog_articles[:num_articles]
+
+        # Создаем карточки статей
+        article_cards = ''
+        for article in blog_articles:
+            article_cards += f'''
+            <article class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition group">
+                <div class="aspect-video overflow-hidden">
+                    <img src="{article['image']}" alt="{article['title']}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                </div>
+                <div class="p-6">
+                    <p class="text-sm text-gray-500 mb-2">{article['date']}</p>
+                    <h2 class="text-2xl font-bold mb-3 group-hover:text-{primary} transition">{article['title']}</h2>
+                    <p class="text-gray-600 mb-4">{article['excerpt']}</p>
+                    <a href="{article['url']}" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition">
+                        Read More
+                        <svg class="w-5 h-5 ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                </div>
+            </article>
+            '''
+        
+        main_content = f"""<main>
+<section class="py-20 bg-gradient-to-br from-{primary}/10 to-white">
+    <div class="container mx-auto px-6">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-5xl md:text-6xl font-bold mb-6">Our Blog</h1>
+            <p class="text-xl md:text-2xl text-gray-600">Insights, tips, and news about {theme}</p>
+        </div>
+    </div>
+</section>
+
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-6">
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {article_cards}
+        </div>
+    </div>
+</section>
+
+<section class="py-20 bg-gray-50">
+    <div class="container mx-auto px-6">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-4xl font-bold mb-6">Want to Learn More?</h2>
+            <p class="text-xl text-gray-600 mb-8">Contact us to discuss your specific needs and how we can help.</p>
+            <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition">
+                Get in Touch
+            </a>
+        </div>
+    </div>
+</section>
+</main>"""
+        
+        # КРИТИЧЕСКИ ВАЖНО: Проверяем, что header и footer созданы
+        if not self.header_code or not self.footer_code:
+            print(f"    ⚠️  Header/Footer не найдены, регенерация...")
+            self.generate_header_footer()
+        
+        full_html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - {site_name}</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    {self.header_footer_css}
+</head>
+<body>
+    {self.header_code}
+    
+    {main_content}
+    
+    {self.footer_code}
+</body>
+</html>"""
+        
+        page_path = os.path.join(output_dir, "blog.php")
+        with open(page_path, 'w', encoding='utf-8') as f:
+            f.write(full_html)
+        
+        print(f"    ✓ blog.php создана (главная страница блога)")
+        return True
+    
+    def generate_policy_page(self, page_name, output_dir):
+        """Генерация policy страниц с УНИКАЛЬНЫМ контентом для каждой"""
+        site_name = self.blueprint.get('site_name', 'Company')
+        
+        titles = {
+            'privacy': 'Privacy Policy',
+            'terms': 'Terms of Service',
+            'cookie': 'Cookie Policy'
+        }
+        
+        # УНИКАЛЬНЫЙ контент для каждой страницы
+        if page_name == 'privacy':
+            main_content = f"""<main>
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-6 max-w-4xl">
+        <h1 class="text-4xl md:text-5xl font-bold text-center mb-4">{titles[page_name]}</h1>
+        <p class="text-gray-500 text-center mb-12">Last updated: November 14, 2025</p>
+        
+        <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+        
+        <h2 class="text-2xl font-bold mt-8 mb-4">1. Introduction</h2>
+        <p>{site_name} ("us", "we", or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website.</p>
+        
+        <h2 class="text-2xl font-bold mt-8 mb-4">2. Information We Collect</h2>
+        <p>We may collect information about you in a variety of ways. The information we may collect includes:</p>
+        
+        <h3 class="text-xl font-semibold mt-6 mb-3">Personal Data</h3>
+        <ul class="list-disc pl-6 my-4">
+            <li>Name and contact information (email address, phone number)</li>
+            <li>Demographic information (age, gender, interests)</li>
+            <li>Payment information for transactions</li>
+            <li>Any other information you voluntarily provide</li>
+        </ul>
+        
+        <h3 class="text-xl font-semibold mt-6 mb-3">Usage Data</h3>
+        <ul class="list-disc pl-6 my-4">
+            <li>IP address and browser type</li>
+            <li>Pages visited and time spent on pages</li>
+            <li>Referring website addresses</li>
+            <li>Device information</li>
+        </ul>
+        
+        <h2 class="text-2xl font-bold mt-8 mb-4">3. How We Use Your Information</h2>
+        <p>We use the information we collect to:</p>
+        <ul class="list-disc pl-6 my-4">
+            <li>Provide, operate, and maintain our website and services</li>
+            <li>Improve and personalize your experience</li>
+            <li>Communicate with you about updates, offers, and news</li>
+            <li>Process transactions and send transaction notifications</li>
+            <li>Monitor and analyze usage patterns and trends</li>
+            <li>Detect, prevent, and address technical issues and fraud</li>
+        </ul>
+        
+        <h2 class="text-2xl font-bold mt-8 mb-4">4. Data Security</h2>
+        <p>We implement appropriate security measures to protect your personal information. However, no method of transmission over the Internet is 100% secure, and we cannot guarantee absolute security.</p>
+        
+        <h2 class="text-2xl font-bold mt-8 mb-4">5. Your Rights</h2>
+        <p>You have the right to access, update, or delete your personal information at any time. You may also opt-out of marketing communications.</p>
+        
+        <h2 class="text-2xl font-bold mt-8 mb-4">6. Contact Us</h2>
+        <p>If you have any questions about this Privacy Policy, please contact us at:</p>
+        <p class="mt-2">Email: {site_name.lower().replace(' ', '')}@gmail.com</p>
+        </div>
+    </div>
+</section>
+</main>"""
+        
+        elif page_name == 'terms':
+            main_content = f"""<main>
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-6 max-w-4xl">
+        <h1 class="text-4xl md:text-5xl font-bold text-center mb-4">{titles[page_name]}</h1>
+        <p class="text-gray-500 text-center mb-12">Last updated: November 14, 2025</p>
+        
+        <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+        
+        <h2 class="text-2xl font-bold mt-8 mb-4">1. Agreement to Terms</h2>
+        <p>By accessing and using {site_name}'s website, you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to these Terms of Service, please do not use this website.</p>
+        
+        <h2 class="text-2xl font-bold mt-8 mb-4">2. Use License</h2>
+        <p>Permission is granted to temporarily access the materials on {site_name}'s website for personal, non-commercial use only. This is the grant of a license, not a transfer of title, and under this license you may not:</p>
+        <ul class="list-disc pl-6 my-4">
+            <li>Modify or copy the materials</li>
+            <li>Use the materials for any commercial purpose</li>
+            <li>Attempt to decompile or reverse engineer any software</li>
+            <li>Remove any copyright or proprietary notations</li>
+            <li>Transfer the materials to another person</li>
+        </ul>
+        
+        <h2 class="text-2xl font-bold mt-8 mb-4">3. User Responsibilities</h2>
+        <p>As a user of our website, you agree to:</p>
+        <ul class="list-disc pl-6 my-4">
+            <li>Provide accurate and complete information</li>
+            <li>Maintain the security of your account credentials</li>
+            <li>Notify us immediately of any unauthorized use</li>
+            <li>Not engage in any activity that disrupts or interferes with our services</li>
+            <li>Comply with all applicable laws and regulations</li>
+        </ul>
+        
+        <h2 class="text-2xl font-bold mt-8 mb-4">4. Disclaimer</h2>
+        <p>The materials on {site_name}'s website are provided on an 'as is' basis. {site_name} makes no warranties, expressed or implied, and hereby disclaims all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property.</p>
+        
+        <h2 class="text-2xl font-bold mt-8 mb-4">5. Limitations of Liability</h2>
+        <p>In no event shall {site_name} or its suppliers be liable for any damages arising out of the use or inability to use the materials on our website.</p>
+        
+        <h2 class="text-2xl font-bold mt-8 mb-4">6. Modifications</h2>
+        <p>{site_name} may revise these Terms of Service at any time without notice. By using this website, you agree to be bound by the current version of these terms.</p>
+        
+        <h2 class="text-2xl font-bold mt-8 mb-4">7. Contact Information</h2>
+        <p>For questions about these Terms of Service, please contact us at:</p>
+        <p class="mt-2">Email: {site_name.lower().replace(' ', '')}@gmail.com</p>
+        </div>
+    </div>
+</section>
+</main>"""
+        
+        elif page_name == 'cookie':
+            main_content = f"""<main>
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-6 max-w-4xl">
+        <h1 class="text-4xl md:text-5xl font-bold text-center mb-4">{titles[page_name]}</h1>
+        <p class="text-gray-500 text-center mb-12">Last updated: November 14, 2025</p>
+        
+        <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+        
+        <h2 class="text-2xl font-bold mt-8 mb-4">1. What Are Cookies</h2>
+        <p>Cookies are small text files that are placed on your device when you visit our website. They help us provide you with a better experience by remembering your preferences and understanding how you use our site.</p>
+        
+        <h2 class="text-2xl font-bold mt-8 mb-4">2. Types of Cookies We Use</h2>
+        
+        <h3 class="text-xl font-semibold mt-6 mb-3">Essential Cookies</h3>
+        <p>These cookies are necessary for the website to function properly. They enable basic functions like page navigation and access to secure areas of the website.</p>
+        
+        <h3 class="text-xl font-semibold mt-6 mb-3">Analytics Cookies</h3>
+        <p>We use analytics cookies to understand how visitors interact with our website. This helps us improve our content and user experience. These cookies collect information anonymously.</p>
+        
+        <h3 class="text-xl font-semibold mt-6 mb-3">Functionality Cookies</h3>
+        <p>These cookies allow our website to remember choices you make (such as your language preference) and provide enhanced, personalized features.</p>
+        
+        <h3 class="text-xl font-semibold mt-6 mb-3">Advertising Cookies</h3>
+        <p>We may use advertising cookies to deliver relevant advertisements to you and track the effectiveness of our marketing campaigns.</p>
+        
+        <h2 class="text-2xl font-bold mt-8 mb-4">3. Third-Party Cookies</h2>
+        <p>In addition to our own cookies, we may use various third-party cookies to report usage statistics, deliver advertisements, and provide social media features.</p>
+        
+        <h2 class="text-2xl font-bold mt-8 mb-4">4. Managing Cookies</h2>
+        <p>You can control and/or delete cookies as you wish. You can delete all cookies that are already on your computer and you can set most browsers to prevent them from being placed. However, if you do this, you may have to manually adjust some preferences every time you visit our site.</p>
+        
+        <h3 class="text-xl font-semibold mt-6 mb-3">How to Control Cookies</h3>
+        <ul class="list-disc pl-6 my-4">
+            <li>Browser settings: Most browsers allow you to refuse or accept cookies</li>
+            <li>Third-party tools: Use browser extensions or privacy tools</li>
+            <li>Opt-out links: Some third-party services provide opt-out mechanisms</li>
+        </ul>
+        
+        <h2 class="text-2xl font-bold mt-8 mb-4">5. Updates to This Policy</h2>
+        <p>We may update this Cookie Policy from time to time. We encourage you to review this page periodically for any changes.</p>
+        
+        <h2 class="text-2xl font-bold mt-8 mb-4">6. Contact Us</h2>
+        <p>If you have questions about our use of cookies, please contact us at:</p>
+        <p class="mt-2">Email: {site_name.lower().replace(' ', '')}@gmail.com</p>
+        </div>
+    </div>
+</section>
+</main>"""
+        
+        else:
+            # Fallback на случай неизвестной страницы
+            main_content = f"""<main>
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-6 max-w-4xl">
+        <h1 class="text-4xl md:text-5xl font-bold text-center mb-4">Policy Page</h1>
+        <p class="text-center text-gray-600">Content coming soon.</p>
+    </div>
+</section>
+</main>"""
+        
+        # КРИТИЧЕСКИ ВАЖНО: Проверяем, что header и footer созданы
+        if not self.header_code or not self.footer_code:
+            print(f"    ⚠️  Header/Footer не найдены, регенерация...")
+            self.generate_header_footer()
+        
+        full_html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{titles[page_name]} - {site_name}</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    {self.header_footer_css}
+</head>
+<body>
+    {self.header_code}
+    
+    {main_content}
+    
+    {self.footer_code}
+</body>
+</html>"""
+        
+        page_path = os.path.join(output_dir, f"{page_name}.php")
+        with open(page_path, 'w', encoding='utf-8') as f:
+            f.write(full_html)
+        
+        print(f"    ✓ {page_name}.php создана")
+        return True
+
+    def generate_website(self, user_prompt, output_dir="generated_website", data_dir="data", site_type="multipage"):
+        """Основной метод генерации"""
+        self.site_type = site_type
+        
+        print("=" * 60)
+        print(f"ГЕНЕРАТОР PHP {'ЛЕНДИНГОВ' if site_type == 'landing' else 'САЙТОВ'} v2.4")
+        print("=" * 60)
+        
+        Path(output_dir).mkdir(exist_ok=True)
+        
+        print("\n[1/7] Загрузка БД...")
+        self.load_database(data_dir)
+        
+        print("\n[2/7] Blueprint (уникальное название, цвета, layouts)...")
+        if not self.create_blueprint(user_prompt):
+            print("⚠️  Ошибка Blueprint (использован fallback)")
+        
+        print("\n[3/7] Header и Footer (без соц. сетей, единый hover)...")
+        if not self.generate_header_footer():
+            print("⚠️  Ошибка Header/Footer (использован fallback)")
+        
+        print("\n[4/7] Favicon...")
+        self.generate_favicon(output_dir)
+
+        print("\n[5/7] Страницы...")
+
+        if site_type == "landing":
+            # Лендинг - только главная страница с секциями + служебные страницы
+            pages_to_generate = ['index', 'thanks_you', 'privacy', 'terms', 'cookie']
+            print("  Режим: ЛЕНДИНГ (одна страница с секциями)")
+        else:
+            # Многостраничный сайт - все основные страницы включая blog
+            # Сначала генерируем blog главную, чтобы узнать количество статей
+            print("  Режим: МНОГОСТРАНИЧНЫЙ САЙТ (все страницы + blog главная + статьи)")
+            pages_to_generate = ['index', 'company', 'services', 'contact', 'blog', 'privacy', 'terms', 'cookie', 'thanks_you']
+            # Добавляем страницы блога в зависимости от num_blog_articles (будет установлено при генерации blog главной)
+
+        # Генерируем каждую страницу с повышенным вниманием
+        for page in pages_to_generate:
+            print(f"  Генерация {page}.php...")
+            success = self.generate_page(page, output_dir)
+            if not success:
+                print(f"    ⚠️  Ошибка генерации {page}.php, создан fallback")
+
+        # Для многостраничного сайта генерируем страницы статей блога
+        if site_type == "multipage":
+            print(f"  Генерация страниц статей блога ({self.num_blog_articles} статей)...")
+            for i in range(1, self.num_blog_articles + 1):
+                blog_page = f'blog{i}'
+                print(f"    Генерация {blog_page}.php...")
+                success = self.generate_page(blog_page, output_dir)
+                if not success:
+                    print(f"      ⚠️  Ошибка генерации {blog_page}.php, создан fallback")
+
+        print("\n[6/7] Изображения (под сгенерированные страницы)...")
+        self.generate_images_for_site(output_dir)
+
+        print("\n[7/7] Дополнительные файлы...")
+        self.generate_additional_files(output_dir)
+        
+        print("\n" + "=" * 60)
+        print(f"✓ {'ЛЕНДИНГ' if site_type == 'landing' else 'САЙТ'} СОЗДАН: {output_dir}")
+        print(f"✓ Название: {self.blueprint.get('site_name')}")
+        print(f"✓ Цвета: {self.blueprint.get('color_scheme', {}).get('primary')} (hover: {self.blueprint.get('color_scheme', {}).get('hover')})")
+        print("=" * 60)
+        
+        print(f"\n🚀 Запуск сайта:")
+        print(f"\n1. cd {output_dir}")
+        print(f"2. php -S localhost:8000")
+        print(f"3. Откройте: http://localhost:8000/index.php")
+        print(f"\n✨ Готово! Уникальный дизайн!")
+        
+        return True
+    
+    def generate_additional_files(self, output_dir):
+        """Генерация только необходимых дополнительных файлов"""
+        # Больше НЕ создаем лишние файлы:
+        # - 404.php, 500.php (не нужны)
+        # - config.php, functions.php (не нужны)
+        # - contact-form-handler.php (не нужен)
+        
+        print("  ✓ Дополнительные файлы не требуются")
+        pass
+
+
+if __name__ == "__main__":
+    print("╔═══════════════════════════════════════════════════════════╗")
+    print("║                ГЕНЕРАТОР PHP САЙТОВ v9                    ║")
+    print("╚═══════════════════════════════════════════════════════════╝")
+    print()
+    
+    print("📝 Опишите сайт:")
+    print("   (Для завершения введите 'END')")
+    print("-" * 60)
+    
+    lines = []
+    while True:
+        line = input()
+        if line.strip() == "END":
+            break
+        lines.append(line)
+    
+    user_prompt = "\n".join(lines)
+    
+    if not user_prompt.strip():
+        print("❌ Промпт пустой!")
+        exit(1)
+    
+    print()
+    print("-" * 60)
+    
+    print("\n🎯 Тип сайта:")
+    print("   1. Лендинг (одна страница)")
+    print("   2. Многостраничный сайт")
+    site_type_choice = input("Выберите (1 или 2): ").strip()
+    
+    site_type = "landing" if site_type_choice == "1" else "multipage"
+    
+    print("\n📁 Путь к папке data:")
+    print("   (по умолчанию: data)")
+    data_dir = input(">>> ").strip()
+    
+    if not data_dir:
+        data_dir = "data"
+    
+    print("\n📁 Папка для сохранения сайта:")
+    print("   (по умолчанию: generated_website)")
+    output_dir = input(">>> ").strip()
+    
+    if not output_dir:
+        output_dir = "generated_website"
+    
+    print()
+    print("=" * 60)
+    print(f"🚀 Старт генерации...")
+    print(f"📂 Папка данных: {data_dir}")
+    print(f"📂 Папка вывода: {output_dir}")
+    print(f"🎯 Тип: {'ЛЕНДИНГ' if site_type == 'landing' else 'МНОГОСТРАНИЧНЫЙ'}")
+    print("=" * 60)
+    print()
+    
+    generator = PHPWebsiteGenerator()
+    
+    try:
+        success = generator.generate_website(user_prompt, output_dir=output_dir, data_dir=data_dir, site_type=site_type)
+        
+        if success:
+            print("\n✨ Готово!")
+        else:
+            print("\n⚠️  Генерация завершена с предупреждениями")
+            
+    except KeyboardInterrupt:
+        print("\n\n⚠️  Прервано пользователем")
+    except Exception as e:
+        print(f"\n❌ Критическая ошибка: {e}")
+        import traceback
+        traceback.print_exc()
