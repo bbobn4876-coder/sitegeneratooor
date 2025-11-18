@@ -450,6 +450,27 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 }
             ]
 
+        # Cryptocurrency / Blockchain / Crypto
+        elif any(word in theme_lower for word in ['crypto', 'cryptocurrency', 'blockchain', 'bitcoin', 'ethereum', 'defi', 'nft', 'web3']):
+            return [
+                {
+                    'title': 'Create Account',
+                    'description': 'Sign up securely with advanced encryption and two-factor authentication to protect your digital assets.'
+                },
+                {
+                    'title': 'Verify Identity',
+                    'description': 'Complete quick KYC verification to ensure compliance and unlock full platform features and higher limits.'
+                },
+                {
+                    'title': 'Fund & Trade',
+                    'description': 'Deposit funds and start trading cryptocurrencies with our intuitive interface and advanced trading tools.'
+                },
+                {
+                    'title': 'Secure & Grow',
+                    'description': 'Store your assets in secure wallets and grow your portfolio with staking, lending, and yield farming.'
+                }
+            ]
+
         # Default / Business / Technology
         else:
             return [
@@ -595,6 +616,26 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 }
             ]
 
+        # Cryptocurrency / Blockchain / Crypto
+        elif any(word in theme_lower for word in ['crypto', 'cryptocurrency', 'blockchain', 'bitcoin', 'ethereum', 'defi', 'nft', 'web3']):
+            return [
+                {
+                    'title': 'Spot Trading',
+                    'description': 'Trade 500+ cryptocurrencies with low fees, deep liquidity, and advanced charting tools.',
+                    'image': 'service1.jpg'
+                },
+                {
+                    'title': 'Staking & Yield',
+                    'description': 'Earn passive income by staking your crypto assets and participating in DeFi protocols.',
+                    'image': 'service2.jpg'
+                },
+                {
+                    'title': 'Secure Wallet',
+                    'description': 'Bank-grade security with cold storage, multi-signature protection, and insurance coverage.',
+                    'image': 'service3.jpg'
+                }
+            ]
+
         # Default / Business / Technology
         else:
             return [
@@ -685,6 +726,17 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 'why_text2': 'Your health and wellbeing are our priority. We\'re committed to providing accessible, comprehensive care that helps you live your healthiest life.'
             }
 
+        # Cryptocurrency / Blockchain / Crypto
+        elif any(word in theme_lower for word in ['crypto', 'cryptocurrency', 'blockchain', 'bitcoin', 'ethereum', 'defi', 'nft', 'web3']):
+            return {
+                'approach_title': 'Our Platform',
+                'approach_text1': 'We\'ve built a cutting-edge cryptocurrency platform that combines institutional-grade security with an intuitive user experience for traders of all levels.',
+                'approach_text2': 'Our technology infrastructure ensures lightning-fast execution, deep liquidity, and 24/7 uptime so you never miss market opportunities.',
+                'why_title': 'Why Trade With Us',
+                'why_text1': f'As leaders in the {theme} space, we provide the most secure and reliable platform with advanced features trusted by millions of users worldwide.',
+                'why_text2': 'Your assets are protected by multi-layered security, cold storage, and insurance. Our dedicated support team is available around the clock to assist you.'
+            }
+
         # Default / Business / Technology
         else:
             return {
@@ -734,6 +786,98 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             </div>
         </div>
     </section>"""
+
+    def get_theme_based_what_we_offer(self, theme):
+        """Возвращает 6 услуг/предложений на основе темы для секции What We Offer"""
+        theme_lower = theme.lower()
+
+        # Travel / Tourism
+        if any(word in theme_lower for word in ['travel', 'tourism', 'tour', 'vacation', 'holiday', 'trip']):
+            return [
+                {'title': 'Flight Booking', 'description': 'Book flights to destinations worldwide with competitive prices and flexible options.'},
+                {'title': 'Hotel Reservations', 'description': 'Access to thousands of hotels, resorts, and accommodations for every budget and style.'},
+                {'title': 'Tour Packages', 'description': 'Curated tour packages combining activities, transport, and accommodations for seamless travel.'},
+                {'title': 'Travel Insurance', 'description': 'Comprehensive travel insurance coverage for peace of mind during your journey.'},
+                {'title': 'Visa Assistance', 'description': 'Expert help with visa applications and travel documentation requirements.'},
+                {'title': '24/7 Support', 'description': 'Round-the-clock customer support to assist you anywhere in the world.'}
+            ]
+
+        # Restaurant / Food
+        elif any(word in theme_lower for word in ['restaurant', 'cafe', 'food', 'dining', 'cuisine']):
+            return [
+                {'title': 'Dine-In Service', 'description': 'Enjoy exceptional meals in our welcoming atmosphere with attentive table service.'},
+                {'title': 'Takeout Orders', 'description': 'Convenient takeout options with quick preparation and quality packaging.'},
+                {'title': 'Delivery Service', 'description': 'Fast delivery bringing fresh, hot meals directly to your door.'},
+                {'title': 'Catering Events', 'description': 'Professional catering for corporate events, parties, and special occasions.'},
+                {'title': 'Private Dining', 'description': 'Exclusive private dining rooms perfect for intimate gatherings and celebrations.'},
+                {'title': 'Chef Specials', 'description': 'Daily chef specials featuring seasonal ingredients and creative culinary innovations.'}
+            ]
+
+        # Fitness / Gym / Sports
+        elif any(word in theme_lower for word in ['fitness', 'gym', 'sport', 'workout', 'training']):
+            return [
+                {'title': 'Personal Training', 'description': 'One-on-one coaching sessions customized to your goals and fitness level.'},
+                {'title': 'Group Classes', 'description': 'Energizing group fitness classes including yoga, HIIT, cycling, and more.'},
+                {'title': 'Nutrition Coaching', 'description': 'Personalized meal plans and nutritional guidance to support your fitness journey.'},
+                {'title': 'Strength Training', 'description': 'State-of-the-art equipment and expert guidance for building strength and muscle.'},
+                {'title': 'Cardio Programs', 'description': 'Comprehensive cardio training programs to improve endurance and heart health.'},
+                {'title': 'Recovery Services', 'description': 'Massage therapy, stretching sessions, and recovery tools to prevent injury.'}
+            ]
+
+        # Real Estate / Property
+        elif any(word in theme_lower for word in ['real estate', 'property', 'realty', 'housing']):
+            return [
+                {'title': 'Property Search', 'description': 'Access to extensive property listings with advanced search and filtering tools.'},
+                {'title': 'Market Analysis', 'description': 'Expert market analysis and property valuations to inform your decisions.'},
+                {'title': 'Buyer Representation', 'description': 'Professional representation throughout the entire home buying process.'},
+                {'title': 'Seller Services', 'description': 'Comprehensive services to market and sell your property for top value.'},
+                {'title': 'Investment Consulting', 'description': 'Strategic advice for real estate investments and portfolio growth.'},
+                {'title': 'Property Management', 'description': 'Full-service property management for landlords and property owners.'}
+            ]
+
+        # Education / School / Courses
+        elif any(word in theme_lower for word in ['education', 'school', 'course', 'learning', 'training', 'academy']):
+            return [
+                {'title': 'Online Courses', 'description': 'Self-paced online courses accessible anywhere with lifetime access to materials.'},
+                {'title': 'Live Classes', 'description': 'Interactive live sessions with instructors for real-time learning and questions.'},
+                {'title': 'Certifications', 'description': 'Industry-recognized certifications to validate your skills and knowledge.'},
+                {'title': 'Career Services', 'description': 'Job placement assistance, resume reviews, and interview preparation.'},
+                {'title': 'Mentorship Program', 'description': 'One-on-one mentorship with industry experts to guide your learning path.'},
+                {'title': 'Learning Resources', 'description': 'Extensive library of tutorials, guides, and practice materials.'}
+            ]
+
+        # Healthcare / Medical / Clinic
+        elif any(word in theme_lower for word in ['health', 'medical', 'clinic', 'doctor', 'care', 'hospital']):
+            return [
+                {'title': 'Primary Care', 'description': 'Comprehensive primary care services for routine check-ups and preventive health.'},
+                {'title': 'Specialist Consultations', 'description': 'Access to experienced medical specialists across all healthcare disciplines.'},
+                {'title': 'Diagnostic Testing', 'description': 'Advanced diagnostic services including lab work, imaging, and screening tests.'},
+                {'title': 'Urgent Care', 'description': 'Walk-in urgent care for non-emergency medical conditions and injuries.'},
+                {'title': 'Telehealth Services', 'description': 'Virtual consultations with healthcare providers from the comfort of home.'},
+                {'title': 'Prescription Services', 'description': 'Convenient prescription management and refills with pharmacy coordination.'}
+            ]
+
+        # Cryptocurrency / Blockchain / Crypto
+        elif any(word in theme_lower for word in ['crypto', 'cryptocurrency', 'blockchain', 'bitcoin', 'ethereum', 'defi', 'nft', 'web3']):
+            return [
+                {'title': 'Spot Trading', 'description': 'Trade 500+ cryptocurrencies with competitive fees and instant execution.'},
+                {'title': 'Margin Trading', 'description': 'Leverage your positions with margin trading and advanced risk management tools.'},
+                {'title': 'Staking Rewards', 'description': 'Earn passive income by staking supported cryptocurrencies with competitive APY.'},
+                {'title': 'NFT Marketplace', 'description': 'Buy, sell, and trade NFTs on our secure and user-friendly marketplace.'},
+                {'title': 'Crypto Wallet', 'description': 'Multi-currency wallet with cold storage and advanced security features.'},
+                {'title': 'DeFi Integration', 'description': 'Access to decentralized finance protocols for lending, borrowing, and yield farming.'}
+            ]
+
+        # Default / Business / Technology
+        else:
+            return [
+                {'title': 'Consultation', 'description': 'Expert advice to help you make informed decisions about your project.'},
+                {'title': 'Planning', 'description': 'Strategic planning to ensure your project\'s success from start to finish.'},
+                {'title': 'Implementation', 'description': 'Professional execution with attention to every detail of your project.'},
+                {'title': 'Testing', 'description': 'Thorough testing to ensure quality and reliability in all deliverables.'},
+                {'title': 'Support', 'description': 'Ongoing support to help you get the most from your investment.'},
+                {'title': 'Optimization', 'description': 'Continuous improvement to keep your solution performing at its best.'}
+            ]
 
     def generate_featured_solutions_section(self, site_name, theme, primary, hover):
         """Генерирует секцию Featured Solutions с тематическим контентом"""
@@ -1028,6 +1172,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
     def generate_what_we_offer_section(self, site_name, theme, primary, hover):
         """Генерирует одну из 3 вариаций секции What We Offer (6 карточек)"""
         variation = random.randint(1, 3)
+        services = self.get_theme_based_what_we_offer(theme)
 
         if variation == 1:
             return f"""
@@ -1037,43 +1182,43 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             <p class="text-gray-600 text-center mb-12 text-lg">Comprehensive solutions tailored to your needs</p>
             <div class="grid md:grid-cols-3 gap-6">
                 <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
-                    <h4 class="text-xl font-bold mb-3">Consultation</h4>
-                    <p class="text-gray-600 mb-4">Expert advice to help you make informed decisions about your project.</p>
+                    <h4 class="text-xl font-bold mb-3">{services[0]['title']}</h4>
+                    <p class="text-gray-600 mb-4">{services[0]['description']}</p>
                     <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
                         Learn More →
                     </a>
                 </div>
                 <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
-                    <h4 class="text-xl font-bold mb-3">Planning</h4>
-                    <p class="text-gray-600 mb-4">Strategic planning to ensure your project's success from start to finish.</p>
+                    <h4 class="text-xl font-bold mb-3">{services[1]['title']}</h4>
+                    <p class="text-gray-600 mb-4">{services[1]['description']}</p>
                     <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
                         Learn More →
                     </a>
                 </div>
                 <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
-                    <h4 class="text-xl font-bold mb-3">Implementation</h4>
-                    <p class="text-gray-600 mb-4">Professional execution with attention to every detail of your project.</p>
+                    <h4 class="text-xl font-bold mb-3">{services[2]['title']}</h4>
+                    <p class="text-gray-600 mb-4">{services[2]['description']}</p>
                     <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
                         Learn More →
                     </a>
                 </div>
                 <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
-                    <h4 class="text-xl font-bold mb-3">Testing</h4>
-                    <p class="text-gray-600 mb-4">Thorough testing to ensure quality and reliability in all deliverables.</p>
+                    <h4 class="text-xl font-bold mb-3">{services[3]['title']}</h4>
+                    <p class="text-gray-600 mb-4">{services[3]['description']}</p>
                     <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
                         Learn More →
                     </a>
                 </div>
                 <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
-                    <h4 class="text-xl font-bold mb-3">Support</h4>
-                    <p class="text-gray-600 mb-4">Ongoing support to help you get the most from your investment.</p>
+                    <h4 class="text-xl font-bold mb-3">{services[4]['title']}</h4>
+                    <p class="text-gray-600 mb-4">{services[4]['description']}</p>
                     <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
                         Learn More →
                     </a>
                 </div>
                 <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
-                    <h4 class="text-xl font-bold mb-3">Optimization</h4>
-                    <p class="text-gray-600 mb-4">Continuous improvement to keep your solution performing at its best.</p>
+                    <h4 class="text-xl font-bold mb-3">{services[5]['title']}</h4>
+                    <p class="text-gray-600 mb-4">{services[5]['description']}</p>
                     <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
                         Learn More →
                     </a>
@@ -1098,8 +1243,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4">Strategy & Planning</h3>
-                    <p class="text-gray-600 leading-relaxed mb-6">Comprehensive strategic planning to align your goals with actionable roadmaps and measurable outcomes.</p>
+                    <h3 class="text-2xl font-bold mb-4">{services[0]['title']}</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">{services[0]['description']}</p>
                     <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
                         Explore <span class="ml-2">→</span>
                     </a>
@@ -1111,8 +1256,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4">Research & Analysis</h3>
-                    <p class="text-gray-600 leading-relaxed mb-6">In-depth market research and data analysis to uncover insights that drive informed business decisions.</p>
+                    <h3 class="text-2xl font-bold mb-4">{services[1]['title']}</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">{services[1]['description']}</p>
                     <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
                         Explore <span class="ml-2">→</span>
                     </a>
@@ -1124,8 +1269,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4">Custom Development</h3>
-                    <p class="text-gray-600 leading-relaxed mb-6">Tailored solutions built with cutting-edge technology to meet your unique business requirements.</p>
+                    <h3 class="text-2xl font-bold mb-4">{services[2]['title']}</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">{services[2]['description']}</p>
                     <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
                         Explore <span class="ml-2">→</span>
                     </a>
@@ -1137,8 +1282,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4">Quality Assurance</h3>
-                    <p class="text-gray-600 leading-relaxed mb-6">Rigorous testing and quality control to ensure flawless performance and reliability.</p>
+                    <h3 class="text-2xl font-bold mb-4">{services[3]['title']}</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">{services[3]['description']}</p>
                     <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
                         Explore <span class="ml-2">→</span>
                     </a>
@@ -1150,8 +1295,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4">Fast Deployment</h3>
-                    <p class="text-gray-600 leading-relaxed mb-6">Rapid implementation and seamless integration to get your solutions live quickly and efficiently.</p>
+                    <h3 class="text-2xl font-bold mb-4">{services[4]['title']}</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">{services[4]['description']}</p>
                     <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
                         Explore <span class="ml-2">→</span>
                     </a>
@@ -1163,8 +1308,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4">Ongoing Support</h3>
-                    <p class="text-gray-600 leading-relaxed mb-6">Dedicated maintenance and continuous optimization to keep your systems running perfectly.</p>
+                    <h3 class="text-2xl font-bold mb-4">{services[5]['title']}</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">{services[5]['description']}</p>
                     <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
                         Explore <span class="ml-2">→</span>
                     </a>
@@ -1188,8 +1333,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                         01
                     </div>
                     <div class="pt-4">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Consultation Services</h3>
-                        <p class="text-gray-600 leading-relaxed mb-6">Expert guidance and professional advice to help you navigate complex challenges and opportunities.</p>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">{services[0]['title']}</h3>
+                        <p class="text-gray-600 leading-relaxed mb-6">{services[0]['description']}</p>
                         <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
                             Get Started <span class="ml-2">→</span>
                         </div>
@@ -1201,8 +1346,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                         02
                     </div>
                     <div class="pt-4">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Strategic Planning</h3>
-                        <p class="text-gray-600 leading-relaxed mb-6">Comprehensive roadmaps and actionable strategies tailored to your business objectives and growth goals.</p>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">{services[1]['title']}</h3>
+                        <p class="text-gray-600 leading-relaxed mb-6">{services[1]['description']}</p>
                         <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
                             Get Started <span class="ml-2">→</span>
                         </div>
@@ -1214,8 +1359,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                         03
                     </div>
                     <div class="pt-4">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Technical Execution</h3>
-                        <p class="text-gray-600 leading-relaxed mb-6">Professional implementation with modern technology and industry best practices for superior results.</p>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">{services[2]['title']}</h3>
+                        <p class="text-gray-600 leading-relaxed mb-6">{services[2]['description']}</p>
                         <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
                             Get Started <span class="ml-2">→</span>
                         </div>
@@ -1227,8 +1372,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                         04
                     </div>
                     <div class="pt-4">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Performance Testing</h3>
-                        <p class="text-gray-600 leading-relaxed mb-6">Thorough quality assurance and performance optimization to ensure reliability and efficiency.</p>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">{services[3]['title']}</h3>
+                        <p class="text-gray-600 leading-relaxed mb-6">{services[3]['description']}</p>
                         <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
                             Get Started <span class="ml-2">→</span>
                         </div>
@@ -1240,8 +1385,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                         05
                     </div>
                     <div class="pt-4">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Launch & Deploy</h3>
-                        <p class="text-gray-600 leading-relaxed mb-6">Seamless deployment and go-live support to ensure smooth transitions and successful launches.</p>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">{services[4]['title']}</h3>
+                        <p class="text-gray-600 leading-relaxed mb-6">{services[4]['description']}</p>
                         <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
                             Get Started <span class="ml-2">→</span>
                         </div>
@@ -1253,8 +1398,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                         06
                     </div>
                     <div class="pt-4">
-                        <h3 class="text-2xl font-bold mb-4 text-gray-900">Continuous Support</h3>
-                        <p class="text-gray-600 leading-relaxed mb-6">Ongoing maintenance, updates, and optimization to keep your solutions performing at peak levels.</p>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900">{services[5]['title']}</h3>
+                        <p class="text-gray-600 leading-relaxed mb-6">{services[5]['description']}</p>
                         <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
                             Get Started <span class="ml-2">→</span>
                         </div>
