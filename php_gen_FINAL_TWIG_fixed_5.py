@@ -259,7 +259,67 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         }
         names = fallback_names.get(theme, ["TechWave", "CloudNest", "DataSphere", "CodeCraft", "ByteForge"])
         return random.choice(names)
-    
+
+    def get_country_contact_data(self, country):
+        """Возвращает разные номера телефонов и адреса в зависимости от страны"""
+        country_lower = country.lower()
+
+        # Данные по странам
+        country_data = {
+            'netherlands': {
+                'phones': ['+31 20 123 4567', '+31 10 987 6543', '+31 30 555 7890'],
+                'cities': ['Amsterdam', 'Rotterdam', 'Utrecht', 'The Hague', 'Eindhoven', 'Groningen'],
+                'streets': ['Damrak', 'Kalverstraat', 'Leidsestraat', 'Nieuwendijk', 'Rokin'],
+                'postal_codes': ['1012', '3011', '3512', '2511', '5611']
+            },
+            'usa': {
+                'phones': ['+1 (555) 123-4567', '+1 (555) 987-6543', '+1 (555) 555-7890'],
+                'cities': ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia'],
+                'streets': ['Main Street', 'Broadway', 'Park Avenue', 'Wall Street', 'Market Street'],
+                'postal_codes': ['10001', '90001', '60601', '77001', '85001']
+            },
+            'uk': {
+                'phones': ['+44 20 1234 5678', '+44 161 987 6543', '+44 131 555 7890'],
+                'cities': ['London', 'Manchester', 'Birmingham', 'Edinburgh', 'Liverpool', 'Bristol'],
+                'streets': ['High Street', 'King Street', 'Oxford Street', 'Queen Street', 'Victoria Road'],
+                'postal_codes': ['SW1A', 'M1 1AD', 'B1 1AA', 'EH1 1YZ', 'L1 8JQ']
+            },
+            'germany': {
+                'phones': ['+49 30 1234 5678', '+49 89 9876 543', '+49 40 555 7890'],
+                'cities': ['Berlin', 'Munich', 'Hamburg', 'Frankfurt', 'Cologne', 'Stuttgart'],
+                'streets': ['Hauptstraße', 'Bahnhofstraße', 'Marktplatz', 'Kirchstraße', 'Schulstraße'],
+                'postal_codes': ['10115', '80331', '20095', '60311', '50667']
+            },
+            'france': {
+                'phones': ['+33 1 23 45 67 89', '+33 4 98 76 54 32', '+33 5 55 57 89 01'],
+                'cities': ['Paris', 'Lyon', 'Marseille', 'Toulouse', 'Nice', 'Bordeaux'],
+                'streets': ['Rue de la Paix', 'Avenue des Champs-Élysées', 'Rue Royale', 'Boulevard Haussmann'],
+                'postal_codes': ['75001', '69001', '13001', '31000', '06000']
+            }
+        }
+
+        # Определяем страну
+        for key in country_data.keys():
+            if key in country_lower:
+                data = country_data[key]
+                # Генерируем случайный номер и адрес
+                phone = random.choice(data['phones'])
+                city = random.choice(data['cities'])
+                street_num = random.randint(1, 999)
+                street = random.choice(data['streets'])
+                postal = random.choice(data['postal_codes'])
+
+                return {
+                    'phone': phone,
+                    'address': f"{street_num} {street}, {city} {postal}"
+                }
+
+        # Fallback если страна не найдена
+        return {
+            'phone': '+1 (555) 123-4567',
+            'address': '123 Business Street, Suite 100, New York, NY 10001'
+        }
+
     def generate_color_scheme(self):
         """Генерация уникальной цветовой схемы для сайта"""
         color_schemes = [
@@ -2679,7 +2739,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             return self.generate_policy_page(page_name, output_dir)
         
         # Для blog страниц используем готовый контент
-        if page_name in ['blog1', 'blog2', 'blog3']:
+        if page_name in ['blog1', 'blog2', 'blog3', 'blog4', 'blog5', 'blog6']:
             return self.generate_blog_page(page_name, output_dir)
         
         # Для главной страницы blog (список статей)
@@ -3085,7 +3145,10 @@ Return ONLY the content for <main> tag."""
         blog_titles = {
             'blog1': f'The Future of {theme}',
             'blog2': f'Top 5 Trends in {theme}',
-            'blog3': f'How to Choose the Right {theme} Service'
+            'blog3': f'How to Choose the Right {theme} Service',
+            'blog4': f'Best Practices for {theme} Success',
+            'blog5': f'Common {theme} Mistakes to Avoid',
+            'blog6': f'The Complete {theme} Guide'
         }
 
         blog_contents = {
@@ -3143,27 +3206,99 @@ Return ONLY the content for <main> tag."""
                 Don't hesitate to reach out to providers directly. A good consultation can help you
                 determine if they're the right fit for your needs.
             </p>
+            """,
+            'blog4': f"""
+            <p class="text-lg text-gray-700 mb-6">
+                Achieving success in {theme} requires following proven strategies and techniques. Learn from
+                industry experts and implement these best practices to maximize your results.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Set Clear Goals</h2>
+            <p class="text-gray-700 mb-6">
+                Define specific, measurable objectives for your {theme} initiatives. Clear goals provide
+                direction and help you track progress effectively.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Plan Strategically</h2>
+            <p class="text-gray-700 mb-6">
+                Develop a comprehensive plan that outlines the steps needed to achieve your goals. Include
+                timelines, resources, and key milestones.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Execute Consistently</h2>
+            <p class="text-gray-700 mb-6">
+                Consistency is key to success. Implement your strategies methodically and make adjustments
+                based on performance data and feedback.
+            </p>
+            """,
+            'blog5': f"""
+            <p class="text-lg text-gray-700 mb-6">
+                Avoiding common pitfalls can save you time, money, and frustration. Discover the most frequent
+                mistakes in {theme} and learn how to prevent them.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Mistake 1: Lack of Planning</h2>
+            <p class="text-gray-700 mb-6">
+                Rushing into {theme} projects without proper planning often leads to costly delays and
+                suboptimal results. Take time to plan thoroughly.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Mistake 2: Ignoring Expert Advice</h2>
+            <p class="text-gray-700 mb-6">
+                Trying to handle everything yourself can backfire. Consult with professionals who have
+                experience in {theme} to avoid common pitfalls.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Mistake 3: Cutting Corners</h2>
+            <p class="text-gray-700 mb-6">
+                Quality matters in {theme}. Choosing the cheapest option or skipping important steps often
+                results in poor outcomes that cost more to fix later.
+            </p>
+            """,
+            'blog6': f"""
+            <p class="text-lg text-gray-700 mb-6">
+                This comprehensive guide covers everything you need to know about {theme}. Whether you're a
+                beginner or looking to deepen your knowledge, this resource has you covered.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Understanding the Basics</h2>
+            <p class="text-gray-700 mb-6">
+                Start with the fundamentals of {theme}. Learn key concepts, terminology, and principles
+                that form the foundation of successful implementation.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Advanced Techniques</h2>
+            <p class="text-gray-700 mb-6">
+                Once you've mastered the basics, explore advanced strategies that can take your {theme}
+                efforts to the next level. Discover professional tips and insider knowledge.
+            </p>
+            <h2 class="text-2xl font-bold mt-8 mb-4">Putting It All Together</h2>
+            <p class="text-gray-700 mb-6">
+                Learn how to integrate everything you've learned into a cohesive approach. Create a roadmap
+                for success and start implementing your {theme} strategy today.
+            </p>
             """
         }
 
         blog_images = {
             'blog1': 'images/blog1.jpg',
             'blog2': 'images/blog2.jpg',
-            'blog3': 'images/blog3.jpg'
+            'blog3': 'images/blog3.jpg',
+            'blog4': 'images/blog4.jpg',
+            'blog5': 'images/blog5.jpg',
+            'blog6': 'images/blog6.jpg'
         }
 
         # Определяем навигацию между blog страницами
         blog_nav = {
             'blog1': {'prev': None, 'next': 'blog2.php'},
             'blog2': {'prev': 'blog1.php', 'next': 'blog3.php'},
-            'blog3': {'prev': 'blog2.php', 'next': None}
+            'blog3': {'prev': 'blog2.php', 'next': 'blog4.php'},
+            'blog4': {'prev': 'blog3.php', 'next': 'blog5.php'},
+            'blog5': {'prev': 'blog4.php', 'next': 'blog6.php'},
+            'blog6': {'prev': 'blog5.php', 'next': None}
         }
 
         # Вариации: случайный выбор картинки и стрелок для каждой статьи
         blog_variations = {
             'blog1': {'has_image': random.choice([True, False]), 'has_arrows': True},
             'blog2': {'has_image': random.choice([True, False]), 'has_arrows': False},
-            'blog3': {'has_image': random.choice([True, False]), 'has_arrows': False}
+            'blog3': {'has_image': random.choice([True, False]), 'has_arrows': False},
+            'blog4': {'has_image': random.choice([True, False]), 'has_arrows': True},
+            'blog5': {'has_image': random.choice([True, False]), 'has_arrows': False},
+            'blog6': {'has_image': random.choice([True, False]), 'has_arrows': True}
         }
 
         current_nav = blog_nav.get(page_name, {'prev': None, 'next': None})
