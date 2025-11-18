@@ -320,9 +320,471 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             'address': '123 Business Street, Suite 100, New York, NY 10001'
         }
 
+    def get_theme_based_process_steps(self, theme):
+        """Возвращает 4 шага процесса на основе темы"""
+        theme_lower = theme.lower()
+
+        # Travel / Tourism
+        if any(word in theme_lower for word in ['travel', 'tourism', 'tour', 'vacation', 'holiday', 'trip']):
+            return [
+                {
+                    'title': 'Choose Destination',
+                    'description': 'Explore our curated destinations and find the perfect location that matches your travel dreams and preferences.'
+                },
+                {
+                    'title': 'Plan Your Trip',
+                    'description': 'Work with our travel experts to create a customized itinerary with activities, accommodations, and experiences.'
+                },
+                {
+                    'title': 'Book & Prepare',
+                    'description': 'Secure your bookings, handle documentation, and get ready for your adventure with our comprehensive travel guides.'
+                },
+                {
+                    'title': 'Enjoy Journey',
+                    'description': 'Embark on your adventure with 24/7 support, ensuring a memorable and hassle-free travel experience.'
+                }
+            ]
+
+        # Restaurant / Food
+        elif any(word in theme_lower for word in ['restaurant', 'cafe', 'food', 'dining', 'cuisine']):
+            return [
+                {
+                    'title': 'Browse Menu',
+                    'description': 'Discover our carefully crafted dishes made with fresh, locally-sourced ingredients and authentic recipes.'
+                },
+                {
+                    'title': 'Make Reservation',
+                    'description': 'Reserve your table easily online or by phone, selecting your preferred date, time, and seating area.'
+                },
+                {
+                    'title': 'Prepare Your Meal',
+                    'description': 'Our expert chefs prepare each dish with precision and passion, ensuring quality and authentic flavors.'
+                },
+                {
+                    'title': 'Savor Experience',
+                    'description': 'Enjoy exceptional dining in a welcoming atmosphere with attentive service and unforgettable culinary moments.'
+                }
+            ]
+
+        # Fitness / Gym / Sports
+        elif any(word in theme_lower for word in ['fitness', 'gym', 'sport', 'workout', 'training']):
+            return [
+                {
+                    'title': 'Set Your Goals',
+                    'description': 'Discuss your fitness objectives with our trainers to create a personalized path to success.'
+                },
+                {
+                    'title': 'Get Custom Plan',
+                    'description': 'Receive a tailored workout program designed specifically for your goals, fitness level, and schedule.'
+                },
+                {
+                    'title': 'Train & Track',
+                    'description': 'Follow your program with guidance from certified trainers while monitoring your progress and achievements.'
+                },
+                {
+                    'title': 'Achieve Results',
+                    'description': 'Reach your fitness goals and maintain your success with ongoing support and program adjustments.'
+                }
+            ]
+
+        # Real Estate / Property
+        elif any(word in theme_lower for word in ['real estate', 'property', 'realty', 'housing']):
+            return [
+                {
+                    'title': 'Find Properties',
+                    'description': 'Browse our extensive portfolio of properties that match your criteria, budget, and location preferences.'
+                },
+                {
+                    'title': 'Schedule Viewing',
+                    'description': 'Book private tours of your favorite properties with our experienced real estate professionals.'
+                },
+                {
+                    'title': 'Make Offer',
+                    'description': 'Submit your offer with expert guidance on pricing, negotiations, and contract terms.'
+                },
+                {
+                    'title': 'Close Deal',
+                    'description': 'Complete the transaction smoothly with our comprehensive support through every step of the process.'
+                }
+            ]
+
+        # Education / School / Courses
+        elif any(word in theme_lower for word in ['education', 'school', 'course', 'learning', 'training', 'academy']):
+            return [
+                {
+                    'title': 'Explore Programs',
+                    'description': 'Discover our range of courses and programs designed to help you achieve your educational goals.'
+                },
+                {
+                    'title': 'Enroll & Start',
+                    'description': 'Complete simple enrollment process and get access to learning materials and resources.'
+                },
+                {
+                    'title': 'Learn & Practice',
+                    'description': 'Engage with interactive lessons, assignments, and hands-on projects guided by expert instructors.'
+                },
+                {
+                    'title': 'Graduate & Succeed',
+                    'description': 'Complete your program, earn certification, and apply your new skills in real-world situations.'
+                }
+            ]
+
+        # Healthcare / Medical / Clinic
+        elif any(word in theme_lower for word in ['health', 'medical', 'clinic', 'doctor', 'care', 'hospital']):
+            return [
+                {
+                    'title': 'Book Appointment',
+                    'description': 'Schedule a consultation with our qualified healthcare professionals at your convenient time.'
+                },
+                {
+                    'title': 'Consultation',
+                    'description': 'Receive thorough examination and professional medical assessment of your health concerns.'
+                },
+                {
+                    'title': 'Treatment Plan',
+                    'description': 'Get personalized treatment recommendations and care plan tailored to your specific needs.'
+                },
+                {
+                    'title': 'Follow-up Care',
+                    'description': 'Continue your health journey with regular check-ups and ongoing support from our medical team.'
+                }
+            ]
+
+        # Default / Business / Technology
+        else:
+            return [
+                {
+                    'title': 'Consultation',
+                    'description': 'We listen to your needs, understand your goals, and identify the best approach for your project.'
+                },
+                {
+                    'title': 'Planning',
+                    'description': 'We create a detailed roadmap with clear milestones, timelines, and deliverables for your project.'
+                },
+                {
+                    'title': 'Development',
+                    'description': 'Our expert team brings your vision to life with cutting-edge technology and best practices.'
+                },
+                {
+                    'title': 'Delivery',
+                    'description': 'We launch your project and provide ongoing support to ensure everything runs smoothly.'
+                }
+            ]
+
+    def get_theme_based_featured_solutions(self, theme):
+        """Возвращает 3 решения/предложения на основе темы"""
+        theme_lower = theme.lower()
+
+        # Travel / Tourism
+        if any(word in theme_lower for word in ['travel', 'tourism', 'tour', 'vacation', 'holiday', 'trip']):
+            return [
+                {
+                    'title': 'Beach Resorts',
+                    'description': 'Discover pristine beaches and luxury resorts with world-class amenities and breathtaking ocean views.',
+                    'image': 'service1.jpg'
+                },
+                {
+                    'title': 'Adventure Tours',
+                    'description': 'Experience thrilling adventures from mountain trekking to wildlife safaris in exotic locations.',
+                    'image': 'service2.jpg'
+                },
+                {
+                    'title': 'Cultural Experiences',
+                    'description': 'Immerse yourself in local cultures, traditions, and authentic experiences around the world.',
+                    'image': 'service3.jpg'
+                }
+            ]
+
+        # Restaurant / Food
+        elif any(word in theme_lower for word in ['restaurant', 'cafe', 'food', 'dining', 'cuisine']):
+            return [
+                {
+                    'title': 'Signature Dishes',
+                    'description': 'Experience our chef\'s masterpieces crafted with the finest ingredients and traditional techniques.',
+                    'image': 'service1.jpg'
+                },
+                {
+                    'title': 'Private Dining',
+                    'description': 'Exclusive private dining experiences perfect for special occasions and intimate gatherings.',
+                    'image': 'service2.jpg'
+                },
+                {
+                    'title': 'Catering Services',
+                    'description': 'Professional catering for events of any size with customized menus and exceptional service.',
+                    'image': 'service3.jpg'
+                }
+            ]
+
+        # Fitness / Gym / Sports
+        elif any(word in theme_lower for word in ['fitness', 'gym', 'sport', 'workout', 'training']):
+            return [
+                {
+                    'title': 'Personal Training',
+                    'description': 'One-on-one coaching with certified trainers to help you achieve your fitness goals faster.',
+                    'image': 'service1.jpg'
+                },
+                {
+                    'title': 'Group Classes',
+                    'description': 'Dynamic group fitness classes including yoga, HIIT, spinning, and more in motivating atmosphere.',
+                    'image': 'service2.jpg'
+                },
+                {
+                    'title': 'Nutrition Plans',
+                    'description': 'Customized meal plans and nutritional guidance to complement your fitness journey.',
+                    'image': 'service3.jpg'
+                }
+            ]
+
+        # Real Estate / Property
+        elif any(word in theme_lower for word in ['real estate', 'property', 'realty', 'housing']):
+            return [
+                {
+                    'title': 'Luxury Properties',
+                    'description': 'Exclusive portfolio of premium homes and estates in the most desirable locations.',
+                    'image': 'service1.jpg'
+                },
+                {
+                    'title': 'Investment Opportunities',
+                    'description': 'High-return investment properties with strong appreciation potential and rental income.',
+                    'image': 'service2.jpg'
+                },
+                {
+                    'title': 'Commercial Spaces',
+                    'description': 'Prime commercial real estate for businesses looking to expand or relocate.',
+                    'image': 'service3.jpg'
+                }
+            ]
+
+        # Education / School / Courses
+        elif any(word in theme_lower for word in ['education', 'school', 'course', 'learning', 'training', 'academy']):
+            return [
+                {
+                    'title': 'Online Programs',
+                    'description': 'Flexible online courses and certifications you can complete at your own pace from anywhere.',
+                    'image': 'service1.jpg'
+                },
+                {
+                    'title': 'Expert Instructors',
+                    'description': 'Learn from industry professionals with years of practical experience in their fields.',
+                    'image': 'service2.jpg'
+                },
+                {
+                    'title': 'Career Support',
+                    'description': 'Job placement assistance and career coaching to help you succeed after graduation.',
+                    'image': 'service3.jpg'
+                }
+            ]
+
+        # Healthcare / Medical / Clinic
+        elif any(word in theme_lower for word in ['health', 'medical', 'clinic', 'doctor', 'care', 'hospital']):
+            return [
+                {
+                    'title': 'Primary Care',
+                    'description': 'Comprehensive preventive care and treatment for all your health and wellness needs.',
+                    'image': 'service1.jpg'
+                },
+                {
+                    'title': 'Specialist Services',
+                    'description': 'Access to experienced specialists across all medical disciplines and treatments.',
+                    'image': 'service2.jpg'
+                },
+                {
+                    'title': 'Telehealth',
+                    'description': 'Convenient virtual consultations with healthcare professionals from the comfort of home.',
+                    'image': 'service3.jpg'
+                }
+            ]
+
+        # Default / Business / Technology
+        else:
+            return [
+                {
+                    'title': 'Enterprise Solutions',
+                    'description': 'Scalable solutions designed for large-scale operations and complex requirements.',
+                    'image': 'service1.jpg'
+                },
+                {
+                    'title': 'Custom Development',
+                    'description': 'Tailored solutions built specifically for your unique business needs and goals.',
+                    'image': 'service2.jpg'
+                },
+                {
+                    'title': 'Consulting Services',
+                    'description': 'Expert guidance to help you navigate challenges and achieve your objectives.',
+                    'image': 'service3.jpg'
+                }
+            ]
+
+    def get_theme_based_approach_content(self, theme):
+        """Возвращает контент для секции Our Approach на основе темы"""
+        theme_lower = theme.lower()
+
+        # Travel / Tourism
+        if any(word in theme_lower for word in ['travel', 'tourism', 'tour', 'vacation', 'holiday', 'trip']):
+            return {
+                'approach_title': 'Our Approach',
+                'approach_text1': 'We create personalized travel experiences that go beyond typical tourist destinations. Understanding your travel style and preferences allows us to craft unforgettable journeys.',
+                'approach_text2': 'Our expert travel planners combine local knowledge with global expertise to design itineraries that match your dreams and exceed your expectations.',
+                'why_title': 'Why Choose Us',
+                'why_text1': f'With years of experience in the {theme} industry, we\'ve helped thousands of travelers discover amazing destinations and create lasting memories.',
+                'why_text2': 'Our dedication to exceptional service means you can travel with confidence, knowing every detail has been carefully planned and arranged for your comfort.'
+            }
+
+        # Restaurant / Food
+        elif any(word in theme_lower for word in ['restaurant', 'cafe', 'food', 'dining', 'cuisine']):
+            return {
+                'approach_title': 'Our Philosophy',
+                'approach_text1': 'We believe exceptional dining starts with the finest ingredients and passionate chefs who bring authentic flavors to every dish.',
+                'approach_text2': 'Our culinary approach honors traditional recipes while embracing innovation, creating memorable dining experiences that delight all senses.',
+                'why_title': 'Why Dine With Us',
+                'why_text1': f'With years of culinary excellence in the {theme} industry, we\'ve earned a reputation for outstanding food, warm hospitality, and unforgettable moments.',
+                'why_text2': 'From sourcing fresh ingredients to crafting each dish with care, our commitment to quality shines through in every meal we serve.'
+            }
+
+        # Fitness / Gym / Sports
+        elif any(word in theme_lower for word in ['fitness', 'gym', 'sport', 'workout', 'training']):
+            return {
+                'approach_title': 'Our Training Philosophy',
+                'approach_text1': 'We understand that every fitness journey is unique. Our personalized approach focuses on your individual goals, abilities, and lifestyle.',
+                'approach_text2': 'Combining proven training methods with cutting-edge fitness science, we create programs that deliver real, sustainable results.',
+                'why_title': 'Why Train With Us',
+                'why_text1': f'With extensive experience in the {theme} industry, our certified trainers have helped countless members achieve and exceed their fitness goals.',
+                'why_text2': 'Your success is our motivation. We provide ongoing support, expert guidance, and a welcoming community to keep you inspired every step of the way.'
+            }
+
+        # Real Estate / Property
+        elif any(word in theme_lower for word in ['real estate', 'property', 'realty', 'housing']):
+            return {
+                'approach_title': 'Our Approach',
+                'approach_text1': 'We take a personalized approach to real estate, taking time to understand your unique needs, preferences, and long-term investment goals.',
+                'approach_text2': 'Our market expertise and dedication to client service ensure you make informed decisions whether buying, selling, or investing in property.',
+                'why_title': 'Why Choose Us',
+                'why_text1': f'With deep knowledge of the {theme} market, we\'ve built a strong reputation for integrity, professionalism, and exceptional results.',
+                'why_text2': 'From first consultation to closing and beyond, we\'re committed to making your real estate journey smooth, successful, and stress-free.'
+            }
+
+        # Education / School / Courses
+        elif any(word in theme_lower for word in ['education', 'school', 'course', 'learning', 'training', 'academy']):
+            return {
+                'approach_title': 'Our Teaching Approach',
+                'approach_text1': 'We believe effective learning combines engaging instruction, hands-on practice, and personalized support tailored to each student\'s needs.',
+                'approach_text2': 'Our curriculum blends theoretical knowledge with practical skills, preparing students for real-world success in their chosen fields.',
+                'why_title': 'Why Learn With Us',
+                'why_text1': f'With proven expertise in the {theme} field, our instructors bring both academic knowledge and industry experience to every class.',
+                'why_text2': 'Your educational success matters to us. We provide comprehensive support, flexible learning options, and a pathway to achieving your career goals.'
+            }
+
+        # Healthcare / Medical / Clinic
+        elif any(word in theme_lower for word in ['health', 'medical', 'clinic', 'doctor', 'care', 'hospital']):
+            return {
+                'approach_title': 'Our Care Philosophy',
+                'approach_text1': 'We provide compassionate, patient-centered healthcare that treats you as a whole person, not just a set of symptoms.',
+                'approach_text2': 'Our medical team combines clinical expertise with genuine care, ensuring you receive personalized treatment in a comfortable, supportive environment.',
+                'why_title': 'Why Choose Us',
+                'why_text1': f'With years of experience in {theme}, we\'ve earned the trust of our community through quality care, professional excellence, and genuine compassion.',
+                'why_text2': 'Your health and wellbeing are our priority. We\'re committed to providing accessible, comprehensive care that helps you live your healthiest life.'
+            }
+
+        # Default / Business / Technology
+        else:
+            return {
+                'approach_title': 'Our Approach',
+                'approach_text1': 'We believe in a personalized approach to every project. Understanding your unique needs allows us to deliver tailored solutions that exceed expectations.',
+                'approach_text2': 'Our methodology combines industry best practices with innovative thinking to ensure optimal results for your business.',
+                'why_title': 'Why Choose Us',
+                'why_text1': f'With years of experience in the {theme} industry, we\'ve built a reputation for reliability, quality, and exceptional customer service.',
+                'why_text2': 'Our commitment to your success drives everything we do, from initial consultation to project completion and beyond.'
+            }
+
+    def generate_image_text_alternating_section(self, site_name, theme, primary, hover):
+        """Генерирует секцию Image Text Alternating с тематическим контентом"""
+        content = self.get_theme_based_approach_content(theme)
+
+        return f"""
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
+                <div>
+                    <img src="images/service1.jpg" alt="{content['approach_title']}" class="rounded-xl shadow-lg w-full h-80 object-cover">
+                </div>
+                <div>
+                    <h3 class="text-3xl font-bold mb-4">{content['approach_title']}</h3>
+                    <p class="text-gray-700 mb-4">
+                        {content['approach_text1']}
+                    </p>
+                    <p class="text-gray-700">
+                        {content['approach_text2']}
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h3 class="text-3xl font-bold mb-4">{content['why_title']}</h3>
+                    <p class="text-gray-700 mb-4">
+                        {content['why_text1']}
+                    </p>
+                    <p class="text-gray-700">
+                        {content['why_text2']}
+                    </p>
+                </div>
+                <div>
+                    <img src="images/service2.jpg" alt="{content['why_title']}" class="rounded-xl shadow-lg w-full h-80 object-cover">
+                </div>
+            </div>
+        </div>
+    </section>"""
+
+    def generate_featured_solutions_section(self, site_name, theme, primary, hover):
+        """Генерирует секцию Featured Solutions с тематическим контентом"""
+        solutions = self.get_theme_based_featured_solutions(theme)
+
+        return f"""
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-12">Featured Solutions</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="relative overflow-hidden rounded-xl shadow-lg h-96 group">
+                    <img src="images/{solutions[0]['image']}" alt="{solutions[0]['title']}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                    <div class="relative h-full flex flex-col justify-end p-8">
+                        <h3 class="text-white text-2xl font-bold mb-3">{solutions[0]['title']}</h3>
+                        <p class="text-white/90 mb-4">{solutions[0]['description']}</p>
+                        <a href="contact.php" class="inline-block bg-white text-{primary} px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition w-fit">
+                            Contact Us
+                        </a>
+                    </div>
+                </div>
+                <div class="relative overflow-hidden rounded-xl shadow-lg h-96 group">
+                    <img src="images/{solutions[1]['image']}" alt="{solutions[1]['title']}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                    <div class="relative h-full flex flex-col justify-end p-8">
+                        <h3 class="text-white text-2xl font-bold mb-3">{solutions[1]['title']}</h3>
+                        <p class="text-white/90 mb-4">{solutions[1]['description']}</p>
+                        <a href="contact.php" class="inline-block bg-white text-{primary} px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition w-fit">
+                            Contact Us
+                        </a>
+                    </div>
+                </div>
+                <div class="relative overflow-hidden rounded-xl shadow-lg h-96 group">
+                    <img src="images/{solutions[2]['image']}" alt="{solutions[2]['title']}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                    <div class="relative h-full flex flex-col justify-end p-8">
+                        <h3 class="text-white text-2xl font-bold mb-3">{solutions[2]['title']}</h3>
+                        <p class="text-white/90 mb-4">{solutions[2]['description']}</p>
+                        <a href="contact.php" class="inline-block bg-white text-{primary} px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition w-fit">
+                            Contact Us
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>"""
+
     def generate_our_process_section(self, site_name, theme, primary, hover):
         """Генерирует одну из 3 вариаций секции Our Process"""
         variation = random.randint(1, 3)
+        steps = self.get_theme_based_process_steps(theme)
 
         if variation == 1:
             return f"""
@@ -347,8 +809,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                             </svg>
                         </div>
-                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Consultation</h3>
-                        <p class="text-gray-600 leading-relaxed">We listen to your needs, understand your goals, and identify the best approach for your project.</p>
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">{steps[0]['title']}</h3>
+                        <p class="text-gray-600 leading-relaxed">{steps[0]['description']}</p>
                     </div>
                 </div>
 
@@ -362,8 +824,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                             </svg>
                         </div>
-                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Planning</h3>
-                        <p class="text-gray-600 leading-relaxed">We create a detailed roadmap with clear milestones, timelines, and deliverables for your project.</p>
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">{steps[1]['title']}</h3>
+                        <p class="text-gray-600 leading-relaxed">{steps[1]['description']}</p>
                     </div>
                 </div>
 
@@ -377,8 +839,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
                             </svg>
                         </div>
-                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Development</h3>
-                        <p class="text-gray-600 leading-relaxed">Our expert team brings your vision to life with cutting-edge technology and best practices.</p>
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">{steps[2]['title']}</h3>
+                        <p class="text-gray-600 leading-relaxed">{steps[2]['description']}</p>
                     </div>
                 </div>
 
@@ -392,8 +854,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
                         </div>
-                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Delivery</h3>
-                        <p class="text-gray-600 leading-relaxed">We launch your project and provide ongoing support to ensure everything runs smoothly.</p>
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">{steps[3]['title']}</h3>
+                        <p class="text-gray-600 leading-relaxed">{steps[3]['description']}</p>
                     </div>
                 </div>
             </div>
@@ -429,8 +891,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                             </div>
                             <div class="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-shadow">
                                 <div class="text-{primary} font-bold text-lg mb-2">Step 1</div>
-                                <h3 class="text-xl font-bold mb-3">Discovery</h3>
-                                <p class="text-gray-600">We analyze your needs and define project scope together.</p>
+                                <h3 class="text-xl font-bold mb-3">{steps[0]['title']}</h3>
+                                <p class="text-gray-600">{steps[0]['description']}</p>
                             </div>
                         </div>
 
@@ -442,8 +904,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                             </div>
                             <div class="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-shadow">
                                 <div class="text-{primary} font-bold text-lg mb-2">Step 2</div>
-                                <h3 class="text-xl font-bold mb-3">Design</h3>
-                                <p class="text-gray-600">We craft beautiful solutions tailored to your brand.</p>
+                                <h3 class="text-xl font-bold mb-3">{steps[1]['title']}</h3>
+                                <p class="text-gray-600">{steps[1]['description']}</p>
                             </div>
                         </div>
 
@@ -455,8 +917,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                             </div>
                             <div class="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-shadow">
                                 <div class="text-{primary} font-bold text-lg mb-2">Step 3</div>
-                                <h3 class="text-xl font-bold mb-3">Build</h3>
-                                <p class="text-gray-600">We develop your solution with precision and quality.</p>
+                                <h3 class="text-xl font-bold mb-3">{steps[2]['title']}</h3>
+                                <p class="text-gray-600">{steps[2]['description']}</p>
                             </div>
                         </div>
 
@@ -468,8 +930,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                             </div>
                             <div class="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-shadow">
                                 <div class="text-{primary} font-bold text-lg mb-2">Step 4</div>
-                                <h3 class="text-xl font-bold mb-3">Launch</h3>
-                                <p class="text-gray-600">We deploy and support your success from day one.</p>
+                                <h3 class="text-xl font-bold mb-3">{steps[3]['title']}</h3>
+                                <p class="text-gray-600">{steps[3]['description']}</p>
                             </div>
                         </div>
                     </div>
@@ -497,8 +959,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 <div class="flex flex-col md:flex-row items-center gap-8 group">
                     <div class="md:w-1/2 md:text-right">
                         <div class="inline-block bg-{primary} text-white px-4 py-2 rounded-full text-sm font-bold mb-4">STEP 01</div>
-                        <h3 class="text-3xl font-bold mb-4">Initial Contact</h3>
-                        <p class="text-gray-600 text-lg leading-relaxed">Reach out to us with your vision. We'll schedule a free consultation to discuss your goals, challenges, and how we can help bring your project to life.</p>
+                        <h3 class="text-3xl font-bold mb-4">{steps[0]['title']}</h3>
+                        <p class="text-gray-600 text-lg leading-relaxed">{steps[0]['description']}</p>
                     </div>
                     <div class="md:w-1/2 flex justify-center">
                         <div class="w-32 h-32 bg-gradient-to-br from-{primary} to-{hover} rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
@@ -512,8 +974,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 <div class="flex flex-col md:flex-row-reverse items-center gap-8 group">
                     <div class="md:w-1/2 md:text-left">
                         <div class="inline-block bg-{primary} text-white px-4 py-2 rounded-full text-sm font-bold mb-4">STEP 02</div>
-                        <h3 class="text-3xl font-bold mb-4">Strategy Session</h3>
-                        <p class="text-gray-600 text-lg leading-relaxed">We dive deep into your requirements, analyze the market, and create a comprehensive strategy that aligns with your business objectives.</p>
+                        <h3 class="text-3xl font-bold mb-4">{steps[1]['title']}</h3>
+                        <p class="text-gray-600 text-lg leading-relaxed">{steps[1]['description']}</p>
                     </div>
                     <div class="md:w-1/2 flex justify-center">
                         <div class="w-32 h-32 bg-gradient-to-br from-{primary} to-{hover} rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
@@ -527,8 +989,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 <div class="flex flex-col md:flex-row items-center gap-8 group">
                     <div class="md:w-1/2 md:text-right">
                         <div class="inline-block bg-{primary} text-white px-4 py-2 rounded-full text-sm font-bold mb-4">STEP 03</div>
-                        <h3 class="text-3xl font-bold mb-4">Development</h3>
-                        <p class="text-gray-600 text-lg leading-relaxed">Our team gets to work, keeping you informed every step of the way. We use agile methodologies to ensure flexibility and quality throughout development.</p>
+                        <h3 class="text-3xl font-bold mb-4">{steps[2]['title']}</h3>
+                        <p class="text-gray-600 text-lg leading-relaxed">{steps[2]['description']}</p>
                     </div>
                     <div class="md:w-1/2 flex justify-center">
                         <div class="w-32 h-32 bg-gradient-to-br from-{primary} to-{hover} rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
@@ -542,8 +1004,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 <div class="flex flex-col md:flex-row-reverse items-center gap-8 group">
                     <div class="md:w-1/2 md:text-left">
                         <div class="inline-block bg-{primary} text-white px-4 py-2 rounded-full text-sm font-bold mb-4">STEP 04</div>
-                        <h3 class="text-3xl font-bold mb-4">Launch & Support</h3>
-                        <p class="text-gray-600 text-lg leading-relaxed">After thorough testing, we launch your project. Our relationship doesn't end there - we provide ongoing support and optimization to ensure continued success.</p>
+                        <h3 class="text-3xl font-bold mb-4">{steps[3]['title']}</h3>
+                        <p class="text-gray-600 text-lg leading-relaxed">{steps[3]['description']}</p>
                     </div>
                     <div class="md:w-1/2 flex justify-center">
                         <div class="w-32 h-32 bg-gradient-to-br from-{primary} to-{hover} rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
@@ -2886,44 +3348,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         </div>
     </section>""",
 
-            'image_text_alternating': f"""
-    <section class="py-20 bg-gray-50">
-        <div class="container mx-auto px-6">
-            <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
-                <div>
-                    <img src="images/service1.jpg" alt="Our Approach" class="rounded-xl shadow-lg w-full h-80 object-cover">
-                </div>
-                <div>
-                    <h3 class="text-3xl font-bold mb-4">Our Approach</h3>
-                    <p class="text-gray-700 mb-4">
-                        We believe in a personalized approach to every project. Understanding your unique needs
-                        allows us to deliver tailored solutions that exceed expectations.
-                    </p>
-                    <p class="text-gray-700">
-                        Our methodology combines industry best practices with innovative thinking to ensure
-                        optimal results for your business.
-                    </p>
-                </div>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-12 items-center">
-                <div>
-                    <h3 class="text-3xl font-bold mb-4">Why Choose Us</h3>
-                    <p class="text-gray-700 mb-4">
-                        With years of experience in the {theme} industry, we've built a reputation for
-                        reliability, quality, and exceptional customer service.
-                    </p>
-                    <p class="text-gray-700">
-                        Our commitment to your success drives everything we do, from initial consultation
-                        to project completion and beyond.
-                    </p>
-                </div>
-                <div>
-                    <img src="images/service2.jpg" alt="Why Choose Us" class="rounded-xl shadow-lg w-full h-80 object-cover">
-                </div>
-            </div>
-        </div>
-    </section>""",
+            'image_text_alternating': self.generate_image_text_alternating_section(site_name, theme, primary, hover),
 
             'cards_6_grid': self.generate_what_we_offer_section(site_name, theme, primary, hover),
 
@@ -2966,47 +3391,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         </div>
     </section>""",
 
-            'cards_3_carousel_bg': f"""
-    <section class="py-20 bg-gray-50">
-        <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center mb-12">Featured Solutions</h2>
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="relative overflow-hidden rounded-xl shadow-lg h-96 group">
-                    <img src="images/service1.jpg" alt="Solution 1" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                    <div class="relative h-full flex flex-col justify-end p-8">
-                        <h3 class="text-white text-2xl font-bold mb-3">Enterprise Solutions</h3>
-                        <p class="text-white/90 mb-4">Scalable solutions designed for large-scale operations and complex requirements.</p>
-                        <a href="contact.php" class="inline-block bg-white text-{primary} px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition w-fit">
-                            Contact Us
-                        </a>
-                    </div>
-                </div>
-                <div class="relative overflow-hidden rounded-xl shadow-lg h-96 group">
-                    <img src="images/service2.jpg" alt="Solution 2" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                    <div class="relative h-full flex flex-col justify-end p-8">
-                        <h3 class="text-white text-2xl font-bold mb-3">Custom Development</h3>
-                        <p class="text-white/90 mb-4">Tailored solutions built specifically for your unique business needs and goals.</p>
-                        <a href="contact.php" class="inline-block bg-white text-{primary} px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition w-fit">
-                            Contact Us
-                        </a>
-                    </div>
-                </div>
-                <div class="relative overflow-hidden rounded-xl shadow-lg h-96 group">
-                    <img src="images/service3.jpg" alt="Solution 3" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                    <div class="relative h-full flex flex-col justify-end p-8">
-                        <h3 class="text-white text-2xl font-bold mb-3">Consulting Services</h3>
-                        <p class="text-white/90 mb-4">Expert guidance to help you navigate challenges and achieve your objectives.</p>
-                        <a href="contact.php" class="inline-block bg-white text-{primary} px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition w-fit">
-                            Contact Us
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>""",
+            'cards_3_carousel_bg': self.generate_featured_solutions_section(site_name, theme, primary, hover),
 
             'carousel_workflow': self.generate_our_process_section(site_name, theme, primary, hover),
 
