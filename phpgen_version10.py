@@ -2037,6 +2037,18 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                 'prompt': f"Professional business photograph showing {theme} company culture. {location_context}. {ethnicity_context} in natural professional setting, authentic workplace environment, candid moments, warm atmosphere, photorealistic."
             },
             {
+                'filename': 'mission.jpg',
+                'prompt': f"Inspiring photograph representing company mission and vision for {theme} business. {location_context}. Forward-thinking perspective, aspirational imagery, professional setting, authentic motivation, natural lighting, photorealistic."
+            },
+            {
+                'filename': 'values.jpg',
+                'prompt': f"Professional photograph showcasing company values and culture for {theme}. {location_context}. {ethnicity_context} demonstrating teamwork and collaboration, authentic workplace values, positive atmosphere, photorealistic."
+            },
+            {
+                'filename': 'team.jpg',
+                'prompt': f"Professional team photograph for {theme} company. {location_context}. {ethnicity_context} in business setting, diverse professional team, confident and approachable, natural group composition, photorealistic."
+            },
+            {
                 'filename': 'service1.jpg',
                 'prompt': f"High-quality photograph representing {theme} services. {location_context}. Professional service delivery, real-world application, authentic setting, natural lighting, clean composition, photorealistic. {ethnicity_context} if people are shown."
             },
@@ -3877,16 +3889,18 @@ Return ONLY the content for <main> tag (not full HTML)."""
 
 REQUIREMENTS:
 - Heading section with page title
-- Company story/mission section
-- Team or values section
-- Image + text layout (use images/about.jpg)
+- Company story/mission section (can use images/mission.jpg)
+- Team or values section (can use images/values.jpg or images/team.jpg)
+- Image + text layout (available images: images/about.jpg, images/mission.jpg, images/values.jpg, images/team.jpg)
 - MUST include a call-to-action button at the bottom that redirects to contact.php: <a href="contact.php" class="...">Contact Us</a>
 - Modern, professional design with Tailwind CSS
 - Color scheme: {colors.get('primary')} primary, {colors.get('hover')} hover
 - Responsive design
 - NO emojis, NO prices
 
-CRITICAL: Page MUST have a CTA button at the bottom that links to contact.php
+CRITICAL:
+- Page MUST have a CTA button at the bottom that links to contact.php
+- ONLY use images that are listed above (about.jpg, mission.jpg, values.jpg, team.jpg)
 
 Return ONLY the content for <main> tag."""
             },
@@ -4853,7 +4867,7 @@ Return ONLY the content for <main> tag."""
         self.site_type = site_type
 
         print("=" * 60)
-        print(f"ГЕНЕРАТОР PHP {'ЛЕНДИНГОВ' if site_type == 'landing' else 'САЙТОВ'} v10")
+        print(f"PHPGEN v12 - {'LANDING' if site_type == 'landing' else 'MULTIPAGE SITE'} GENERATOR")
         print("=" * 60)
 
         Path(output_dir).mkdir(exist_ok=True)
@@ -4909,16 +4923,16 @@ Return ONLY the content for <main> tag."""
         self.generate_additional_files(output_dir)
         
         print("\n" + "=" * 60)
-        print(f"✓ {'ЛЕНДИНГ' if site_type == 'landing' else 'САЙТ'} СОЗДАН: {output_dir}")
-        print(f"✓ Название: {self.blueprint.get('site_name')}")
-        print(f"✓ Цвета: {self.blueprint.get('color_scheme', {}).get('primary')} (hover: {self.blueprint.get('color_scheme', {}).get('hover')})")
+        print(f"✓ {'LANDING' if site_type == 'landing' else 'SITE'} CREATED: {output_dir}")
+        print(f"✓ Name: {self.blueprint.get('site_name')}")
+        print(f"✓ Colors: {self.blueprint.get('color_scheme', {}).get('primary')} (hover: {self.blueprint.get('color_scheme', {}).get('hover')})")
         print("=" * 60)
-        
-        print(f"\n🚀 Запуск сайта:")
+
+        print(f"\n🚀 Launch your site:")
         print(f"\n1. cd {output_dir}")
         print(f"2. php -S localhost:8000")
-        print(f"3. Откройте: http://localhost:8000/index.php")
-        print(f"\n✨ Готово! Уникальный дизайн!")
+        print(f"3. Open: http://localhost:8000/index.php")
+        print(f"\n✨ Done! Unique design by PHPGEN v12 - Gosha Chepchik")
         
         return True
     
@@ -4934,9 +4948,16 @@ Return ONLY the content for <main> tag."""
 
 
 if __name__ == "__main__":
-    print("╔═══════════════════════════════════════════════════════════╗")
-    print("║                ГЕНЕРАТОР PHP САЙТОВ v10                   ║")
-    print("╚═══════════════════════════════════════════════════════════╝")
+    print("┌──────────────────────────────────────────────────────────┐")
+    print("│     ✦   ____  __  __ ____   ____  _____ _   _   ✦        │")
+    print("│     ✦  |  _ \\|  \\/  |  _ \\ / ___|| ____| \\ | | ✦         │")
+    print("│     ✦  | |_) | |\\/| | |_) | |  _ |  _| |  \\| | ✦         │")
+    print("│     ✦  |  __/| |  | |  __/| |_| || |___| |\\  | ✦         │")
+    print("│     ✦  |_|   |_|  |_|_|    \\____||_____|_| \\_| ✦         │")
+    print("│                                                          │")
+    print("│                      PHPGEN v12                          │")
+    print("│                  by Gosha Chepchik                       │")
+    print("└──────────────────────────────────────────────────────────┘")
     print()
     
     print("📝 Опишите сайт:")
