@@ -1906,8 +1906,8 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
     
     def generate_image_via_bytedance(self, prompt, filename, output_dir):
         """Генерация изображения через ByteDance Ark SDK"""
-        print(f"    🎨 {filename}...", end=" ", flush=True)
-        
+        # Убрали вывод отсюда - он делается в generate_images_for_site
+
         try:
             # Генерация изображения через Ark API
             imagesResponse = self.ark_client.images.generate(
@@ -1925,35 +1925,31 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     continue
                     
                 if event.type == "image_generation.partial_failed":
-                    print(f"✗ (Error: {event.error})")
                     if event.error is not None and hasattr(event.error, 'code') and event.error.code == "InternalServiceError":
                         return None
-                        
+
                 elif event.type == "image_generation.partial_succeeded":
                     if event.error is None and event.url:
                         image_url = event.url
-                        
+
                 elif event.type == "image_generation.completed":
                     if event.error is None:
                         break
-            
+
             # Скачивание изображения
             if image_url:
                 img_response = requests.get(image_url, timeout=60)
                 img_response.raise_for_status()
-                
+
                 image_path = os.path.join(output_dir, filename)
                 with open(image_path, 'wb') as f:
                     f.write(img_response.content)
-                
-                print("✓")
+
                 return filename
             else:
-                print("⚠️")
                 return None
-                
+
         except Exception as e:
-            print(f"✗ ({str(e)[:50]})")
             return None
     
     def generate_placeholder_image(self, filename, output_dir, description=""):
@@ -2024,8 +2020,11 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
     
     def generate_images_for_site(self, output_dir, num_images=24):
         """Генерация изображений для сайта в папке images/ с приоритетной генерацией"""
-        # Создаем папку images
+        # Создаем папку images (очищаем если существует)
         images_dir = os.path.join(output_dir, 'images')
+        if os.path.exists(images_dir):
+            import shutil
+            shutil.rmtree(images_dir)
         os.makedirs(images_dir, exist_ok=True)
 
         theme = self.blueprint.get('theme', 'business')
@@ -2850,12 +2849,19 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         
         return code.strip()
     
+    def get_favicon_url(self):
+        """Возвращает URL favicon с cache busting timestamp"""
+        timestamp = getattr(self, 'favicon_timestamp', '')
+        if timestamp:
+            return f"favicon.svg?v={timestamp}"
+        return "favicon.svg"
+
     def generate_favicon(self, output_dir):
         """Генерация простого SVG favicon"""
         site_name = self.blueprint.get('site_name', 'Site')
         colors = self.blueprint.get('color_scheme', {})
         primary = colors.get('primary', 'blue-600')
-        
+
         # Конвертируем Tailwind цвет в hex
         color_map = {
             'blue-600': '#2563eb',
@@ -2867,21 +2873,30 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             'violet-600': '#7c3aed',
             'fuchsia-600': '#c026d3'
         }
-        
+
         hex_color = color_map.get(primary, '#2563eb')
-        
+
         # Берем первую букву названия
         letter = site_name[0].upper()
-        
+
         favicon_svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
     <rect width="100" height="100" fill="{hex_color}" rx="20"/>
-    <text x="50" y="70" font-family="Arial, sans-serif" font-size="60" font-weight="bold" 
+    <text x="50" y="70" font-family="Arial, sans-serif" font-size="60" font-weight="bold"
           fill="white" text-anchor="middle">{letter}</text>
 </svg>"""
-        
+
+        # Удаляем старый favicon если существует
         favicon_path = os.path.join(output_dir, 'favicon.svg')
+        if os.path.exists(favicon_path):
+            os.remove(favicon_path)
+
         with open(favicon_path, 'w', encoding='utf-8') as f:
             f.write(favicon_svg)
+
+        # Сохраняем timestamp для cache busting
+        import time
+        self.favicon_timestamp = str(int(time.time()))
+
         print(f"✓ Favicon создан: {letter} ({hex_color})")
 
     def generate_cookie_notice(self):
@@ -3587,7 +3602,7 @@ setTimeout(showCookieNotice, 1000);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Us - {site_name}</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="{self.get_favicon_url()}">
     {self.header_footer_css}
 </head>
 <body>
@@ -4455,7 +4470,7 @@ Return ONLY the content for <main> tag."""
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{config['title']} - {site_name}</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="{self.get_favicon_url()}">
     {self.header_footer_css}
 </head>
 <body>
@@ -4961,7 +4976,7 @@ Return ONLY the content for <main> tag."""
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{blog_titles[page_name]} - {site_name}</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="{self.get_favicon_url()}">
     {self.header_footer_css}
 </head>
 <body>
@@ -5111,7 +5126,7 @@ Return ONLY the content for <main> tag."""
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog - {site_name}</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="{self.get_favicon_url()}">
     {self.header_footer_css}
 </head>
 <body>
@@ -5318,7 +5333,7 @@ Return ONLY the content for <main> tag."""
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{titles[page_name]} - {site_name}</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="{self.get_favicon_url()}">
     {self.header_footer_css}
 </head>
 <body>
