@@ -5475,16 +5475,16 @@ if __name__ == "__main__":
         exit(1)
 
     print("\n🖼️  Количество изображений:")
-    print("   (Минимум 10: 1 hero + 3 services + 6 blog)")
+    print("   (Минимум 17: 1 hero + 3 services + 6 blog + 4 company + 3 gallery)")
     print("   (По умолчанию: 24 - все изображения)")
     num_images_input = input(">>> ").strip()
 
     if num_images_input:
         try:
             num_images = int(num_images_input)
-            if num_images < 10:
-                print("⚠️  Минимум 10 изображений! Установлено: 10")
-                num_images = 10
+            if num_images < 17:
+                print("⚠️  Минимум 17 изображений! Установлено: 17")
+                num_images = 17
         except ValueError:
             print("⚠️  Некорректное число! Установлено: 24")
             num_images = 24
