@@ -2182,7 +2182,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                 'priority': 'optional',
                 'prompt': f"High-quality urban photograph {location_context}. Residential and business areas, typical city architecture, local character, natural daylight, professional photography, photorealistic, vibrant colors."
             }
-        ]
+        ])
 
         self.generated_images = []
 
