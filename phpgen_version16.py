@@ -2056,8 +2056,11 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             ethnicity_context = "diverse people"
 
         # ПРИОРИТЕТНЫЙ СПИСОК ИЗОБРАЖЕНИЙ
-        # Первые 17 - ОБЯЗАТЕЛЬНЫЕ (hero + 3 services + 6 blog + 4 company + 3 gallery)
-        # Остальные - ДОПОЛНИТЕЛЬНЫЕ (gallery4, locations)
+        # Минимум 10 ОБЯЗАТЕЛЬНЫХ: hero(1) + services(3) + blog(3) + gallery(3)
+        # Blog: 3 или 6 в зависимости от self.num_blog_articles
+        # Company: 4 опциональных для Home страницы (генерируются если num_images > 10)
+
+        # Начинаем со статичных обязательных изображений
         images_to_generate = [
             # PRIORITY 1: Hero (обязательно - 1 шт)
             {
@@ -2081,59 +2084,52 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                 'priority': 'required',
                 'prompt': f"Professional service photograph for {theme} company. {location_context}. Expert professionals at work, quality service delivery, attention to detail, authentic workplace setting, natural lighting, photorealistic. {ethnicity_context} visible."
             },
-            # PRIORITY 3: Blog (обязательно - 6 шт)
-            {
-                'filename': 'blog1.jpg',
+        ]
+
+        # PRIORITY 3: Blog (динамически - 3 или 6 шт в зависимости от self.num_blog_articles)
+        blog_prompts = [
+            f"Engaging blog header photograph related to {theme} topic. {location_context}. Creative composition, storytelling visual, authentic scene, natural colors, high quality, photorealistic. {ethnicity_context} if people present.",
+            f"Inspiring blog featured photograph for {theme} article. {location_context}. Professional quality, engaging composition, relevant to topic, authentic setting, natural lighting, photorealistic.",
+            f"Informative blog post photograph about {theme}. {location_context}. Clear visual storytelling, educational value, authentic scene, natural environment, high-quality photography, photorealistic.",
+            f"Unique perspective blog photograph for {theme} content. {location_context}. Creative angle, interesting composition, authentic moment, natural lighting, professional photography, photorealistic.",
+            f"Compelling blog content photograph representing {theme}. {location_context}. Strong visual narrative, authentic scene, engaging composition, natural colors, high quality, photorealistic.",
+            f"Professional blog header photograph for {theme} article. {location_context}. Attractive composition, relevant content, authentic setting, clear subject, natural lighting, photorealistic."
+        ]
+
+        # Добавляем blog изображения в зависимости от количества статей
+        for i in range(self.num_blog_articles):
+            images_to_generate.append({
+                'filename': f'blog{i+1}.jpg',
                 'priority': 'required',
-                'prompt': f"Engaging blog header photograph related to {theme} topic. {location_context}. Creative composition, storytelling visual, authentic scene, natural colors, high quality, photorealistic. {ethnicity_context} if people present."
-            },
-            {
-                'filename': 'blog2.jpg',
-                'priority': 'required',
-                'prompt': f"Inspiring blog featured photograph for {theme} article. {location_context}. Professional quality, engaging composition, relevant to topic, authentic setting, natural lighting, photorealistic."
-            },
-            {
-                'filename': 'blog3.jpg',
-                'priority': 'required',
-                'prompt': f"Informative blog post photograph about {theme}. {location_context}. Clear visual storytelling, educational value, authentic scene, natural environment, high-quality photography, photorealistic."
-            },
-            {
-                'filename': 'blog4.jpg',
-                'priority': 'required',
-                'prompt': f"Unique perspective blog photograph for {theme} content. {location_context}. Creative angle, interesting composition, authentic moment, natural lighting, professional photography, photorealistic."
-            },
-            {
-                'filename': 'blog5.jpg',
-                'priority': 'required',
-                'prompt': f"Compelling blog content photograph representing {theme}. {location_context}. Strong visual narrative, authentic scene, engaging composition, natural colors, high quality, photorealistic."
-            },
-            {
-                'filename': 'blog6.jpg',
-                'priority': 'required',
-                'prompt': f"Professional blog header photograph for {theme} article. {location_context}. Attractive composition, relevant content, authentic setting, clear subject, natural lighting, photorealistic."
-            },
-            # PRIORITY 4: Company (обязательно - 4 шт)
+                'prompt': blog_prompts[i]
+            })
+
+        # PRIORITY 4: Company (опционально - 4 шт для Home страницы)
+        images_to_generate.extend([
             {
                 'filename': 'about.jpg',
-                'priority': 'required',
+                'priority': 'optional',
                 'prompt': f"Professional business photograph showing {theme} company culture. {location_context}. {ethnicity_context} in natural professional setting, authentic workplace environment, candid moments, warm atmosphere, photorealistic."
             },
             {
                 'filename': 'mission.jpg',
-                'priority': 'required',
+                'priority': 'optional',
                 'prompt': f"Inspiring photograph representing company mission and vision for {theme} business. {location_context}. Forward-thinking perspective, aspirational imagery, professional setting, authentic motivation, natural lighting, photorealistic."
             },
             {
                 'filename': 'values.jpg',
-                'priority': 'required',
+                'priority': 'optional',
                 'prompt': f"Professional photograph showcasing company values and culture for {theme}. {location_context}. {ethnicity_context} demonstrating teamwork and collaboration, authentic workplace values, positive atmosphere, photorealistic."
             },
             {
                 'filename': 'team.jpg',
-                'priority': 'required',
+                'priority': 'optional',
                 'prompt': f"Professional team photograph for {theme} company. {location_context}. {ethnicity_context} in business setting, diverse professional team, confident and approachable, natural group composition, photorealistic."
             },
-            # PRIORITY 5: Gallery (обязательно - 3 шт)
+        ])
+
+        # PRIORITY 5: Gallery (обязательно - 3 шт)
+        images_to_generate.extend([
             {
                 'filename': 'gallery1.jpg',
                 'priority': 'required',
@@ -2194,13 +2190,13 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         required_images = [img for img in images_to_generate if img.get('priority') == 'required']
         optional_images = [img for img in images_to_generate if img.get('priority') == 'optional']
 
-        print(f"\n🖼️  Генерация изображений: {num_images} шт. (минимум 17 обязательных)")
-        print(f"   📌 Обязательные: {len(required_images)} (hero + 3 services + 6 blog + 4 company + 3 gallery)")
-        print(f"   ⭐ Дополнительные: {len(optional_images)} (gallery4, locations)")
+        print(f"\n🖼️  Генерация изображений: {num_images} шт. (минимум 10 обязательных)")
+        print(f"   📌 Обязательные: {len(required_images)} (hero + 3 services + {self.num_blog_articles} blog + 3 gallery)")
+        print(f"   ⭐ Дополнительные: {len(optional_images)} (4 company, gallery4, 6 locations)")
 
         generated_count = 0
 
-        # ЭТАП 1: Генерируем ВСЕ обязательные изображения (17 шт)
+        # ЭТАП 1: Генерируем ВСЕ обязательные изображения (минимум 10 шт)
         print(f"\n   🔥 Этап 1/2: Генерация обязательных изображений...")
         for img_data in required_images:
             print(f"      → {img_data['filename']}...", end=' ')
@@ -4267,23 +4263,23 @@ setTimeout(showCookieNotice, 1000);
         }
 
         # Фильтруем секции, требующие gallery изображения
-        # Gallery изображения gallery1-3 теперь required (минимум 17 изображений)
-        # gallery4 optional, генерируется только при num_images >= 18
-        # Секции gallery используют gallery1-4, но работают и с 3 изображениями
+        # Gallery изображения gallery1-3 теперь required (минимум 10 изображений)
+        # gallery4 optional, генерируется только при num_images >= 14
+        # Секции gallery используют gallery1-3, всегда доступны при минимуме
         sections_requiring_gallery = {'gallery_centered', 'gallery_horizontal'}
 
         # Проверяем, сколько изображений будет сгенерировано
-        # Приоритетные (required): hero(1) + services(3) + blog(6) + company(4) + gallery(3) = 17
-        # Gallery секции всегда доступны с минимумом 17 изображений
-        has_gallery_images = hasattr(self, 'num_images_to_generate') and self.num_images_to_generate >= 17
+        # Приоритетные (required): hero(1) + services(3) + blog(3) + gallery(3) = 10
+        # Gallery секции всегда доступны с минимумом 10 изображений
+        has_gallery_images = hasattr(self, 'num_images_to_generate') and self.num_images_to_generate >= 10
 
         # Выбираем доступные секции
         available_section_keys = list(all_sections.keys())
 
-        # Если gallery изображений не будет, убираем gallery секции (только при num_images < 17)
+        # Если gallery изображений не будет, убираем gallery секции (только при num_images < 10)
         if not has_gallery_images:
             available_section_keys = [k for k in available_section_keys if k not in sections_requiring_gallery]
-            print(f"  ⚠️  Gallery секции исключены (недостаточно изображений: нужно минимум 17)")
+            print(f"  ⚠️  Gallery секции исключены (недостаточно изображений: нужно минимум 10)")
 
         # Выбираем 5-6 случайных секций из доступных
         random.shuffle(available_section_keys)
@@ -5043,12 +5039,10 @@ Return ONLY the content for <main> tag."""
             }
         ]
 
-        # Выбираем 3 или 6 статей случайно
-        # Примечание: Изображения blog1-blog6 всегда генерируются (priority='required'),
-        # поэтому проверка наличия изображений не нужна
-        num_articles = random.choice([3, 6])
-        self.num_blog_articles = num_articles  # Сохраняем для генерации страниц
-        blog_articles = all_blog_articles[:num_articles]
+        # Используем заранее определенное количество статей (3 или 6)
+        # self.num_blog_articles уже установлено в generate_website()
+        # Изображения blog1-3 или blog1-6 уже сгенерированы в зависимости от этого значения
+        blog_articles = all_blog_articles[:self.num_blog_articles]
 
         # Создаем карточки статей
         article_cards = ''
@@ -5345,6 +5339,10 @@ Return ONLY the content for <main> tag."""
         self.site_type = site_type
         self.num_images_to_generate = num_images  # Сохраняем для использования в generate_home_sections()
 
+        # Определяем количество статей блога заранее (3 или 6 случайно)
+        # Это нужно для правильной генерации изображений blog1-3 или blog1-6
+        self.num_blog_articles = random.choice([3, 6])
+
         print("=" * 60)
         print(f"PHPGEN v16 - {'LANDING' if site_type == 'landing' else 'MULTIPAGE SITE'} GENERATOR")
         print("=" * 60)
@@ -5365,7 +5363,11 @@ Return ONLY the content for <main> tag."""
         print("\n[4/7] Favicon...")
         self.generate_favicon(output_dir)
 
-        print("\n[5/7] Страницы...")
+        print(f"\n[5/7] Изображения (приоритетная генерация {num_images} шт)...")
+        print(f"  📝 Статей блога: {self.num_blog_articles}")
+        self.generate_images_for_site(output_dir, num_images)
+
+        print("\n[6/7] Страницы...")
 
         if site_type == "landing":
             # Лендинг - только главная страница с секциями + служебные страницы
@@ -5373,10 +5375,8 @@ Return ONLY the content for <main> tag."""
             print("  Режим: ЛЕНДИНГ (одна страница с секциями)")
         else:
             # Многостраничный сайт - все основные страницы включая blog
-            # Сначала генерируем blog главную, чтобы узнать количество статей
             print("  Режим: МНОГОСТРАНИЧНЫЙ САЙТ (все страницы + blog главная + статьи)")
             pages_to_generate = ['index', 'company', 'services', 'contact', 'blog', 'privacy', 'terms', 'cookie', 'thanks_you']
-            # Добавляем страницы блога в зависимости от num_blog_articles (будет установлено при генерации blog главной)
 
         # Генерируем каждую страницу с повышенным вниманием
         for page in pages_to_generate:
@@ -5394,9 +5394,6 @@ Return ONLY the content for <main> tag."""
                 success = self.generate_page(blog_page, output_dir)
                 if not success:
                     print(f"      ⚠️  Ошибка генерации {blog_page}.php, создан fallback")
-
-        print(f"\n[6/7] Изображения (приоритетная генерация {num_images} шт)...")
-        self.generate_images_for_site(output_dir, num_images)
 
         print("\n[7/7] Дополнительные файлы...")
         self.generate_additional_files(output_dir)
@@ -5475,16 +5472,16 @@ if __name__ == "__main__":
         exit(1)
 
     print("\n🖼️  Количество изображений:")
-    print("   (Минимум 17: 1 hero + 3 services + 6 blog + 4 company + 3 gallery)")
+    print("   (Минимум 10: 1 hero + 3 services + 3 blog + 3 gallery)")
     print("   (По умолчанию: 24 - все изображения)")
     num_images_input = input(">>> ").strip()
 
     if num_images_input:
         try:
             num_images = int(num_images_input)
-            if num_images < 17:
-                print("⚠️  Минимум 17 изображений! Установлено: 17")
-                num_images = 17
+            if num_images < 10:
+                print("⚠️  Минимум 10 изображений! Установлено: 10")
+                num_images = 10
         except ValueError:
             print("⚠️  Некорректное число! Установлено: 24")
             num_images = 24
