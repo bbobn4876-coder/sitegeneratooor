@@ -913,9 +913,13 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         if not content:
             content = self.get_theme_based_approach_content(theme)
 
-        return f"""
-    <section class="py-20 bg-gray-50">
-        <div class="container mx-auto px-6">
+        # Проверяем наличие изображений
+        has_service1 = self._has_image('service1.jpg')
+        has_service2 = self._has_image('service2.jpg')
+
+        # Первая секция (approach)
+        if has_service1:
+            section1 = f"""
             <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
                 <div>
                     <img src="images/service1.jpg" alt="{content['approach_title']}" class="rounded-xl shadow-lg w-full h-80 object-cover">
@@ -929,8 +933,22 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                         {content['approach_text2']}
                     </p>
                 </div>
-            </div>
+            </div>"""
+        else:
+            section1 = f"""
+            <div class="mb-20">
+                <h3 class="text-3xl font-bold mb-4">{content['approach_title']}</h3>
+                <p class="text-gray-700 mb-4">
+                    {content['approach_text1']}
+                </p>
+                <p class="text-gray-700">
+                    {content['approach_text2']}
+                </p>
+            </div>"""
 
+        # Вторая секция (why)
+        if has_service2:
+            section2 = f"""
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 <div>
                     <h3 class="text-3xl font-bold mb-4">{content['why_title']}</h3>
@@ -944,7 +962,23 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                 <div>
                     <img src="images/service2.jpg" alt="{content['why_title']}" class="rounded-xl shadow-lg w-full h-80 object-cover">
                 </div>
-            </div>
+            </div>"""
+        else:
+            section2 = f"""
+            <div>
+                <h3 class="text-3xl font-bold mb-4">{content['why_title']}</h3>
+                <p class="text-gray-700 mb-4">
+                    {content['why_text1']}
+                </p>
+                <p class="text-gray-700">
+                    {content['why_text2']}
+                </p>
+            </div>"""
+
+        return f"""
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">{section1}
+{section2}
         </div>
     </section>"""
 
@@ -1048,44 +1082,40 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         if not solutions:
             solutions = self.get_theme_based_featured_solutions(theme)
 
+        # Фильтруем решения - показываем только те, для которых есть изображения
+        available_solutions = []
+        for sol in solutions:
+            if self._has_image(sol['image']):
+                available_solutions.append(sol)
+
+        # Если нет доступных изображений, не показываем секцию вообще
+        if not available_solutions:
+            return ""
+
+        # Генерируем карточки только для доступных решений
+        cards_html = ""
+        for sol in available_solutions:
+            cards_html += f"""
+                <div class="relative overflow-hidden rounded-xl shadow-lg h-96 group">
+                    <img src="images/{sol['image']}" alt="{sol['title']}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                    <div class="relative h-full flex flex-col justify-end p-8">
+                        <h3 class="text-white text-2xl font-bold mb-3">{sol['title']}</h3>
+                        <p class="text-white/90 mb-4">{sol['description']}</p>
+                        <a href="contact.php" class="inline-block bg-white text-{primary} px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition w-fit">
+                            Contact Us
+                        </a>
+                    </div>
+                </div>"""
+
+        # Адаптируем grid в зависимости от количества карточек
+        grid_class = f"md:grid-cols-{len(available_solutions)}" if len(available_solutions) <= 3 else "md:grid-cols-3"
+
         return f"""
     <section class="py-20 bg-gray-50">
         <div class="container mx-auto px-6">
             <h2 class="text-4xl font-bold text-center mb-12">Featured Solutions</h2>
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="relative overflow-hidden rounded-xl shadow-lg h-96 group">
-                    <img src="images/{solutions[0]['image']}" alt="{solutions[0]['title']}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                    <div class="relative h-full flex flex-col justify-end p-8">
-                        <h3 class="text-white text-2xl font-bold mb-3">{solutions[0]['title']}</h3>
-                        <p class="text-white/90 mb-4">{solutions[0]['description']}</p>
-                        <a href="contact.php" class="inline-block bg-white text-{primary} px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition w-fit">
-                            Contact Us
-                        </a>
-                    </div>
-                </div>
-                <div class="relative overflow-hidden rounded-xl shadow-lg h-96 group">
-                    <img src="images/{solutions[1]['image']}" alt="{solutions[1]['title']}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                    <div class="relative h-full flex flex-col justify-end p-8">
-                        <h3 class="text-white text-2xl font-bold mb-3">{solutions[1]['title']}</h3>
-                        <p class="text-white/90 mb-4">{solutions[1]['description']}</p>
-                        <a href="contact.php" class="inline-block bg-white text-{primary} px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition w-fit">
-                            Contact Us
-                        </a>
-                    </div>
-                </div>
-                <div class="relative overflow-hidden rounded-xl shadow-lg h-96 group">
-                    <img src="images/{solutions[2]['image']}" alt="{solutions[2]['title']}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                    <div class="relative h-full flex flex-col justify-end p-8">
-                        <h3 class="text-white text-2xl font-bold mb-3">{solutions[2]['title']}</h3>
-                        <p class="text-white/90 mb-4">{solutions[2]['description']}</p>
-                        <a href="contact.php" class="inline-block bg-white text-{primary} px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition w-fit">
-                            Contact Us
-                        </a>
-                    </div>
-                </div>
+            <div class="grid {grid_class} gap-8">{cards_html}
             </div>
         </div>
     </section>"""
@@ -1992,8 +2022,8 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                 f.write(minimal_jpeg)
             return filename
     
-    def generate_images_for_site(self, output_dir):
-        """Генерация изображений для сайта в папке images/"""
+    def generate_images_for_site(self, output_dir, num_images=24):
+        """Генерация изображений для сайта в папке images/ с приоритетной генерацией"""
         # Создаем папку images
         images_dir = os.path.join(output_dir, 'images')
         os.makedirs(images_dir, exist_ok=True)
@@ -2026,128 +2056,227 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             location_context = "in a modern professional setting"
             ethnicity_context = "diverse people"
 
-        # Детальные промпты с учетом темы, локации и этничности
+        # ПРИОРИТЕТНЫЙ СПИСОК ИЗОБРАЖЕНИЙ
+        # Первые 10 - ОБЯЗАТЕЛЬНЫЕ (hero + 3 services + 6 blog)
+        # Остальные - ДОПОЛНИТЕЛЬНЫЕ (company, gallery, location)
         images_to_generate = [
+            # PRIORITY 1: Hero (обязательно - 1 шт)
             {
                 'filename': 'hero.jpg',
+                'priority': 'required',
                 'prompt': f"Professional wide banner photograph for {theme} website. {location_context}. Clean composition, natural lighting, high quality, photorealistic, 8k resolution. {ethnicity_context} if people are visible. No text or logos."
             },
-            {
-                'filename': 'about.jpg',
-                'prompt': f"Professional business photograph showing {theme} company culture. {location_context}. {ethnicity_context} in natural professional setting, authentic workplace environment, candid moments, warm atmosphere, photorealistic."
-            },
-            {
-                'filename': 'mission.jpg',
-                'prompt': f"Inspiring photograph representing company mission and vision for {theme} business. {location_context}. Forward-thinking perspective, aspirational imagery, professional setting, authentic motivation, natural lighting, photorealistic."
-            },
-            {
-                'filename': 'values.jpg',
-                'prompt': f"Professional photograph showcasing company values and culture for {theme}. {location_context}. {ethnicity_context} demonstrating teamwork and collaboration, authentic workplace values, positive atmosphere, photorealistic."
-            },
-            {
-                'filename': 'team.jpg',
-                'prompt': f"Professional team photograph for {theme} company. {location_context}. {ethnicity_context} in business setting, diverse professional team, confident and approachable, natural group composition, photorealistic."
-            },
+            # PRIORITY 2: Services (обязательно - 3 шт)
             {
                 'filename': 'service1.jpg',
+                'priority': 'required',
                 'prompt': f"High-quality photograph representing {theme} services. {location_context}. Professional service delivery, real-world application, authentic setting, natural lighting, clean composition, photorealistic. {ethnicity_context} if people are shown."
             },
             {
                 'filename': 'service2.jpg',
+                'priority': 'required',
                 'prompt': f"Professional teamwork photograph for {theme} business. {location_context}. {ethnicity_context} collaborating in modern office, natural interaction, authentic workplace, productive atmosphere, photorealistic, bright natural light."
             },
             {
                 'filename': 'service3.jpg',
+                'priority': 'required',
                 'prompt': f"Professional service photograph for {theme} company. {location_context}. Expert professionals at work, quality service delivery, attention to detail, authentic workplace setting, natural lighting, photorealistic. {ethnicity_context} visible."
             },
+            # PRIORITY 3: Blog (обязательно - 6 шт)
             {
                 'filename': 'blog1.jpg',
+                'priority': 'required',
                 'prompt': f"Engaging blog header photograph related to {theme} topic. {location_context}. Creative composition, storytelling visual, authentic scene, natural colors, high quality, photorealistic. {ethnicity_context} if people present."
             },
             {
                 'filename': 'blog2.jpg',
+                'priority': 'required',
                 'prompt': f"Inspiring blog featured photograph for {theme} article. {location_context}. Professional quality, engaging composition, relevant to topic, authentic setting, natural lighting, photorealistic."
             },
             {
                 'filename': 'blog3.jpg',
+                'priority': 'required',
                 'prompt': f"Informative blog post photograph about {theme}. {location_context}. Clear visual storytelling, educational value, authentic scene, natural environment, high-quality photography, photorealistic."
             },
             {
                 'filename': 'blog4.jpg',
+                'priority': 'required',
                 'prompt': f"Unique perspective blog photograph for {theme} content. {location_context}. Creative angle, interesting composition, authentic moment, natural lighting, professional photography, photorealistic."
             },
             {
                 'filename': 'blog5.jpg',
+                'priority': 'required',
                 'prompt': f"Compelling blog content photograph representing {theme}. {location_context}. Strong visual narrative, authentic scene, engaging composition, natural colors, high quality, photorealistic."
             },
             {
                 'filename': 'blog6.jpg',
+                'priority': 'required',
                 'prompt': f"Professional blog header photograph for {theme} article. {location_context}. Attractive composition, relevant content, authentic setting, clear subject, natural lighting, photorealistic."
             },
+            # ДОПОЛНИТЕЛЬНЫЕ: Company (4 шт)
+            {
+                'filename': 'about.jpg',
+                'priority': 'optional',
+                'prompt': f"Professional business photograph showing {theme} company culture. {location_context}. {ethnicity_context} in natural professional setting, authentic workplace environment, candid moments, warm atmosphere, photorealistic."
+            },
+            {
+                'filename': 'mission.jpg',
+                'priority': 'optional',
+                'prompt': f"Inspiring photograph representing company mission and vision for {theme} business. {location_context}. Forward-thinking perspective, aspirational imagery, professional setting, authentic motivation, natural lighting, photorealistic."
+            },
+            {
+                'filename': 'values.jpg',
+                'priority': 'optional',
+                'prompt': f"Professional photograph showcasing company values and culture for {theme}. {location_context}. {ethnicity_context} demonstrating teamwork and collaboration, authentic workplace values, positive atmosphere, photorealistic."
+            },
+            {
+                'filename': 'team.jpg',
+                'priority': 'optional',
+                'prompt': f"Professional team photograph for {theme} company. {location_context}. {ethnicity_context} in business setting, diverse professional team, confident and approachable, natural group composition, photorealistic."
+            },
+            # ДОПОЛНИТЕЛЬНЫЕ: Gallery (4 шт)
             {
                 'filename': 'gallery1.jpg',
+                'priority': 'optional',
                 'prompt': f"Showcase photograph highlighting {theme} work. {location_context}. Portfolio quality, interesting composition, professional execution, authentic project, natural lighting, photorealistic."
             },
             {
                 'filename': 'gallery2.jpg',
+                'priority': 'optional',
                 'prompt': f"Professional portfolio photograph of {theme} project. {location_context}. Different perspective, quality craftsmanship, authentic work, detailed shot, natural light, photorealistic."
             },
             {
                 'filename': 'gallery3.jpg',
+                'priority': 'optional',
                 'prompt': f"Quality showcase photograph for {theme} services. {location_context}. Professional presentation, real project example, clean composition, authentic work, photorealistic."
             },
             {
                 'filename': 'gallery4.jpg',
+                'priority': 'optional',
                 'prompt': f"Professional portfolio piece for {theme} company. {location_context}. High-quality craftsmanship, finished project, authentic work, professional photography, photorealistic."
             },
+            # ДОПОЛНИТЕЛЬНЫЕ: Locations (6 шт)
             {
                 'filename': 'location1.jpg',
+                'priority': 'optional',
                 'prompt': f"Beautiful cityscape photograph of a major city {location_context}. Iconic architecture, vibrant urban landscape, famous landmarks, clear blue sky, natural daylight, professional travel photography, photorealistic, 8k quality."
             },
             {
                 'filename': 'location2.jpg',
+                'priority': 'optional',
                 'prompt': f"Stunning city view photograph {location_context}. Historic district, charming streets, cultural landmarks, authentic urban environment, golden hour lighting, professional cityscape photography, photorealistic."
             },
             {
                 'filename': 'location3.jpg',
+                'priority': 'optional',
                 'prompt': f"Professional city photograph {location_context}. Modern business district, contemporary architecture, dynamic city life, clean composition, bright daylight, high-quality urban photography, photorealistic."
             },
             {
                 'filename': 'location4.jpg',
+                'priority': 'optional',
                 'prompt': f"Attractive cityscape showing urban beauty {location_context}. Waterfront view, riverside or canal scene, scenic city landscape, natural lighting, professional travel photography, photorealistic, detailed."
             },
             {
                 'filename': 'location5.jpg',
+                'priority': 'optional',
                 'prompt': f"Impressive city photograph {location_context}. Cultural center, historic buildings, city square or plaza, authentic urban setting, clear weather, professional cityscape photography, photorealistic."
             },
             {
                 'filename': 'location6.jpg',
+                'priority': 'optional',
                 'prompt': f"High-quality urban photograph {location_context}. Residential and business areas, typical city architecture, local character, natural daylight, professional photography, photorealistic, vibrant colors."
             }
         ]
-        
+
         self.generated_images = []
-        
-        for img_data in images_to_generate:
+
+        # Разделяем изображения по приоритетам
+        required_images = [img for img in images_to_generate if img.get('priority') == 'required']
+        optional_images = [img for img in images_to_generate if img.get('priority') == 'optional']
+
+        print(f"\n🖼️  Генерация изображений: {num_images} шт. (минимум 10 обязательных)")
+        print(f"   📌 Обязательные: {len(required_images)} (hero + 3 services + 6 blog)")
+        print(f"   ⭐ Дополнительные: {len(optional_images)} (company, gallery, locations)")
+
+        generated_count = 0
+
+        # ЭТАП 1: Генерируем ВСЕ обязательные изображения (10 шт)
+        print(f"\n   🔥 Этап 1/2: Генерация обязательных изображений...")
+        for img_data in required_images:
+            print(f"      → {img_data['filename']}...", end=' ')
+
             # Сначала пробуем ByteDance
             result = self.generate_image_via_bytedance(
                 img_data['prompt'],
                 img_data['filename'],
-                images_dir  # Изображения в папке images/
+                images_dir
             )
-            
+
             # Если не получилось, создаем placeholder
             if not result:
                 result = self.generate_placeholder_image(
                     img_data['filename'],
-                    images_dir,  # Изображения в папке images/
+                    images_dir,
                     img_data['prompt']
                 )
-            
+
             if result:
-                # Сохраняем путь с префиксом images/
-                self.generated_images.append(f"images/{result}")
-    
+                self.generated_images.append(img_data['filename'])
+                generated_count += 1
+                print(f"✓ ({generated_count}/{num_images})")
+            else:
+                print("✗ ошибка")
+
+        # ЭТАП 2: Генерируем дополнительные изображения до лимита
+        remaining = num_images - generated_count
+        if remaining > 0:
+            print(f"\n   ⭐ Этап 2/2: Генерация дополнительных изображений (осталось {remaining})...")
+            for img_data in optional_images[:remaining]:
+                print(f"      → {img_data['filename']}...", end=' ')
+
+                # Сначала пробуем ByteDance
+                result = self.generate_image_via_bytedance(
+                    img_data['prompt'],
+                    img_data['filename'],
+                    images_dir
+                )
+
+                # Если не получилось, создаем placeholder
+                if not result:
+                    result = self.generate_placeholder_image(
+                        img_data['filename'],
+                        images_dir,
+                        img_data['prompt']
+                    )
+
+                if result:
+                    self.generated_images.append(img_data['filename'])
+                    generated_count += 1
+                    print(f"✓ ({generated_count}/{num_images})")
+                else:
+                    print("✗ ошибка")
+
+        print(f"\n   ✅ Сгенерировано: {generated_count} изображений")
+        print(f"      Успешные: {', '.join(self.generated_images)}")
+
+    def _has_image(self, filename):
+        """Проверяет наличие сгенерированного изображения"""
+        # Убираем префикс images/ если есть
+        clean_name = filename.replace('images/', '')
+        return clean_name in self.generated_images
+
+    def _img_tag(self, filename, alt_text, css_class):
+        """Генерирует тег <img> если изображение существует, иначе возвращает пустую строку"""
+        if self._has_image(filename):
+            return f'<img src="images/{filename.replace("images/", "")}" alt="{alt_text}" class="{css_class}">'
+        return ''
+
+    def _section_with_img(self, filename, html_with_img, html_without_img=''):
+        """Возвращает HTML с изображением если оно есть, иначе альтернативный HTML"""
+        if self._has_image(filename):
+            return html_with_img
+        return html_without_img
+
     def load_database(self, data_dir="data"):
         """Загрузка данных из папки data (работа с любым путем)"""
         # Нормализуем путь для Windows/Linux
@@ -3479,7 +3608,14 @@ setTimeout(showCookieNotice, 1000);
 
     def generate_hero_section(self, site_name, theme, primary, hover):
         """Генерация Hero секции с 5 вариациями"""
-        hero_variant = random.randint(1, 5)
+        # Проверяем наличие hero.jpg для вариантов с изображением
+        has_hero = self._has_image('hero.jpg')
+
+        # Если нет hero.jpg, используем вариант без изображения (3)
+        if not has_hero:
+            hero_variant = 3
+        else:
+            hero_variant = random.randint(1, 5)
 
         # Вариация 1: Фотография справа
         if hero_variant == 1:
@@ -3509,22 +3645,29 @@ setTimeout(showCookieNotice, 1000);
 
         # Вариация 2: Карусель с фотографиями на фоне
         elif hero_variant == 2:
+            # Собираем доступные изображения для карусели
+            carousel_images = []
+            if self._has_image('hero.jpg'):
+                carousel_images.append(('hero.jpg', 'Slide 1'))
+            if self._has_image('about.jpg'):
+                carousel_images.append(('about.jpg', 'Slide 2'))
+            if self._has_image('service1.jpg'):
+                carousel_images.append(('service1.jpg', 'Slide 3'))
+
+            # Генерируем слайды только для существующих изображений
+            carousel_slides = ''
+            for idx, (img, alt) in enumerate(carousel_images):
+                active_class = 'active' if idx == 0 else 'opacity-0'
+                carousel_slides += f"""
+                <div class="carousel-item {active_class} absolute inset-0 transition-opacity duration-1000">
+                    <img src="images/{img}" alt="{alt}" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/50"></div>
+                </div>"""
+
             return f"""<main>
     <section class="relative py-32 overflow-hidden">
         <div class="absolute inset-0 z-0">
-            <div id="hero-carousel" class="w-full h-full">
-                <div class="carousel-item active absolute inset-0 transition-opacity duration-1000">
-                    <img src="images/hero.jpg" alt="Slide 1" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-black/50"></div>
-                </div>
-                <div class="carousel-item absolute inset-0 transition-opacity duration-1000 opacity-0">
-                    <img src="images/about.jpg" alt="Slide 2" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-black/50"></div>
-                </div>
-                <div class="carousel-item absolute inset-0 transition-opacity duration-1000 opacity-0">
-                    <img src="images/service1.jpg" alt="Slide 3" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-black/50"></div>
-                </div>
+            <div id="hero-carousel" class="w-full h-full">{carousel_slides}
             </div>
         </div>
 
@@ -4772,9 +4915,10 @@ Return ONLY the content for <main> tag."""
                 separator = ' <span class="text-gray-400">|</span> '
                 nav_buttons = f'<div class="flex justify-between items-center mt-12 pt-8 border-t border-gray-200">{separator.join(nav_links)}</div>'
 
-        # Создаем секцию с картинкой (если has_image=True)
+        # Создаем секцию с картинкой (если has_image=True И изображение сгенерировано)
         image_section = ''
-        if current_variation['has_image']:
+        blog_img_filename = page_name + '.jpg'  # Например 'blog1.jpg'
+        if current_variation['has_image'] and self._has_image(blog_img_filename):
             image_section = f'''
         <div class="mb-8 rounded-xl overflow-hidden">
             <img src="{blog_images[page_name]}" alt="{blog_titles[page_name]}" class="w-full h-96 object-cover">
@@ -4890,10 +5034,18 @@ Return ONLY the content for <main> tag."""
             }
         ]
 
-        # Случайно выбираем 3 или 6 статей
-        num_articles = random.choice([3, 6])
+        # Фильтруем статьи - показываем только те, для которых есть изображения
+        available_articles = []
+        for article in all_blog_articles:
+            # Извлекаем имя файла из пути (например 'blog1.jpg' из 'images/blog1.jpg')
+            img_filename = article['image'].replace('images/', '')
+            if self._has_image(img_filename):
+                available_articles.append(article)
+
+        # Выбираем 3 или 6 статей (или меньше если не хватает изображений)
+        num_articles = min(random.choice([3, 6]), len(available_articles))
         self.num_blog_articles = num_articles  # Сохраняем для генерации страниц
-        blog_articles = all_blog_articles[:num_articles]
+        blog_articles = available_articles[:num_articles]
 
         # Создаем карточки статей
         article_cards = ''
@@ -5185,7 +5337,7 @@ Return ONLY the content for <main> tag."""
         print(f"    ✓ {page_name}.php создана")
         return True
 
-    def generate_website(self, user_prompt, site_name, output_dir="generated_website", data_dir="data", site_type="multipage"):
+    def generate_website(self, user_prompt, site_name, num_images=24, output_dir="generated_website", data_dir="data", site_type="multipage"):
         """Основной метод генерации"""
         self.site_type = site_type
 
@@ -5201,11 +5353,11 @@ Return ONLY the content for <main> tag."""
         print("\n[2/7] Blueprint (название, цвета, layouts)...")
         if not self.create_blueprint(user_prompt, site_name):
             print("⚠️  Ошибка Blueprint (использован fallback)")
-        
+
         print("\n[3/7] Header и Footer (без соц. сетей, единый hover)...")
         if not self.generate_header_footer():
             print("⚠️  Ошибка Header/Footer (использован fallback)")
-        
+
         print("\n[4/7] Favicon...")
         self.generate_favicon(output_dir)
 
@@ -5239,8 +5391,8 @@ Return ONLY the content for <main> tag."""
                 if not success:
                     print(f"      ⚠️  Ошибка генерации {blog_page}.php, создан fallback")
 
-        print("\n[6/7] Изображения (под сгенерированные страницы)...")
-        self.generate_images_for_site(output_dir)
+        print(f"\n[6/7] Изображения (приоритетная генерация {num_images} шт)...")
+        self.generate_images_for_site(output_dir, num_images)
 
         print("\n[7/7] Дополнительные файлы...")
         self.generate_additional_files(output_dir)
@@ -5318,6 +5470,23 @@ if __name__ == "__main__":
         print("❌ Название не может быть пустым!")
         exit(1)
 
+    print("\n🖼️  Количество изображений:")
+    print("   (Минимум 10: 1 hero + 3 services + 6 blog)")
+    print("   (По умолчанию: 24 - все изображения)")
+    num_images_input = input(">>> ").strip()
+
+    if num_images_input:
+        try:
+            num_images = int(num_images_input)
+            if num_images < 10:
+                print("⚠️  Минимум 10 изображений! Установлено: 10")
+                num_images = 10
+        except ValueError:
+            print("⚠️  Некорректное число! Установлено: 24")
+            num_images = 24
+    else:
+        num_images = 24
+
     print("\n📁 Путь к папке data:")
     print("   (по умолчанию: data)")
     data_dir = input(">>> ").strip()
@@ -5336,6 +5505,7 @@ if __name__ == "__main__":
     print("=" * 60)
     print(f"🚀 Старт генерации...")
     print(f"✏️  Название: {site_name}")
+    print(f"🖼️  Изображений: {num_images}")
     print(f"📂 Папка данных: {data_dir}")
     print(f"📂 Папка вывода: {output_dir}")
     print(f"🎯 Тип: {'ЛЕНДИНГ' if site_type == 'landing' else 'МНОГОСТРАНИЧНЫЙ'}")
@@ -5345,7 +5515,7 @@ if __name__ == "__main__":
     generator = PHPWebsiteGenerator()
 
     try:
-        success = generator.generate_website(user_prompt, site_name=site_name, output_dir=output_dir, data_dir=data_dir, site_type=site_type)
+        success = generator.generate_website(user_prompt, site_name=site_name, num_images=num_images, output_dir=output_dir, data_dir=data_dir, site_type=site_type)
         
         if success:
             print("\n✨ Готово!")
