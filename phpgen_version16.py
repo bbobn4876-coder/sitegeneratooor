@@ -2935,9 +2935,8 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 </div>
 <script>
 function showCookieNotice() {{
-    if (!localStorage.getItem('cookiesAccepted')) {{
-        document.getElementById('cookie-notice').classList.remove('hidden');
-    }}
+    // Всегда показываем Cookie notice при загрузке страницы
+    document.getElementById('cookie-notice').classList.remove('hidden');
 }}
 function acceptCookies() {{
     localStorage.setItem('cookiesAccepted', 'true');
@@ -2976,9 +2975,8 @@ setTimeout(showCookieNotice, 1000);
 </div>
 <script>
 function showCookieNotice() {{
-    if (!localStorage.getItem('cookiesAccepted')) {{
-        document.getElementById('cookie-notice').classList.remove('hidden');
-    }}
+    // Всегда показываем Cookie notice при загрузке страницы
+    document.getElementById('cookie-notice').classList.remove('hidden');
 }}
 function acceptCookies() {{
     localStorage.setItem('cookiesAccepted', 'true');
@@ -3009,9 +3007,8 @@ setTimeout(showCookieNotice, 1000);
 </div>
 <script>
 function showCookieNotice() {{
-    if (!localStorage.getItem('cookiesAccepted')) {{
-        document.getElementById('cookie-notice').classList.remove('hidden');
-    }}
+    // Всегда показываем Cookie notice при загрузке страницы
+    document.getElementById('cookie-notice').classList.remove('hidden');
 }}
 function acceptCookies() {{
     localStorage.setItem('cookiesAccepted', 'true');
@@ -3058,9 +3055,8 @@ setTimeout(showCookieNotice, 1000);
 </div>
 <script>
 function showCookieNotice() {{
-    if (!localStorage.getItem('cookiesAccepted')) {{
-        document.getElementById('cookie-notice').classList.remove('hidden');
-    }}
+    // Всегда показываем Cookie notice при загрузке страницы
+    document.getElementById('cookie-notice').classList.remove('hidden');
 }}
 function acceptCookies() {{
     localStorage.setItem('cookiesAccepted', 'true');
@@ -3095,9 +3091,8 @@ setTimeout(showCookieNotice, 1000);
 </div>
 <script>
 function showCookieNotice() {{
-    if (!localStorage.getItem('cookiesAccepted')) {{
-        document.getElementById('cookie-notice').classList.remove('hidden');
-    }}
+    // Всегда показываем Cookie notice при загрузке страницы
+    document.getElementById('cookie-notice').classList.remove('hidden');
 }}
 function acceptCookies() {{
     localStorage.setItem('cookiesAccepted', 'true');
@@ -3125,9 +3120,8 @@ setTimeout(showCookieNotice, 1000);
 </div>
 <script>
 function showCookieNotice() {{
-    if (!localStorage.getItem('cookiesAccepted')) {{
-        document.getElementById('cookie-notice').classList.remove('hidden');
-    }}
+    // Всегда показываем Cookie notice при загрузке страницы
+    document.getElementById('cookie-notice').classList.remove('hidden');
 }}
 function acceptCookies() {{
     localStorage.setItem('cookiesAccepted', 'true');
@@ -3154,9 +3148,8 @@ setTimeout(showCookieNotice, 1000);
 </div>
 <script>
 function showCookieNotice() {{
-    if (!localStorage.getItem('cookiesAccepted')) {{
-        document.getElementById('cookie-notice').classList.remove('hidden');
-    }}
+    // Всегда показываем Cookie notice при загрузке страницы
+    document.getElementById('cookie-notice').classList.remove('hidden');
 }}
 function acceptCookies() {{
     localStorage.setItem('cookiesAccepted', 'true');
@@ -3180,9 +3173,8 @@ setTimeout(showCookieNotice, 1000);
 </div>
 <script>
 function showCookieNotice() {{
-    if (!localStorage.getItem('cookiesAccepted')) {{
-        document.getElementById('cookie-notice').classList.remove('hidden');
-    }}
+    // Всегда показываем Cookie notice при загрузке страницы
+    document.getElementById('cookie-notice').classList.remove('hidden');
 }}
 function acceptCookies() {{
     localStorage.setItem('cookiesAccepted', 'true');
@@ -3201,9 +3193,8 @@ setTimeout(showCookieNotice, 1000);
 </div>
 <script>
 function showCookieNotice() {{
-    if (!localStorage.getItem('cookiesAccepted')) {{
-        document.getElementById('cookie-notice').classList.remove('hidden');
-    }}
+    // Всегда показываем Cookie notice при загрузке страницы
+    document.getElementById('cookie-notice').classList.remove('hidden');
 }}
 function acceptCookies() {{
     localStorage.setItem('cookiesAccepted', 'true');
@@ -4294,11 +4285,30 @@ setTimeout(showCookieNotice, 1000);
             'cards_6_slider': self.generate_our_locations_section(country, primary, hover),
         }
 
-        # Выбираем 5-6 случайных секций
-        section_keys = list(all_sections.keys())
-        random.shuffle(section_keys)
+        # Фильтруем секции, требующие gallery изображения
+        # Gallery изображения (gallery1-4) имеют priority='optional' и генерируются только при num_images > 14
+        # Поэтому если изображений мало, исключаем gallery секции
+        sections_requiring_gallery = {'gallery_centered', 'gallery_horizontal'}
+
+        # Проверяем, сколько изображений будет сгенерировано
+        # Приоритетные (required): hero(1) + services(3) + blog(6) = 10
+        # Если num_images <= 14, то gallery изображения не будут созданы
+        has_gallery_images = hasattr(self, 'num_images_to_generate') and self.num_images_to_generate > 14
+
+        # Выбираем доступные секции
+        available_section_keys = list(all_sections.keys())
+
+        # Если gallery изображений не будет, убираем gallery секции
+        if not has_gallery_images:
+            available_section_keys = [k for k in available_section_keys if k not in sections_requiring_gallery]
+            print(f"  ⚠️  Gallery секции исключены (недостаточно изображений)")
+
+        # Выбираем 5-6 случайных секций из доступных
+        random.shuffle(available_section_keys)
         num_sections = random.randint(5, 6)
-        selected_sections = section_keys[:num_sections]
+        # Убедимся что не выбираем больше, чем доступно
+        num_sections = min(num_sections, len(available_section_keys))
+        selected_sections = available_section_keys[:num_sections]
 
         # Если contact_form_multistep в выбранных секциях, переместить ее в конец
         if 'contact_form_multistep' in selected_sections:
@@ -4370,18 +4380,20 @@ Return ONLY the content for <main> tag (not full HTML)."""
 
 REQUIREMENTS:
 - Heading section with page title
-- Company story/mission section (can use images/mission.jpg)
-- Team or values section (can use images/values.jpg or images/team.jpg)
-- Image + text layout (available images: images/about.jpg, images/mission.jpg, images/values.jpg, images/team.jpg)
+- Company story/mission section with rich text content (NO images required)
+- Team or values section with descriptive text (NO images required)
+- Use clean text layouts with proper typography and spacing
 - MUST include a call-to-action button at the bottom that redirects to contact.php: <a href="contact.php" class="...">Contact Us</a>
 - Modern, professional design with Tailwind CSS
 - Color scheme: {colors.get('primary')} primary, {colors.get('hover')} hover
 - Responsive design
 - NO emojis, NO prices
+- NO images (all content should be text-based with icons if needed)
 
 CRITICAL:
 - Page MUST have a CTA button at the bottom that links to contact.php
-- ONLY use images that are listed above (about.jpg, mission.jpg, values.jpg, team.jpg)
+- DO NOT use any images - create compelling content using text, typography, and icons only
+- Focus on storytelling through well-crafted text sections
 
 Return ONLY the content for <main> tag."""
             },
@@ -5049,18 +5061,12 @@ Return ONLY the content for <main> tag."""
             }
         ]
 
-        # Фильтруем статьи - показываем только те, для которых есть изображения
-        available_articles = []
-        for article in all_blog_articles:
-            # Извлекаем имя файла из пути (например 'blog1.jpg' из 'images/blog1.jpg')
-            img_filename = article['image'].replace('images/', '')
-            if self._has_image(img_filename):
-                available_articles.append(article)
-
-        # Выбираем 3 или 6 статей (или меньше если не хватает изображений)
-        num_articles = min(random.choice([3, 6]), len(available_articles))
+        # Выбираем 3 или 6 статей случайно
+        # Примечание: Изображения blog1-blog6 всегда генерируются (priority='required'),
+        # поэтому проверка наличия изображений не нужна
+        num_articles = random.choice([3, 6])
         self.num_blog_articles = num_articles  # Сохраняем для генерации страниц
-        blog_articles = available_articles[:num_articles]
+        blog_articles = all_blog_articles[:num_articles]
 
         # Создаем карточки статей
         article_cards = ''
@@ -5355,6 +5361,7 @@ Return ONLY the content for <main> tag."""
     def generate_website(self, user_prompt, site_name, num_images=24, output_dir="generated_website", data_dir="data", site_type="multipage"):
         """Основной метод генерации"""
         self.site_type = site_type
+        self.num_images_to_generate = num_images  # Сохраняем для использования в generate_home_sections()
 
         print("=" * 60)
         print(f"PHPGEN v16 - {'LANDING' if site_type == 'landing' else 'MULTIPAGE SITE'} GENERATOR")
