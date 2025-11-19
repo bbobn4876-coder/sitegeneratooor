@@ -2056,8 +2056,8 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             ethnicity_context = "diverse people"
 
         # ПРИОРИТЕТНЫЙ СПИСОК ИЗОБРАЖЕНИЙ
-        # Первые 10 - ОБЯЗАТЕЛЬНЫЕ (hero + 3 services + 6 blog)
-        # Остальные - ДОПОЛНИТЕЛЬНЫЕ (company, gallery, location)
+        # Первые 17 - ОБЯЗАТЕЛЬНЫЕ (hero + 3 services + 6 blog + 4 company + 3 gallery)
+        # Остальные - ДОПОЛНИТЕЛЬНЫЕ (gallery4, locations)
         images_to_generate = [
             # PRIORITY 1: Hero (обязательно - 1 шт)
             {
@@ -2112,43 +2112,44 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                 'priority': 'required',
                 'prompt': f"Professional blog header photograph for {theme} article. {location_context}. Attractive composition, relevant content, authentic setting, clear subject, natural lighting, photorealistic."
             },
-            # ДОПОЛНИТЕЛЬНЫЕ: Company (4 шт)
+            # PRIORITY 4: Company (обязательно - 4 шт)
             {
                 'filename': 'about.jpg',
-                'priority': 'optional',
+                'priority': 'required',
                 'prompt': f"Professional business photograph showing {theme} company culture. {location_context}. {ethnicity_context} in natural professional setting, authentic workplace environment, candid moments, warm atmosphere, photorealistic."
             },
             {
                 'filename': 'mission.jpg',
-                'priority': 'optional',
+                'priority': 'required',
                 'prompt': f"Inspiring photograph representing company mission and vision for {theme} business. {location_context}. Forward-thinking perspective, aspirational imagery, professional setting, authentic motivation, natural lighting, photorealistic."
             },
             {
                 'filename': 'values.jpg',
-                'priority': 'optional',
+                'priority': 'required',
                 'prompt': f"Professional photograph showcasing company values and culture for {theme}. {location_context}. {ethnicity_context} demonstrating teamwork and collaboration, authentic workplace values, positive atmosphere, photorealistic."
             },
             {
                 'filename': 'team.jpg',
-                'priority': 'optional',
+                'priority': 'required',
                 'prompt': f"Professional team photograph for {theme} company. {location_context}. {ethnicity_context} in business setting, diverse professional team, confident and approachable, natural group composition, photorealistic."
             },
-            # ДОПОЛНИТЕЛЬНЫЕ: Gallery (4 шт)
+            # PRIORITY 5: Gallery (обязательно - 3 шт)
             {
                 'filename': 'gallery1.jpg',
-                'priority': 'optional',
+                'priority': 'required',
                 'prompt': f"Showcase photograph highlighting {theme} work. {location_context}. Portfolio quality, interesting composition, professional execution, authentic project, natural lighting, photorealistic."
             },
             {
                 'filename': 'gallery2.jpg',
-                'priority': 'optional',
+                'priority': 'required',
                 'prompt': f"Professional portfolio photograph of {theme} project. {location_context}. Different perspective, quality craftsmanship, authentic work, detailed shot, natural light, photorealistic."
             },
             {
                 'filename': 'gallery3.jpg',
-                'priority': 'optional',
+                'priority': 'required',
                 'prompt': f"Quality showcase photograph for {theme} services. {location_context}. Professional presentation, real project example, clean composition, authentic work, photorealistic."
             },
+            # ДОПОЛНИТЕЛЬНЫЕ: Gallery 4 (1 шт)
             {
                 'filename': 'gallery4.jpg',
                 'priority': 'optional',
@@ -2193,13 +2194,13 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         required_images = [img for img in images_to_generate if img.get('priority') == 'required']
         optional_images = [img for img in images_to_generate if img.get('priority') == 'optional']
 
-        print(f"\n🖼️  Генерация изображений: {num_images} шт. (минимум 10 обязательных)")
-        print(f"   📌 Обязательные: {len(required_images)} (hero + 3 services + 6 blog)")
-        print(f"   ⭐ Дополнительные: {len(optional_images)} (company, gallery, locations)")
+        print(f"\n🖼️  Генерация изображений: {num_images} шт. (минимум 17 обязательных)")
+        print(f"   📌 Обязательные: {len(required_images)} (hero + 3 services + 6 blog + 4 company + 3 gallery)")
+        print(f"   ⭐ Дополнительные: {len(optional_images)} (gallery4, locations)")
 
         generated_count = 0
 
-        # ЭТАП 1: Генерируем ВСЕ обязательные изображения (10 шт)
+        # ЭТАП 1: Генерируем ВСЕ обязательные изображения (17 шт)
         print(f"\n   🔥 Этап 1/2: Генерация обязательных изображений...")
         for img_data in required_images:
             print(f"      → {img_data['filename']}...", end=' ')
@@ -4073,7 +4074,7 @@ setTimeout(showCookieNotice, 1000);
                 <h2 class="text-4xl font-bold mb-4">Our Gallery</h2>
                 <p class="text-gray-600 text-lg">Explore our latest projects and achievements</p>
             </div>
-            <div class="grid md:grid-cols-4 gap-6">
+            <div class="grid md:grid-cols-3 gap-6">
                 <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
                     <img src="images/gallery1.jpg" alt="Gallery 1" class="w-full h-64 object-cover">
                     <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-center justify-center">
@@ -4095,14 +4096,6 @@ setTimeout(showCookieNotice, 1000);
                     <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-center justify-center">
                         <p class="text-white text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             Innovation
-                        </p>
-                    </div>
-                </div>
-                <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <img src="images/gallery4.jpg" alt="Gallery 4" class="w-full h-64 object-cover">
-                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-center justify-center">
-                        <p class="text-white text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            Trusted Partner
                         </p>
                     </div>
                 </div>
@@ -4163,7 +4156,7 @@ setTimeout(showCookieNotice, 1000);
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
             <h2 class="text-4xl font-bold mb-12">Our Work</h2>
-            <div class="grid md:grid-cols-5 gap-4">
+            <div class="grid md:grid-cols-3 gap-6">
                 <div class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow">
                     <img src="images/gallery1.jpg" alt="Project 1" class="w-full h-48 object-cover">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
@@ -4180,18 +4173,6 @@ setTimeout(showCookieNotice, 1000);
                     <img src="images/gallery3.jpg" alt="Project 3" class="w-full h-48 object-cover">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
                         <p class="text-white font-semibold">Project Gamma</p>
-                    </div>
-                </div>
-                <div class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow">
-                    <img src="images/gallery4.jpg" alt="Project 4" class="w-full h-48 object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                        <p class="text-white font-semibold">Project Delta</p>
-                    </div>
-                </div>
-                <div class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow">
-                    <img src="images/service1.jpg" alt="Project 5" class="w-full h-48 object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                        <p class="text-white font-semibold">Project Epsilon</p>
                     </div>
                 </div>
             </div>
@@ -4286,22 +4267,23 @@ setTimeout(showCookieNotice, 1000);
         }
 
         # Фильтруем секции, требующие gallery изображения
-        # Gallery изображения (gallery1-4) имеют priority='optional' и генерируются только при num_images > 14
-        # Поэтому если изображений мало, исключаем gallery секции
+        # Gallery изображения gallery1-3 теперь required (минимум 17 изображений)
+        # gallery4 optional, генерируется только при num_images >= 18
+        # Секции gallery используют gallery1-4, но работают и с 3 изображениями
         sections_requiring_gallery = {'gallery_centered', 'gallery_horizontal'}
 
         # Проверяем, сколько изображений будет сгенерировано
-        # Приоритетные (required): hero(1) + services(3) + blog(6) = 10
-        # Если num_images <= 14, то gallery изображения не будут созданы
-        has_gallery_images = hasattr(self, 'num_images_to_generate') and self.num_images_to_generate > 14
+        # Приоритетные (required): hero(1) + services(3) + blog(6) + company(4) + gallery(3) = 17
+        # Gallery секции всегда доступны с минимумом 17 изображений
+        has_gallery_images = hasattr(self, 'num_images_to_generate') and self.num_images_to_generate >= 17
 
         # Выбираем доступные секции
         available_section_keys = list(all_sections.keys())
 
-        # Если gallery изображений не будет, убираем gallery секции
+        # Если gallery изображений не будет, убираем gallery секции (только при num_images < 17)
         if not has_gallery_images:
             available_section_keys = [k for k in available_section_keys if k not in sections_requiring_gallery]
-            print(f"  ⚠️  Gallery секции исключены (недостаточно изображений)")
+            print(f"  ⚠️  Gallery секции исключены (недостаточно изображений: нужно минимум 17)")
 
         # Выбираем 5-6 случайных секций из доступных
         random.shuffle(available_section_keys)
