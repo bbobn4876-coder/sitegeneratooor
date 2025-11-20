@@ -2038,16 +2038,37 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         location_context = ""
         ethnicity_context = ""
 
-        if any(word in country_lower for word in ['netherlands', 'dutch', 'holland']):
+        # Список европейских стран (только европеоиды, NO ASIAN appearance)
+        european_countries = [
+            # English names
+            'netherlands', 'dutch', 'holland', 'europe', 'european', 'uk', 'britain', 'united kingdom',
+            'germany', 'france', 'italy', 'spain', 'albania', 'andorra', 'armenia', 'austria',
+            'azerbaijan', 'belarus', 'belgium', 'bosnia', 'herzegovina', 'bulgaria', 'hungary',
+            'venezuela', 'greece', 'georgia', 'denmark', 'estonia', 'cyprus', 'latvia',
+            'liechtenstein', 'lithuania', 'luxembourg', 'malta', 'moldova', 'monaco', 'montenegro',
+            'norway', 'poland', 'portugal', 'macedonia', 'romania', 'russia', 'san marino',
+            'serbia', 'slovakia', 'slovenia', 'turkey', 'ukraine', 'finland', 'croatia',
+            'czech', 'switzerland', 'sweden',
+            # Russian names (Cyrillic)
+            'албания', 'андорра', 'армения', 'австрия', 'азербайджан', 'беларусь', 'бельгия',
+            'босния', 'герцеговина', 'болгария', 'великобритания', 'венгрия', 'венесуэла',
+            'германия', 'греция', 'грузия', 'дания', 'эстония', 'испания', 'италия', 'кипр',
+            'латвия', 'лихтенштейн', 'литва', 'люксембург', 'мальта', 'молдавия', 'молдова',
+            'монако', 'черногория', 'нидерланды', 'норвегия', 'польша', 'португалия',
+            'македония', 'румыния', 'россия', 'сан-марино', 'сербия', 'словакия', 'словения',
+            'турция', 'украина', 'финляндия', 'франция', 'хорватия', 'чехия', 'швейцария', 'швеция'
+        ]
+
+        if any(word in country_lower for word in ['netherlands', 'dutch', 'holland', 'нидерланды']):
             location_context = "in the Netherlands, Dutch architecture, windmills, canals, tulip fields, traditional Dutch buildings, European countryside"
-            ethnicity_context = "European people, Dutch ethnicity, Caucasian, Northern European features"
-        elif any(word in country_lower for word in ['europe', 'european', 'uk', 'britain', 'germany', 'france', 'italy', 'spain']):
+            ethnicity_context = "European people, Dutch ethnicity, Caucasian, Northern European features, NO Asian appearance"
+        elif any(word in country_lower for word in european_countries):
             location_context = "in Europe, European cities, historic architecture, European landmarks"
-            ethnicity_context = "European people, Caucasian, diverse European ethnicities"
-        elif any(word in country_lower for word in ['asia', 'asian', 'japan', 'china', 'singapore', 'korea', 'thailand']):
+            ethnicity_context = "European people, Caucasian, diverse European ethnicities, NO Asian appearance"
+        elif any(word in country_lower for word in ['asia', 'asian', 'japan', 'china', 'singapore', 'korea', 'thailand', 'азия']):
             location_context = "in Asia, Asian cities, Asian architecture"
             ethnicity_context = "Asian people, East Asian ethnicity"
-        elif any(word in country_lower for word in ['america', 'usa', 'united states']):
+        elif any(word in country_lower for word in ['america', 'usa', 'united states', 'америка', 'сша']):
             location_context = "in America, American cities, modern American architecture"
             ethnicity_context = "diverse American people, multicultural"
         else:
@@ -4260,6 +4281,334 @@ setTimeout(showCookieNotice, 1000);
     </section>""",
 
             'cards_6_slider': self.generate_our_locations_section(country, primary, hover),
+
+            # НОВЫЕ ТЕКСТОВЫЕ СЕКЦИИ (БЕЗ ИЗОБРАЖЕНИЙ)
+            'stats_section': f"""
+    <section class="py-20 bg-{primary}">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center text-white mb-16">Our Achievements</h2>
+            <div class="grid md:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="text-5xl font-bold text-white mb-2">500+</div>
+                    <p class="text-white/80 text-lg">Projects Completed</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold text-white mb-2">15+</div>
+                    <p class="text-white/80 text-lg">Years Experience</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold text-white mb-2">98%</div>
+                    <p class="text-white/80 text-lg">Client Satisfaction</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold text-white mb-2">50+</div>
+                    <p class="text-white/80 text-lg">Team Members</p>
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'why_choose_us': f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">Why Choose Us</h2>
+                <p class="text-gray-600 text-lg max-w-2xl mx-auto">We deliver exceptional results through our commitment to quality, innovation, and customer satisfaction</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center p-6">
+                    <div class="w-20 h-20 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-10 h-10 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Proven Track Record</h3>
+                    <p class="text-gray-600">Over 15 years of delivering successful projects across various industries</p>
+                </div>
+                <div class="text-center p-6">
+                    <div class="w-20 h-20 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-10 h-10 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Fast Delivery</h3>
+                    <p class="text-gray-600">We understand deadlines and consistently deliver projects on time</p>
+                </div>
+                <div class="text-center p-6">
+                    <div class="w-20 h-20 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-10 h-10 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Best Value</h3>
+                    <p class="text-gray-600">Competitive pricing without compromising on quality or service</p>
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'timeline_process': f"""
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">Our Process</h2>
+                <p class="text-gray-600 text-lg">A streamlined approach to deliver exceptional results</p>
+            </div>
+            <div class="max-w-4xl mx-auto">
+                <div class="relative">
+                    <div class="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-{primary}/20"></div>
+                    <div class="space-y-12">
+                        <div class="flex items-center">
+                            <div class="w-1/2 pr-8 text-right">
+                                <h3 class="text-2xl font-bold mb-2">1. Discovery</h3>
+                                <p class="text-gray-600">We analyze your needs and create a detailed project roadmap</p>
+                            </div>
+                            <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center text-white font-bold z-10">1</div>
+                            <div class="w-1/2 pl-8"></div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-1/2 pr-8"></div>
+                            <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center text-white font-bold z-10">2</div>
+                            <div class="w-1/2 pl-8">
+                                <h3 class="text-2xl font-bold mb-2">2. Planning</h3>
+                                <p class="text-gray-600">Strategic planning and resource allocation for optimal results</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-1/2 pr-8 text-right">
+                                <h3 class="text-2xl font-bold mb-2">3. Execution</h3>
+                                <p class="text-gray-600">Implementation with regular updates and quality checkpoints</p>
+                            </div>
+                            <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center text-white font-bold z-10">3</div>
+                            <div class="w-1/2 pl-8"></div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-1/2 pr-8"></div>
+                            <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center text-white font-bold z-10">4</div>
+                            <div class="w-1/2 pl-8">
+                                <h3 class="text-2xl font-bold mb-2">4. Delivery</h3>
+                                <p class="text-gray-600">Final review, optimization, and successful project handover</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'faq_section': f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">Frequently Asked Questions</h2>
+                <p class="text-gray-600 text-lg">Find answers to common questions about our services</p>
+            </div>
+            <div class="max-w-3xl mx-auto space-y-4">
+                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
+                    <h3 class="text-xl font-bold mb-2 text-{primary}">What services do you offer?</h3>
+                    <p class="text-gray-600">We provide comprehensive {theme} services tailored to your specific needs, including consultation, implementation, and ongoing support.</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
+                    <h3 class="text-xl font-bold mb-2 text-{primary}">How long does a typical project take?</h3>
+                    <p class="text-gray-600">Project timelines vary based on scope and complexity. We provide detailed timelines during the initial consultation phase.</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
+                    <h3 class="text-xl font-bold mb-2 text-{primary}">Do you offer support after project completion?</h3>
+                    <p class="text-gray-600">Yes, we provide comprehensive post-project support and maintenance to ensure long-term success.</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
+                    <h3 class="text-xl font-bold mb-2 text-{primary}">What makes your company different?</h3>
+                    <p class="text-gray-600">Our commitment to quality, personalized approach, and proven track record set us apart in the industry.</p>
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'approach_section': f"""
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-4xl font-bold text-center mb-16">Our Approach</h2>
+                <div class="space-y-8">
+                    <div class="flex gap-6">
+                        <div class="flex-shrink-0 w-16 h-16 bg-{primary} rounded-lg flex items-center justify-center text-white text-2xl font-bold">1</div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-3">Client-Centered Solutions</h3>
+                            <p class="text-gray-600 text-lg">We prioritize understanding your unique challenges and goals to deliver customized solutions that drive real results.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-6">
+                        <div class="flex-shrink-0 w-16 h-16 bg-{primary} rounded-lg flex items-center justify-center text-white text-2xl font-bold">2</div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-3">Innovation & Excellence</h3>
+                            <p class="text-gray-600 text-lg">We combine cutting-edge techniques with industry best practices to ensure superior outcomes.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-6">
+                        <div class="flex-shrink-0 w-16 h-16 bg-{primary} rounded-lg flex items-center justify-center text-white text-2xl font-bold">3</div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-3">Transparent Communication</h3>
+                            <p class="text-gray-600 text-lg">Regular updates and open dialogue ensure you're always informed about your project's progress.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'benefits_grid': f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-16">Key Benefits</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="p-6 border-l-4 border-{primary} bg-gray-50">
+                    <h3 class="text-xl font-bold mb-3">Cost Efficiency</h3>
+                    <p class="text-gray-600">Maximize your ROI with our optimized processes and competitive pricing structure</p>
+                </div>
+                <div class="p-6 border-l-4 border-{primary} bg-gray-50">
+                    <h3 class="text-xl font-bold mb-3">Scalability</h3>
+                    <p class="text-gray-600">Solutions designed to grow with your business needs and adapt to market changes</p>
+                </div>
+                <div class="p-6 border-l-4 border-{primary} bg-gray-50">
+                    <h3 class="text-xl font-bold mb-3">24/7 Support</h3>
+                    <p class="text-gray-600">Round-the-clock assistance to ensure your operations run smoothly</p>
+                </div>
+                <div class="p-6 border-l-4 border-{primary} bg-gray-50">
+                    <h3 class="text-xl font-bold mb-3">Expert Team</h3>
+                    <p class="text-gray-600">Skilled professionals with extensive industry experience and certifications</p>
+                </div>
+                <div class="p-6 border-l-4 border-{primary} bg-gray-50">
+                    <h3 class="text-xl font-bold mb-3">Quality Assurance</h3>
+                    <p class="text-gray-600">Rigorous testing and quality control at every stage of development</p>
+                </div>
+                <div class="p-6 border-l-4 border-{primary} bg-gray-50">
+                    <h3 class="text-xl font-bold mb-3">Innovation</h3>
+                    <p class="text-gray-600">Stay ahead with the latest technologies and industry best practices</p>
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'testimonials_text': f"""
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-16">What Our Clients Say</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-xl shadow-md">
+                    <div class="text-{primary} text-4xl mb-4">"</div>
+                    <p class="text-gray-600 mb-6">Outstanding service and exceptional results. The team went above and beyond to ensure our project's success.</p>
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="text-yellow-400">★★★★★</div>
+                    </div>
+                    <p class="font-bold">John Anderson</p>
+                    <p class="text-gray-500 text-sm">CEO, Tech Solutions</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-md">
+                    <div class="text-{primary} text-4xl mb-4">"</div>
+                    <p class="text-gray-600 mb-6">Professional, reliable, and highly skilled. They delivered exactly what we needed, on time and within budget.</p>
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="text-yellow-400">★★★★★</div>
+                    </div>
+                    <p class="font-bold">Sarah Mitchell</p>
+                    <p class="text-gray-500 text-sm">Director, Marketing Agency</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-md">
+                    <div class="text-{primary} text-4xl mb-4">"</div>
+                    <p class="text-gray-600 mb-6">Excellent communication throughout the project. Their expertise and dedication made all the difference.</p>
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="text-yellow-400">★★★★★</div>
+                    </div>
+                    <p class="font-bold">Michael Chen</p>
+                    <p class="text-gray-500 text-sm">Founder, StartupHub</p>
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'cta_centered': f"""
+    <section class="py-20 bg-{primary}">
+        <div class="container mx-auto px-6">
+            <div class="max-w-3xl mx-auto text-center">
+                <h2 class="text-4xl font-bold text-white mb-6">Ready to Get Started?</h2>
+                <p class="text-white/90 text-xl mb-8">Let's discuss how we can help you achieve your goals and transform your business</p>
+                <div class="flex flex-wrap gap-4 justify-center">
+                    <a href="contact.php" class="inline-block bg-white text-{primary} px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition shadow-lg">
+                        Contact Us Today
+                    </a>
+                    <a href="services.php" class="inline-block bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-{primary} transition">
+                        View Services
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>""",
+
+            'features_list': f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-4xl font-bold mb-6">What Sets Us Apart</h2>
+                    <p class="text-gray-600 text-lg mb-8">We combine expertise, innovation, and dedication to deliver exceptional results that exceed expectations.</p>
+                    <div class="space-y-4">
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0 w-6 h-6 bg-{primary} rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg mb-1">Industry-Leading Expertise</h3>
+                                <p class="text-gray-600">Our team brings years of specialized experience to every project</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0 w-6 h-6 bg-{primary} rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg mb-1">Customized Solutions</h3>
+                                <p class="text-gray-600">Tailored approaches designed specifically for your unique needs</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0 w-6 h-6 bg-{primary} rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg mb-1">Results-Driven Approach</h3>
+                                <p class="text-gray-600">Focused on delivering measurable outcomes and ROI</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0 w-6 h-6 bg-{primary} rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg mb-1">Ongoing Partnership</h3>
+                                <p class="text-gray-600">Long-term support and collaboration beyond project completion</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="bg-gradient-to-br from-{primary} to-{hover} rounded-xl p-12 text-white">
+                        <h3 class="text-3xl font-bold mb-6">Let's Build Something Great Together</h3>
+                        <p class="text-white/90 mb-8">Contact us today to discuss your project and discover how we can help you achieve your goals.</p>
+                        <a href="contact.php" class="inline-block bg-white text-{primary} px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition">
+                            Start Your Project
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>""",
         }
 
         # Фильтруем секции, требующие gallery изображения
