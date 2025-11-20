@@ -177,7 +177,16 @@ class PHPWebsiteGenerator:
             "Education": "LearnHub, KnowNest, StudyCraft, EduFlow, BrainPoint, SkillSpot",
             "IT": "CodeNest, TechFlow, ByteCraft, DataHub, CloudPoint, DevSpot",
             "Real Estate": "PropertyNest, HomeHub, EstateFlow, DwellCraft, SpacePoint, HouseSpot",
-            "Travel": "WanderHub, TripNest, JourneyCraft, TravelFlow, RoutePoint, TourSpot"
+            "Travel": "WanderHub, TripNest, JourneyCraft, TravelFlow, RoutePoint, TourSpot",
+            "IT Training": "SkillForge, CodeAcademy, LearnTech, DevMentor, TechSkills, ByteLearn",
+            "Legal Consulting": "LawCounsel, JusticePoint, LegalWise, RightAdvice, LawGuide, CounselHub",
+            "Furniture Store": "HomeCraft, FurnishNest, ComfortSpace, StyleHaven, WoodWorks, DecorHub",
+            "Online Stores": "StyleCart, FashionFlow, TrendHub, ChicShop, ModaVault, DressPoint",
+            "Online Courses": "LearnOnline, CourseHub, SkillStream, EduPath, KnowledgeFlow, StudyWave",
+            "Travel Service Ratings": "TripRate, TravelScore, JourneyReview, RateVoyage, TourInsight, TripVerdict",
+            "Technology": "TechWave, InnovateLab, FutureCore, DigitalEdge, NextGen, TechVision",
+            "Car Sales": "AutoHub, DrivePoint, CarSelect, MotorNest, WheelCraft, VehicleFlow",
+            "Psychology": "MindCare, TherapyHub, MentalWell, PsychoSupport, MindFlow, ThoughtSpace"
         }
         
         # Получаем примеры для конкретной тематики
@@ -219,7 +228,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             
             # Проверяем, что название не содержит запрещенные слова для неIT тематик
             forbidden_for_non_it = ['digital', 'tech', 'cyber', 'web', 'net', 'byte', 'data', 'cloud', 'code']
-            if theme not in ['IT', 'Technology', 'Software', 'Digital'] and any(word in site_name.lower() for word in forbidden_for_non_it):
+            tech_allowed_themes = ['IT', 'Technology', 'Software', 'Digital', 'IT Training', 'Online Courses']
+            if theme not in tech_allowed_themes and any(word in site_name.lower() for word in forbidden_for_non_it):
                 # Если название неподходящее, используем fallback для тематики
                 return self._get_fallback_name(theme)
             
@@ -240,7 +250,16 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             "Education": "Focus on learning, knowledge, teaching, skills. Can use tech for e-learning.",
             "IT": "Focus on technology, software, code, data, digital solutions.",
             "Real Estate": "Focus on property, homes, spaces, dwellings. Avoid tech terms.",
-            "Travel": "Focus on journey, destinations, adventure, exploration. Avoid tech terms."
+            "Travel": "Focus on journey, destinations, adventure, exploration. Avoid tech terms.",
+            "IT Training": "Focus on learning, skills, coding, development, education. Can use tech terms.",
+            "Legal Consulting": "Focus on law, justice, counsel, legal advice, rights. Avoid tech terms.",
+            "Furniture Store": "Focus on furniture, home, comfort, style, wood, decor. Avoid tech terms.",
+            "Online Stores": "Focus on fashion, style, clothing, shopping, trends. Can use e-commerce tech terms.",
+            "Online Courses": "Focus on learning, education, knowledge, training, skills. Can use tech terms.",
+            "Travel Service Ratings": "Focus on reviews, ratings, travel, trips, feedback. Avoid tech terms.",
+            "Technology": "Focus on innovation, tech, digital, future, solutions, cutting-edge.",
+            "Car Sales": "Focus on cars, vehicles, automotive, driving, wheels. Avoid tech terms unless for electric/smart cars.",
+            "Psychology": "Focus on mind, mental health, therapy, wellness, counseling. Avoid tech terms."
         }
         return guidance.get(theme, "Create a name that reflects the core business values and services.")
     
@@ -256,7 +275,16 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             "Education": ["LearnHub", "KnowNest", "StudyCraft", "EduFlow", "BrainPoint"],
             "IT": ["TechWave", "CloudNest", "DataSphere", "CodeCraft", "ByteForge"],
             "Real Estate": ["PropertyNest", "HomeHub", "EstateFlow", "DwellCraft", "SpacePoint"],
-            "Travel": ["WanderHub", "TripNest", "JourneyCraft", "TravelFlow", "RoutePoint"]
+            "Travel": ["WanderHub", "TripNest", "JourneyCraft", "TravelFlow", "RoutePoint"],
+            "IT Training": ["SkillForge", "CodeAcademy", "LearnTech", "DevMentor", "TechSkills"],
+            "Legal Consulting": ["LawCounsel", "JusticePoint", "LegalWise", "RightAdvice", "LawGuide"],
+            "Furniture Store": ["HomeCraft", "FurnishNest", "ComfortSpace", "StyleHaven", "WoodWorks"],
+            "Online Stores": ["StyleCart", "FashionFlow", "TrendHub", "ChicShop", "ModaVault"],
+            "Online Courses": ["LearnOnline", "CourseHub", "SkillStream", "EduPath", "KnowledgeFlow"],
+            "Travel Service Ratings": ["TripRate", "TravelScore", "JourneyReview", "RateVoyage", "TourInsight"],
+            "Technology": ["TechWave", "InnovateLab", "FutureCore", "DigitalEdge", "NextGen"],
+            "Car Sales": ["AutoHub", "DrivePoint", "CarSelect", "MotorNest", "WheelCraft"],
+            "Psychology": ["MindCare", "TherapyHub", "MentalWell", "PsychoSupport", "MindFlow"]
         }
         names = fallback_names.get(theme, ["TechWave", "CloudNest", "DataSphere", "CodeCraft", "ByteForge"])
         return random.choice(names)
@@ -369,6 +397,13 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         if cache_key in self.theme_content_cache:
             return self.theme_content_cache[cache_key]
 
+        # Специальные инструкции для определенных тем
+        theme_specific_instructions = ""
+        if theme == "Furniture Store":
+            theme_specific_instructions = "\nIMPORTANT: Do NOT mention any prices, costs, or pricing information. Focus on quality, style, and features only."
+        elif theme == "Online Stores":
+            theme_specific_instructions = "\nIMPORTANT: This is a women's clothing store. Focus on women's fashion, apparel, and accessories."
+
         # Создаем промпт в зависимости от типа контента
         if content_type == "process_steps":
             prompt = f"""Generate {num_items} process steps for a {theme} business/website.
@@ -376,7 +411,7 @@ Return the result as a JSON array of objects, where each object has:
 - "title": short step title (2-4 words)
 - "description": detailed step description (1-2 sentences)
 
-Make the content highly specific to the {theme} industry. Use industry-specific terminology and realistic workflow.
+Make the content highly specific to the {theme} industry. Use industry-specific terminology and realistic workflow.{theme_specific_instructions}
 
 Example format:
 [
@@ -393,7 +428,7 @@ Return the result as a JSON array of objects, where each object has:
 - "description": compelling description (1-2 sentences)
 - "image": placeholder image filename like "service1.jpg", "service2.jpg", etc.
 
-Make the content highly specific to the {theme} industry. Focus on real solutions that such a business would offer.
+Make the content highly specific to the {theme} industry. Focus on real solutions that such a business would offer.{theme_specific_instructions}
 
 Example format:
 [
@@ -413,7 +448,7 @@ Return the result as a JSON object with these exact keys:
 - "why_text1": First paragraph about why choose (2-3 sentences, include "{theme}" in the text)
 - "why_text2": Second paragraph about why choose (2-3 sentences)
 
-Make the content highly specific to the {theme} industry and business model.
+Make the content highly specific to the {theme} industry and business model.{theme_specific_instructions}
 
 Example format:
 {{
@@ -433,7 +468,7 @@ Return the result as a JSON array of objects, where each object has:
 - "title": service name (2-4 words)
 - "description": service description (1-2 sentences)
 
-Make the content highly specific to the {theme} industry. These should be core services that such a business would realistically offer.
+Make the content highly specific to the {theme} industry. These should be core services that such a business would realistically offer.{theme_specific_instructions}
 
 Example format:
 [
