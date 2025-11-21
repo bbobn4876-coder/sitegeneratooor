@@ -974,6 +974,194 @@ Example:
 
 Return ONLY valid JSON array with {num_items} items, no additional text or markdown formatting."""
 
+        elif content_type == "hero_content":
+            prompt = f"""Generate hero section content for a {theme} business.
+
+Return as JSON object with these EXACT fields:
+- "title": Main hero title (3-6 words, should be impactful)
+- "subtitle": Hero subtitle/tagline (10-15 words, describing value proposition)
+- "button_primary": Primary button text (2-3 words, call to action)
+- "button_secondary": Secondary button text (2-3 words, alternative action)
+
+Be specific to {theme} industry. Make it compelling and professional.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+{{
+  "title": "Transform Your Business",
+  "subtitle": "Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.",
+  "button_primary": "Get Started",
+  "button_secondary": "Learn More"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "achievements_content":
+            prompt = f"""Generate achievements/statistics section for a {theme} business.
+
+Return as JSON object with these EXACT fields:
+- "heading": Section heading (e.g., "Our Achievements", "Our Stats", "By The Numbers")
+- "stat1_number": First statistic number (e.g., "500+", "15+")
+- "stat1_label": First statistic label (2-3 words)
+- "stat2_number": Second statistic number
+- "stat2_label": Second statistic label (2-3 words)
+- "stat3_number": Third statistic number
+- "stat3_label": Third statistic label (2-3 words)
+- "stat4_number": Fourth statistic number
+- "stat4_label": Fourth statistic label (2-3 words)
+
+Be specific to {theme} industry. Use realistic, impressive but believable numbers.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+{{
+  "heading": "Our Achievements",
+  "stat1_number": "500+",
+  "stat1_label": "Projects Completed",
+  "stat2_number": "15+",
+  "stat2_label": "Years Experience",
+  "stat3_number": "98%",
+  "stat3_label": "Client Satisfaction",
+  "stat4_number": "50+",
+  "stat4_label": "Team Members"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "testimonials_content":
+            prompt = f"""Generate {num_items} client testimonials for a {theme} business.
+
+Return as JSON array with these EXACT fields for each testimonial:
+- "quote": The testimonial text (15-25 words, authentic and specific)
+- "name": Client full name
+- "position": Job title (2-4 words)
+- "company": Company name or description (2-4 words)
+- "rating": Always "5" (5 stars)
+
+Be specific to {theme} industry. Make testimonials sound genuine and professional.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+[
+  {{"quote": "Outstanding service and exceptional results. The team went above and beyond to ensure our project's success.", "name": "John Anderson", "position": "CEO", "company": "Tech Solutions", "rating": "5"}},
+  {{"quote": "Professional, reliable, and highly skilled. They delivered exactly what we needed, on time and within budget.", "name": "Sarah Mitchell", "position": "Director", "company": "Marketing Agency", "rating": "5"}}
+]
+
+Return ONLY valid JSON array with {num_items} items, no additional text or markdown formatting."""
+
+        elif content_type == "benefits_content":
+            prompt = f"""Generate {num_items} key benefits for a {theme} business.
+
+Return as JSON array with these EXACT fields for each benefit:
+- "title": Benefit name (2-4 words)
+- "description": Benefit description (10-15 words)
+
+Be specific to {theme} industry. Focus on real business benefits.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+[
+  {{"title": "Cost Efficiency", "description": "Maximize your ROI with our optimized processes and competitive pricing structure"}},
+  {{"title": "Scalability", "description": "Solutions designed to grow with your business needs and adapt to market changes"}},
+  {{"title": "24/7 Support", "description": "Round-the-clock assistance to ensure your operations run smoothly"}}
+]
+
+Return ONLY valid JSON array with {num_items} items, no additional text or markdown formatting."""
+
+        elif content_type == "cta_content":
+            prompt = f"""Generate call-to-action section content for a {theme} business.
+
+Return as JSON object with these EXACT fields:
+- "heading": CTA heading (3-6 words, should be action-oriented)
+- "subheading": Supporting text (10-15 words, explain the value)
+- "button_primary": Primary button text (2-4 words)
+- "button_secondary": Secondary button text (2-4 words)
+
+Be specific to {theme} industry. Make it compelling and clear.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+{{
+  "heading": "Ready to Get Started?",
+  "subheading": "Let's discuss how we can help you achieve your goals and transform your business",
+  "button_primary": "Contact Us Today",
+  "button_secondary": "View Services"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "contact_page_content":
+            prompt = f"""Generate contact page content for a {theme} business.
+
+Return as JSON object with these EXACT fields:
+- "heading": Page heading (2-4 words, e.g., "Contact Us", "Get In Touch")
+- "subheading": Page description (15-20 words)
+- "name_label": Form field label for name (1-2 words)
+- "email_label": Form field label for email (1-2 words)
+- "phone_label": Form field label for phone (1-2 words)
+- "message_label": Form field label for message (1-2 words)
+- "submit_button": Submit button text (2-3 words)
+- "info_heading": Contact info section heading (2-3 words)
+- "address_label": Address label (1 word)
+- "phone_label_display": Phone display label (1 word)
+- "email_label_display": Email display label (1 word)
+
+{language_instruction}
+
+Example:
+{{
+  "heading": "Contact Us",
+  "subheading": "Have a question or want to discuss your project? We'd love to hear from you. Fill out the form below.",
+  "name_label": "Your Name",
+  "email_label": "Email",
+  "phone_label": "Phone",
+  "message_label": "Message",
+  "submit_button": "Send Message",
+  "info_heading": "Contact Information",
+  "address_label": "Address",
+  "phone_label_display": "Phone",
+  "email_label_display": "Email"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "blog_page_content":
+            prompt = f"""Generate blog page content for a {theme} business.
+
+Return as JSON object with these EXACT fields:
+- "heading": Page heading (2-4 words, e.g., "Our Blog", "Latest News", "Insights")
+- "subheading": Page description (10-15 words)
+- "read_more": Read more button text (2-3 words)
+- "no_posts": Message when no posts available (5-8 words)
+
+Be specific to {theme} industry.{language_instruction}
+
+Example:
+{{
+  "heading": "Our Blog",
+  "subheading": "Stay updated with the latest insights, trends, and news from the {theme} industry",
+  "read_more": "Read More",
+  "no_posts": "No blog posts available yet"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "policy_content":
+            prompt = f"""Generate privacy policy, terms of service, and cookie policy headings for a {theme} business.
+
+Return as JSON object with these EXACT fields:
+- "privacy_policy": Privacy Policy page title (2-3 words)
+- "terms_of_service": Terms of Service page title (3-4 words)
+- "cookie_policy": Cookie Policy page title (2-3 words)
+- "last_updated": "Last Updated" label (2-3 words)
+
+{language_instruction}
+
+Example:
+{{
+  "privacy_policy": "Privacy Policy",
+  "terms_of_service": "Terms of Service",
+  "cookie_policy": "Cookie Policy",
+  "last_updated": "Last Updated"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
         else:
             return None
 
@@ -981,10 +1169,12 @@ Return ONLY valid JSON array with {num_items} items, no additional text or markd
         # Некоторые типы контента требуют больше токенов
         if content_type == "work_showcase":
             max_tokens = 3000  # Больше токенов для 4 детальных кейсов
-        elif content_type in ["services", "featured_solutions", "process_steps", "blog_posts"]:
+        elif content_type in ["services", "featured_solutions", "process_steps", "blog_posts", "benefits_content"]:
             max_tokens = 2500  # Увеличенный лимит для списков
+        elif content_type == "testimonials_content":
+            max_tokens = 2000  # Достаточно для 3 отзывов
         else:
-            max_tokens = 2000
+            max_tokens = 1500  # Для простых объектов (hero, achievements, cta, contact, blog, policy)
 
         print(f"    🤖 Генерация контента для темы '{theme}' ({content_type})...")
         response = self.call_api(prompt, max_tokens=max_tokens)
@@ -1041,12 +1231,18 @@ Return ONLY valid JSON array with {num_items} items, no additional text or markd
                     return None
 
             # Для других типов списков - проверяем что получили хотя бы что-то
-            elif content_type in ["services", "featured_solutions", "process_steps", "blog_posts"]:
+            elif content_type in ["services", "featured_solutions", "process_steps", "blog_posts", "testimonials_content", "benefits_content"]:
                 if not isinstance(content, list) or len(content) == 0:
                     print(f"    ⚠️  Не получено элементов для {content_type}, используем fallback")
                     return None
                 elif len(content) < num_items:
                     print(f"    ⚠️  Получено {len(content)} элементов вместо {num_items} для {content_type}, используем их")
+
+            # Для объектных типов контента - проверяем что это словарь
+            elif content_type in ["hero_content", "achievements_content", "cta_content", "contact_page_content", "blog_page_content", "policy_content"]:
+                if not isinstance(content, dict):
+                    print(f"    ⚠️  Получен неверный тип данных для {content_type}, используем fallback")
+                    return None
 
             # Сохраняем в кэш
             self.theme_content_cache[cache_key] = content
@@ -4627,6 +4823,24 @@ setTimeout(showCookieNotice, 1000);
 
     def generate_hero_section(self, site_name, theme, primary, hover):
         """Генерация Hero секции с 5 вариациями"""
+        # Получаем контент через API
+        hero_data = self.generate_theme_content_via_api(theme, "hero_content", 1)
+
+        # Fallback если API не вернул результат
+        if not hero_data:
+            hero_data = {
+                'title': f'Welcome to {site_name}',
+                'subtitle': f'Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.',
+                'button_primary': 'About Us',
+                'button_secondary': 'Contact'
+            }
+
+        # Извлекаем данные
+        title = hero_data.get('title', f'Welcome to {site_name}')
+        subtitle = hero_data.get('subtitle', f'Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.')
+        button_primary = hero_data.get('button_primary', 'About Us')
+        button_secondary = hero_data.get('button_secondary', 'Contact')
+
         # Проверяем наличие hero.jpg для вариантов с изображением
         has_hero = self._has_image('hero.jpg')
 
@@ -4643,14 +4857,14 @@ setTimeout(showCookieNotice, 1000);
         <div class="container mx-auto px-6">
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 <div>
-                    <h1 class="text-5xl md:text-6xl font-bold mb-6">Welcome to {site_name}</h1>
-                    <p class="text-xl text-gray-600 mb-8">Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.</p>
+                    <h1 class="text-5xl md:text-6xl font-bold mb-6">{title}</h1>
+                    <p class="text-xl text-gray-600 mb-8">{subtitle}</p>
                     <div class="flex flex-col sm:flex-row gap-4">
                         <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl text-center">
-                            About Us
+                            {button_primary}
                         </a>
                         <a href="contact.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition text-center">
-                            Contact
+                            {button_secondary}
                         </a>
                     </div>
                 </div>
@@ -4692,14 +4906,14 @@ setTimeout(showCookieNotice, 1000);
 
         <div class="container mx-auto px-6 relative z-10">
             <div class="max-w-4xl mx-auto text-center text-white">
-                <h1 class="text-5xl md:text-7xl font-bold mb-6 drop-shadow-lg">Welcome to {site_name}</h1>
-                <p class="text-xl md:text-2xl mb-8 drop-shadow-lg">Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.</p>
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 drop-shadow-lg">{title}</h1>
+                <p class="text-xl md:text-2xl mb-8 drop-shadow-lg">{subtitle}</p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <a href="company.php" class="inline-block bg-white hover:bg-gray-100 text-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
-                        About Us
+                        {button_primary}
                     </a>
                     <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
-                        Contact
+                        {button_secondary}
                     </a>
                 </div>
             </div>
@@ -4732,17 +4946,17 @@ setTimeout(showCookieNotice, 1000);
         <div class="container mx-auto px-6">
             <div class="max-w-4xl mx-auto text-center">
                 <h1 class="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-{primary} to-{hover} bg-clip-text text-transparent">
-                    Welcome to {site_name}
+                    {title}
                 </h1>
                 <p class="text-xl md:text-2xl text-gray-600 mb-8">
-                    Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.
+                    {subtitle}
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
-                        About Us
+                        {button_primary}
                     </a>
                     <a href="contact.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition">
-                        Contact
+                        {button_secondary}
                     </a>
                 </div>
             </div>
@@ -4763,11 +4977,11 @@ setTimeout(showCookieNotice, 1000);
 
         <div class="container mx-auto px-6 relative z-10">
             <div class="max-w-4xl mx-auto text-center text-white">
-                <h1 class="text-6xl md:text-8xl font-bold mb-6 drop-shadow-2xl">Welcome to {site_name}</h1>
-                <p class="text-2xl md:text-3xl mb-12 drop-shadow-lg">Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.</p>
+                <h1 class="text-6xl md:text-8xl font-bold mb-6 drop-shadow-2xl">{title}</h1>
+                <p class="text-2xl md:text-3xl mb-12 drop-shadow-lg">{subtitle}</p>
                 <div class="flex justify-center">
                     <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-12 py-5 rounded-lg text-xl font-bold transition shadow-2xl hover:shadow-3xl transform hover:-translate-y-1">
-                        Contact Us
+                        {button_secondary}
                     </a>
                 </div>
             </div>
@@ -4785,14 +4999,14 @@ setTimeout(showCookieNotice, 1000);
                     <img src="images/hero.jpg" alt="{site_name}" class="rounded-2xl shadow-2xl w-full h-96 object-cover">
                 </div>
                 <div class="order-1 md:order-2">
-                    <h1 class="text-5xl md:text-6xl font-bold mb-6">Welcome to {site_name}</h1>
-                    <p class="text-xl text-gray-600 mb-8">Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.</p>
+                    <h1 class="text-5xl md:text-6xl font-bold mb-6">{title}</h1>
+                    <p class="text-xl text-gray-600 mb-8">{subtitle}</p>
                     <div class="flex flex-col sm:flex-row gap-4">
                         <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl text-center">
-                            About Us
+                            {button_primary}
                         </a>
                         <a href="contact.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition text-center">
-                            Contact
+                            {button_secondary}
                         </a>
                     </div>
                 </div>
@@ -5043,6 +5257,153 @@ setTimeout(showCookieNotice, 1000);
     </section>
 </main>"""
 
+    def generate_stats_section(self, theme, primary):
+        """Генерирует секцию статистики через API с языковой поддержкой"""
+        achievements_data = self.generate_theme_content_via_api(theme, "achievements_content", 1)
+
+        # Fallback если API не вернул результат
+        if not achievements_data:
+            achievements_data = {
+                'heading': 'Our Achievements',
+                'stat1_number': '500+',
+                'stat1_label': 'Projects Completed',
+                'stat2_number': '15+',
+                'stat2_label': 'Years Experience',
+                'stat3_number': '98%',
+                'stat3_label': 'Client Satisfaction',
+                'stat4_number': '50+',
+                'stat4_label': 'Team Members'
+            }
+
+        return f"""
+    <section class="py-20 bg-{primary}">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center text-white mb-16">{achievements_data.get('heading', 'Our Achievements')}</h2>
+            <div class="grid md:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="text-5xl font-bold text-white mb-2">{achievements_data.get('stat1_number', '500+')}</div>
+                    <p class="text-white/80 text-lg">{achievements_data.get('stat1_label', 'Projects Completed')}</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold text-white mb-2">{achievements_data.get('stat2_number', '15+')}</div>
+                    <p class="text-white/80 text-lg">{achievements_data.get('stat2_label', 'Years Experience')}</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold text-white mb-2">{achievements_data.get('stat3_number', '98%')}</div>
+                    <p class="text-white/80 text-lg">{achievements_data.get('stat3_label', 'Client Satisfaction')}</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold text-white mb-2">{achievements_data.get('stat4_number', '50+')}</div>
+                    <p class="text-white/80 text-lg">{achievements_data.get('stat4_label', 'Team Members')}</p>
+                </div>
+            </div>
+        </div>
+    </section>"""
+
+    def generate_benefits_section(self, theme, primary):
+        """Генерирует секцию Key Benefits через API с языковой поддержкой"""
+        benefits = self.generate_theme_content_via_api(theme, "benefits_content", 6)
+
+        # Fallback если API не вернул результат
+        if not benefits:
+            benefits = [
+                {'title': 'Cost Efficiency', 'description': 'Maximize your ROI with our optimized processes and competitive pricing structure'},
+                {'title': 'Scalability', 'description': 'Solutions designed to grow with your business needs and adapt to market changes'},
+                {'title': '24/7 Support', 'description': 'Round-the-clock assistance to ensure your operations run smoothly'},
+                {'title': 'Expert Team', 'description': 'Skilled professionals with extensive industry experience and certifications'},
+                {'title': 'Quality Assurance', 'description': 'Rigorous testing and quality control at every stage of development'},
+                {'title': 'Innovation', 'description': 'Stay ahead with the latest technologies and industry best practices'}
+            ]
+
+        # Генерируем карточки преимуществ
+        cards_html = ''
+        for benefit in benefits[:6]:
+            cards_html += f"""
+                <div class="p-6 border-l-4 border-{primary} bg-gray-50">
+                    <h3 class="text-xl font-bold mb-3">{benefit.get('title', 'Benefit')}</h3>
+                    <p class="text-gray-600">{benefit.get('description', 'Description')}</p>
+                </div>"""
+
+        # Получаем заголовок через тот же API (используем первый benefit для заголовка или дефолт)
+        # Для заголовка используем стандартный текст, который будет переведен через API
+        language = self.blueprint.get('language', 'English')
+        heading = 'Key Benefits' if language == 'English' else achievements_data.get('heading', 'Key Benefits') if 'achievements_data' in locals() else 'Key Benefits'
+
+        return f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-16">Key Benefits</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">{cards_html}
+            </div>
+        </div>
+    </section>"""
+
+    def generate_testimonials_section(self, theme, primary):
+        """Генерирует секцию отзывов через API с языковой поддержкой"""
+        testimonials = self.generate_theme_content_via_api(theme, "testimonials_content", 3)
+
+        # Fallback если API не вернул результат
+        if not testimonials:
+            testimonials = [
+                {'quote': 'Outstanding service and exceptional results. The team went above and beyond to ensure our project success.', 'name': 'John Anderson', 'position': 'CEO', 'company': 'Tech Solutions', 'rating': '5'},
+                {'quote': 'Professional, reliable, and highly skilled. They delivered exactly what we needed, on time and within budget.', 'name': 'Sarah Mitchell', 'position': 'Director', 'company': 'Marketing Agency', 'rating': '5'},
+                {'quote': 'Excellent communication throughout the project. Their expertise and dedication made all the difference.', 'name': 'Michael Chen', 'position': 'Founder', 'company': 'StartupHub', 'rating': '5'}
+            ]
+
+        # Генерируем карточки отзывов
+        cards_html = ''
+        for testimonial in testimonials[:3]:
+            cards_html += f"""
+                <div class="bg-white p-8 rounded-xl shadow-md">
+                    <div class="text-{primary} text-4xl mb-4">"</div>
+                    <p class="text-gray-600 mb-6">{testimonial.get('quote', 'Great service!')}</p>
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="text-yellow-400">★★★★★</div>
+                    </div>
+                    <p class="font-bold">{testimonial.get('name', 'Client')}</p>
+                    <p class="text-gray-500 text-sm">{testimonial.get('position', 'Position')}, {testimonial.get('company', 'Company')}</p>
+                </div>"""
+
+        return f"""
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-16">What Our Clients Say</h2>
+            <div class="grid md:grid-cols-3 gap-8">{cards_html}
+            </div>
+        </div>
+    </section>"""
+
+    def generate_cta_section(self, theme, primary):
+        """Генерирует секцию Call-to-Action через API с языковой поддержкой"""
+        cta_data = self.generate_theme_content_via_api(theme, "cta_content", 1)
+
+        # Fallback если API не вернул результат
+        if not cta_data:
+            cta_data = {
+                'heading': 'Ready to Get Started?',
+                'subheading': 'Let us discuss how we can help you achieve your goals and transform your business',
+                'button_primary': 'Contact Us Today',
+                'button_secondary': 'View Services'
+            }
+
+        return f"""
+    <section class="py-20 bg-{primary}">
+        <div class="container mx-auto px-6">
+            <div class="max-w-3xl mx-auto text-center">
+                <h2 class="text-4xl font-bold text-white mb-6">{cta_data.get('heading', 'Ready to Get Started?')}</h2>
+                <p class="text-white/90 text-xl mb-8">{cta_data.get('subheading', 'Let us discuss how we can help you achieve your goals')}</p>
+                <div class="flex flex-wrap gap-4 justify-center">
+                    <a href="contact.php" class="inline-block bg-white text-{primary} px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition shadow-lg">
+                        {cta_data.get('button_primary', 'Contact Us Today')}
+                    </a>
+                    <a href="services.php" class="inline-block bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-{primary} transition">
+                        {cta_data.get('button_secondary', 'View Services')}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>"""
+
     def generate_home_sections(self):
         """Генерация случайных секций для Home страницы"""
         site_name = self.blueprint.get('site_name', 'Company')
@@ -5106,30 +5467,7 @@ setTimeout(showCookieNotice, 1000);
     </section>""",
 
             # НОВЫЕ ТЕКСТОВЫЕ СЕКЦИИ (БЕЗ ИЗОБРАЖЕНИЙ)
-            'stats_section': f"""
-    <section class="py-20 bg-{primary}">
-        <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center text-white mb-16">Our Achievements</h2>
-            <div class="grid md:grid-cols-4 gap-8">
-                <div class="text-center">
-                    <div class="text-5xl font-bold text-white mb-2">500+</div>
-                    <p class="text-white/80 text-lg">Projects Completed</p>
-                </div>
-                <div class="text-center">
-                    <div class="text-5xl font-bold text-white mb-2">15+</div>
-                    <p class="text-white/80 text-lg">Years Experience</p>
-                </div>
-                <div class="text-center">
-                    <div class="text-5xl font-bold text-white mb-2">98%</div>
-                    <p class="text-white/80 text-lg">Client Satisfaction</p>
-                </div>
-                <div class="text-center">
-                    <div class="text-5xl font-bold text-white mb-2">50+</div>
-                    <p class="text-white/80 text-lg">Team Members</p>
-                </div>
-            </div>
-        </div>
-    </section>""",
+            'stats_section': self.generate_stats_section(theme, primary),
 
             'why_choose_us': f"""
     <section class="py-20 bg-white">
@@ -5279,92 +5617,11 @@ setTimeout(showCookieNotice, 1000);
         </div>
     </section>""",
 
-            'benefits_grid': f"""
-    <section class="py-20 bg-white">
-        <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center mb-16">Key Benefits</h2>
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="p-6 border-l-4 border-{primary} bg-gray-50">
-                    <h3 class="text-xl font-bold mb-3">Cost Efficiency</h3>
-                    <p class="text-gray-600">Maximize your ROI with our optimized processes and competitive pricing structure</p>
-                </div>
-                <div class="p-6 border-l-4 border-{primary} bg-gray-50">
-                    <h3 class="text-xl font-bold mb-3">Scalability</h3>
-                    <p class="text-gray-600">Solutions designed to grow with your business needs and adapt to market changes</p>
-                </div>
-                <div class="p-6 border-l-4 border-{primary} bg-gray-50">
-                    <h3 class="text-xl font-bold mb-3">24/7 Support</h3>
-                    <p class="text-gray-600">Round-the-clock assistance to ensure your operations run smoothly</p>
-                </div>
-                <div class="p-6 border-l-4 border-{primary} bg-gray-50">
-                    <h3 class="text-xl font-bold mb-3">Expert Team</h3>
-                    <p class="text-gray-600">Skilled professionals with extensive industry experience and certifications</p>
-                </div>
-                <div class="p-6 border-l-4 border-{primary} bg-gray-50">
-                    <h3 class="text-xl font-bold mb-3">Quality Assurance</h3>
-                    <p class="text-gray-600">Rigorous testing and quality control at every stage of development</p>
-                </div>
-                <div class="p-6 border-l-4 border-{primary} bg-gray-50">
-                    <h3 class="text-xl font-bold mb-3">Innovation</h3>
-                    <p class="text-gray-600">Stay ahead with the latest technologies and industry best practices</p>
-                </div>
-            </div>
-        </div>
-    </section>""",
+            'benefits_grid': self.generate_benefits_section(theme, primary),
 
-            'testimonials_text': f"""
-    <section class="py-20 bg-gray-50">
-        <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center mb-16">What Our Clients Say</h2>
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="bg-white p-8 rounded-xl shadow-md">
-                    <div class="text-{primary} text-4xl mb-4">"</div>
-                    <p class="text-gray-600 mb-6">Outstanding service and exceptional results. The team went above and beyond to ensure our project's success.</p>
-                    <div class="flex items-center gap-2 mb-2">
-                        <div class="text-yellow-400">★★★★★</div>
-                    </div>
-                    <p class="font-bold">John Anderson</p>
-                    <p class="text-gray-500 text-sm">CEO, Tech Solutions</p>
-                </div>
-                <div class="bg-white p-8 rounded-xl shadow-md">
-                    <div class="text-{primary} text-4xl mb-4">"</div>
-                    <p class="text-gray-600 mb-6">Professional, reliable, and highly skilled. They delivered exactly what we needed, on time and within budget.</p>
-                    <div class="flex items-center gap-2 mb-2">
-                        <div class="text-yellow-400">★★★★★</div>
-                    </div>
-                    <p class="font-bold">Sarah Mitchell</p>
-                    <p class="text-gray-500 text-sm">Director, Marketing Agency</p>
-                </div>
-                <div class="bg-white p-8 rounded-xl shadow-md">
-                    <div class="text-{primary} text-4xl mb-4">"</div>
-                    <p class="text-gray-600 mb-6">Excellent communication throughout the project. Their expertise and dedication made all the difference.</p>
-                    <div class="flex items-center gap-2 mb-2">
-                        <div class="text-yellow-400">★★★★★</div>
-                    </div>
-                    <p class="font-bold">Michael Chen</p>
-                    <p class="text-gray-500 text-sm">Founder, StartupHub</p>
-                </div>
-            </div>
-        </div>
-    </section>""",
+            'testimonials_text': self.generate_testimonials_section(theme, primary),
 
-            'cta_centered': f"""
-    <section class="py-20 bg-{primary}">
-        <div class="container mx-auto px-6">
-            <div class="max-w-3xl mx-auto text-center">
-                <h2 class="text-4xl font-bold text-white mb-6">Ready to Get Started?</h2>
-                <p class="text-white/90 text-xl mb-8">Let's discuss how we can help you achieve your goals and transform your business</p>
-                <div class="flex flex-wrap gap-4 justify-center">
-                    <a href="contact.php" class="inline-block bg-white text-{primary} px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition shadow-lg">
-                        Contact Us Today
-                    </a>
-                    <a href="services.php" class="inline-block bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-{primary} transition">
-                        View Services
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>""",
+            'cta_centered': self.generate_cta_section(theme, primary),
 
             'features_list': f"""
     <section class="py-20 bg-white">
