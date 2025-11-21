@@ -346,7 +346,117 @@ class PHPWebsiteGenerator:
             api_key=self.bytedance_key
         )
         print(f"✓ Ark SDK готов\n")
-        
+
+    def get_language_for_country(self, country):
+        """Определяет язык для генерации контента на основе страны"""
+        country_lower = country.lower()
+
+        # Словарь: страна -> язык
+        country_language_map = {
+            # Албания
+            'albania': 'Albanian', 'албания': 'Albanian',
+            # Андорра
+            'andorra': 'Catalan', 'андорра': 'Catalan',
+            # Армения
+            'armenia': 'Armenian', 'армения': 'Armenian',
+            # Австрия
+            'austria': 'German', 'австрия': 'German',
+            # Азербайджан
+            'azerbaijan': 'Azerbaijani', 'азербайджан': 'Azerbaijani',
+            # Беларусь
+            'belarus': 'Belarusian', 'беларусь': 'Belarusian',
+            # Бельгия
+            'belgium': 'Dutch', 'бельгия': 'Dutch',
+            # Босния и Герцеговина
+            'bosnia': 'Bosnian', 'herzegovina': 'Bosnian', 'босния': 'Bosnian', 'герцеговина': 'Bosnian',
+            # Болгария
+            'bulgaria': 'Bulgarian', 'болгария': 'Bulgarian',
+            # Великобритания
+            'uk': 'English', 'britain': 'English', 'united kingdom': 'English', 'великобритания': 'English',
+            # Венгрия
+            'hungary': 'Hungarian', 'венгрия': 'Hungarian',
+            # Венесуэла
+            'venezuela': 'Spanish', 'венесуэла': 'Spanish',
+            # Германия
+            'germany': 'German', 'германия': 'German',
+            # Греция
+            'greece': 'Greek', 'греция': 'Greek',
+            # Грузия
+            'georgia': 'Georgian', 'грузия': 'Georgian',
+            # Дания
+            'denmark': 'Danish', 'дания': 'Danish',
+            # Эстония
+            'estonia': 'Estonian', 'эстония': 'Estonian',
+            # Испания
+            'spain': 'Spanish', 'испания': 'Spanish',
+            # Италия
+            'italy': 'Italian', 'италия': 'Italian',
+            # Кипр
+            'cyprus': 'Greek', 'кипр': 'Greek',
+            # Латвия
+            'latvia': 'Latvian', 'латвия': 'Latvian',
+            # Лихтенштейн
+            'liechtenstein': 'German', 'лихтенштейн': 'German',
+            # Литва
+            'lithuania': 'Lithuanian', 'литва': 'Lithuanian',
+            # Люксембург
+            'luxembourg': 'French', 'люксембург': 'French',
+            # Мальта
+            'malta': 'Maltese', 'мальта': 'Maltese',
+            # Молдавия
+            'moldova': 'Romanian', 'молдавия': 'Romanian', 'молдова': 'Romanian',
+            # Монако
+            'monaco': 'French', 'монако': 'French',
+            # Черногория
+            'montenegro': 'Montenegrin', 'черногория': 'Montenegrin',
+            # Нидерланды
+            'netherlands': 'Dutch', 'dutch': 'Dutch', 'holland': 'Dutch', 'нидерланды': 'Dutch', 'голландия': 'Dutch',
+            # Норвегия
+            'norway': 'Norwegian', 'норвегия': 'Norwegian',
+            # Польша
+            'poland': 'Polish', 'польша': 'Polish',
+            # Португалия
+            'portugal': 'Portuguese', 'португалия': 'Portuguese',
+            # Македония
+            'macedonia': 'Macedonian', 'македония': 'Macedonian',
+            # Румыния
+            'romania': 'Romanian', 'румыния': 'Romanian',
+            # Россия
+            'russia': 'Russian', 'россия': 'Russian',
+            # Сан-Марино
+            'san marino': 'Italian', 'сан-марино': 'Italian',
+            # Сербия
+            'serbia': 'Serbian', 'сербия': 'Serbian',
+            # Словакия
+            'slovakia': 'Slovak', 'словакия': 'Slovak',
+            # Словения
+            'slovenia': 'Slovenian', 'словения': 'Slovenian',
+            # Турция
+            'turkey': 'Turkish', 'турция': 'Turkish',
+            # Украина
+            'ukraine': 'Ukrainian', 'украина': 'Ukrainian',
+            # Финляндия
+            'finland': 'Finnish', 'финляндия': 'Finnish',
+            # Франция
+            'france': 'French', 'франция': 'French',
+            # Хорватия
+            'croatia': 'Croatian', 'хорватия': 'Croatian',
+            # Чехия
+            'czech': 'Czech', 'чехия': 'Czech',
+            # Швейцария
+            'switzerland': 'German', 'швейцария': 'German',
+            # Швеция
+            'sweden': 'Swedish', 'швеция': 'Swedish',
+        }
+
+        # Ищем язык для страны
+        for key, lang in country_language_map.items():
+            if key in country_lower:
+                return lang
+
+        # По умолчанию English
+        return 'English'
+
     def call_api(self, prompt, max_tokens=16000, model=None):
         """Вызов API OpenRouter с retry логикой и обработкой всех типов ошибок"""
         if model is None:
@@ -693,8 +803,11 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         Returns:
             Структурированный контент в виде списка словарей или словаря
         """
-        # Проверяем кэш
-        cache_key = f"{theme}_{content_type}_{num_items}"
+        # Получаем язык из blueprint
+        language = self.blueprint.get('language', 'English')
+
+        # Проверяем кэш (теперь с учетом языка)
+        cache_key = f"{theme}_{content_type}_{num_items}_{language}"
         if cache_key in self.theme_content_cache:
             return self.theme_content_cache[cache_key]
 
@@ -705,6 +818,9 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         elif theme == "Online Stores":
             theme_specific_instructions = "\nIMPORTANT: This is a women's clothing store. Focus on women's fashion, apparel, and accessories."
 
+        # Инструкция о языке
+        language_instruction = f"\nIMPORTANT: Generate ALL content in {language} language. All titles and descriptions MUST be in {language}."
+
         # Создаем промпт в зависимости от типа контента
         if content_type == "process_steps":
             prompt = f"""Generate {num_items} process steps for a {theme} business/website.
@@ -712,7 +828,7 @@ Return the result as a JSON array of objects, where each object has:
 - "title": short step title (2-4 words)
 - "description": detailed step description (1-2 sentences)
 
-Make the content highly specific to the {theme} industry. Use industry-specific terminology and realistic workflow.{theme_specific_instructions}
+Make the content highly specific to the {theme} industry. Use industry-specific terminology and realistic workflow.{theme_specific_instructions}{language_instruction}
 
 Example format:
 [
@@ -729,7 +845,7 @@ Return the result as a JSON array of objects, where each object has:
 - "description": compelling description (1-2 sentences)
 - "image": placeholder image filename like "service1.jpg", "service2.jpg", etc.
 
-Make the content highly specific to the {theme} industry. Focus on real solutions that such a business would offer.{theme_specific_instructions}
+Make the content highly specific to the {theme} industry. Focus on real solutions that such a business would offer.{theme_specific_instructions}{language_instruction}
 
 Example format:
 [
@@ -749,7 +865,7 @@ Return the result as a JSON object with these exact keys:
 - "why_text1": First paragraph about why choose (2-3 sentences, include "{theme}" in the text)
 - "why_text2": Second paragraph about why choose (2-3 sentences)
 
-Make the content highly specific to the {theme} industry and business model.{theme_specific_instructions}
+Make the content highly specific to the {theme} industry and business model.{theme_specific_instructions}{language_instruction}
 
 Example format:
 {{
@@ -769,7 +885,7 @@ Return the result as a JSON array of objects, where each object has:
 - "title": service name (2-4 words)
 - "description": service description (1-2 sentences)
 
-Make the content highly specific to the {theme} industry. These should be core services that such a business would realistically offer.{theme_specific_instructions}
+Make the content highly specific to the {theme} industry. These should be core services that such a business would realistically offer.{theme_specific_instructions}{language_instruction}
 
 Example format:
 [
@@ -2461,7 +2577,26 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                 'prompt': blog_prompts[i]
             })
 
-        # PRIORITY 4: Company (опционально - 4 шт для Home страницы)
+        # PRIORITY 4: Services (дополнительные - 3 шт для Services страницы)
+        images_to_generate.extend([
+            {
+                'filename': 'service4.jpg',
+                'priority': 'optional',
+                'prompt': f"Professional service delivery photograph for {theme} business. {location_context}. Expert execution, quality craftsmanship, attention to detail, authentic work environment, natural lighting, photorealistic. {ethnicity_context} if people are shown."
+            },
+            {
+                'filename': 'service5.jpg',
+                'priority': 'optional',
+                'prompt': f"High-quality photograph showing {theme} service excellence. {location_context}. Professional standards, precision work, modern tools and equipment, authentic workplace, photorealistic."
+            },
+            {
+                'filename': 'service6.jpg',
+                'priority': 'optional',
+                'prompt': f"Professional service photograph for {theme} company. {location_context}. Quality service provision, expert knowledge, customer-focused approach, authentic professional setting, photorealistic. {ethnicity_context} visible."
+            },
+        ])
+
+        # PRIORITY 5: Company (опционально - 7 шт для Home и Company страниц)
         images_to_generate.extend([
             {
                 'filename': 'about.jpg',
@@ -2483,9 +2618,24 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                 'priority': 'optional',
                 'prompt': f"Professional team photograph for {theme} company. {location_context}. {ethnicity_context} in business setting, diverse professional team, confident and approachable, natural group composition, photorealistic."
             },
+            {
+                'filename': 'team1.jpg',
+                'priority': 'optional',
+                'prompt': f"Professional team member portrait for {theme} company. {location_context}. {ethnicity_context} professional in workplace, confident demeanor, authentic business setting, natural lighting, photorealistic."
+            },
+            {
+                'filename': 'team2.jpg',
+                'priority': 'optional',
+                'prompt': f"Business professional photograph for {theme} team. {location_context}. {ethnicity_context} expert in their field, professional appearance, modern office environment, authentic portrait, photorealistic."
+            },
+            {
+                'filename': 'team3.jpg',
+                'priority': 'optional',
+                'prompt': f"Professional team collaboration photograph for {theme} company. {location_context}. {ethnicity_context} working together, authentic teamwork moment, professional workplace, natural interaction, photorealistic."
+            },
         ])
 
-        # PRIORITY 5: Gallery (обязательно - 3 шт)
+        # PRIORITY 6: Gallery (обязательно - 3 шт)
         images_to_generate.extend([
             {
                 'filename': 'gallery1.jpg',
@@ -2502,13 +2652,13 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                 'priority': 'required',
                 'prompt': f"Quality showcase photograph for {theme} services. {location_context}. Professional presentation, real project example, clean composition, authentic work, photorealistic."
             },
-            # ДОПОЛНИТЕЛЬНЫЕ: Gallery 4 (1 шт)
+            # PRIORITY 7: Gallery 4 (1 шт)
             {
                 'filename': 'gallery4.jpg',
                 'priority': 'optional',
                 'prompt': f"Professional portfolio piece for {theme} company. {location_context}. High-quality craftsmanship, finished project, authentic work, professional photography, photorealistic."
             },
-            # ДОПОЛНИТЕЛЬНЫЕ: Locations (6 шт)
+            # PRIORITY 8: Locations (6 шт)
             {
                 'filename': 'location1.jpg',
                 'priority': 'optional',
@@ -2801,29 +2951,117 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
         # Ищем страну в тексте
         prompt_lower = user_prompt.lower()
-        if any(word in prompt_lower for word in ['netherlands', 'dutch', 'holland', 'amsterdam', 'нидерланды', 'голландия']):
+        # Европейские страны
+        if any(word in prompt_lower for word in ['albania', 'албания']):
+            country = "Albania"
+        elif any(word in prompt_lower for word in ['andorra', 'андорра']):
+            country = "Andorra"
+        elif any(word in prompt_lower for word in ['armenia', 'армения']):
+            country = "Armenia"
+        elif any(word in prompt_lower for word in ['austria', 'австрия']):
+            country = "Austria"
+        elif any(word in prompt_lower for word in ['azerbaijan', 'азербайджан']):
+            country = "Azerbaijan"
+        elif any(word in prompt_lower for word in ['belarus', 'беларусь']):
+            country = "Belarus"
+        elif any(word in prompt_lower for word in ['belgium', 'бельгия']):
+            country = "Belgium"
+        elif any(word in prompt_lower for word in ['bosnia', 'herzegovina', 'босния', 'герцеговина']):
+            country = "Bosnia and Herzegovina"
+        elif any(word in prompt_lower for word in ['bulgaria', 'болгария']):
+            country = "Bulgaria"
+        elif any(word in prompt_lower for word in ['uk', 'britain', 'united kingdom', 'великобритания']):
+            country = "United Kingdom"
+        elif any(word in prompt_lower for word in ['hungary', 'венгрия']):
+            country = "Hungary"
+        elif any(word in prompt_lower for word in ['venezuela', 'венесуэла']):
+            country = "Venezuela"
+        elif any(word in prompt_lower for word in ['germany', 'german', 'германия']):
+            country = "Germany"
+        elif any(word in prompt_lower for word in ['greece', 'греция']):
+            country = "Greece"
+        elif any(word in prompt_lower for word in ['georgia', 'грузия']):
+            country = "Georgia"
+        elif any(word in prompt_lower for word in ['denmark', 'дания']):
+            country = "Denmark"
+        elif any(word in prompt_lower for word in ['estonia', 'эстония']):
+            country = "Estonia"
+        elif any(word in prompt_lower for word in ['spain', 'spanish', 'испания']):
+            country = "Spain"
+        elif any(word in prompt_lower for word in ['italy', 'italian', 'италия']):
+            country = "Italy"
+        elif any(word in prompt_lower for word in ['cyprus', 'кипр']):
+            country = "Cyprus"
+        elif any(word in prompt_lower for word in ['latvia', 'латвия']):
+            country = "Latvia"
+        elif any(word in prompt_lower for word in ['liechtenstein', 'лихтенштейн']):
+            country = "Liechtenstein"
+        elif any(word in prompt_lower for word in ['lithuania', 'литва']):
+            country = "Lithuania"
+        elif any(word in prompt_lower for word in ['luxembourg', 'люксембург']):
+            country = "Luxembourg"
+        elif any(word in prompt_lower for word in ['malta', 'мальта']):
+            country = "Malta"
+        elif any(word in prompt_lower for word in ['moldova', 'молдавия', 'молдова']):
+            country = "Moldova"
+        elif any(word in prompt_lower for word in ['monaco', 'монако']):
+            country = "Monaco"
+        elif any(word in prompt_lower for word in ['montenegro', 'черногория']):
+            country = "Montenegro"
+        elif any(word in prompt_lower for word in ['netherlands', 'dutch', 'holland', 'amsterdam', 'нидерланды', 'голландия']):
             country = "Netherlands"
+        elif any(word in prompt_lower for word in ['norway', 'норвегия']):
+            country = "Norway"
+        elif any(word in prompt_lower for word in ['poland', 'польша']):
+            country = "Poland"
+        elif any(word in prompt_lower for word in ['portugal', 'португалия']):
+            country = "Portugal"
+        elif any(word in prompt_lower for word in ['macedonia', 'македония']):
+            country = "North Macedonia"
+        elif any(word in prompt_lower for word in ['romania', 'румыния']):
+            country = "Romania"
+        elif any(word in prompt_lower for word in ['russia', 'россия']):
+            country = "Russia"
+        elif any(word in prompt_lower for word in ['san marino', 'сан-марино']):
+            country = "San Marino"
+        elif any(word in prompt_lower for word in ['serbia', 'сербия']):
+            country = "Serbia"
+        elif any(word in prompt_lower for word in ['slovakia', 'словакия']):
+            country = "Slovakia"
+        elif any(word in prompt_lower for word in ['slovenia', 'словения']):
+            country = "Slovenia"
+        elif any(word in prompt_lower for word in ['turkey', 'турция']):
+            country = "Turkey"
+        elif any(word in prompt_lower for word in ['ukraine', 'украина']):
+            country = "Ukraine"
+        elif any(word in prompt_lower for word in ['finland', 'финляндия']):
+            country = "Finland"
+        elif any(word in prompt_lower for word in ['france', 'french', 'франция']):
+            country = "France"
+        elif any(word in prompt_lower for word in ['croatia', 'хорватия']):
+            country = "Croatia"
+        elif any(word in prompt_lower for word in ['czech', 'чехия']):
+            country = "Czech Republic"
+        elif any(word in prompt_lower for word in ['switzerland', 'швейцария']):
+            country = "Switzerland"
+        elif any(word in prompt_lower for word in ['sweden', 'швеция']):
+            country = "Sweden"
+        # Другие страны
         elif 'singapore' in prompt_lower:
             country = "Singapore"
         elif 'usa' in prompt_lower or 'america' in prompt_lower:
             country = "USA"
-        elif 'uk' in prompt_lower or 'britain' in prompt_lower:
-            country = "UK"
-        elif 'germany' in prompt_lower or 'german' in prompt_lower:
-            country = "Germany"
-        elif 'france' in prompt_lower or 'french' in prompt_lower:
-            country = "France"
-        elif 'italy' in prompt_lower or 'italian' in prompt_lower:
-            country = "Italy"
-        elif 'spain' in prompt_lower or 'spanish' in prompt_lower:
-            country = "Spain"
         elif 'japan' in prompt_lower or 'japanese' in prompt_lower:
             country = "Japan"
         elif 'china' in prompt_lower or 'chinese' in prompt_lower:
             country = "China"
 
+        # Определяем язык для страны
+        language = self.get_language_for_country(country)
+
         print(f"  Определена тема: {theme}")
         print(f"  Определена страна: {country}")
+        print(f"  Определен язык: {language}")
         print(f"  Используется название: {site_name}")
 
         # Генерируем цветовую схему
@@ -2857,6 +3095,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             "tagline": tagline,
             "theme": theme,
             "country": country,
+            "language": language,  # Добавляем язык в blueprint
             "color_scheme": color_scheme,
             "header_layout": header_layout,
             "footer_layout": footer_layout,
@@ -5066,20 +5305,21 @@ Return ONLY the content for <main> tag (not full HTML)."""
 
 REQUIREMENTS:
 - Heading section with page title
-- Company story/mission section with rich text content (NO images required)
-- Team or values section with descriptive text (NO images required)
-- Use clean text layouts with proper typography and spacing
+- Company story/mission section with rich text content
+- Team section with 3 team member cards, each with:
+  * Image: images/team1.jpg, images/team2.jpg, images/team3.jpg
+  * Name and role/title
+  * Brief description
 - MUST include a call-to-action button at the bottom that redirects to contact.php: <a href="contact.php" class="...">Contact Us</a>
 - Modern, professional design with Tailwind CSS
 - Color scheme: {colors.get('primary')} primary, {colors.get('hover')} hover
-- Responsive design
+- Responsive design with grid layout for team cards
 - NO emojis, NO prices
-- NO images (all content should be text-based with icons if needed)
 
 CRITICAL:
+- MUST use images/team1.jpg, images/team2.jpg, images/team3.jpg for team members
+- Team cards should be in a responsive grid (3 columns on desktop, 1 column on mobile)
 - Page MUST have a CTA button at the bottom that links to contact.php
-- DO NOT use any images - create compelling content using text, typography, and icons only
-- Focus on storytelling through well-crafted text sections
 
 Return ONLY the content for <main> tag."""
             },
@@ -5088,14 +5328,20 @@ Return ONLY the content for <main> tag."""
                 'prompt': f"""Create a professional SERVICES page for {site_name} - a {theme} business.
 
 REQUIREMENTS:
-- Grid of service cards (3-4 services)
-- Each card: image, title, description
-- Use images: images/service1.jpg, images/service2.jpg, images/service3.jpg
-- Call-to-action buttons linking to contact.php
+- Heading section with page title
+- Grid of 6 service cards (2 rows of 3)
+- Each card: image, title, description, and optional "Learn More" link
+- Use images: images/service1.jpg, images/service2.jpg, images/service3.jpg, images/service4.jpg, images/service5.jpg, images/service6.jpg
+- Call-to-action buttons linking to contact.php at the end
 - Modern, professional design with Tailwind CSS
 - Color scheme: {colors.get('primary')} primary, {colors.get('hover')} hover
-- Responsive grid layout
+- Responsive grid layout (3 columns on desktop, 2 on tablet, 1 on mobile)
 - NO emojis, NO prices, NO currency
+
+CRITICAL:
+- MUST use ALL 6 service images (service1.jpg through service6.jpg)
+- Cards should have consistent height and professional design
+- Include a prominent CTA button at the bottom linking to contact.php
 
 Return ONLY the content for <main> tag."""
             },
