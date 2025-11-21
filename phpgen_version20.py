@@ -15,23 +15,103 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ============================================================================
-# SECURITY SYSTEM - PASSWORD AUTHENTICATION
+# SECURITY SYSTEM - PASSWORD AUTHENTICATION WITH DEVICE MEMORY
 # ============================================================================
+def get_device_id():
+    """Генерация уникального идентификатора устройства"""
+    import hashlib
+    import platform
+    import uuid
+
+    # Собираем уникальные характеристики устройства
+    device_info = []
+
+    # MAC-адрес (наиболее стабильный идентификатор)
+    try:
+        mac = ':'.join(['{:02x}'.format((uuid.getnode() >> elements) & 0xff)
+                       for elements in range(0,2*6,2)][::-1])
+        device_info.append(mac)
+    except:
+        pass
+
+    # Hostname
+    try:
+        device_info.append(platform.node())
+    except:
+        pass
+
+    # Платформа
+    try:
+        device_info.append(platform.system())
+        device_info.append(platform.machine())
+    except:
+        pass
+
+    # Создаем хэш из всех характеристик
+    device_string = '|'.join(device_info)
+    device_hash = hashlib.sha256(device_string.encode()).hexdigest()
+
+    return device_hash
+
+def is_device_trusted(device_id, auth_file):
+    """Проверка, является ли устройство доверенным"""
+    if not os.path.exists(auth_file):
+        return False
+
+    try:
+        with open(auth_file, 'r') as f:
+            trusted_devices = f.read().strip().split('\n')
+            return device_id in trusted_devices
+    except:
+        return False
+
+def add_trusted_device(device_id, auth_file):
+    """Добавление устройства в список доверенных"""
+    try:
+        # Читаем существующие устройства
+        trusted_devices = []
+        if os.path.exists(auth_file):
+            with open(auth_file, 'r') as f:
+                trusted_devices = [line.strip() for line in f.readlines() if line.strip()]
+
+        # Добавляем новое устройство, если его еще нет
+        if device_id not in trusted_devices:
+            trusted_devices.append(device_id)
+
+        # Сохраняем обратно
+        with open(auth_file, 'w') as f:
+            f.write('\n'.join(trusted_devices))
+
+        return True
+    except:
+        return False
+
 def verify_access():
-    """Проверка доступа через пароль с максимальной безопасностью"""
+    """Проверка доступа через пароль с запоминанием устройства"""
     import hashlib
     import time
     import sys
     import getpass
 
-    password_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'password.txt')
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    password_file = os.path.join(script_dir, 'password.txt')
+    auth_file = os.path.join(script_dir, '.auth_devices')
 
-    # Проверка наличия файла с хэшем
+    # Проверка наличия файла с хэшем пароля
     if not os.path.exists(password_file):
         print("\n❌ ОШИБКА: Файл безопасности не найден")
         print("Система заблокирована")
         sys.exit(1)
 
+    # Получаем ID устройства
+    device_id = get_device_id()
+
+    # Проверяем, доверенное ли это устройство
+    if is_device_trusted(device_id, auth_file):
+        print("\n✅ УСТРОЙСТВО РАСПОЗНАНО - Доступ разрешён")
+        return True
+
+    # Устройство не доверенное - требуется пароль
     # Чтение хэша пароля из файла
     try:
         with open(password_file, 'r') as f:
@@ -45,6 +125,7 @@ def verify_access():
 
     print("\n" + "="*60)
     print("🔐 СИСТЕМА БЕЗОПАСНОСТИ - ТРЕБУЕТСЯ АУТЕНТИФИКАЦИЯ")
+    print("🆕 НОВОЕ УСТРОЙСТВО ОБНАРУЖЕНО")
     print("="*60)
 
     while attempt < max_attempts:
@@ -68,6 +149,11 @@ def verify_access():
                 del stored_hash
 
                 print("\n✅ ДОСТУП РАЗРЕШЁН")
+
+                # Добавляем устройство в список доверенных
+                if add_trusted_device(device_id, auth_file):
+                    print("💾 УСТРОЙСТВО СОХРАНЕНО - В следующий раз пароль не потребуется")
+
                 print("="*60 + "\n")
                 time.sleep(0.5)
                 return True
