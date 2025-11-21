@@ -5446,6 +5446,55 @@ setTimeout(showCookieNotice, 1000);
         </div>
     </section>"""
 
+    def generate_contact_form_section(self, theme, primary, hover):
+        """Генерирует секцию контактной формы через API с языковой поддержкой"""
+        contact_data = self.generate_theme_content_via_api(theme, "contact_page_content", 1)
+
+        # Fallback если API не вернул результат
+        if not contact_data:
+            contact_data = {
+                'heading': 'Get Started Today',
+                'subheading': 'Tell us about your project and we will get back to you soon',
+                'name_label': 'Your Name',
+                'email_label': 'Your Email',
+                'phone_label': 'Phone Number',
+                'message_label': 'Tell Us About Your Project',
+                'submit_button': 'Send Message'
+            }
+
+        return f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6 max-w-3xl">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4">{contact_data.get('heading', 'Get Started Today')}</h2>
+                <p class="text-gray-600 text-lg">{contact_data.get('subheading', 'Tell us about your project')}</p>
+            </div>
+            <div class="bg-gray-50 rounded-xl p-8 shadow-lg">
+                <form action="thanks_you.php" method="POST" class="space-y-6">
+                    <div>
+                        <label for="name" class="block text-gray-700 font-semibold mb-2">{contact_data.get('name_label', 'Your Name')}</label>
+                        <input type="text" id="name" name="name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-gray-700 font-semibold mb-2">{contact_data.get('email_label', 'Your Email')}</label>
+                        <input type="email" id="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent">
+                    </div>
+                    <div>
+                        <label for="phone" class="block text-gray-700 font-semibold mb-2">{contact_data.get('phone_label', 'Phone Number')}</label>
+                        <input type="tel" id="phone" name="phone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent">
+                    </div>
+                    <div>
+                        <label for="message" class="block text-gray-700 font-semibold mb-2">{contact_data.get('message_label', 'Tell Us About Your Project')}</label>
+                        <textarea id="message" name="message" rows="4" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-{primary} hover:bg-{hover} text-white py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                        {contact_data.get('submit_button', 'Send Message')}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>"""
+
     def generate_home_sections(self):
         """Генерация случайных секций для Home страницы"""
         site_name = self.blueprint.get('site_name', 'Company')
@@ -5475,38 +5524,7 @@ setTimeout(showCookieNotice, 1000);
 
             'carousel_blog': self.generate_blog_preview_section(site_name, theme, primary, hover),
 
-            'contact_form_multistep': f"""
-    <section class="py-20 bg-white">
-        <div class="container mx-auto px-6 max-w-3xl">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-bold mb-4">Get Started Today</h2>
-                <p class="text-gray-600 text-lg">Tell us about your project and we'll get back to you soon</p>
-            </div>
-            <div class="bg-gray-50 rounded-xl p-8 shadow-lg">
-                <form action="thanks_you.php" method="POST" class="space-y-6">
-                    <div>
-                        <label for="name" class="block text-gray-700 font-semibold mb-2">Your Name</label>
-                        <input type="text" id="name" name="name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent">
-                    </div>
-                    <div>
-                        <label for="email" class="block text-gray-700 font-semibold mb-2">Your Email</label>
-                        <input type="email" id="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent">
-                    </div>
-                    <div>
-                        <label for="phone" class="block text-gray-700 font-semibold mb-2">Phone Number</label>
-                        <input type="tel" id="phone" name="phone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent">
-                    </div>
-                    <div>
-                        <label for="message" class="block text-gray-700 font-semibold mb-2">Tell Us About Your Project</label>
-                        <textarea id="message" name="message" rows="4" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent"></textarea>
-                    </div>
-                    <button type="submit" class="w-full bg-{primary} hover:bg-{hover} text-white py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
-                        Send Message
-                    </button>
-                </form>
-            </div>
-        </div>
-    </section>""",
+            'contact_form_multistep': self.generate_contact_form_section(theme, primary, hover),
 
             # НОВЫЕ ТЕКСТОВЫЕ СЕКЦИИ (БЕЗ ИЗОБРАЖЕНИЙ)
             'stats_section': self.generate_stats_section(theme, primary),
