@@ -2276,15 +2276,16 @@ Return ONLY valid JSON array with {num_items} items, no additional text or markd
         about_data = self.generate_theme_content_via_api(theme, "about_content", 1)
 
         # Fallback если API не вернул результат
-        if not about_data or len(about_data) == 0:
-            about_data = [{
+        if not about_data:
+            about_data = {
                 'heading': 'About Us',
                 'paragraph1': f'We are dedicated to providing exceptional {theme} services that help our clients achieve their goals. With years of experience and a commitment to excellence, we deliver results that matter.',
                 'paragraph2': 'Our team of professionals brings expertise, innovation, and a customer-first approach to every project. We understand that every client is unique, and we tailor our solutions to meet your specific needs.',
                 'button_text': 'Learn More'
-            }]
+            }
 
-        content = about_data[0]
+        # API возвращает словарь для about_content, не список
+        content = about_data if isinstance(about_data, dict) else about_data[0]
 
         return f"""
     <section class="py-20 bg-white">
@@ -2315,14 +2316,15 @@ Return ONLY valid JSON array with {num_items} items, no additional text or markd
         gallery_data = self.generate_theme_content_via_api(theme, "gallery_content", 1)
 
         # Fallback если API не вернул результат
-        if not gallery_data or len(gallery_data) == 0:
-            gallery_data = [{
+        if not gallery_data:
+            gallery_data = {
                 'heading': 'Our Gallery',
                 'subheading': 'Explore our latest projects and achievements',
                 'captions': ['Professional Excellence', 'Quality Service', 'Innovation']
-            }]
+            }
 
-        content = gallery_data[0]
+        # API возвращает словарь для gallery_content, не список
+        content = gallery_data if isinstance(gallery_data, dict) else gallery_data[0]
         captions = content.get('captions', ['Professional Excellence', 'Quality Service', 'Innovation'])
 
         return f"""
