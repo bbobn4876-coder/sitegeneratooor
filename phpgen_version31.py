@@ -4753,29 +4753,120 @@ setTimeout(showCookieNotice, 1000);
 
             'cards_6_grid': self.generate_what_we_offer_section(site_name, theme, primary, hover),
 
-            'gallery_horizontal': f"""
-    <section class="py-20 bg-white">
+            'work_showcase': f"""
+    <section class="py-20 bg-gray-50">
         <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold mb-12">Our Work</h2>
-            <div class="grid md:grid-cols-3 gap-6">
-                <div class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow">
-                    <img src="images/gallery1.jpg" alt="Project 1" class="w-full h-48 object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                        <p class="text-white font-semibold">Project Alpha</p>
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">Our Work & Expertise</h2>
+                <p class="text-gray-600 text-lg max-w-3xl mx-auto">
+                    We bring proven experience and innovative solutions to every project.
+                    Here are some highlights from our journey in delivering exceptional results.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 mb-12">
+                <div class="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow">
+                    <div class="flex items-start mb-4">
+                        <div class="bg-{primary} text-white rounded-lg p-3 mr-4">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-3">Enterprise Digital Transformation</h3>
+                            <p class="text-gray-700 mb-3">
+                                Led a complete digital overhaul for a Fortune 500 company, resulting in 40% efficiency
+                                improvement and $2M annual cost savings. Implemented cloud infrastructure, automated
+                                workflows, and integrated AI-powered analytics.
+                            </p>
+                            <ul class="text-gray-600 space-y-1">
+                                <li>• 3-month deployment timeline</li>
+                                <li>• 10,000+ users onboarded</li>
+                                <li>• 99.9% uptime achieved</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-                <div class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow">
-                    <img src="images/gallery2.jpg" alt="Project 2" class="w-full h-48 object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                        <p class="text-white font-semibold">Project Beta</p>
+
+                <div class="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow">
+                    <div class="flex items-start mb-4">
+                        <div class="bg-{primary} text-white rounded-lg p-3 mr-4">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-3">Innovative Product Launch</h3>
+                            <p class="text-gray-700 mb-3">
+                                Developed and launched a groundbreaking SaaS platform that gained 50,000 users in the
+                                first year. Our solution addressed critical pain points in the {theme} industry with
+                                cutting-edge technology and user-centric design.
+                            </p>
+                            <ul class="text-gray-600 space-y-1">
+                                <li>• 4.8/5 customer satisfaction rating</li>
+                                <li>• Featured in industry publications</li>
+                                <li>• 200% YoY growth</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-                <div class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow">
-                    <img src="images/gallery3.jpg" alt="Project 3" class="w-full h-48 object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                        <p class="text-white font-semibold">Project Gamma</p>
+
+                <div class="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow">
+                    <div class="flex items-start mb-4">
+                        <div class="bg-{primary} text-white rounded-lg p-3 mr-4">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-3">Cost Optimization Strategy</h3>
+                            <p class="text-gray-700 mb-3">
+                                Partnered with a mid-sized organization to optimize their infrastructure costs while
+                                improving performance. Through strategic planning and modern architecture, we reduced
+                                operational expenses by 35% while scaling capacity by 150%.
+                            </p>
+                            <ul class="text-gray-600 space-y-1">
+                                <li>• $500K annual savings</li>
+                                <li>• Zero downtime migration</li>
+                                <li>• Enhanced security compliance</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
+
+                <div class="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow">
+                    <div class="flex items-start mb-4">
+                        <div class="bg-{primary} text-white rounded-lg p-3 mr-4">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-3">Community Impact Initiative</h3>
+                            <p class="text-gray-700 mb-3">
+                                Created a pro-bono solution for a non-profit organization serving 25,000 community
+                                members. Our platform streamlined operations, improved volunteer coordination, and
+                                increased donation efficiency by 60%.
+                            </p>
+                            <ul class="text-gray-600 space-y-1">
+                                <li>• 1,000+ volunteer hours coordinated</li>
+                                <li>• 60% increase in donations</li>
+                                <li>• Award-winning social impact</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-{primary} rounded-xl p-8 text-white text-center">
+                <h3 class="text-2xl font-bold mb-4">Ready to Create Your Success Story?</h3>
+                <p class="text-white/90 mb-6 max-w-2xl mx-auto">
+                    These are just a few examples of how we've helped organizations achieve their goals.
+                    Let's discuss how we can bring similar results to your business.
+                </p>
+                <a href="contact.php" class="inline-block bg-white text-{primary} hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold transition shadow-lg hover:shadow-xl">
+                    Start Your Project
+                </a>
             </div>
         </div>
     </section>""",
@@ -5197,7 +5288,7 @@ setTimeout(showCookieNotice, 1000);
         # Gallery изображения gallery1-3 теперь required (минимум 10 изображений)
         # gallery4 optional, генерируется только при num_images >= 14
         # Секции gallery используют gallery1-3, всегда доступны при минимуме
-        sections_requiring_gallery = {'gallery_centered', 'gallery_horizontal'}
+        sections_requiring_gallery = {'gallery_centered'}
 
         # Проверяем, сколько изображений будет сгенерировано
         # Приоритетные (required): hero(1) + services(3) + blog(3) + gallery(3) = 10
