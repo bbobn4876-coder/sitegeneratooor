@@ -5392,7 +5392,7 @@ setTimeout(showCookieNotice, 1000);
         # Получаем заголовок через тот же API (используем первый benefit для заголовка или дефолт)
         # Для заголовка используем стандартный текст, который будет переведен через API
         language = self.blueprint.get('language', 'English')
-        heading = 'Key Benefits' if language == 'English' else achievements_data.get('heading', 'Key Benefits') if 'achievements_data' in locals() else 'Key Benefits'
+        heading = 'Key Benefits'
 
         return f"""
     <section class="py-20 bg-white">
