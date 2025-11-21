@@ -86,12 +86,122 @@ def add_trusted_device(device_id, auth_file):
     except:
         return False
 
+def secure_password_input(prompt="Введите пароль: "):
+    """Безопасный ввод пароля с поддержкой Ctrl+V (вставка из буфера обмена)"""
+    import sys
+    import platform
+
+    # Определяем операционную систему
+    is_windows = platform.system() == 'Windows'
+
+    if is_windows:
+        # Windows: используем msvcrt
+        import msvcrt
+        print(prompt, end='', flush=True)
+        password = []
+        while True:
+            char = msvcrt.getwch()
+
+            if char == '\r' or char == '\n':  # Enter
+                print()
+                break
+            elif char == '\x03':  # Ctrl+C
+                print()
+                raise KeyboardInterrupt
+            elif char == '\b':  # Backspace
+                if len(password) > 0:
+                    password.pop()
+                    # Стираем последнюю звездочку
+                    sys.stdout.write('\b \b')
+                    sys.stdout.flush()
+            elif char == '\x16':  # Ctrl+V
+                # Вставка из буфера обмена
+                try:
+                    import win32clipboard
+                    win32clipboard.OpenClipboard()
+                    clipboard_data = win32clipboard.GetClipboardData()
+                    win32clipboard.CloseClipboard()
+
+                    for c in clipboard_data:
+                        password.append(c)
+                        sys.stdout.write('*')
+                        sys.stdout.flush()
+                except:
+                    # Если буфер обмена недоступен, продолжаем без вставки
+                    pass
+            else:
+                password.append(char)
+                sys.stdout.write('*')
+                sys.stdout.flush()
+
+        return ''.join(password)
+
+    else:
+        # Unix/Linux/macOS: используем termios
+        import termios
+        import tty
+
+        print(prompt, end='', flush=True)
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+
+        try:
+            tty.setraw(fd)
+            password = []
+
+            while True:
+                char = sys.stdin.read(1)
+
+                if char == '\r' or char == '\n':  # Enter
+                    print()
+                    break
+                elif char == '\x03':  # Ctrl+C
+                    print()
+                    raise KeyboardInterrupt
+                elif char == '\x7f' or char == '\x08':  # Backspace/Delete
+                    if len(password) > 0:
+                        password.pop()
+                        sys.stdout.write('\b \b')
+                        sys.stdout.flush()
+                elif char == '\x16':  # Ctrl+V
+                    # На Unix пытаемся прочитать из clipboard через различные методы
+                    try:
+                        # Пытаемся использовать xclip (Linux)
+                        import subprocess
+                        try:
+                            clipboard_data = subprocess.check_output(['xclip', '-selection', 'clipboard', '-o'],
+                                                                    stderr=subprocess.DEVNULL).decode('utf-8')
+                        except:
+                            # Пытаемся использовать pbpaste (macOS)
+                            try:
+                                clipboard_data = subprocess.check_output(['pbpaste'],
+                                                                        stderr=subprocess.DEVNULL).decode('utf-8')
+                            except:
+                                clipboard_data = None
+
+                        if clipboard_data:
+                            for c in clipboard_data:
+                                if c != '\n' and c != '\r':  # Игнорируем переносы строк
+                                    password.append(c)
+                                    sys.stdout.write('*')
+                                    sys.stdout.flush()
+                    except:
+                        pass
+                elif ord(char) >= 32:  # Печатаемые символы
+                    password.append(char)
+                    sys.stdout.write('*')
+                    sys.stdout.flush()
+
+            return ''.join(password)
+
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+
 def verify_access():
     """Проверка доступа через пароль с запоминанием устройства"""
     import hashlib
     import time
     import sys
-    import getpass
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     password_file = os.path.join(script_dir, 'password.txt')
@@ -126,12 +236,13 @@ def verify_access():
     print("\n" + "="*60)
     print("🔐 СИСТЕМА БЕЗОПАСНОСТИ - ТРЕБУЕТСЯ АУТЕНТИФИКАЦИЯ")
     print("🆕 НОВОЕ УСТРОЙСТВО ОБНАРУЖЕНО")
+    print("💡 ПОДСКАЗКА: Можно вставить пароль через Ctrl+V")
     print("="*60)
 
     while attempt < max_attempts:
         try:
-            # Безопасный ввод пароля (скрытый)
-            user_password = getpass.getpass(f"\nПопытка {attempt + 1}/{max_attempts} - Введите пароль: ")
+            # Безопасный ввод пароля (скрытый) с поддержкой Ctrl+V
+            user_password = secure_password_input(f"\nПопытка {attempt + 1}/{max_attempts} - Введите пароль: ")
 
             # Хэширование введенного пароля
             user_hash = hashlib.sha256(user_password.encode()).hexdigest()
