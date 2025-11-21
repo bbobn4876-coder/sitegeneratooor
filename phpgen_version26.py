@@ -2632,6 +2632,8 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
     def load_database(self, data_dir="data"):
         """Загрузка данных из папки data (работа с любым путем)"""
+        import sys
+
         # Нормализуем путь для Windows/Linux
         data_dir = os.path.normpath(data_dir)
         
