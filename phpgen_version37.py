@@ -1715,8 +1715,8 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         """Генерирует секцию Image Text Alternating с тематическим контентом"""
         content = self.generate_theme_content_via_api(theme, "approach_content", 1)
 
-        # Fallback если API не вернул результат
-        if not content:
+        # Fallback если API не вернул результат или вернул неполный результат
+        if not content or not all(key in content for key in ['approach_title', 'approach_text1', 'approach_text2', 'why_title', 'why_text1', 'why_text2']):
             content = self.get_theme_based_approach_content(theme)
 
         # Проверяем наличие изображений
@@ -1728,27 +1728,27 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             section1 = f"""
             <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
                 <div>
-                    <img src="images/service1.jpg" alt="{content['approach_title']}" class="rounded-xl shadow-lg w-full h-80 object-cover">
+                    <img src="images/service1.jpg" alt="{content.get('approach_title', 'Our Approach')}" class="rounded-xl shadow-lg w-full h-80 object-cover">
                 </div>
                 <div>
-                    <h3 class="text-3xl font-bold mb-4">{content['approach_title']}</h3>
+                    <h3 class="text-3xl font-bold mb-4">{content.get('approach_title', 'Our Approach')}</h3>
                     <p class="text-gray-700 mb-4">
-                        {content['approach_text1']}
+                        {content.get('approach_text1', 'We believe in a personalized approach to every project.')}
                     </p>
                     <p class="text-gray-700">
-                        {content['approach_text2']}
+                        {content.get('approach_text2', 'Our methodology combines industry best practices with innovative thinking.')}
                     </p>
                 </div>
             </div>"""
         else:
             section1 = f"""
             <div class="mb-20">
-                <h3 class="text-3xl font-bold mb-4">{content['approach_title']}</h3>
+                <h3 class="text-3xl font-bold mb-4">{content.get('approach_title', 'Our Approach')}</h3>
                 <p class="text-gray-700 mb-4">
-                    {content['approach_text1']}
+                    {content.get('approach_text1', 'We believe in a personalized approach to every project.')}
                 </p>
                 <p class="text-gray-700">
-                    {content['approach_text2']}
+                    {content.get('approach_text2', 'Our methodology combines industry best practices with innovative thinking.')}
                 </p>
             </div>"""
 
@@ -1757,27 +1757,27 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             section2 = f"""
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 <div>
-                    <h3 class="text-3xl font-bold mb-4">{content['why_title']}</h3>
+                    <h3 class="text-3xl font-bold mb-4">{content.get('why_title', 'Why Choose Us')}</h3>
                     <p class="text-gray-700 mb-4">
-                        {content['why_text1']}
+                        {content.get('why_text1', 'We have built a reputation for reliability and quality.')}
                     </p>
                     <p class="text-gray-700">
-                        {content['why_text2']}
+                        {content.get('why_text2', 'Our commitment to your success drives everything we do.')}
                     </p>
                 </div>
                 <div>
-                    <img src="images/service2.jpg" alt="{content['why_title']}" class="rounded-xl shadow-lg w-full h-80 object-cover">
+                    <img src="images/service2.jpg" alt="{content.get('why_title', 'Why Choose Us')}" class="rounded-xl shadow-lg w-full h-80 object-cover">
                 </div>
             </div>"""
         else:
             section2 = f"""
             <div>
-                <h3 class="text-3xl font-bold mb-4">{content['why_title']}</h3>
+                <h3 class="text-3xl font-bold mb-4">{content.get('why_title', 'Why Choose Us')}</h3>
                 <p class="text-gray-700 mb-4">
-                    {content['why_text1']}
+                    {content.get('why_text1', 'We have built a reputation for reliability and quality.')}
                 </p>
                 <p class="text-gray-700">
-                    {content['why_text2']}
+                    {content.get('why_text2', 'Our commitment to your success drives everything we do.')}
                 </p>
             </div>"""
 
