@@ -2096,10 +2096,10 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
         if any(word in country_lower for word in ['netherlands', 'dutch', 'holland', 'нидерланды']):
             location_context = "in the Netherlands, Dutch architecture, windmills, canals, tulip fields, traditional Dutch buildings, European countryside"
-            ethnicity_context = "European people, Dutch ethnicity, Caucasian, Northern European features, NO Asian appearance"
+            ethnicity_context = "ONLY European Caucasian people, Dutch ethnicity, white skin, Northern European features. STRICTLY NO Asian, NO East Asian, NO Oriental people whatsoever"
         elif any(word in country_lower for word in european_countries):
             location_context = "in Europe, European cities, historic architecture, European landmarks"
-            ethnicity_context = "European people, Caucasian, diverse European ethnicities, NO Asian appearance"
+            ethnicity_context = "ONLY European Caucasian people, white skin, diverse European ethnicities. STRICTLY NO Asian, NO East Asian, NO Oriental people whatsoever"
         elif any(word in country_lower for word in ['asia', 'asian', 'japan', 'china', 'singapore', 'korea', 'thailand', 'азия']):
             location_context = "in Asia, Asian cities, Asian architecture"
             ethnicity_context = "Asian people, East Asian ethnicity"
@@ -4833,10 +4833,26 @@ Return ONLY the content for <main> tag."""
                 main_content = self.generate_fallback_content(page_name, site_name, colors)
         
         # КРИТИЧЕСКИ ВАЖНО: Проверяем, что header и footer созданы
-        if not self.header_code or not self.footer_code:
-            print(f"    ⚠️  Header/Footer не найдены, регенерация...")
+        if not hasattr(self, 'header_code') or not self.header_code or not hasattr(self, 'footer_code') or not self.footer_code:
+            print(f"    ⚠️  Header/Footer не найдены для {page_name}, регенерация...")
             self.generate_header_footer()
-        
+
+        # Еще одна проверка - если footer всё ещё пустой, создаем минимальный
+        if not self.footer_code:
+            print(f"    ⚠️  Footer всё ещё пустой для {page_name}, создание минимального footer...")
+            self.footer_code = f"""<footer class="bg-gray-900 text-white py-8 mt-auto">
+    <div class="container mx-auto px-6 text-center">
+        <p class="font-bold text-lg mb-2">{site_name}</p>
+        <div class="flex flex-wrap justify-center gap-4 text-sm">
+            <a href="index.php" class="text-gray-400 hover:text-blue-400">Home</a>
+            <a href="company.php" class="text-gray-400 hover:text-blue-400">Company</a>
+            <a href="services.php" class="text-gray-400 hover:text-blue-400">Services</a>
+            <a href="contact.php" class="text-gray-400 hover:text-blue-400">Contact</a>
+        </div>
+        <p class="text-gray-400 text-sm mt-4">&copy; 2025 {site_name}. All rights reserved.</p>
+    </div>
+</footer>"""
+
         # Собираем полную страницу
         full_html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -4849,9 +4865,9 @@ Return ONLY the content for <main> tag."""
 </head>
 <body>
     {self.header_code}
-    
+
     {main_content}
-    
+
     {self.footer_code}
 </body>
 </html>"""
