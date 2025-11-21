@@ -210,7 +210,13 @@ def verify_access():
     import time
     import sys
 
-    script_dir = os.path.dirname(os.path.abspath(__file__))
+    # Определяем путь к директории скрипта (работает и для .py и для .exe)
+    if getattr(sys, 'frozen', False):
+        # Если запущен как .exe (скомпилирован PyInstaller)
+        script_dir = os.path.dirname(sys.executable)
+    else:
+        # Если запущен как обычный .py файл
+        script_dir = os.path.dirname(os.path.abspath(__file__))
     password_file = os.path.join(script_dir, 'password.txt')
     auth_file = os.path.join(script_dir, '.auth_devices')
 
@@ -2631,11 +2637,17 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         
         if not os.path.exists(data_dir):
             # Пробуем найти в разных местах
+            # Определяем базовую директорию (работает и для .py и для .exe)
+            if getattr(sys, 'frozen', False):
+                base_dir = os.path.dirname(sys.executable)
+            else:
+                base_dir = os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else os.getcwd()
+
             possible_paths = [
                 data_dir,
                 os.path.join(".", data_dir),
                 os.path.join(os.getcwd(), data_dir),
-                os.path.join(os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else os.getcwd(), data_dir)
+                os.path.join(base_dir, data_dir)
             ]
             
             found = False
