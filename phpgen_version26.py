@@ -4859,8 +4859,6 @@ setTimeout(showCookieNotice, 1000);
         </div>
     </section>""",
 
-            'cards_6_slider': self.generate_our_locations_section(country, primary, hover),
-
             # НОВЫЕ ТЕКСТОВЫЕ СЕКЦИИ (БЕЗ ИЗОБРАЖЕНИЙ)
             'stats_section': f"""
     <section class="py-20 bg-{primary}">
