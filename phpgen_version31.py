@@ -811,10 +811,13 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         if cache_key in self.theme_content_cache:
             return self.theme_content_cache[cache_key]
 
+        # ГЛОБАЛЬНАЯ инструкция - ЗАПРЕТ ЦЕН для ВСЕХ тематик
+        global_price_ban = "\n\nCRITICAL REQUIREMENT: Do NOT mention ANY prices, costs, pricing information, dollar amounts, savings, or monetary values. Focus ONLY on features, benefits, quality, and outcomes."
+
         # Специальные инструкции для определенных тем
         theme_specific_instructions = ""
         if theme == "Furniture Store":
-            theme_specific_instructions = "\nIMPORTANT: Do NOT mention any prices, costs, or pricing information. Focus on quality, style, and features only."
+            theme_specific_instructions = "\nIMPORTANT: Focus on quality, style, craftsmanship, and design features."
         elif theme == "Online Stores":
             theme_specific_instructions = "\nIMPORTANT: This is a women's clothing store. Focus on women's fashion, apparel, and accessories."
 
@@ -828,7 +831,7 @@ Return the result as a JSON array of objects, where each object has:
 - "title": short step title (2-4 words)
 - "description": detailed step description (1-2 sentences)
 
-Make the content highly specific to the {theme} industry. Use industry-specific terminology and realistic workflow.{theme_specific_instructions}{language_instruction}
+Make the content highly specific to the {theme} industry. Use industry-specific terminology and realistic workflow.{global_price_ban}{theme_specific_instructions}{language_instruction}
 
 Example format:
 [
@@ -845,7 +848,7 @@ Return the result as a JSON array of objects, where each object has:
 - "description": compelling description (1-2 sentences)
 - "image": placeholder image filename like "service1.jpg", "service2.jpg", etc.
 
-Make the content highly specific to the {theme} industry. Focus on real solutions that such a business would offer.{theme_specific_instructions}{language_instruction}
+Make the content highly specific to the {theme} industry. Focus on real solutions that such a business would offer.{global_price_ban}{theme_specific_instructions}{language_instruction}
 
 Example format:
 [
@@ -865,7 +868,7 @@ Return the result as a JSON object with these exact keys:
 - "why_text1": First paragraph about why choose (2-3 sentences, include "{theme}" in the text)
 - "why_text2": Second paragraph about why choose (2-3 sentences)
 
-Make the content highly specific to the {theme} industry and business model.{theme_specific_instructions}{language_instruction}
+Make the content highly specific to the {theme} industry and business model.{global_price_ban}{theme_specific_instructions}{language_instruction}
 
 Example format:
 {{
@@ -885,11 +888,33 @@ Return the result as a JSON array of objects, where each object has:
 - "title": service name (2-4 words)
 - "description": service description (1-2 sentences)
 
-Make the content highly specific to the {theme} industry. These should be core services that such a business would realistically offer.{theme_specific_instructions}{language_instruction}
+Make the content highly specific to the {theme} industry. These should be core services that such a business would realistically offer.{global_price_ban}{theme_specific_instructions}{language_instruction}
 
 Example format:
 [
   {{"title": "Service Name", "description": "Description of the service."}},
+  ...
+]
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "work_showcase":
+            prompt = f"""Generate {num_items} real-world case study examples for a {theme} business showcasing their expertise and successful projects.
+
+Return the result as a JSON array of objects, where each object has:
+- "title": project/case study title (3-6 words, descriptive and professional)
+- "description": detailed description of the project (2-3 sentences explaining the challenge, solution, and approach)
+- "metrics": array of 3 achievement metrics (short strings like "50% efficiency improvement", "10,000+ users served", "Award-winning solution")
+
+IMPORTANT: Each case study should feel realistic and specific to the {theme} industry. Focus on tangible outcomes and achievements.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example format:
+[
+  {{
+    "title": "Digital Transformation Project",
+    "description": "Led a comprehensive digital transformation initiative for a major enterprise. Implemented modern infrastructure and automated key workflows resulting in significant operational improvements.",
+    "metrics": ["40% efficiency improvement", "Zero downtime migration", "99.9% uptime achieved"]
+  }},
   ...
 ]
 
@@ -1441,7 +1466,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         # Travel / Tourism
         if any(word in theme_lower for word in ['travel', 'tourism', 'tour', 'vacation', 'holiday', 'trip']):
             return [
-                {'title': 'Flight Booking', 'description': 'Book flights to destinations worldwide with competitive prices and flexible options.'},
+                {'title': 'Flight Booking', 'description': 'Book flights to destinations worldwide with convenient scheduling and flexible options.'},
                 {'title': 'Hotel Reservations', 'description': 'Access to thousands of hotels, resorts, and accommodations for every budget and style.'},
                 {'title': 'Tour Packages', 'description': 'Curated tour packages combining activities, transport, and accommodations for seamless travel.'},
                 {'title': 'Travel Insurance', 'description': 'Comprehensive travel insurance coverage for peace of mind during your journey.'},
@@ -2065,6 +2090,98 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             <div class="text-center mt-16">
                 <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                     Discuss Your Project
+                </a>
+            </div>
+        </div>
+    </section>"""
+
+    def generate_work_showcase_section(self, site_name, theme, primary, hover):
+        """Генерирует секцию Work Showcase с уникальными кейсами через API"""
+        # Получаем кейсы через API
+        case_studies = self.generate_theme_content_via_api(theme, "work_showcase", 4)
+
+        # Fallback если API не вернул результат
+        if not case_studies or len(case_studies) < 4:
+            case_studies = [
+                {
+                    'title': 'Strategic Implementation Project',
+                    'description': f'Successfully delivered a comprehensive solution that transformed operations and enhanced efficiency. Our team worked closely with stakeholders to ensure seamless integration and measurable results.',
+                    'metrics': ['Significant efficiency gains', 'Enhanced user experience', 'Successful deployment']
+                },
+                {
+                    'title': 'Innovation Initiative',
+                    'description': f'Developed and launched an innovative platform that addressed critical challenges in the {theme} sector. The solution gained widespread adoption and positive feedback from users.',
+                    'metrics': ['Strong user adoption', 'Positive industry feedback', 'Sustained growth']
+                },
+                {
+                    'title': 'Optimization & Enhancement',
+                    'description': f'Partnered with an organization to optimize their operations while improving overall performance. Through strategic planning and modern approaches, we achieved substantial improvements.',
+                    'metrics': ['Improved performance', 'Streamlined operations', 'Enhanced capabilities']
+                },
+                {
+                    'title': 'Community Success Story',
+                    'description': f'Created a solution for an organization that made a real difference in their operations. Our platform improved coordination, streamlined processes, and enhanced overall effectiveness.',
+                    'metrics': ['Improved coordination', 'Better efficiency', 'Recognized achievement']
+                }
+            ]
+
+        # SVG иконки для карточек
+        icons = [
+            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>',
+            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>',
+            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>',
+            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>'
+        ]
+
+        # Генерируем карточки кейсов
+        cards_html = ""
+        for i, case in enumerate(case_studies[:4]):
+            icon = icons[i]
+            metrics_html = "\n".join([f'                                <li>• {metric}</li>' for metric in case['metrics']])
+
+            cards_html += f"""
+                <div class="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow">
+                    <div class="flex items-start mb-4">
+                        <div class="bg-{primary} text-white rounded-lg p-3 mr-4">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                {icon}
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-3">{case['title']}</h3>
+                            <p class="text-gray-700 mb-3">
+                                {case['description']}
+                            </p>
+                            <ul class="text-gray-600 space-y-1">
+{metrics_html}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+"""
+
+        return f"""
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">Our Work & Expertise</h2>
+                <p class="text-gray-600 text-lg max-w-3xl mx-auto">
+                    We bring proven experience and innovative solutions to every project.
+                    Here are some highlights from our journey in delivering exceptional results.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 mb-12">{cards_html}
+            </div>
+
+            <div class="bg-{primary} rounded-xl p-8 text-white text-center">
+                <h3 class="text-2xl font-bold mb-4">Ready to Create Your Success Story?</h3>
+                <p class="text-white/90 mb-6 max-w-2xl mx-auto">
+                    These are just a few examples of how we've helped organizations achieve their goals.
+                    Let's discuss how we can bring similar results to your business.
+                </p>
+                <a href="contact.php" class="inline-block bg-white text-{primary} hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold transition shadow-lg hover:shadow-xl">
+                    Start Your Project
                 </a>
             </div>
         </div>
@@ -4753,123 +4870,7 @@ setTimeout(showCookieNotice, 1000);
 
             'cards_6_grid': self.generate_what_we_offer_section(site_name, theme, primary, hover),
 
-            'work_showcase': f"""
-    <section class="py-20 bg-gray-50">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">Our Work & Expertise</h2>
-                <p class="text-gray-600 text-lg max-w-3xl mx-auto">
-                    We bring proven experience and innovative solutions to every project.
-                    Here are some highlights from our journey in delivering exceptional results.
-                </p>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-8 mb-12">
-                <div class="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow">
-                    <div class="flex items-start mb-4">
-                        <div class="bg-{primary} text-white rounded-lg p-3 mr-4">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold mb-3">Enterprise Digital Transformation</h3>
-                            <p class="text-gray-700 mb-3">
-                                Led a complete digital overhaul for a Fortune 500 company, resulting in 40% efficiency
-                                improvement and $2M annual cost savings. Implemented cloud infrastructure, automated
-                                workflows, and integrated AI-powered analytics.
-                            </p>
-                            <ul class="text-gray-600 space-y-1">
-                                <li>• 3-month deployment timeline</li>
-                                <li>• 10,000+ users onboarded</li>
-                                <li>• 99.9% uptime achieved</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow">
-                    <div class="flex items-start mb-4">
-                        <div class="bg-{primary} text-white rounded-lg p-3 mr-4">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold mb-3">Innovative Product Launch</h3>
-                            <p class="text-gray-700 mb-3">
-                                Developed and launched a groundbreaking SaaS platform that gained 50,000 users in the
-                                first year. Our solution addressed critical pain points in the {theme} industry with
-                                cutting-edge technology and user-centric design.
-                            </p>
-                            <ul class="text-gray-600 space-y-1">
-                                <li>• 4.8/5 customer satisfaction rating</li>
-                                <li>• Featured in industry publications</li>
-                                <li>• 200% YoY growth</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow">
-                    <div class="flex items-start mb-4">
-                        <div class="bg-{primary} text-white rounded-lg p-3 mr-4">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold mb-3">Cost Optimization Strategy</h3>
-                            <p class="text-gray-700 mb-3">
-                                Partnered with a mid-sized organization to optimize their infrastructure costs while
-                                improving performance. Through strategic planning and modern architecture, we reduced
-                                operational expenses by 35% while scaling capacity by 150%.
-                            </p>
-                            <ul class="text-gray-600 space-y-1">
-                                <li>• $500K annual savings</li>
-                                <li>• Zero downtime migration</li>
-                                <li>• Enhanced security compliance</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow">
-                    <div class="flex items-start mb-4">
-                        <div class="bg-{primary} text-white rounded-lg p-3 mr-4">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold mb-3">Community Impact Initiative</h3>
-                            <p class="text-gray-700 mb-3">
-                                Created a pro-bono solution for a non-profit organization serving 25,000 community
-                                members. Our platform streamlined operations, improved volunteer coordination, and
-                                increased donation efficiency by 60%.
-                            </p>
-                            <ul class="text-gray-600 space-y-1">
-                                <li>• 1,000+ volunteer hours coordinated</li>
-                                <li>• 60% increase in donations</li>
-                                <li>• Award-winning social impact</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-{primary} rounded-xl p-8 text-white text-center">
-                <h3 class="text-2xl font-bold mb-4">Ready to Create Your Success Story?</h3>
-                <p class="text-white/90 mb-6 max-w-2xl mx-auto">
-                    These are just a few examples of how we've helped organizations achieve their goals.
-                    Let's discuss how we can bring similar results to your business.
-                </p>
-                <a href="contact.php" class="inline-block bg-white text-{primary} hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold transition shadow-lg hover:shadow-xl">
-                    Start Your Project
-                </a>
-            </div>
-        </div>
-    </section>""",
+            'work_showcase': self.generate_work_showcase_section(site_name, theme, primary, hover),
 
             'cards_3_carousel_bg': self.generate_featured_solutions_section(site_name, theme, primary, hover),
 
