@@ -2913,9 +2913,10 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         country = "USA"
         theme = "Business"
 
-        # Ищем явное указание country и theme
+        # Ищем явное указание country, theme и language
         country_match = re.search(r'country[:\s]+([^,\n]+)', user_prompt, re.IGNORECASE)
         theme_match = re.search(r'theme[:\s]+([^,\n]+)', user_prompt, re.IGNORECASE)
+        language_match = re.search(r'language[:\s]+([^,\n]+)', user_prompt, re.IGNORECASE)
 
         if country_match:
             country = country_match.group(1).strip()
@@ -3055,12 +3056,16 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         elif 'china' in prompt_lower or 'chinese' in prompt_lower:
             country = "China"
 
-        # Определяем язык для страны
-        language = self.get_language_for_country(country)
+        # Определяем язык: сначала проверяем явное указание, потом определяем по стране
+        if language_match:
+            language = language_match.group(1).strip()
+            print(f"  Явно указан язык: {language}")
+        else:
+            language = self.get_language_for_country(country)
+            print(f"  Язык определен по стране: {language}")
 
         print(f"  Определена тема: {theme}")
         print(f"  Определена страна: {country}")
-        print(f"  Определен язык: {language}")
         print(f"  Используется название: {site_name}")
 
         # Генерируем цветовую схему
