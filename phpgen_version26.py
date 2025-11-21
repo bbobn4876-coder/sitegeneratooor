@@ -2191,7 +2191,6 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                 const offset = -(currentIndex * (100 / cardsPerView));
                 slider.style.transform = `translateX(${{offset}}%)`;
 
-                // Update indicators
                 indicators.forEach((indicator, idx) => {{
                     if (idx === currentIndex) {{
                         indicator.classList.remove('bg-gray-300');
@@ -3530,7 +3529,6 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             if variation == 1:
                 # Баннер 1: Классический по центру
                 return f"""
-<!-- Cookie Notice Banner (Bottom Center) -->
 <div id="cookie-notice" class="fixed bottom-0 left-0 right-0 bg-gray-900 text-white py-4 px-6 shadow-lg z-50 hidden">
     <div class="container mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-3">
@@ -3551,7 +3549,6 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 </div>
 <script>
 function showCookieNotice() {{
-    // Всегда показываем Cookie notice при загрузке страницы
     document.getElementById('cookie-notice').classList.remove('hidden');
 }}
 function acceptCookies() {{
@@ -3567,7 +3564,6 @@ setTimeout(showCookieNotice, 1000);
             elif variation == 2:
                 # Баннер 2: Широкий с иконкой cookie
                 return f"""
-<!-- Cookie Notice Banner (Full Width) -->
 <div id="cookie-notice" class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-{primary} shadow-2xl py-6 px-6 z-50 hidden">
     <div class="container mx-auto">
         <div class="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -3591,7 +3587,6 @@ setTimeout(showCookieNotice, 1000);
 </div>
 <script>
 function showCookieNotice() {{
-    // Всегда показываем Cookie notice при загрузке страницы
     document.getElementById('cookie-notice').classList.remove('hidden');
 }}
 function acceptCookies() {{
@@ -3607,7 +3602,6 @@ setTimeout(showCookieNotice, 1000);
             else:  # variation == 3
                 # Баннер 3: Минималистичный
                 return f"""
-<!-- Cookie Notice Banner (Minimal) -->
 <div id="cookie-notice" class="fixed bottom-0 left-0 right-0 bg-{primary} text-white py-3 px-6 z-50 hidden">
     <div class="container mx-auto flex items-center justify-between">
         <p class="text-sm">🍪 We use cookies. <a href="cookie.php" class="underline font-semibold hover:opacity-80 transition">Cookie Policy</a></p>
@@ -3623,7 +3617,6 @@ setTimeout(showCookieNotice, 1000);
 </div>
 <script>
 function showCookieNotice() {{
-    // Всегда показываем Cookie notice при загрузке страницы
     document.getElementById('cookie-notice').classList.remove('hidden');
 }}
 function acceptCookies() {{
@@ -3642,7 +3635,6 @@ setTimeout(showCookieNotice, 1000);
             if variation == 4:
                 # Поп-ап 1: Карточка с тенью
                 return f"""
-<!-- Cookie Notice Popup (Bottom Right Card) -->
 <div id="cookie-notice" class="fixed bottom-6 right-6 bg-white rounded-xl shadow-2xl p-6 max-w-md z-50 hidden border border-gray-200">
     <div class="flex items-start gap-3 mb-4">
         <div class="w-10 h-10 bg-{primary}/10 rounded-full flex items-center justify-center flex-shrink-0">
@@ -3671,7 +3663,6 @@ setTimeout(showCookieNotice, 1000);
 </div>
 <script>
 function showCookieNotice() {{
-    // Всегда показываем Cookie notice при загрузке страницы
     document.getElementById('cookie-notice').classList.remove('hidden');
 }}
 function acceptCookies() {{
@@ -3687,7 +3678,6 @@ setTimeout(showCookieNotice, 1000);
             elif variation == 5:
                 # Поп-ап 2: Темный с градиентом
                 return f"""
-<!-- Cookie Notice Popup (Dark Gradient) -->
 <div id="cookie-notice" class="fixed bottom-6 right-6 bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-2xl shadow-2xl p-6 max-w-sm z-50 hidden">
     <div class="mb-4">
         <div class="flex items-center justify-between mb-3">
@@ -3707,7 +3697,6 @@ setTimeout(showCookieNotice, 1000);
 </div>
 <script>
 function showCookieNotice() {{
-    // Всегда показываем Cookie notice при загрузке страницы
     document.getElementById('cookie-notice').classList.remove('hidden');
 }}
 function acceptCookies() {{
@@ -3723,7 +3712,6 @@ setTimeout(showCookieNotice, 1000);
             else:  # variation == 6
                 # Поп-ап 3: Компактный с border
                 return f"""
-<!-- Cookie Notice Popup (Compact) -->
 <div id="cookie-notice" class="fixed bottom-6 right-6 bg-white rounded-lg shadow-xl p-5 max-w-xs z-50 hidden border-l-4 border-{primary}">
     <div class="flex items-center justify-between mb-3">
         <h4 class="font-bold text-gray-900">Cookie Notice</h4>
@@ -3736,7 +3724,6 @@ setTimeout(showCookieNotice, 1000);
 </div>
 <script>
 function showCookieNotice() {{
-    // Всегда показываем Cookie notice при загрузке страницы
     document.getElementById('cookie-notice').classList.remove('hidden');
 }}
 function acceptCookies() {{
@@ -3755,7 +3742,6 @@ setTimeout(showCookieNotice, 1000);
             if variation == 7:
                 # Маленькое 1: Таблетка снизу справа
                 return f"""
-<!-- Cookie Notice (Small Pill) -->
 <div id="cookie-notice" class="fixed bottom-6 right-6 bg-gray-900 text-white rounded-full px-5 py-3 shadow-lg z-50 hidden flex items-center gap-3">
     <span class="text-sm">🍪 Cookies</span>
     <button onclick="acceptCookies()" class="bg-{primary} hover:bg-{hover} text-white px-4 py-1 rounded-full text-xs font-semibold transition">
@@ -3764,7 +3750,6 @@ setTimeout(showCookieNotice, 1000);
 </div>
 <script>
 function showCookieNotice() {{
-    // Всегда показываем Cookie notice при загрузке страницы
     document.getElementById('cookie-notice').classList.remove('hidden');
 }}
 function acceptCookies() {{
@@ -3777,7 +3762,6 @@ setTimeout(showCookieNotice, 1000);
             elif variation == 8:
                 # Маленькое 2: Badge с иконкой
                 return f"""
-<!-- Cookie Notice (Small Badge) -->
 <div id="cookie-notice" class="fixed bottom-6 right-6 bg-white border-2 border-{primary} rounded-xl px-4 py-3 shadow-lg z-50 hidden">
     <div class="flex items-center gap-2">
         <div class="w-8 h-8 bg-{primary} rounded-full flex items-center justify-center text-white font-bold text-sm">C</div>
@@ -3789,7 +3773,6 @@ setTimeout(showCookieNotice, 1000);
 </div>
 <script>
 function showCookieNotice() {{
-    // Всегда показываем Cookie notice при загрузке страницы
     document.getElementById('cookie-notice').classList.remove('hidden');
 }}
 function acceptCookies() {{
@@ -3802,14 +3785,12 @@ setTimeout(showCookieNotice, 1000);
             else:  # variation == 9
                 # Маленькое 3: Minimal toast
                 return f"""
-<!-- Cookie Notice (Minimal Toast) -->
 <div id="cookie-notice" class="fixed bottom-6 right-6 bg-{primary} text-white rounded-lg px-6 py-3 shadow-lg z-50 hidden flex items-center gap-3">
     <span class="text-sm font-medium">Cookies in use</span>
     <button onclick="acceptCookies()" class="text-white hover:opacity-80 font-bold text-lg">×</button>
 </div>
 <script>
 function showCookieNotice() {{
-    // Всегда показываем Cookie notice при загрузке страницы
     document.getElementById('cookie-notice').classList.remove('hidden');
 }}
 function acceptCookies() {{
