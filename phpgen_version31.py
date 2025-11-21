@@ -738,31 +738,31 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         # Данные по странам
         country_data = {
             'netherlands': {
-                'phones': ['+31 20 123 4567', '+31 10 987 6543', '+31 30 555 7890'],
+                'phones': ['+31 20 684 2937', '+31 10 472 8156', '+31 30 591 3842'],
                 'cities': ['Amsterdam', 'Rotterdam', 'Utrecht', 'The Hague', 'Eindhoven', 'Groningen'],
                 'streets': ['Damrak', 'Kalverstraat', 'Leidsestraat', 'Nieuwendijk', 'Rokin'],
                 'postal_codes': ['1012', '3011', '3512', '2511', '5611']
             },
             'usa': {
-                'phones': ['+1 (555) 123-4567', '+1 (555) 987-6543', '+1 (555) 555-7890'],
+                'phones': ['+1 (555) 827-4163', '+1 (555) 392-6847', '+1 (555) 718-2945'],
                 'cities': ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia'],
                 'streets': ['Main Street', 'Broadway', 'Park Avenue', 'Wall Street', 'Market Street'],
                 'postal_codes': ['10001', '90001', '60601', '77001', '85001']
             },
             'uk': {
-                'phones': ['+44 20 1234 5678', '+44 161 987 6543', '+44 131 555 7890'],
+                'phones': ['+44 20 7946 3825', '+44 161 824 7593', '+44 131 596 2847'],
                 'cities': ['London', 'Manchester', 'Birmingham', 'Edinburgh', 'Liverpool', 'Bristol'],
                 'streets': ['High Street', 'King Street', 'Oxford Street', 'Queen Street', 'Victoria Road'],
                 'postal_codes': ['SW1A', 'M1 1AD', 'B1 1AA', 'EH1 1YZ', 'L1 8JQ']
             },
             'germany': {
-                'phones': ['+49 30 1234 5678', '+49 89 9876 543', '+49 40 555 7890'],
+                'phones': ['+49 30 8294 6375', '+49 89 5738 2946', '+49 40 6182 7394'],
                 'cities': ['Berlin', 'Munich', 'Hamburg', 'Frankfurt', 'Cologne', 'Stuttgart'],
                 'streets': ['Hauptstraße', 'Bahnhofstraße', 'Marktplatz', 'Kirchstraße', 'Schulstraße'],
                 'postal_codes': ['10115', '80331', '20095', '60311', '50667']
             },
             'france': {
-                'phones': ['+33 1 23 45 67 89', '+33 4 98 76 54 32', '+33 5 55 57 89 01'],
+                'phones': ['+33 1 42 68 97 35', '+33 4 72 84 61 93', '+33 5 61 38 94 27'],
                 'cities': ['Paris', 'Lyon', 'Marseille', 'Toulouse', 'Nice', 'Bordeaux'],
                 'streets': ['Rue de la Paix', 'Avenue des Champs-Élysées', 'Rue Royale', 'Boulevard Haussmann'],
                 'postal_codes': ['75001', '69001', '13001', '31000', '06000']
@@ -821,8 +821,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         elif theme == "Online Stores":
             theme_specific_instructions = "\nIMPORTANT: This is a women's clothing store. Focus on women's fashion, apparel, and accessories."
 
-        # Инструкция о языке
-        language_instruction = f"\nIMPORTANT: Generate ALL content in {language} language. All titles and descriptions MUST be in {language}."
+        # Инструкция о языке - КРИТИЧЕСКИ ВАЖНАЯ
+        language_instruction = f"\n\nCRITICAL LANGUAGE REQUIREMENT: You MUST generate ALL content EXCLUSIVELY in {language} language. Every single word, title, description, and text MUST be in {language}. Do NOT use English or any other language. This is MANDATORY and NON-NEGOTIABLE. Language: {language}."
 
         # Создаем промпт в зависимости от типа контента
         if content_type == "process_steps":
@@ -2167,8 +2167,8 @@ Return ONLY complete valid JSON array with {num_items} items. No markdown, no ex
             cards_html += f"""
                 <div class="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow">
                     <div class="flex items-start mb-4">
-                        <div class="bg-{primary} text-white rounded-lg p-3 mr-4">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-{primary} text-white rounded-lg p-4 mr-4 flex-shrink-0">
+                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 {icon}
                             </svg>
                         </div>
@@ -4386,7 +4386,7 @@ setTimeout(showCookieNotice, 1000);
                     </div>
                 </div>
                 <div>
-                    <img src="images/hero.jpg" alt="{site_name}" class="rounded-2xl shadow-2xl w-full h-96 object-cover">
+                    <img src="images/hero.jpg" alt="{site_name}" class="rounded-2xl shadow-2xl w-full h-full object-cover min-h-[400px]">
                 </div>
             </div>
         </div>
@@ -5455,20 +5455,22 @@ Return ONLY the content for <main> tag (not full HTML)."""
                 'prompt': f"""Create a professional SERVICES page for {site_name} - a {theme} business.
 
 REQUIREMENTS:
-- Heading section with page title
-- Grid of 6 service cards (2 rows of 3)
-- Each card: image, title, description, and optional "Learn More" link
-- Use images: images/service1.jpg, images/service2.jpg, images/service3.jpg, images/service4.jpg, images/service5.jpg, images/service6.jpg
-- Call-to-action buttons linking to contact.php at the end
+- Heading section with page title and subtitle
+- Grid of EXACTLY 3 service cards in a single row
+- Each card: image, title, description, and "Get Started" button linking to contact.php
+- Use images: images/service1.jpg, images/service2.jpg, images/service3.jpg
+- ALL buttons MUST link to contact.php (NOT "Learn More", use "Get Started", "Contact Us", or "Request Info")
+- Call-to-action section at the bottom with button linking to contact.php
 - Modern, professional design with Tailwind CSS
 - Color scheme: {colors.get('primary')} primary, {colors.get('hover')} hover
-- Responsive grid layout (3 columns on desktop, 2 on tablet, 1 on mobile)
+- Responsive grid layout (3 columns on desktop, 1 on mobile)
 - NO emojis, NO prices, NO currency
 
 CRITICAL:
-- MUST use ALL 6 service images (service1.jpg through service6.jpg)
+- MUST use ONLY 3 service cards (service1.jpg, service2.jpg, service3.jpg)
 - Cards should have consistent height and professional design
-- Include a prominent CTA button at the bottom linking to contact.php
+- ALL buttons (on cards AND bottom CTA) MUST link to contact.php
+- Do NOT use "Learn More" text, use alternatives like "Get Started", "Contact Us", "Request Quote"
 
 Return ONLY the content for <main> tag."""
             },
