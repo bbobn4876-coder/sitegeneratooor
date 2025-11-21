@@ -1162,6 +1162,29 @@ Example:
 
 Return ONLY valid JSON, no additional text or markdown formatting."""
 
+        elif content_type == "footer_content":
+            prompt = f"""Generate footer content for a {theme} business.
+
+Return as JSON object with these EXACT fields:
+- "tagline": Short tagline for footer (6-10 words, describing company mission)
+- "quick_links": "Quick Links" section title (1-2 words)
+- "legal": "Legal" section title (1 word)
+- "legal_info": "Legal Information" title (2 words)
+- "all_rights": "All rights reserved" text (3-4 words)
+
+Be specific to {theme} industry.{language_instruction}
+
+Example:
+{{
+  "tagline": "Your trusted partner in {theme}",
+  "quick_links": "Quick Links",
+  "legal": "Legal",
+  "legal_info": "Legal Information",
+  "all_rights": "All rights reserved"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
         else:
             return None
 
@@ -1239,7 +1262,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     print(f"    ⚠️  Получено {len(content)} элементов вместо {num_items} для {content_type}, используем их")
 
             # Для объектных типов контента - проверяем что это словарь
-            elif content_type in ["hero_content", "achievements_content", "cta_content", "contact_page_content", "blog_page_content", "policy_content"]:
+            elif content_type in ["hero_content", "achievements_content", "cta_content", "contact_page_content", "blog_page_content", "policy_content", "footer_content"]:
                 if not isinstance(content, dict):
                     print(f"    ⚠️  Получен неверный тип данных для {content_type}, используем fallback")
                     return None
@@ -3844,7 +3867,26 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                 footer_links.insert(2, ('Services', 'services.php'))
                 footer_links.insert(3, ('Blog', 'blog.php'))
                 footer_links.insert(4, ('Contact', 'contact.php'))
-            
+
+            # Получаем контент footer через API
+            footer_content = self.generate_theme_content_via_api(theme, "footer_content", 1)
+
+            # Fallback если API не вернул результат
+            if not footer_content:
+                footer_content = {
+                    'tagline': f'Your trusted partner in {theme}',
+                    'quick_links': 'Quick Links',
+                    'legal': 'Legal',
+                    'legal_info': 'Legal Information',
+                    'all_rights': 'All rights reserved'
+                }
+
+            tagline = footer_content.get('tagline', f'Your trusted partner in {theme}')
+            quick_links_title = footer_content.get('quick_links', 'Quick Links')
+            legal_title = footer_content.get('legal', 'Legal')
+            legal_info_title = footer_content.get('legal_info', 'Legal Information')
+            all_rights_text = footer_content.get('all_rights', 'All rights reserved')
+
             # Разделяем ссылки на основные страницы и policy страницы
             main_links = [link for link in footer_links if link[0] not in ['Privacy Policy', 'Terms of Service', 'Cookie Policy']]
             policy_links = [link for link in footer_links if link[0] in ['Privacy Policy', 'Terms of Service', 'Cookie Policy']]
@@ -3859,26 +3901,26 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         <div class="grid md:grid-cols-3 gap-8">
             <div>
                 <h3 class="text-xl font-bold mb-4">{site_name}</h3>
-                <p class="text-gray-400">Your trusted partner in {theme}.</p>
+                <p class="text-gray-400">{tagline}</p>
             </div>
-            
+
             <div>
-                <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                <h4 class="text-lg font-semibold mb-4">{quick_links_title}</h4>
                 <ul class="space-y-2">
                     {' '.join([f'<li><a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors">{link[0]}</a></li>' for link in main_links])}
                 </ul>
             </div>
-            
+
             <div>
-                <h4 class="text-lg font-semibold mb-4">Legal</h4>
+                <h4 class="text-lg font-semibold mb-4">{legal_title}</h4>
                 <ul class="space-y-2">
                     {' '.join([f'<li><a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors">{link[0]}</a></li>' for link in policy_links])}
                 </ul>
             </div>
         </div>
-        
+
         <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 {site_name}. All rights reserved.</p>
+            <p>&copy; 2025 {site_name}. {all_rights_text}.</p>
         </div>
     </div>
 </footer>"""
@@ -3889,21 +3931,21 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
     <div class="container mx-auto px-6">
         <div class="text-center mb-8">
             <h3 class="text-2xl font-bold">{site_name}</h3>
-            <p class="text-gray-400 mt-2">Your trusted partner in {theme}.</p>
+            <p class="text-gray-400 mt-2">{tagline}</p>
         </div>
-        
+
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <nav class="flex flex-wrap gap-4">
                 {' '.join([f'<a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors">{link[0]}</a>' for link in main_links])}
             </nav>
-            
+
             <nav class="flex flex-wrap gap-4">
                 {' '.join([f'<a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors">{link[0]}</a>' for link in policy_links])}
             </nav>
         </div>
-        
+
         <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 {site_name}. All rights reserved.</p>
+            <p>&copy; 2025 {site_name}. {all_rights_text}.</p>
         </div>
     </div>
 </footer>"""
@@ -3917,14 +3959,14 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         <div class="grid md:grid-cols-2 gap-8">
             <div>
                 <h3 class="text-xl font-bold mb-4">{site_name}</h3>
-                <p class="text-gray-400 mb-6">Your trusted partner in {theme}.</p>
+                <p class="text-gray-400 mb-6">{tagline}</p>
                 <nav class="flex flex-col space-y-2">
                     {' '.join([f'<a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors">{link[0]}</a>' for link in main_links])}
                 </nav>
             </div>
 
             <div>
-                <h4 class="text-lg font-semibold mb-4">Legal Information</h4>
+                <h4 class="text-lg font-semibold mb-4">{legal_info_title}</h4>
                 <nav class="flex flex-col space-y-2">
                     {' '.join([f'<a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors">{link[0]}</a>' for link in policy_links])}
                 </nav>
@@ -3936,11 +3978,11 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         </div>
 
         <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 {site_name}. All rights reserved.</p>
+            <p>&copy; 2025 {site_name}. {all_rights_text}.</p>
         </div>
     </div>
 </footer>"""
-            
+
             else:  # footer_variant == 5
                 # Вариант 5: Минималистичный (все в одну строку горизонтально, без названия компании вверху)
                 self.footer_code = f"""<footer class="bg-gray-900 text-white py-8 mt-auto">
@@ -3948,13 +3990,13 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         <div class="flex flex-col md:flex-row justify-between items-center gap-6">
             <div class="text-center md:text-left">
                 <p class="font-bold text-lg">{site_name}</p>
-                <p class="text-gray-400 text-sm">&copy; 2025 All rights reserved.</p>
+                <p class="text-gray-400 text-sm">&copy; 2025 {all_rights_text}.</p>
             </div>
-            
+
             <nav class="flex flex-wrap justify-center gap-4">
                 {' '.join([f'<a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors text-sm">{link[0]}</a>' for link in main_links])}
             </nav>
-            
+
             <nav class="flex flex-wrap justify-center gap-4">
                 {' '.join([f'<a href="{link[1]}" class="text-gray-400 hover:text-{hover_color} transition-colors text-sm">{link[0]}</a>' for link in policy_links])}
             </nav>
