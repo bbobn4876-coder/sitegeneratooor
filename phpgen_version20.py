@@ -11,6 +11,12 @@ from byteplussdkarkruntime import Ark
 from byteplussdkarkruntime.types.images.images import SequentialImageGenerationOptions
 from dotenv import load_dotenv
 
+# Опциональный импорт для Windows (Ctrl+V в password input)
+try:
+    import win32clipboard  # type: ignore
+except ImportError:
+    win32clipboard = None  # type: ignore
+
 # Загрузка переменных окружения из .env файла (если есть)
 load_dotenv()
 
@@ -116,23 +122,20 @@ def secure_password_input(prompt="Введите пароль: "):
                     sys.stdout.flush()
             elif char == '\x16':  # Ctrl+V
                 # Вставка из буфера обмена (Windows)
-                try:
-                    import win32clipboard  # type: ignore # Опциональная зависимость для Windows
-                    win32clipboard.OpenClipboard()
-                    clipboard_data = win32clipboard.GetClipboardData()
-                    win32clipboard.CloseClipboard()
+                if win32clipboard is not None:
+                    try:
+                        win32clipboard.OpenClipboard()
+                        clipboard_data = win32clipboard.GetClipboardData()
+                        win32clipboard.CloseClipboard()
 
-                    for c in clipboard_data:
-                        password.append(c)
-                        sys.stdout.write('*')
-                        sys.stdout.flush()
-                except ImportError:
-                    # win32clipboard не установлен - Ctrl+V не работает
-                    # Пользователь может установить: pip install pywin32
-                    pass
-                except Exception:
-                    # Ошибка доступа к буферу обмена - продолжаем без вставки
-                    pass
+                        for c in clipboard_data:
+                            password.append(c)
+                            sys.stdout.write('*')
+                            sys.stdout.flush()
+                    except Exception:
+                        # Ошибка доступа к буферу обмена - продолжаем без вставки
+                        pass
+                # Если win32clipboard не доступен - игнорируем Ctrl+V
             else:
                 password.append(char)
                 sys.stdout.write('*')
