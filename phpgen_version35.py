@@ -2361,6 +2361,40 @@ Return ONLY valid JSON array with {num_items} items, no additional text or markd
         </div>
     </section>"""
 
+    def generate_achievements_section(self, site_name, theme, primary, hover):
+        """Генерирует секцию Achievements через API с языковой поддержкой"""
+        # Получаем 4 элемента с типом "achievements_content" для статистики
+        achievements_data = self.generate_theme_content_via_api(theme, "achievements_content", 4)
+
+        # Fallback если API не вернул результат
+        if not achievements_data or len(achievements_data) == 0:
+            achievements_data = [
+                {'value': '500+', 'label': 'Projects Completed'},
+                {'value': '15+', 'label': 'Years Experience'},
+                {'value': '98%', 'label': 'Client Satisfaction'},
+                {'value': '50+', 'label': 'Team Members'}
+            ]
+
+        # Генерируем HTML для каждого достижения
+        stats_html = ""
+        for achievement in achievements_data[:4]:  # Берём максимум 4 элемента
+            value = achievement.get('value', '100+')
+            label = achievement.get('label', 'Achievement')
+            stats_html += f"""
+                <div class="text-center">
+                    <div class="text-5xl font-bold text-white mb-2">{value}</div>
+                    <p class="text-white/80 text-lg">{label}</p>
+                </div>"""
+
+        return f"""
+    <section class="py-20 bg-{primary}">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center text-white mb-16">Our Achievements</h2>
+            <div class="grid md:grid-cols-4 gap-8">{stats_html}
+            </div>
+        </div>
+    </section>"""
+
     def generate_services_cards_section(self, site_name, theme, primary, hover):
         """Генерирует секцию Services Cards (3 карточки) через API с языковой поддержкой"""
         # Получаем 3 сервиса через API
@@ -5077,30 +5111,7 @@ setTimeout(showCookieNotice, 1000);
     </section>""",
 
             # НОВЫЕ ТЕКСТОВЫЕ СЕКЦИИ (БЕЗ ИЗОБРАЖЕНИЙ)
-            'stats_section': f"""
-    <section class="py-20 bg-{primary}">
-        <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center text-white mb-16">Our Achievements</h2>
-            <div class="grid md:grid-cols-4 gap-8">
-                <div class="text-center">
-                    <div class="text-5xl font-bold text-white mb-2">500+</div>
-                    <p class="text-white/80 text-lg">Projects Completed</p>
-                </div>
-                <div class="text-center">
-                    <div class="text-5xl font-bold text-white mb-2">15+</div>
-                    <p class="text-white/80 text-lg">Years Experience</p>
-                </div>
-                <div class="text-center">
-                    <div class="text-5xl font-bold text-white mb-2">98%</div>
-                    <p class="text-white/80 text-lg">Client Satisfaction</p>
-                </div>
-                <div class="text-center">
-                    <div class="text-5xl font-bold text-white mb-2">50+</div>
-                    <p class="text-white/80 text-lg">Team Members</p>
-                </div>
-            </div>
-        </div>
-    </section>""",
+            'stats_section': self.generate_achievements_section(site_name, theme, primary, hover),
 
             'why_choose_us': f"""
     <section class="py-20 bg-white">
