@@ -899,33 +899,35 @@ Example format:
 Return ONLY valid JSON, no additional text or markdown formatting."""
 
         elif content_type == "work_showcase":
-            prompt = f"""Generate {num_items} real-world case study examples for a {theme} business showcasing their expertise and successful projects.
+            prompt = f"""Generate {num_items} case studies for a {theme} business.
 
-Return the result as a JSON array of objects, where each object has:
-- "title": project/case study title (3-6 words, descriptive and professional)
-- "description": detailed description of the project (2-3 sentences explaining the challenge, solution, and approach)
-- "metrics": array of 3 achievement metrics (short strings like "50% efficiency improvement", "10,000+ users served", "Award-winning solution")
+Return as JSON array with these EXACT fields:
+- "title": case title (3-5 words)
+- "description": project description (2 sentences max, 40 words max)
+- "metrics": array of exactly 3 short metrics (5-8 words each)
 
-IMPORTANT: Each case study should feel realistic and specific to the {theme} industry. Focus on tangible outcomes and achievements.{global_price_ban}{theme_specific_instructions}{language_instruction}
+Be specific to {theme} industry. Keep descriptions concise.{global_price_ban}{theme_specific_instructions}{language_instruction}
 
-Example format:
+Example:
 [
-  {{
-    "title": "Digital Transformation Project",
-    "description": "Led a comprehensive digital transformation initiative for a major enterprise. Implemented modern infrastructure and automated key workflows resulting in significant operational improvements.",
-    "metrics": ["40% efficiency improvement", "Zero downtime migration", "99.9% uptime achieved"]
-  }},
-  ...
+  {{"title": "Digital Platform Launch", "description": "Created comprehensive solution for enterprise client. Delivered measurable improvements in efficiency and user satisfaction.", "metrics": ["Enhanced operational efficiency", "Improved user experience", "Successful deployment"]}},
+  {{"title": "System Optimization", "description": "Modernized infrastructure for growing organization. Achieved better performance through strategic improvements.", "metrics": ["Better system performance", "Increased capacity", "Enhanced security"]}}
 ]
 
-Return ONLY valid JSON, no additional text or markdown formatting."""
+Return ONLY complete valid JSON array with {num_items} items. No markdown, no extra text."""
 
         else:
             return None
 
-        # Вызываем API
+        # Вызываем API с разными max_tokens в зависимости от типа контента
+        # work_showcase требует больше токенов для 4 полных кейсов
+        if content_type == "work_showcase":
+            max_tokens = 3000  # Больше токенов для 4 детальных кейсов
+        else:
+            max_tokens = 2000
+
         print(f"    🤖 Генерация контента для темы '{theme}' ({content_type})...")
-        response = self.call_api(prompt, max_tokens=2000)
+        response = self.call_api(prompt, max_tokens=max_tokens)
 
         if not response:
             print(f"    ✗ API не вернул ответ для {content_type}")
@@ -940,18 +942,41 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                 response = '\n'.join(lines[1:-1]) if len(lines) > 2 else response
                 response = response.replace('```json', '').replace('```', '').strip()
 
+            # Проверяем, что JSON не обрезан (заканчивается на ] или })
+            if not (response.endswith(']') or response.endswith('}')):
+                print(f"    ⚠️  JSON выглядит обрезанным для {content_type} (не заканчивается на ] или }})")
+                print(f"    Последние 100 символов: ...{response[-100:]}")
+                # Пробуем восстановить, добавив закрывающую скобку
+                if response.count('[') > response.count(']'):
+                    response += ']'
+                    print(f"    🔧 Попытка восстановления: добавлена закрывающая ]")
+                elif response.count('{') > response.count('}'):
+                    response += '}'
+                    print(f"    🔧 Попытка восстановления: добавлена закрывающая }}")
+
             # Парсим JSON
             content = json.loads(response)
+
+            # Проверяем что получили ожидаемую структуру
+            if content_type == "work_showcase":
+                if not isinstance(content, list) or len(content) < 4:
+                    print(f"    ⚠️  Получено меньше 4 кейсов ({len(content) if isinstance(content, list) else 0}), используем fallback")
+                    return None
 
             # Сохраняем в кэш
             self.theme_content_cache[cache_key] = content
 
-            print(f"    ✓ Контент успешно сгенерирован для '{theme}'")
+            print(f"    ✓ Контент успешно сгенерирован для '{theme}' ({len(content) if isinstance(content, list) else 'OK'})")
             return content
 
         except json.JSONDecodeError as e:
             print(f"    ✗ Ошибка парсинга JSON для {content_type}: {e}")
-            print(f"    Ответ API: {response[:200]}...")
+            print(f"    Длина ответа: {len(response)} символов")
+            print(f"    Начало ответа: {response[:150]}...")
+            print(f"    Конец ответа: ...{response[-150:]}")
+            return None
+        except Exception as e:
+            print(f"    ✗ Неожиданная ошибка для {content_type}: {e}")
             return None
 
     def get_theme_based_process_steps(self, theme):
