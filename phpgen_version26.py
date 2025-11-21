@@ -5267,6 +5267,52 @@ setTimeout(showCookieNotice, 1000);
         if page_name == 'contact':
             return self.generate_contact_page(output_dir)
 
+        # Определяем промпт для Company в зависимости от количества изображений
+        if self.num_images_to_generate == 24:
+            # Если генерируем 24 изображения - используем team1-3.jpg
+            company_prompt = f"""Create a professional COMPANY page for {site_name} - a {theme} business.
+
+REQUIREMENTS:
+- Heading section with page title
+- Company story/mission section with rich text content
+- Team section with 3 team member cards, each with:
+  * Image: images/team1.jpg, images/team2.jpg, images/team3.jpg
+  * Name and role/title
+  * Brief description
+- MUST include a call-to-action button at the bottom that redirects to contact.php: <a href="contact.php" class="...">Contact Us</a>
+- Modern, professional design with Tailwind CSS
+- Color scheme: {colors.get('primary')} primary, {colors.get('hover')} hover
+- Responsive design with grid layout for team cards
+- NO emojis, NO prices
+
+CRITICAL:
+- MUST use images/team1.jpg, images/team2.jpg, images/team3.jpg for team members
+- Team cards should be in a responsive grid (3 columns on desktop, 1 column on mobile)
+- Page MUST have a CTA button at the bottom that links to contact.php
+
+Return ONLY the content for <main> tag."""
+        else:
+            # Для 17, 19, 20 изображений - используем текстовые блоки без изображений
+            company_prompt = f"""Create a professional COMPANY page for {site_name} - a {theme} business.
+
+REQUIREMENTS:
+- Heading section with page title
+- Company story/mission section with rich text content
+- Values or team section with descriptive text-based cards (NO images)
+- Use icons or text-only cards to describe team members or company values
+- MUST include a call-to-action button at the bottom that redirects to contact.php: <a href="contact.php" class="...">Contact Us</a>
+- Modern, professional design with Tailwind CSS
+- Color scheme: {colors.get('primary')} primary, {colors.get('hover')} hover
+- Responsive design
+- NO emojis, NO prices
+
+CRITICAL:
+- DO NOT use any images - create compelling content using text, typography, and icons only
+- Focus on storytelling through well-crafted text sections
+- Page MUST have a CTA button at the bottom that links to contact.php
+
+Return ONLY the content for <main> tag."""
+
         # Для основных страниц генерируем через API с детальными промптами
         page_configs = {
             'index': {
@@ -5301,27 +5347,7 @@ Return ONLY the content for <main> tag (not full HTML)."""
             },
             'company': {
                 'title': 'Company',
-                'prompt': f"""Create a professional COMPANY page for {site_name} - a {theme} business.
-
-REQUIREMENTS:
-- Heading section with page title
-- Company story/mission section with rich text content
-- Team section with 3 team member cards, each with:
-  * Image: images/team1.jpg, images/team2.jpg, images/team3.jpg
-  * Name and role/title
-  * Brief description
-- MUST include a call-to-action button at the bottom that redirects to contact.php: <a href="contact.php" class="...">Contact Us</a>
-- Modern, professional design with Tailwind CSS
-- Color scheme: {colors.get('primary')} primary, {colors.get('hover')} hover
-- Responsive design with grid layout for team cards
-- NO emojis, NO prices
-
-CRITICAL:
-- MUST use images/team1.jpg, images/team2.jpg, images/team3.jpg for team members
-- Team cards should be in a responsive grid (3 columns on desktop, 1 column on mobile)
-- Page MUST have a CTA button at the bottom that links to contact.php
-
-Return ONLY the content for <main> tag."""
+                'prompt': company_prompt  # Используем динамический промпт
             },
             'services': {
                 'title': 'Services',
