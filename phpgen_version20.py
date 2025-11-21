@@ -115,9 +115,9 @@ def secure_password_input(prompt="Введите пароль: "):
                     sys.stdout.write('\b \b')
                     sys.stdout.flush()
             elif char == '\x16':  # Ctrl+V
-                # Вставка из буфера обмена
+                # Вставка из буфера обмена (Windows)
                 try:
-                    import win32clipboard
+                    import win32clipboard  # type: ignore # Опциональная зависимость для Windows
                     win32clipboard.OpenClipboard()
                     clipboard_data = win32clipboard.GetClipboardData()
                     win32clipboard.CloseClipboard()
@@ -126,8 +126,12 @@ def secure_password_input(prompt="Введите пароль: "):
                         password.append(c)
                         sys.stdout.write('*')
                         sys.stdout.flush()
-                except:
-                    # Если буфер обмена недоступен, продолжаем без вставки
+                except ImportError:
+                    # win32clipboard не установлен - Ctrl+V не работает
+                    # Пользователь может установить: pip install pywin32
+                    pass
+                except Exception:
+                    # Ошибка доступа к буферу обмена - продолжаем без вставки
                     pass
             else:
                 password.append(char)

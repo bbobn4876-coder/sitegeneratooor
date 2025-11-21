@@ -1,0 +1,17 @@
+# Основные зависимости
+requests
+python-dotenv
+
+# Генерация изображений (ByteDance)
+volcengine-python-sdk[ark]
+
+# Windows: Опциональная зависимость для Ctrl+V при вводе пароля
+# Раскомментируйте следующую строку если вы на Windows и хотите использовать Ctrl+V:
+# pywin32
+
+# Linux: Для Ctrl+V требуется xclip (устанавливается через системный пакетный менеджер)
+# Ubuntu/Debian: sudo apt-get install xclip
+# Fedora/RHEL: sudo dnf install xclip
+# Arch: sudo pacman -S xclip
+
+# macOS: pbpaste уже встроен, дополнительных зависимостей не требуется
