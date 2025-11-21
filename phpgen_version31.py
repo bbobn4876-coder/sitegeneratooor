@@ -916,6 +916,64 @@ Example:
 
 Return ONLY complete valid JSON array with {num_items} items. No markdown, no extra text."""
 
+        elif content_type == "about_content":
+            prompt = f"""Generate About Us section content for a {theme} business.
+
+Return as JSON object with these EXACT fields:
+- "heading": Section heading (e.g., "About Us", "Who We Are", etc.) - translate to the target language
+- "paragraph1": First paragraph about the company (2-3 sentences describing mission/services)
+- "paragraph2": Second paragraph about the team/approach (2-3 sentences)
+- "button_text": Button text (e.g., "Learn More", "Discover More", etc.) - translate to the target language
+
+Be specific to {theme} industry.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+{{
+  "heading": "About Us",
+  "paragraph1": "We are dedicated to providing exceptional {theme} services...",
+  "paragraph2": "Our team of professionals brings expertise and innovation...",
+  "button_text": "Learn More"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "gallery_content":
+            prompt = f"""Generate Gallery section content for a {theme} business.
+
+Return as JSON object with these EXACT fields:
+- "heading": Section heading (e.g., "Our Gallery", "Portfolio", "Our Work", etc.) - translate to the target language
+- "subheading": Brief subtitle (1 sentence describing the gallery)
+- "captions": Array of exactly 3 short captions for gallery items (3-5 words each) - these represent different aspects of the work
+
+Be specific to {theme} industry.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+{{
+  "heading": "Our Gallery",
+  "subheading": "Explore our latest projects and achievements",
+  "captions": ["Professional Excellence", "Quality Service", "Innovation"]
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "blog_posts":
+            prompt = f"""Generate {num_items} blog post previews for a {theme} business.
+
+Return as JSON array with these EXACT fields for each post:
+- "title": Blog post title (5-8 words)
+- "excerpt": Brief excerpt/summary (15-20 words)
+- "date": Recent date in format "Month DD, YYYY" (use realistic recent dates)
+
+Be specific to {theme} industry. Topics should be relevant, educational, or industry news.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+[
+  {{"title": "The Future of {theme}", "excerpt": "Explore the latest innovations and what they mean for your business", "date": "November 15, 2025"}},
+  {{"title": "Top 5 Trends in {theme}", "excerpt": "Stay competitive with these emerging trends in the industry", "date": "November 10, 2025"}}
+]
+
+Return ONLY valid JSON array with {num_items} items, no additional text or markdown formatting."""
+
         else:
             return None
 
@@ -2208,6 +2266,188 @@ Return ONLY complete valid JSON array with {num_items} items. No markdown, no ex
                 <a href="contact.php" class="inline-block bg-white text-{primary} hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold transition shadow-lg hover:shadow-xl">
                     Start Your Project
                 </a>
+            </div>
+        </div>
+    </section>"""
+
+    def generate_about_us_section(self, site_name, theme, primary, hover):
+        """Генерирует секцию About Us через API с языковой поддержкой"""
+        # Получаем 1 элемент с типом "about_content" для About секции
+        about_data = self.generate_theme_content_via_api(theme, "about_content", 1)
+
+        # Fallback если API не вернул результат
+        if not about_data or len(about_data) == 0:
+            about_data = [{
+                'heading': 'About Us',
+                'paragraph1': f'We are dedicated to providing exceptional {theme} services that help our clients achieve their goals. With years of experience and a commitment to excellence, we deliver results that matter.',
+                'paragraph2': 'Our team of professionals brings expertise, innovation, and a customer-first approach to every project. We understand that every client is unique, and we tailor our solutions to meet your specific needs.',
+                'button_text': 'Learn More'
+            }]
+
+        content = about_data[0]
+
+        return f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-4xl font-bold mb-6">{content.get('heading', 'About Us')}</h2>
+                    <p class="text-gray-700 mb-4 text-lg">
+                        {content.get('paragraph1', f'We are dedicated to providing exceptional {theme} services.')}
+                    </p>
+                    <p class="text-gray-700 mb-6">
+                        {content.get('paragraph2', 'Our team brings expertise and innovation to every project.')}
+                    </p>
+                    <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg font-semibold transition">
+                        {content.get('button_text', 'Learn More')}
+                    </a>
+                </div>
+                <div>
+                    <img src="images/about.jpg" alt="{content.get('heading', 'About Us')}" class="rounded-xl shadow-lg w-full h-96 object-cover">
+                </div>
+            </div>
+        </div>
+    </section>"""
+
+    def generate_gallery_section(self, site_name, theme, primary, hover):
+        """Генерирует секцию Gallery через API с языковой поддержкой"""
+        # Получаем 1 элемент с типом "gallery_content" для заголовков
+        gallery_data = self.generate_theme_content_via_api(theme, "gallery_content", 1)
+
+        # Fallback если API не вернул результат
+        if not gallery_data or len(gallery_data) == 0:
+            gallery_data = [{
+                'heading': 'Our Gallery',
+                'subheading': 'Explore our latest projects and achievements',
+                'captions': ['Professional Excellence', 'Quality Service', 'Innovation']
+            }]
+
+        content = gallery_data[0]
+        captions = content.get('captions', ['Professional Excellence', 'Quality Service', 'Innovation'])
+
+        return f"""
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4">{content.get('heading', 'Our Gallery')}</h2>
+                <p class="text-gray-600 text-lg">{content.get('subheading', 'Explore our latest projects')}</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <img src="images/gallery1.jpg" alt="Gallery 1" class="w-full h-64 object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-center justify-center">
+                        <p class="text-white text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            {captions[0] if len(captions) > 0 else 'Excellence'}
+                        </p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <img src="images/gallery2.jpg" alt="Gallery 2" class="w-full h-64 object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-center justify-center">
+                        <p class="text-white text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            {captions[1] if len(captions) > 1 else 'Quality'}
+                        </p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <img src="images/gallery3.jpg" alt="Gallery 3" class="w-full h-64 object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-center justify-center">
+                        <p class="text-white text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            {captions[2] if len(captions) > 2 else 'Innovation'}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>"""
+
+    def generate_services_cards_section(self, site_name, theme, primary, hover):
+        """Генерирует секцию Services Cards (3 карточки) через API с языковой поддержкой"""
+        # Получаем 3 сервиса через API
+        services = self.generate_theme_content_via_api(theme, "services", 3)
+
+        # Fallback если API не вернул результат
+        if not services or len(services) < 3:
+            services = [
+                {'title': 'Fast Service', 'description': 'Quick turnaround times without compromising on quality. We deliver results when you need them.'},
+                {'title': 'Quality Assured', 'description': 'Every project undergoes rigorous quality checks to ensure excellence in every detail.'},
+                {'title': 'Expert Team', 'description': 'Our experienced professionals bring knowledge and dedication to every project we undertake.'}
+            ]
+
+        # SVG иконки для карточек
+        icons = [
+            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>',
+            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>',
+            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>'
+        ]
+
+        # Генерируем карточки
+        cards_html = ''
+        for i, service in enumerate(services[:3]):
+            icon_svg = icons[i] if i < len(icons) else icons[0]
+            cards_html += f"""
+                <div class="group bg-white border border-gray-200 rounded-xl p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+                    <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-{primary} transition-colors">
+                        <svg class="w-8 h-8 text-{primary} group-hover:text-white transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            {icon_svg}
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 group-hover:text-{primary} transition-colors">{service['title']}</h3>
+                    <p class="text-gray-600 mb-6">{service['description']}</p>
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-3 rounded-lg font-semibold transition opacity-0 group-hover:opacity-100">
+                        Get Started
+                    </a>
+                </div>"""
+
+        return f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-12">Our Services</h2>
+            <div class="grid md:grid-cols-3 gap-8">{cards_html}
+            </div>
+        </div>
+    </section>"""
+
+    def generate_blog_preview_section(self, site_name, theme, primary, hover):
+        """Генерирует секцию Blog Preview через API с языковой поддержкой"""
+        # Получаем 3 блог поста через API
+        blog_posts = self.generate_theme_content_via_api(theme, "blog_posts", 3)
+
+        # Fallback если API не вернул результат
+        if not blog_posts or len(blog_posts) < 3:
+            blog_posts = [
+                {'title': f'The Future of {theme}', 'excerpt': 'Explore the latest innovations and what they mean for your business...', 'date': 'November 15, 2025'},
+                {'title': f'Top 5 Trends in {theme}', 'excerpt': 'Stay competitive with these emerging trends in the industry...', 'date': 'November 10, 2025'},
+                {'title': f'Success Stories in {theme}', 'excerpt': 'Real-world examples of how businesses are achieving remarkable results...', 'date': 'November 5, 2025'}
+            ]
+
+        # Генерируем статьи
+        articles_html = ''
+        for i, post in enumerate(blog_posts[:3]):
+            article_num = i + 1
+            articles_html += f"""
+                <article class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+                    <img src="images/blog{article_num}.jpg" alt="Blog Post {article_num}" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <p class="text-gray-500 text-sm mb-2">{post.get('date', 'November 2025')}</p>
+                        <h3 class="text-xl font-bold mb-3">{post['title']}</h3>
+                        <p class="text-gray-600 mb-4">{post.get('excerpt', post.get('description', ''))}</p>
+                        <a href="blog{article_num}.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                            Read More →
+                        </a>
+                    </div>
+                </article>"""
+
+        return f"""
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="flex justify-between items-center mb-12">
+                <h2 class="text-4xl font-bold">Latest from Our Blog</h2>
+                <a href="blog.php" class="text-{primary} hover:text-{hover} font-semibold transition">
+                    View All →
+                </a>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">{articles_html}
             </div>
         </div>
     </section>"""
@@ -4785,111 +5025,11 @@ setTimeout(showCookieNotice, 1000);
 
         # Все доступные секции (кроме Hero - она статична)
         all_sections = {
-            'image_text_about': f"""
-    <section class="py-20 bg-white">
-        <div class="container mx-auto px-6">
-            <div class="grid md:grid-cols-2 gap-12 items-center">
-                <div>
-                    <h2 class="text-4xl font-bold mb-6">About Us</h2>
-                    <p class="text-gray-700 mb-4 text-lg">
-                        We are dedicated to providing exceptional {theme} services that help our clients achieve their goals.
-                        With years of experience and a commitment to excellence, we deliver results that matter.
-                    </p>
-                    <p class="text-gray-700 mb-6">
-                        Our team of professionals brings expertise, innovation, and a customer-first approach to every project.
-                        We understand that every client is unique, and we tailor our solutions to meet your specific needs.
-                    </p>
-                    <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg font-semibold transition">
-                        Learn More
-                    </a>
-                </div>
-                <div>
-                    <img src="images/about.jpg" alt="About Us" class="rounded-xl shadow-lg w-full h-96 object-cover">
-                </div>
-            </div>
-        </div>
-    </section>""",
+            'image_text_about': self.generate_about_us_section(site_name, theme, primary, hover),
 
-            'gallery_centered': f"""
-    <section class="py-20 bg-gray-50">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-bold mb-4">Our Gallery</h2>
-                <p class="text-gray-600 text-lg">Explore our latest projects and achievements</p>
-            </div>
-            <div class="grid md:grid-cols-3 gap-6">
-                <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <img src="images/gallery1.jpg" alt="Gallery 1" class="w-full h-64 object-cover">
-                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-center justify-center">
-                        <p class="text-white text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            Professional Excellence
-                        </p>
-                    </div>
-                </div>
-                <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <img src="images/gallery2.jpg" alt="Gallery 2" class="w-full h-64 object-cover">
-                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-center justify-center">
-                        <p class="text-white text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            Quality Service
-                        </p>
-                    </div>
-                </div>
-                <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <img src="images/gallery3.jpg" alt="Gallery 3" class="w-full h-64 object-cover">
-                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-center justify-center">
-                        <p class="text-white text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            Innovation
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>""",
+            'gallery_centered': self.generate_gallery_section(site_name, theme, primary, hover),
 
-            'cards_3_animated': f"""
-    <section class="py-20 bg-white">
-        <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center mb-12">Our Services</h2>
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="group bg-white border border-gray-200 rounded-xl p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
-                    <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-{primary} transition-colors">
-                        <svg class="w-8 h-8 text-{primary} group-hover:text-white transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4 group-hover:text-{primary} transition-colors">Fast Service</h3>
-                    <p class="text-gray-600 mb-6">Quick turnaround times without compromising on quality. We deliver results when you need them.</p>
-                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-3 rounded-lg font-semibold transition opacity-0 group-hover:opacity-100">
-                        Get Started
-                    </a>
-                </div>
-                <div class="group bg-white border border-gray-200 rounded-xl p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
-                    <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-{primary} transition-colors">
-                        <svg class="w-8 h-8 text-{primary} group-hover:text-white transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4 group-hover:text-{primary} transition-colors">Quality Assured</h3>
-                    <p class="text-gray-600 mb-6">Every project undergoes rigorous quality checks to ensure excellence in every detail.</p>
-                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-3 rounded-lg font-semibold transition opacity-0 group-hover:opacity-100">
-                        Get Started
-                    </a>
-                </div>
-                <div class="group bg-white border border-gray-200 rounded-xl p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
-                    <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-{primary} transition-colors">
-                        <svg class="w-8 h-8 text-{primary} group-hover:text-white transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4 group-hover:text-{primary} transition-colors">Expert Team</h3>
-                    <p class="text-gray-600 mb-6">Our experienced professionals bring knowledge and dedication to every project we undertake.</p>
-                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-3 rounded-lg font-semibold transition opacity-0 group-hover:opacity-100">
-                        Get Started
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>""",
+            'cards_3_animated': self.generate_services_cards_section(site_name, theme, primary, hover),
 
             'image_text_alternating': self.generate_image_text_alternating_section(site_name, theme, primary, hover),
 
@@ -4901,52 +5041,7 @@ setTimeout(showCookieNotice, 1000);
 
             'carousel_workflow': self.generate_our_process_section(site_name, theme, primary, hover),
 
-            'carousel_blog': f"""
-    <section class="py-20 bg-gray-50">
-        <div class="container mx-auto px-6">
-            <div class="flex justify-between items-center mb-12">
-                <h2 class="text-4xl font-bold">Latest from Our Blog</h2>
-                <a href="blog.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                    View All →
-                </a>
-            </div>
-            <div class="grid md:grid-cols-3 gap-8">
-                <article class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
-                    <img src="images/blog1.jpg" alt="Blog Post 1" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                        <p class="text-gray-500 text-sm mb-2">November 15, 2025</p>
-                        <h3 class="text-xl font-bold mb-3">The Future of {theme}</h3>
-                        <p class="text-gray-600 mb-4">Explore the latest innovations and what they mean for your business...</p>
-                        <a href="blog1.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                            Read More →
-                        </a>
-                    </div>
-                </article>
-                <article class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
-                    <img src="images/blog2.jpg" alt="Blog Post 2" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                        <p class="text-gray-500 text-sm mb-2">November 10, 2025</p>
-                        <h3 class="text-xl font-bold mb-3">Top 5 Trends in {theme}</h3>
-                        <p class="text-gray-600 mb-4">Stay competitive with these emerging trends in the industry...</p>
-                        <a href="blog2.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                            Read More →
-                        </a>
-                    </div>
-                </article>
-                <article class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
-                    <img src="images/blog3.jpg" alt="Blog Post 3" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                        <p class="text-gray-500 text-sm mb-2">November 5, 2025</p>
-                        <h3 class="text-xl font-bold mb-3">How to Choose the Right Service</h3>
-                        <p class="text-gray-600 mb-4">A comprehensive guide to selecting the best solution for your needs...</p>
-                        <a href="blog3.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                            Read More →
-                        </a>
-                    </div>
-                </article>
-            </div>
-        </div>
-    </section>""",
+            'carousel_blog': self.generate_blog_preview_section(site_name, theme, primary, hover),
 
             'contact_form_multistep': f"""
     <section class="py-20 bg-white">
@@ -5351,11 +5446,12 @@ setTimeout(showCookieNotice, 1000);
         site_name = self.blueprint.get('site_name', 'Company')
         theme = self.blueprint.get('theme', 'business')
         colors = self.blueprint.get('color_scheme', {})
-        
+        language = self.blueprint.get('language', 'English')  # Получаем язык из blueprint
+
         # Для policy страниц используем готовый контент
         if page_name in ['privacy', 'terms', 'cookie']:
             return self.generate_policy_page(page_name, output_dir)
-        
+
         # Для blog страниц используем готовый контент
         if page_name in ['blog1', 'blog2', 'blog3', 'blog4', 'blog5', 'blog6']:
             return self.generate_blog_page(page_name, output_dir)
@@ -5367,6 +5463,9 @@ setTimeout(showCookieNotice, 1000);
         # Для Contact страницы используем готовый профессиональный шаблон
         if page_name == 'contact':
             return self.generate_contact_page(output_dir)
+
+        # Языковая инструкция для всех промптов
+        language_requirement = f"\n\nCRITICAL LANGUAGE REQUIREMENT: Generate ALL content (headings, text, buttons, labels) EXCLUSIVELY in {language}. Every single word MUST be in {language}. This is MANDATORY."
 
         # Определяем промпт для Company в зависимости от количества изображений
         if self.num_images_to_generate == 24:
@@ -5389,7 +5488,7 @@ REQUIREMENTS:
 CRITICAL:
 - MUST use images/team1.jpg, images/team2.jpg, images/team3.jpg for team members
 - Team cards should be in a responsive grid (3 columns on desktop, 1 column on mobile)
-- Page MUST have a CTA button at the bottom that links to contact.php
+- Page MUST have a CTA button at the bottom that links to contact.php{language_requirement}
 
 Return ONLY the content for <main> tag."""
         else:
@@ -5410,7 +5509,7 @@ REQUIREMENTS:
 CRITICAL:
 - DO NOT use any images - create compelling content using text, typography, and icons only
 - Focus on storytelling through well-crafted text sections
-- Page MUST have a CTA button at the bottom that links to contact.php
+- Page MUST have a CTA button at the bottom that links to contact.php{language_requirement}
 
 Return ONLY the content for <main> tag."""
 
@@ -5442,7 +5541,7 @@ REQUIREMENTS:
 
 CRITICAL: About Us section MUST have images/about.jpg image and "Learn More" button linking to company.php
 CRITICAL: Every OTHER button on this page MUST have href="contact.php"
-CRITICAL: Testimonials MUST use avatar circles with initials, NOT images
+CRITICAL: Testimonials MUST use avatar circles with initials, NOT images{language_requirement}
 
 Return ONLY the content for <main> tag (not full HTML)."""
             },
@@ -5470,7 +5569,7 @@ CRITICAL:
 - MUST use ONLY 3 service cards (service1.jpg, service2.jpg, service3.jpg)
 - Cards should have consistent height and professional design
 - ALL buttons (on cards AND bottom CTA) MUST link to contact.php
-- Do NOT use "Learn More" text, use alternatives like "Get Started", "Contact Us", "Request Quote"
+- Do NOT use "Learn More" text, use alternatives like "Get Started", "Contact Us", "Request Quote"{language_requirement}
 
 Return ONLY the content for <main> tag."""
             },
@@ -5485,7 +5584,7 @@ REQUIREMENTS:
 - Simple, clean design with Tailwind CSS
 - Color scheme: {colors.get('primary')} primary, {colors.get('hover')} hover
 - Centered layout
-- NO emojis
+- NO emojis{language_requirement}
 
 Return ONLY the content for <main> tag."""
             }
