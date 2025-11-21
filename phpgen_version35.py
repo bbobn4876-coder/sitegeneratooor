@@ -4464,6 +4464,37 @@ setTimeout(showCookieNotice, 1000);
         primary = colors.get('primary', 'blue-600')
         hover = colors.get('hover', 'blue-700')
 
+        # Получаем контент contact page через API
+        contact_page_data = self.generate_theme_content_via_api(theme, "contact_page_content", 1)
+
+        # Fallback если API не вернул результат
+        if not contact_page_data:
+            contact_page_data = {
+                'heading': 'Get In Touch',
+                'subheading': 'Have a question or want to work together? We would love to hear from you.',
+                'name_label': 'Your Name',
+                'email_label': 'Your Email',
+                'phone_label': 'Phone Number',
+                'message_label': 'Your Message',
+                'submit_button': 'Send Message',
+                'info_heading': 'Contact Information',
+                'address_label': 'Address',
+                'phone_label_display': 'Phone',
+                'email_label_display': 'Email'
+            }
+
+        heading = contact_page_data.get('heading', 'Get In Touch')
+        subheading = contact_page_data.get('subheading', 'Have a question or want to work together?')
+        name_label = contact_page_data.get('name_label', 'Your Name')
+        email_label = contact_page_data.get('email_label', 'Your Email')
+        phone_label = contact_page_data.get('phone_label', 'Phone Number')
+        message_label = contact_page_data.get('message_label', 'Your Message')
+        submit_button = contact_page_data.get('submit_button', 'Send Message')
+        info_heading = contact_page_data.get('info_heading', 'Contact Information')
+        address_label = contact_page_data.get('address_label', 'Address')
+        phone_label_display = contact_page_data.get('phone_label_display', 'Phone')
+        email_label_display = contact_page_data.get('email_label_display', 'Email')
+
         # Используем сохраненные контактные данные из blueprint (те же что и в footer)
         contact_data_1 = self.blueprint.get('contact_data', self.get_country_contact_data(country))
         # Для разнообразия можем генерировать дополнительные контакты, но основной остается из blueprint
@@ -4479,46 +4510,46 @@ setTimeout(showCookieNotice, 1000);
     <section class="py-20 bg-gradient-to-br from-{primary}/5 to-white">
         <div class="container mx-auto px-6">
             <div class="text-center mb-16">
-                <h1 class="text-5xl md:text-6xl font-bold mb-6">Get In Touch</h1>
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">{heading}</h1>
                 <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                    Have a question or want to work together? We'd love to hear from you.
+                    {subheading}
                 </p>
             </div>
 
             <div class="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
                 <div class="bg-white rounded-2xl shadow-xl p-8 md:p-10">
-                    <h2 class="text-3xl font-bold mb-6">Send us a message</h2>
+                    <h2 class="text-3xl font-bold mb-6">{submit_button}</h2>
                     <form action="thanks_you.php" method="POST" class="space-y-6">
                         <div>
-                            <label for="name" class="block text-gray-700 font-semibold mb-2">Your Name <span class="text-red-500">*</span></label>
-                            <input type="text" id="name" name="name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none" placeholder="John Doe">
+                            <label for="name" class="block text-gray-700 font-semibold mb-2">{name_label} <span class="text-red-500">*</span></label>
+                            <input type="text" id="name" name="name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none">
                         </div>
                         <div>
-                            <label for="email" class="block text-gray-700 font-semibold mb-2">Your Email <span class="text-red-500">*</span></label>
-                            <input type="email" id="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none" placeholder="john@example.com">
+                            <label for="email" class="block text-gray-700 font-semibold mb-2">{email_label} <span class="text-red-500">*</span></label>
+                            <input type="email" id="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none">
                         </div>
                         <div>
-                            <label for="phone" class="block text-gray-700 font-semibold mb-2">Phone Number</label>
-                            <input type="tel" id="phone" name="phone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none" placeholder="+1 (555) 123-4567">
+                            <label for="phone" class="block text-gray-700 font-semibold mb-2">{phone_label}</label>
+                            <input type="tel" id="phone" name="phone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none">
                         </div>
                         <div>
-                            <label for="message" class="block text-gray-700 font-semibold mb-2">Your Message <span class="text-red-500">*</span></label>
-                            <textarea id="message" name="message" rows="5" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none resize-none" placeholder="Tell us about your project..."></textarea>
+                            <label for="message" class="block text-gray-700 font-semibold mb-2">{message_label} <span class="text-red-500">*</span></label>
+                            <textarea id="message" name="message" rows="5" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent transition-all outline-none resize-none"></textarea>
                         </div>
-                        <button type="submit" class="w-full bg-{primary} hover:bg-{hover} text-white py-4 rounded-lg text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">Send Message</button>
+                        <button type="submit" class="w-full bg-{primary} hover:bg-{hover} text-white py-4 rounded-lg text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">{submit_button}</button>
                     </form>
                 </div>
 
                 <div class="space-y-8">
                     <div class="bg-white rounded-2xl shadow-xl p-8">
-                        <h2 class="text-3xl font-bold mb-6">Contact Information</h2>
+                        <h2 class="text-3xl font-bold mb-6">{info_heading}</h2>
                         <div class="space-y-6">
                             <div class="flex items-start">
                                 <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center flex-shrink-0">
                                     <svg class="w-6 h-6 flex-shrink-0 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                                 </div>
                                 <div class="ml-4">
-                                    <h3 class="font-semibold text-gray-900 mb-1">Email</h3>
+                                    <h3 class="font-semibold text-gray-900 mb-1">{email_label_display}</h3>
                                     <a href="mailto:{site_name.lower().replace(' ', '')}@gmail.com" class="text-gray-600 hover:text-{primary} transition">{site_name.lower().replace(' ', '')}@gmail.com</a>
                                 </div>
                             </div>
@@ -4527,7 +4558,7 @@ setTimeout(showCookieNotice, 1000);
                                     <svg class="w-6 h-6 flex-shrink-0 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
                                 </div>
                                 <div class="ml-4">
-                                    <h3 class="font-semibold text-gray-900 mb-1">Phone</h3>
+                                    <h3 class="font-semibold text-gray-900 mb-1">{phone_label_display}</h3>
                                     <a href="tel:{contact_data_1["phone"].replace(" ", "")}" class="text-gray-600 hover:text-{primary} transition">{contact_data_1["phone"]}</a>
                                 </div>
                             </div>
@@ -4536,19 +4567,11 @@ setTimeout(showCookieNotice, 1000);
                                     <svg class="w-6 h-6 flex-shrink-0 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                 </div>
                                 <div class="ml-4">
-                                    <h3 class="font-semibold text-gray-900 mb-1">Address</h3>
+                                    <h3 class="font-semibold text-gray-900 mb-1">{address_label}</h3>
                                     <p class="text-gray-600">{contact_data_1["address"]}</p>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="bg-gradient-to-br from-{primary} to-{hover} rounded-2xl shadow-xl p-8 text-white">
-                        <h3 class="text-2xl font-bold mb-4">Why Choose Us?</h3>
-                        <ul class="space-y-3">
-                            <li class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Quick response within 24 hours</li>
-                            <li class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Professional and friendly team</li>
-                            <li class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Free initial consultation</li>
-                        </ul>
                     </div>
                 </div>
             </div>
@@ -6537,6 +6560,23 @@ Return ONLY the content for <main> tag."""
         primary = colors.get('primary', 'blue-600')
         hover = colors.get('hover', 'blue-700')
 
+        # Получаем контент blog page через API
+        blog_page_data = self.generate_theme_content_via_api(theme, "blog_page_content", 1)
+
+        # Fallback если API не вернул результат
+        if not blog_page_data:
+            blog_page_data = {
+                'heading': 'Our Blog',
+                'subheading': f'Insights, tips, and news about {theme}',
+                'read_more': 'Read More',
+                'no_posts': 'No blog posts available yet'
+            }
+
+        heading = blog_page_data.get('heading', 'Our Blog')
+        subheading = blog_page_data.get('subheading', f'Insights, tips, and news about {theme}')
+        read_more_text = blog_page_data.get('read_more', 'Read More')
+        no_posts_text = blog_page_data.get('no_posts', 'No blog posts available yet')
+
         # Полный список статей (6 штук)
         all_blog_articles = [
             {
@@ -6601,7 +6641,7 @@ Return ONLY the content for <main> tag."""
                     <h2 class="text-2xl font-bold mb-3 group-hover:text-{primary} transition">{article['title']}</h2>
                     <p class="text-gray-600 mb-4">{article['excerpt']}</p>
                     <a href="{article['url']}" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition">
-                        Read More
+                        {read_more_text}
                         <svg class="w-5 h-5 ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                         </svg>
@@ -6609,13 +6649,13 @@ Return ONLY the content for <main> tag."""
                 </div>
             </article>
             '''
-        
+
         main_content = f"""<main>
 <section class="py-20 bg-gradient-to-br from-{primary}/10 to-white">
     <div class="container mx-auto px-6">
         <div class="max-w-4xl mx-auto text-center">
-            <h1 class="text-5xl md:text-6xl font-bold mb-6">Our Blog</h1>
-            <p class="text-xl md:text-2xl text-gray-600">Insights, tips, and news about {theme}</p>
+            <h1 class="text-5xl md:text-6xl font-bold mb-6">{heading}</h1>
+            <p class="text-xl md:text-2xl text-gray-600">{subheading}</p>
         </div>
     </div>
 </section>
@@ -6674,12 +6714,27 @@ Return ONLY the content for <main> tag."""
     def generate_policy_page(self, page_name, output_dir):
         """Генерация policy страниц с УНИКАЛЬНЫМ контентом для каждой"""
         site_name = self.blueprint.get('site_name', 'Company')
-        
+        theme = self.blueprint.get('theme', 'business')
+
+        # Получаем контент policy через API
+        policy_data = self.generate_theme_content_via_api(theme, "policy_content", 1)
+
+        # Fallback если API не вернул результат
+        if not policy_data:
+            policy_data = {
+                'privacy_policy': 'Privacy Policy',
+                'terms_of_service': 'Terms of Service',
+                'cookie_policy': 'Cookie Policy',
+                'last_updated': 'Last updated'
+            }
+
         titles = {
-            'privacy': 'Privacy Policy',
-            'terms': 'Terms of Service',
-            'cookie': 'Cookie Policy'
+            'privacy': policy_data.get('privacy_policy', 'Privacy Policy'),
+            'terms': policy_data.get('terms_of_service', 'Terms of Service'),
+            'cookie': policy_data.get('cookie_policy', 'Cookie Policy')
         }
+
+        last_updated_label = policy_data.get('last_updated', 'Last updated')
         
         # УНИКАЛЬНЫЙ контент для каждой страницы
         if page_name == 'privacy':
@@ -6687,7 +6742,7 @@ Return ONLY the content for <main> tag."""
 <section class="py-20 bg-white">
     <div class="container mx-auto px-6 max-w-4xl">
         <h1 class="text-4xl md:text-5xl font-bold text-center mb-4">{titles[page_name]}</h1>
-        <p class="text-gray-500 text-center mb-12">Last updated: November 14, 2025</p>
+        <p class="text-gray-500 text-center mb-12">{last_updated_label}: November 14, 2025</p>
         
         <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
         
@@ -6743,10 +6798,10 @@ Return ONLY the content for <main> tag."""
 <section class="py-20 bg-white">
     <div class="container mx-auto px-6 max-w-4xl">
         <h1 class="text-4xl md:text-5xl font-bold text-center mb-4">{titles[page_name]}</h1>
-        <p class="text-gray-500 text-center mb-12">Last updated: November 14, 2025</p>
-        
+        <p class="text-gray-500 text-center mb-12">{last_updated_label}: November 14, 2025</p>
+
         <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
-        
+
         <h2 class="text-2xl font-bold mt-8 mb-4">1. Agreement to Terms</h2>
         <p>By accessing and using {site_name}'s website, you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to these Terms of Service, please do not use this website.</p>
         
@@ -6792,10 +6847,10 @@ Return ONLY the content for <main> tag."""
 <section class="py-20 bg-white">
     <div class="container mx-auto px-6 max-w-4xl">
         <h1 class="text-4xl md:text-5xl font-bold text-center mb-4">{titles[page_name]}</h1>
-        <p class="text-gray-500 text-center mb-12">Last updated: November 14, 2025</p>
-        
+        <p class="text-gray-500 text-center mb-12">{last_updated_label}: November 14, 2025</p>
+
         <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
-        
+
         <h2 class="text-2xl font-bold mt-8 mb-4">1. What Are Cookies</h2>
         <p>Cookies are small text files that are placed on your device when you visit our website. They help us provide you with a better experience by remembering your preferences and understanding how you use our site.</p>
         
