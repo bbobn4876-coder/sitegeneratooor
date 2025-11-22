@@ -1411,6 +1411,8 @@ Return as JSON object with these EXACT fields:
 - "return_home": "Return to Homepage" button text (2-4 words)
 - "back_home": "Back to Home" button text (2-4 words)
 - "view_services": "View Services" button text (2-3 words)
+- "about_us": "About Us" link text (2-3 words)
+- "blog": "Blog" link text (1-2 words)
 - "what_next": "What Happens Next?" heading (2-4 words)
 - "review_message": "We Review Your Message" step heading (3-5 words)
 - "review_description": Description for review step (10-15 words)
@@ -1433,6 +1435,8 @@ Example:
   "return_home": "Return to Homepage",
   "back_home": "Back to Home",
   "view_services": "View Services",
+  "about_us": "About Us",
+  "blog": "Blog",
   "what_next": "What Happens Next?",
   "review_message": "We Review Your Message",
   "review_description": "Our team will carefully review your inquiry within the next few hours.",
@@ -3182,7 +3186,11 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
     </section>"""
 
     def generate_blog_preview_section(self, site_name, theme, primary, hover):
-        """Генерирует секцию Blog Preview через API с языковой поддержкой"""
+        """Генерирует секцию Blog Preview через API с языковой поддержкой
+
+        Синхронизируется с blog_posts_previews в blueprint для согласованности
+        между главной страницей, blog.php и отдельными статьями blog1-blog6.php
+        """
         # Получаем заголовки секции через API
         blog_headers = self.generate_theme_content_via_api(theme, "blog_section_headers", 1)
 
@@ -3194,16 +3202,77 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             section_heading = blog_headers.get('section_heading', 'Latest from Our Blog')
             view_all_text = blog_headers.get('view_all_text', 'View All')
 
-        # Получаем 3 блог поста через API
-        blog_posts = self.generate_theme_content_via_api(theme, "blog_posts", 3)
+        # КРИТИЧЕСКИ ВАЖНО: Проверяем, есть ли уже blog_posts_previews в blueprint
+        # Если есть - используем их для синхронизации с blog.php и blog1-blog6.php
+        if hasattr(self, 'blueprint') and 'blog_posts_previews' in self.blueprint:
+            # Используем существующие данные из blueprint
+            all_blog_articles = self.blueprint['blog_posts_previews']
+            blog_posts = all_blog_articles[:3]  # Берем первые 3 статьи для превью
+        else:
+            # Генерируем 6 статей через API (будут использоваться позже в blog.php)
+            api_blog_posts = self.generate_theme_content_via_api(theme, "blog_posts", 6)
 
-        # Fallback если API не вернул результат
-        if not blog_posts or len(blog_posts) < 3:
-            blog_posts = [
-                {'title': f'The Future of {theme}', 'excerpt': 'Explore the latest innovations and what they mean for your business...', 'date': 'November 15, 2025'},
-                {'title': f'Top 5 Trends in {theme}', 'excerpt': 'Stay competitive with these emerging trends in the industry...', 'date': 'November 10, 2025'},
-                {'title': f'Success Stories in {theme}', 'excerpt': 'Real-world examples of how businesses are achieving remarkable results...', 'date': 'November 5, 2025'}
-            ]
+            # Fallback если API не вернул результат
+            if not api_blog_posts or len(api_blog_posts) < 6:
+                all_blog_articles = [
+                    {
+                        'title': f'The Future of {theme}',
+                        'url': 'blog1.php',
+                        'excerpt': f'Explore the latest innovations in {theme} and what they mean for your business.',
+                        'date': 'November 15, 2025',
+                        'image': 'images/blog1.jpg'
+                    },
+                    {
+                        'title': f'Top 5 Trends in {theme}',
+                        'url': 'blog2.php',
+                        'excerpt': f'Stay competitive with these emerging trends in the {theme} industry.',
+                        'date': 'November 10, 2025',
+                        'image': 'images/blog2.jpg'
+                    },
+                    {
+                        'title': f'How to Choose the Right {theme} Service',
+                        'url': 'blog3.php',
+                        'excerpt': f'A comprehensive guide to selecting the best {theme} solution for your needs.',
+                        'date': 'November 5, 2025',
+                        'image': 'images/blog3.jpg'
+                    },
+                    {
+                        'title': f'Best Practices for {theme} Success',
+                        'url': 'blog4.php',
+                        'excerpt': f'Learn proven strategies and techniques to maximize your {theme} results.',
+                        'date': 'November 1, 2025',
+                        'image': 'images/blog4.jpg'
+                    },
+                    {
+                        'title': f'Common {theme} Mistakes to Avoid',
+                        'url': 'blog5.php',
+                        'excerpt': f'Discover the pitfalls that could derail your {theme} projects and how to avoid them.',
+                        'date': 'October 28, 2025',
+                        'image': 'images/blog5.jpg'
+                    },
+                    {
+                        'title': f'The Complete {theme} Guide',
+                        'url': 'blog6.php',
+                        'excerpt': f'Everything you need to know about {theme} in one comprehensive resource.',
+                        'date': 'October 25, 2025',
+                        'image': 'images/blog6.jpg'
+                    }
+                ]
+            else:
+                # Используем данные из API и добавляем URL и изображения
+                all_blog_articles = []
+                for i, post in enumerate(api_blog_posts[:6]):
+                    all_blog_articles.append({
+                        'title': post.get('title', f'{theme} Article {i+1}'),
+                        'url': f'blog{i+1}.php',
+                        'excerpt': post.get('excerpt', f'Read about {theme}...'),
+                        'date': post.get('date', 'November 2025'),
+                        'image': f'images/blog{i+1}.jpg'
+                    })
+
+            # Сохраняем в blueprint для использования в blog.php и blog1-blog6.php
+            self.blueprint['blog_posts_previews'] = all_blog_articles
+            blog_posts = all_blog_articles[:3]  # Берем первые 3 для превью
 
         # Генерируем статьи
         articles_html = ''
@@ -6014,13 +6083,13 @@ setTimeout(showCookieNotice, 1000);
                             <svg class="w-8 h-8 text-{primary} mx-auto mb-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                             </svg>
-                            <p class="font-semibold text-gray-900">About Us</p>
+                            <p class="font-semibold text-gray-900">{thanks_content.get('about_us', 'About Us')}</p>
                         </a>
                         <a href="blog.php" class="block p-6 bg-white rounded-xl hover:shadow-lg transition text-center">
                             <svg class="w-8 h-8 text-{primary} mx-auto mb-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                             </svg>
-                            <p class="font-semibold text-gray-900">Blog</p>
+                            <p class="font-semibold text-gray-900">{thanks_content.get('blog', 'Blog')}</p>
                         </a>
                     </div>
                 </div>
@@ -7108,69 +7177,75 @@ Return ONLY the content for <main> tag."""
         contact_specific_needs = blog_nav_data.get('contact_specific_needs', 'Contact us to discuss your specific needs and how we can help.')
         get_in_touch = blog_nav_data.get('get_in_touch', 'Get in Touch')
 
-        # Генерируем статьи через API
-        api_blog_posts = self.generate_theme_content_via_api(theme, "blog_posts", 6)
-
-        # Fallback если API не вернул результат
-        if not api_blog_posts or len(api_blog_posts) < 6:
-            all_blog_articles = [
-                {
-                    'title': f'The Future of {theme}',
-                    'url': 'blog1.php',
-                    'excerpt': f'Explore the latest innovations in {theme} and what they mean for your business.',
-                    'date': 'November 15, 2025',
-                    'image': 'images/blog1.jpg'
-                },
-                {
-                    'title': f'Top 5 Trends in {theme}',
-                    'url': 'blog2.php',
-                    'excerpt': f'Stay competitive with these emerging trends in the {theme} industry.',
-                    'date': 'November 10, 2025',
-                    'image': 'images/blog2.jpg'
-                },
-                {
-                    'title': f'How to Choose the Right {theme} Service',
-                    'url': 'blog3.php',
-                    'excerpt': f'A comprehensive guide to selecting the best {theme} solution for your needs.',
-                    'date': 'November 5, 2025',
-                    'image': 'images/blog3.jpg'
-                },
-                {
-                    'title': f'Best Practices for {theme} Success',
-                    'url': 'blog4.php',
-                    'excerpt': f'Learn proven strategies and techniques to maximize your {theme} results.',
-                    'date': 'November 1, 2025',
-                    'image': 'images/blog4.jpg'
-                },
-                {
-                    'title': f'Common {theme} Mistakes to Avoid',
-                    'url': 'blog5.php',
-                    'excerpt': f'Discover the pitfalls that could derail your {theme} projects and how to avoid them.',
-                    'date': 'October 28, 2025',
-                    'image': 'images/blog5.jpg'
-                },
-                {
-                    'title': f'The Complete {theme} Guide',
-                    'url': 'blog6.php',
-                    'excerpt': f'Everything you need to know about {theme} in one comprehensive resource.',
-                    'date': 'October 25, 2025',
-                    'image': 'images/blog6.jpg'
-                }
-            ]
+        # КРИТИЧЕСКИ ВАЖНО: Проверяем, есть ли уже blog_posts_previews в blueprint
+        # Если есть - используем их для согласованности с главной страницей
+        if hasattr(self, 'blueprint') and 'blog_posts_previews' in self.blueprint:
+            # Используем существующие данные из blueprint (созданные в generate_blog_preview_section)
+            all_blog_articles = self.blueprint['blog_posts_previews']
         else:
-            # Используем данные из API и добавляем URL и изображения
-            all_blog_articles = []
-            for i, post in enumerate(api_blog_posts[:6]):
-                all_blog_articles.append({
-                    'title': post.get('title', f'{theme} Article {i+1}'),
-                    'url': f'blog{i+1}.php',
-                    'excerpt': post.get('excerpt', f'Read about {theme}...'),
-                    'date': post.get('date', 'November 2025'),
-                    'image': f'images/blog{i+1}.jpg'
-                })
+            # Генерируем статьи через API
+            api_blog_posts = self.generate_theme_content_via_api(theme, "blog_posts", 6)
 
-        # КРИТИЧЕСКИ ВАЖНО: Сохраняем blog posts в blueprint для использования в generate_blog_page
-        self.blueprint['blog_posts_previews'] = all_blog_articles
+            # Fallback если API не вернул результат
+            if not api_blog_posts or len(api_blog_posts) < 6:
+                all_blog_articles = [
+                    {
+                        'title': f'The Future of {theme}',
+                        'url': 'blog1.php',
+                        'excerpt': f'Explore the latest innovations in {theme} and what they mean for your business.',
+                        'date': 'November 15, 2025',
+                        'image': 'images/blog1.jpg'
+                    },
+                    {
+                        'title': f'Top 5 Trends in {theme}',
+                        'url': 'blog2.php',
+                        'excerpt': f'Stay competitive with these emerging trends in the {theme} industry.',
+                        'date': 'November 10, 2025',
+                        'image': 'images/blog2.jpg'
+                    },
+                    {
+                        'title': f'How to Choose the Right {theme} Service',
+                        'url': 'blog3.php',
+                        'excerpt': f'A comprehensive guide to selecting the best {theme} solution for your needs.',
+                        'date': 'November 5, 2025',
+                        'image': 'images/blog3.jpg'
+                    },
+                    {
+                        'title': f'Best Practices for {theme} Success',
+                        'url': 'blog4.php',
+                        'excerpt': f'Learn proven strategies and techniques to maximize your {theme} results.',
+                        'date': 'November 1, 2025',
+                        'image': 'images/blog4.jpg'
+                    },
+                    {
+                        'title': f'Common {theme} Mistakes to Avoid',
+                        'url': 'blog5.php',
+                        'excerpt': f'Discover the pitfalls that could derail your {theme} projects and how to avoid them.',
+                        'date': 'October 28, 2025',
+                        'image': 'images/blog5.jpg'
+                    },
+                    {
+                        'title': f'The Complete {theme} Guide',
+                        'url': 'blog6.php',
+                        'excerpt': f'Everything you need to know about {theme} in one comprehensive resource.',
+                        'date': 'October 25, 2025',
+                        'image': 'images/blog6.jpg'
+                    }
+                ]
+            else:
+                # Используем данные из API и добавляем URL и изображения
+                all_blog_articles = []
+                for i, post in enumerate(api_blog_posts[:6]):
+                    all_blog_articles.append({
+                        'title': post.get('title', f'{theme} Article {i+1}'),
+                        'url': f'blog{i+1}.php',
+                        'excerpt': post.get('excerpt', f'Read about {theme}...'),
+                        'date': post.get('date', 'November 2025'),
+                        'image': f'images/blog{i+1}.jpg'
+                    })
+
+            # Сохраняем в blueprint для использования в generate_blog_page
+            self.blueprint['blog_posts_previews'] = all_blog_articles
 
 
         # Используем заранее определенное количество статей (3 или 6)
