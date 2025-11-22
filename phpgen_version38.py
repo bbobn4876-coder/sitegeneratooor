@@ -334,7 +334,7 @@ class PHPWebsiteGenerator:
         self.template_sites = []
         self.generated_images = []
         self.primary_color = ""  # Основной цвет сайта
-        self.num_blog_articles = 3  # Количество статей блога (3 или 6)
+        self.num_blog_articles = 0  # Количество статей блога (DISABLED - blog1-blog6 pages removed)
         self.theme_content_cache = {}  # Кэш для контента на основе темы
 
         # Инициализация Ark клиента для ByteDance Seedream-4.0
@@ -1501,18 +1501,177 @@ Example:
 
 Return ONLY valid JSON, no additional text or markdown formatting."""
 
+        elif content_type == "our_approach_blocks":
+            prompt = f"""Generate "Our Approach" section blocks for a {theme} business website.
+
+Return as JSON array with these 3 exact blocks in this order:
+1. Client-Centered approach block
+2. Innovation & Excellence block
+3. Transparent Communication block
+
+Each block must have:
+- "title": Block title (2-4 words)
+- "description": Block description (10-20 words about the approach/value)
+
+{language_instruction}
+
+Example:
+[
+  {{
+    "title": "Client-Centered Solutions",
+    "description": "We prioritize understanding your unique challenges and goals to deliver customized solutions that drive real results."
+  }},
+  {{
+    "title": "Innovation & Excellence",
+    "description": "We combine cutting-edge techniques with industry best practices to ensure superior outcomes."
+  }},
+  {{
+    "title": "Transparent Communication",
+    "description": "Regular updates and open dialogue ensure you're always informed about your project's progress."
+  }}
+]
+
+Return ONLY valid JSON array with exactly 3 blocks, no additional text or markdown formatting."""
+
+        elif content_type == "faq_blocks":
+            prompt = f"""Generate FAQ (Frequently Asked Questions) section for a {theme} business website.
+
+Return as JSON object with:
+- "section_description": Brief description under heading (8-15 words, e.g., "Find answers to common questions about our services")
+- "questions": Array of exactly 4 FAQ items, each with:
+  * "question": Question text (5-10 words)
+  * "answer": Answer text (15-30 words)
+
+Questions should cover: services offered, project timeline, post-project support, and what makes the company different.
+
+{language_instruction}
+
+Example:
+{{
+  "section_description": "Find answers to common questions about our services",
+  "questions": [
+    {{
+      "question": "What services do you offer?",
+      "answer": "We provide comprehensive {theme} services tailored to your specific needs, including consultation, implementation, and ongoing support."
+    }},
+    {{
+      "question": "How long does a typical project take?",
+      "answer": "Project timelines vary based on scope and complexity. We provide detailed timelines during the initial consultation phase."
+    }},
+    {{
+      "question": "Do you offer support after project completion?",
+      "answer": "Yes, we provide comprehensive post-project support and maintenance to ensure long-term success."
+    }},
+    {{
+      "question": "What makes your company different?",
+      "answer": "Our commitment to quality, personalized approach, and proven track record set us apart in the industry."
+    }}
+  ]
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "privacy_policy_full":
+            prompt = f"""Generate complete Privacy Policy page content for a {theme} business website.
+
+Return as JSON object with section headings and content. All text must be in the target language.
+
+Required fields:
+- "introduction_text": Introduction paragraph (20-30 words)
+- "info_we_collect_heading": Section heading (e.g., "Information We Collect")
+- "personal_data_heading": Subsection heading (e.g., "Personal Data")
+- "personal_data_items": Array of 4 data items collected
+- "usage_data_heading": Subsection heading (e.g., "Usage Data")
+- "usage_data_items": Array of 4 usage data items
+- "how_we_use_heading": Section heading (e.g., "How We Use Your Information")
+- "how_we_use_items": Array of 6 usage purposes
+- "data_security_heading": Section heading
+- "data_security_text": Paragraph (20-30 words)
+- "your_rights_heading": Section heading
+- "your_rights_text": Paragraph (15-25 words)
+- "contact_heading": Section heading (e.g., "Contact Us")
+- "contact_text": Paragraph (10-15 words)
+- "contact_email_label": Label before email (e.g., "Email:")
+
+{language_instruction}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "terms_of_service_full":
+            prompt = f"""Generate complete Terms of Service page content for a {theme} business website.
+
+Return as JSON object with section headings and content. All text must be in the target language.
+
+Required fields:
+- "agreement_heading": Section 1 heading (e.g., "Agreement to Terms")
+- "agreement_text": Paragraph (20-30 words)
+- "use_license_heading": Section 2 heading (e.g., "Use License")
+- "use_license_intro": Intro paragraph (20-30 words)
+- "use_license_items": Array of 5 prohibited actions
+- "user_responsibilities_heading": Section 3 heading
+- "user_responsibilities_intro": Intro text (e.g., "As a user of our website, you agree to:")
+- "user_responsibilities_items": Array of 5 user responsibilities
+- "disclaimer_heading": Section 4 heading (e.g., "Disclaimer")
+- "disclaimer_text": Paragraph (30-40 words)
+- "limitations_heading": Section 5 heading (e.g., "Limitations of Liability")
+- "limitations_text": Paragraph (15-25 words)
+- "modifications_heading": Section 6 heading (e.g., "Modifications")
+- "modifications_text": Paragraph (15-25 words)
+- "contact_heading": Section 7 heading (e.g., "Contact Information")
+- "contact_intro": Intro text (10-15 words)
+- "contact_email_label": Label before email (e.g., "Email:")
+
+{language_instruction}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "cookie_policy_full":
+            prompt = f"""Generate complete Cookie Policy page content for a {theme} business website.
+
+Return as JSON object with section headings and content. All text must be in the target language.
+
+Required fields:
+- "what_are_cookies_heading": Section 1 heading (e.g., "What Are Cookies")
+- "what_are_cookies_text": Paragraph (20-30 words)
+- "types_heading": Section 2 heading (e.g., "Types of Cookies We Use")
+- "essential_heading": Subsection heading (e.g., "Essential Cookies")
+- "essential_text": Paragraph (15-25 words)
+- "analytics_heading": Subsection heading (e.g., "Analytics Cookies")
+- "analytics_text": Paragraph (15-25 words)
+- "functionality_heading": Subsection heading (e.g., "Functionality Cookies")
+- "functionality_text": Paragraph (15-25 words)
+- "advertising_heading": Subsection heading (e.g., "Advertising Cookies")
+- "advertising_text": Paragraph (15-25 words)
+- "third_party_heading": Section 3 heading (e.g., "Third-Party Cookies")
+- "third_party_text": Paragraph (15-25 words)
+- "managing_heading": Section 4 heading (e.g., "Managing Cookies")
+- "managing_intro": Intro paragraph (25-35 words)
+- "how_to_control_heading": Subsection heading (e.g., "How to Control Cookies")
+- "control_items": Array of 3 control methods
+- "updates_heading": Section 5 heading (e.g., "Updates to This Policy")
+- "updates_text": Paragraph (15-20 words)
+- "contact_heading": Section 6 heading (e.g., "Contact Us")
+- "contact_intro": Intro text (10-15 words)
+- "contact_email_label": Label before email (e.g., "Email:")
+
+{language_instruction}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
         else:
             return None
 
         # Вызываем API с разными max_tokens в зависимости от типа контента
         # Некоторые типы контента требуют больше токенов
-        if content_type == "blog_article_full":
+        if content_type in ["privacy_policy_full", "terms_of_service_full", "cookie_policy_full"]:
+            max_tokens = 10000  # Очень большой лимит для полных policy страниц
+        elif content_type == "blog_article_full":
             max_tokens = 8000  # Большой лимит для полной статьи с несколькими секциями
         elif content_type == "work_showcase":
             max_tokens = 6000  # Больше токенов для 4 детальных кейсов
         elif content_type in ["services", "featured_solutions", "process_steps", "blog_posts", "benefits_content"]:
             max_tokens = 5000  # Увеличенный лимит для списков
-        elif content_type in ["approach_content", "about_content", "gallery_content"]:
+        elif content_type in ["approach_content", "about_content", "gallery_content", "faq_blocks"]:
             max_tokens = 4000  # Увеличенный лимит для контента с несколькими параграфами
         elif content_type == "testimonials_content":
             max_tokens = 4000  # Достаточно для 3 отзывов
@@ -3078,44 +3237,87 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
     </section>"""
 
     def generate_faq_section(self, theme, primary):
-        """Генерирует секцию FAQ с переведенными заголовками"""
+        """Генерирует секцию FAQ с переведенными заголовками и вопросами"""
         # Получаем переведенные заголовки секций
         section_headings = self.generate_theme_content_via_api(theme, "section_headings", 1)
         faq_heading = section_headings.get('faq', 'Frequently Asked Questions') if section_headings else 'Frequently Asked Questions'
+
+        # Получаем переведенные FAQ блоки
+        faq_data = self.generate_theme_content_via_api(theme, "faq_blocks", 4)
+
+        # Fallback если API не вернул результат
+        if not faq_data or not isinstance(faq_data, dict) or 'questions' not in faq_data:
+            faq_data = {
+                "section_description": "Find answers to common questions about our services",
+                "questions": [
+                    {
+                        "question": "What services do you offer?",
+                        "answer": f"We provide comprehensive {theme} services tailored to your specific needs, including consultation, implementation, and ongoing support."
+                    },
+                    {
+                        "question": "How long does a typical project take?",
+                        "answer": "Project timelines vary based on scope and complexity. We provide detailed timelines during the initial consultation phase."
+                    },
+                    {
+                        "question": "Do you offer support after project completion?",
+                        "answer": "Yes, we provide comprehensive post-project support and maintenance to ensure long-term success."
+                    },
+                    {
+                        "question": "What makes your company different?",
+                        "answer": "Our commitment to quality, personalized approach, and proven track record set us apart in the industry."
+                    }
+                ]
+            }
+
+        section_description = faq_data.get('section_description', 'Find answers to common questions about our services')
+        questions = faq_data.get('questions', [])
+
+        # Генерируем HTML для вопросов
+        faq_items = ''
+        for q in questions[:4]:  # Берем только первые 4 вопроса
+            faq_items += f'''
+                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
+                    <h3 class="text-xl font-bold mb-2 text-{primary}">{q['question']}</h3>
+                    <p class="text-gray-600">{q['answer']}</p>
+                </div>'''
 
         return f"""
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
             <div class="text-center mb-16">
                 <h2 class="text-4xl font-bold mb-4">{faq_heading}</h2>
-                <p class="text-gray-600 text-lg">Find answers to common questions about our services</p>
+                <p class="text-gray-600 text-lg">{section_description}</p>
             </div>
-            <div class="max-w-3xl mx-auto space-y-4">
-                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
-                    <h3 class="text-xl font-bold mb-2 text-{primary}">What services do you offer?</h3>
-                    <p class="text-gray-600">We provide comprehensive {theme} services tailored to your specific needs, including consultation, implementation, and ongoing support.</p>
-                </div>
-                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
-                    <h3 class="text-xl font-bold mb-2 text-{primary}">How long does a typical project take?</h3>
-                    <p class="text-gray-600">Project timelines vary based on scope and complexity. We provide detailed timelines during the initial consultation phase.</p>
-                </div>
-                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
-                    <h3 class="text-xl font-bold mb-2 text-{primary}">Do you offer support after project completion?</h3>
-                    <p class="text-gray-600">Yes, we provide comprehensive post-project support and maintenance to ensure long-term success.</p>
-                </div>
-                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
-                    <h3 class="text-xl font-bold mb-2 text-{primary}">What makes your company different?</h3>
-                    <p class="text-gray-600">Our commitment to quality, personalized approach, and proven track record set us apart in the industry.</p>
-                </div>
+            <div class="max-w-3xl mx-auto space-y-4">{faq_items}
             </div>
         </div>
     </section>"""
 
     def generate_our_approach_section(self, theme, primary):
-        """Генерирует секцию Our Approach с переведенными заголовками"""
+        """Генерирует секцию Our Approach с переведенными заголовками и блоками"""
         # Получаем переведенные заголовки секций
         section_headings = self.generate_theme_content_via_api(theme, "section_headings", 1)
         our_approach_heading = section_headings.get('our_approach', 'Our Approach') if section_headings else 'Our Approach'
+
+        # Получаем переведенные блоки контента
+        approach_blocks = self.generate_theme_content_via_api(theme, "our_approach_blocks", 3)
+
+        # Fallback если API не вернул результат
+        if not approach_blocks or not isinstance(approach_blocks, list) or len(approach_blocks) < 3:
+            approach_blocks = [
+                {
+                    "title": "Client-Centered Solutions",
+                    "description": "We prioritize understanding your unique challenges and goals to deliver customized solutions that drive real results."
+                },
+                {
+                    "title": "Innovation & Excellence",
+                    "description": "We combine cutting-edge techniques with industry best practices to ensure superior outcomes."
+                },
+                {
+                    "title": "Transparent Communication",
+                    "description": "Regular updates and open dialogue ensure you're always informed about your project's progress."
+                }
+            ]
 
         return f"""
     <section class="py-20 bg-gray-50">
@@ -3126,22 +3328,22 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     <div class="flex gap-6">
                         <div class="flex-shrink-0 w-16 h-16 bg-{primary} rounded-lg flex items-center justify-center text-white text-2xl font-bold">1</div>
                         <div>
-                            <h3 class="text-2xl font-bold mb-3">Client-Centered Solutions</h3>
-                            <p class="text-gray-600 text-lg">We prioritize understanding your unique challenges and goals to deliver customized solutions that drive real results.</p>
+                            <h3 class="text-2xl font-bold mb-3">{approach_blocks[0]['title']}</h3>
+                            <p class="text-gray-600 text-lg">{approach_blocks[0]['description']}</p>
                         </div>
                     </div>
                     <div class="flex gap-6">
                         <div class="flex-shrink-0 w-16 h-16 bg-{primary} rounded-lg flex items-center justify-center text-white text-2xl font-bold">2</div>
                         <div>
-                            <h3 class="text-2xl font-bold mb-3">Innovation & Excellence</h3>
-                            <p class="text-gray-600 text-lg">We combine cutting-edge techniques with industry best practices to ensure superior outcomes.</p>
+                            <h3 class="text-2xl font-bold mb-3">{approach_blocks[1]['title']}</h3>
+                            <p class="text-gray-600 text-lg">{approach_blocks[1]['description']}</p>
                         </div>
                     </div>
                     <div class="flex gap-6">
                         <div class="flex-shrink-0 w-16 h-16 bg-{primary} rounded-lg flex items-center justify-center text-white text-2xl font-bold">3</div>
                         <div>
-                            <h3 class="text-2xl font-bold mb-3">Transparent Communication</h3>
-                            <p class="text-gray-600 text-lg">Regular updates and open dialogue ensure you're always informed about your project's progress.</p>
+                            <h3 class="text-2xl font-bold mb-3">{approach_blocks[2]['title']}</h3>
+                            <p class="text-gray-600 text-lg">{approach_blocks[2]['description']}</p>
                         </div>
                     </div>
                 </div>
@@ -6244,9 +6446,9 @@ setTimeout(showCookieNotice, 1000);
         if page_name in ['privacy', 'terms', 'cookie']:
             return self.generate_policy_page(page_name, output_dir)
 
-        # Для blog страниц используем готовый контент
-        if page_name in ['blog1', 'blog2', 'blog3', 'blog4', 'blog5', 'blog6']:
-            return self.generate_blog_page(page_name, output_dir)
+        # Для blog страниц используем готовый контент (DISABLED - blog1-blog6 pages removed)
+        # if page_name in ['blog1', 'blog2', 'blog3', 'blog4', 'blog5', 'blog6']:
+        #     return self.generate_blog_page(page_name, output_dir)
         
         # Для главной страницы blog (список статей)
         if page_name == 'blog':
@@ -6785,70 +6987,20 @@ Return ONLY the content for <main> tag."""
             'blog6': 'images/blog6.jpg'
         }
 
-        # Определяем навигацию между blog страницами
-        blog_nav = {
-            'blog1': {'prev': None, 'next': 'blog2.php'},
-            'blog2': {'prev': 'blog1.php', 'next': 'blog3.php'},
-            'blog3': {'prev': 'blog2.php', 'next': 'blog4.php'},
-            'blog4': {'prev': 'blog3.php', 'next': 'blog5.php'},
-            'blog5': {'prev': 'blog4.php', 'next': 'blog6.php'},
-            'blog6': {'prev': 'blog5.php', 'next': None}
-        }
-
-        # Вариации: случайный выбор картинки и стрелок для каждой статьи
+        # Вариации: случайный выбор картинки для каждой статьи
         blog_variations = {
-            'blog1': {'has_image': random.choice([True, False]), 'has_arrows': True},
-            'blog2': {'has_image': random.choice([True, False]), 'has_arrows': False},
-            'blog3': {'has_image': random.choice([True, False]), 'has_arrows': False},
-            'blog4': {'has_image': random.choice([True, False]), 'has_arrows': True},
-            'blog5': {'has_image': random.choice([True, False]), 'has_arrows': False},
-            'blog6': {'has_image': random.choice([True, False]), 'has_arrows': True}
+            'blog1': {'has_image': random.choice([True, False])},
+            'blog2': {'has_image': random.choice([True, False])},
+            'blog3': {'has_image': random.choice([True, False])},
+            'blog4': {'has_image': random.choice([True, False])},
+            'blog5': {'has_image': random.choice([True, False])},
+            'blog6': {'has_image': random.choice([True, False])}
         }
 
-        current_nav = blog_nav.get(page_name, {'prev': None, 'next': None})
-        current_variation = blog_variations.get(page_name, {'has_image': True, 'has_arrows': True})
+        current_variation = blog_variations.get(page_name, {'has_image': True})
 
-        # Создаем навигационные кнопки (только если has_arrows=True)
+        # Navigation removed - no more Past Article/Next Article links
         nav_buttons = ''
-        if current_variation['has_arrows']:
-            nav_buttons = '<div class="flex justify-between items-center mt-12 pt-8 border-t border-gray-200">'
-
-            if current_nav['prev']:
-                nav_buttons += f'''
-                    <a href="{current_nav['prev']}" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition">
-                        <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                        </svg>
-                        {previous_article}
-                    </a>
-                '''
-            else:
-                nav_buttons += '<div></div>'
-
-            if current_nav['next']:
-                nav_buttons += f'''
-                    <a href="{current_nav['next']}" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition">
-                        {next_article}
-                        <svg class="w-5 h-5 ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </a>
-                '''
-            else:
-                nav_buttons += '<div></div>'
-
-            nav_buttons += '</div>'
-        else:
-            # Без стрелок - простые текстовые ссылки
-            nav_links = []
-            if current_nav['prev']:
-                nav_links.append(f'<a href="{current_nav["prev"]}" class="text-{primary} hover:text-{hover} font-semibold transition">{previous_article}</a>')
-            if current_nav['next']:
-                nav_links.append(f'<a href="{current_nav["next"]}" class="text-{primary} hover:text-{hover} font-semibold transition">{next_article}</a>')
-
-            if nav_links:
-                separator = ' <span class="text-gray-400">|</span> '
-                nav_buttons = f'<div class="flex justify-between items-center mt-12 pt-8 border-t border-gray-200">{separator.join(nav_links)}</div>'
 
         # Создаем секцию с картинкой (если has_image=True И изображение сгенерировано)
         image_section = ''
@@ -7136,62 +7288,108 @@ Return ONLY the content for <main> tag."""
         
         # УНИКАЛЬНЫЙ контент для каждой страницы
         if page_name == 'privacy':
+            # Получаем полный переведенный контент privacy policy
+            privacy_content = self.generate_theme_content_via_api(theme, "privacy_policy_full", 1)
+
+            # Fallback если API не вернул результат
+            if not privacy_content or not isinstance(privacy_content, dict):
+                privacy_content = {
+                    "introduction_text": f"{site_name} ('us', 'we', or 'our') is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website.",
+                    "info_we_collect_heading": "Information We Collect",
+                    "personal_data_heading": "Personal Data",
+                    "personal_data_items": ["Name and contact information (email address, phone number)", "Demographic information (age, gender, interests)", "Payment information for transactions", "Any other information you voluntarily provide"],
+                    "usage_data_heading": "Usage Data",
+                    "usage_data_items": ["IP address and browser type", "Pages visited and time spent on pages", "Referring website addresses", "Device information"],
+                    "how_we_use_heading": "How We Use Your Information",
+                    "how_we_use_items": ["Provide, operate, and maintain our website and services", "Improve and personalize your experience", "Communicate with you about updates, offers, and news", "Process transactions and send transaction notifications", "Monitor and analyze usage patterns and trends", "Detect, prevent, and address technical issues and fraud"],
+                    "data_security_heading": "Data Security",
+                    "data_security_text": "We implement appropriate security measures to protect your personal information. However, no method of transmission over the Internet is 100% secure, and we cannot guarantee absolute security.",
+                    "your_rights_heading": "Your Rights",
+                    "your_rights_text": "You have the right to access, update, or delete your personal information at any time. You may also opt-out of marketing communications.",
+                    "contact_heading": "Contact Us",
+                    "contact_text": "If you have any questions about this Privacy Policy, please contact us at:",
+                    "contact_email_label": "Email:"
+                }
+
+            # Генерируем списки HTML
+            personal_data_list = '\n            '.join([f"<li>{item}</li>" for item in privacy_content.get('personal_data_items', [])])
+            usage_data_list = '\n            '.join([f"<li>{item}</li>" for item in privacy_content.get('usage_data_items', [])])
+            how_we_use_list = '\n            '.join([f"<li>{item}</li>" for item in privacy_content.get('how_we_use_items', [])])
+
             main_content = f"""<main>
 <section class="py-20 bg-white">
     <div class="container mx-auto px-6 max-w-4xl">
         <h1 class="text-4xl md:text-5xl font-bold text-center mb-4">{titles[page_name]}</h1>
         <p class="text-gray-500 text-center mb-12">{last_updated_label}: November 14, 2025</p>
-        
+
         <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
-        
+
         <h2 class="text-2xl font-bold mt-8 mb-4">1. Introduction</h2>
-        <p>{site_name} ("us", "we", or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website.</p>
-        
-        <h2 class="text-2xl font-bold mt-8 mb-4">2. Information We Collect</h2>
+        <p>{privacy_content.get('introduction_text', '')}</p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">2. {privacy_content.get('info_we_collect_heading', 'Information We Collect')}</h2>
         <p>We may collect information about you in a variety of ways. The information we may collect includes:</p>
-        
-        <h3 class="text-xl font-semibold mt-6 mb-3">Personal Data</h3>
+
+        <h3 class="text-xl font-semibold mt-6 mb-3">{privacy_content.get('personal_data_heading', 'Personal Data')}</h3>
         <ul class="list-disc pl-6 my-4">
-            <li>Name and contact information (email address, phone number)</li>
-            <li>Demographic information (age, gender, interests)</li>
-            <li>Payment information for transactions</li>
-            <li>Any other information you voluntarily provide</li>
+            {personal_data_list}
         </ul>
-        
-        <h3 class="text-xl font-semibold mt-6 mb-3">Usage Data</h3>
+
+        <h3 class="text-xl font-semibold mt-6 mb-3">{privacy_content.get('usage_data_heading', 'Usage Data')}</h3>
         <ul class="list-disc pl-6 my-4">
-            <li>IP address and browser type</li>
-            <li>Pages visited and time spent on pages</li>
-            <li>Referring website addresses</li>
-            <li>Device information</li>
+            {usage_data_list}
         </ul>
-        
-        <h2 class="text-2xl font-bold mt-8 mb-4">3. How We Use Your Information</h2>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">3. {privacy_content.get('how_we_use_heading', 'How We Use Your Information')}</h2>
         <p>We use the information we collect to:</p>
         <ul class="list-disc pl-6 my-4">
-            <li>Provide, operate, and maintain our website and services</li>
-            <li>Improve and personalize your experience</li>
-            <li>Communicate with you about updates, offers, and news</li>
-            <li>Process transactions and send transaction notifications</li>
-            <li>Monitor and analyze usage patterns and trends</li>
-            <li>Detect, prevent, and address technical issues and fraud</li>
+            {how_we_use_list}
         </ul>
-        
-        <h2 class="text-2xl font-bold mt-8 mb-4">4. Data Security</h2>
-        <p>We implement appropriate security measures to protect your personal information. However, no method of transmission over the Internet is 100% secure, and we cannot guarantee absolute security.</p>
-        
-        <h2 class="text-2xl font-bold mt-8 mb-4">5. Your Rights</h2>
-        <p>You have the right to access, update, or delete your personal information at any time. You may also opt-out of marketing communications.</p>
-        
-        <h2 class="text-2xl font-bold mt-8 mb-4">6. Contact Us</h2>
-        <p>If you have any questions about this Privacy Policy, please contact us at:</p>
-        <p class="mt-2">Email: {site_name.lower().replace(' ', '')}@gmail.com</p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">4. {privacy_content.get('data_security_heading', 'Data Security')}</h2>
+        <p>{privacy_content.get('data_security_text', '')}</p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">5. {privacy_content.get('your_rights_heading', 'Your Rights')}</h2>
+        <p>{privacy_content.get('your_rights_text', '')}</p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">6. {privacy_content.get('contact_heading', 'Contact Us')}</h2>
+        <p>{privacy_content.get('contact_text', '')}</p>
+        <p class="mt-2">{privacy_content.get('contact_email_label', 'Email:')} {site_name.lower().replace(' ', '')}@gmail.com</p>
         </div>
     </div>
 </section>
 </main>"""
         
         elif page_name == 'terms':
+            # Получаем полный переведенный контент terms of service
+            terms_content = self.generate_theme_content_via_api(theme, "terms_of_service_full", 1)
+
+            # Fallback если API не вернул результат
+            if not terms_content or not isinstance(terms_content, dict):
+                terms_content = {
+                    "agreement_heading": "Agreement to Terms",
+                    "agreement_text": f"By accessing and using {site_name}'s website, you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to these Terms of Service, please do not use this website.",
+                    "use_license_heading": "Use License",
+                    "use_license_intro": f"Permission is granted to temporarily access the materials on {site_name}'s website for personal, non-commercial use only. This is the grant of a license, not a transfer of title, and under this license you may not:",
+                    "use_license_items": ["Modify or copy the materials", "Use the materials for any commercial purpose", "Attempt to decompile or reverse engineer any software", "Remove any copyright or proprietary notations", "Transfer the materials to another person"],
+                    "user_responsibilities_heading": "User Responsibilities",
+                    "user_responsibilities_intro": "As a user of our website, you agree to:",
+                    "user_responsibilities_items": ["Provide accurate and complete information", "Maintain the security of your account credentials", "Notify us immediately of any unauthorized use", "Not engage in any activity that disrupts or interferes with our services", "Comply with all applicable laws and regulations"],
+                    "disclaimer_heading": "Disclaimer",
+                    "disclaimer_text": f"The materials on {site_name}'s website are provided on an 'as is' basis. {site_name} makes no warranties, expressed or implied, and hereby disclaims all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property.",
+                    "limitations_heading": "Limitations of Liability",
+                    "limitations_text": f"In no event shall {site_name} or its suppliers be liable for any damages arising out of the use or inability to use the materials on our website.",
+                    "modifications_heading": "Modifications",
+                    "modifications_text": f"{site_name} may revise these Terms of Service at any time without notice. By using this website, you agree to be bound by the current version of these terms.",
+                    "contact_heading": "Contact Information",
+                    "contact_intro": "For questions about these Terms of Service, please contact us at:",
+                    "contact_email_label": "Email:"
+                }
+
+            # Генерируем списки HTML
+            use_license_list = '\n            '.join([f"<li>{item}</li>" for item in terms_content.get('use_license_items', [])])
+            responsibilities_list = '\n            '.join([f"<li>{item}</li>" for item in terms_content.get('user_responsibilities_items', [])])
+
             main_content = f"""<main>
 <section class="py-20 bg-white">
     <div class="container mx-auto px-6 max-w-4xl">
@@ -7200,47 +7398,72 @@ Return ONLY the content for <main> tag."""
 
         <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
 
-        <h2 class="text-2xl font-bold mt-8 mb-4">1. Agreement to Terms</h2>
-        <p>By accessing and using {site_name}'s website, you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to these Terms of Service, please do not use this website.</p>
-        
-        <h2 class="text-2xl font-bold mt-8 mb-4">2. Use License</h2>
-        <p>Permission is granted to temporarily access the materials on {site_name}'s website for personal, non-commercial use only. This is the grant of a license, not a transfer of title, and under this license you may not:</p>
+        <h2 class="text-2xl font-bold mt-8 mb-4">1. {terms_content.get('agreement_heading', 'Agreement to Terms')}</h2>
+        <p>{terms_content.get('agreement_text', '')}</p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">2. {terms_content.get('use_license_heading', 'Use License')}</h2>
+        <p>{terms_content.get('use_license_intro', '')}</p>
         <ul class="list-disc pl-6 my-4">
-            <li>Modify or copy the materials</li>
-            <li>Use the materials for any commercial purpose</li>
-            <li>Attempt to decompile or reverse engineer any software</li>
-            <li>Remove any copyright or proprietary notations</li>
-            <li>Transfer the materials to another person</li>
+            {use_license_list}
         </ul>
-        
-        <h2 class="text-2xl font-bold mt-8 mb-4">3. User Responsibilities</h2>
-        <p>As a user of our website, you agree to:</p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">3. {terms_content.get('user_responsibilities_heading', 'User Responsibilities')}</h2>
+        <p>{terms_content.get('user_responsibilities_intro', '')}</p>
         <ul class="list-disc pl-6 my-4">
-            <li>Provide accurate and complete information</li>
-            <li>Maintain the security of your account credentials</li>
-            <li>Notify us immediately of any unauthorized use</li>
-            <li>Not engage in any activity that disrupts or interferes with our services</li>
-            <li>Comply with all applicable laws and regulations</li>
+            {responsibilities_list}
         </ul>
-        
-        <h2 class="text-2xl font-bold mt-8 mb-4">4. Disclaimer</h2>
-        <p>The materials on {site_name}'s website are provided on an 'as is' basis. {site_name} makes no warranties, expressed or implied, and hereby disclaims all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property.</p>
-        
-        <h2 class="text-2xl font-bold mt-8 mb-4">5. Limitations of Liability</h2>
-        <p>In no event shall {site_name} or its suppliers be liable for any damages arising out of the use or inability to use the materials on our website.</p>
-        
-        <h2 class="text-2xl font-bold mt-8 mb-4">6. Modifications</h2>
-        <p>{site_name} may revise these Terms of Service at any time without notice. By using this website, you agree to be bound by the current version of these terms.</p>
-        
-        <h2 class="text-2xl font-bold mt-8 mb-4">7. Contact Information</h2>
-        <p>For questions about these Terms of Service, please contact us at:</p>
-        <p class="mt-2">Email: {site_name.lower().replace(' ', '')}@gmail.com</p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">4. {terms_content.get('disclaimer_heading', 'Disclaimer')}</h2>
+        <p>{terms_content.get('disclaimer_text', '')}</p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">5. {terms_content.get('limitations_heading', 'Limitations of Liability')}</h2>
+        <p>{terms_content.get('limitations_text', '')}</p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">6. {terms_content.get('modifications_heading', 'Modifications')}</h2>
+        <p>{terms_content.get('modifications_text', '')}</p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">7. {terms_content.get('contact_heading', 'Contact Information')}</h2>
+        <p>{terms_content.get('contact_intro', '')}</p>
+        <p class="mt-2">{terms_content.get('contact_email_label', 'Email:')} {site_name.lower().replace(' ', '')}@gmail.com</p>
         </div>
     </div>
 </section>
 </main>"""
         
         elif page_name == 'cookie':
+            # Получаем полный переведенный контент cookie policy
+            cookie_content = self.generate_theme_content_via_api(theme, "cookie_policy_full", 1)
+
+            # Fallback если API не вернул результат
+            if not cookie_content or not isinstance(cookie_content, dict):
+                cookie_content = {
+                    "what_are_cookies_heading": "What Are Cookies",
+                    "what_are_cookies_text": "Cookies are small text files that are placed on your device when you visit our website. They help us provide you with a better experience by remembering your preferences and understanding how you use our site.",
+                    "types_heading": "Types of Cookies We Use",
+                    "essential_heading": "Essential Cookies",
+                    "essential_text": "These cookies are necessary for the website to function properly. They enable basic functions like page navigation and access to secure areas of the website.",
+                    "analytics_heading": "Analytics Cookies",
+                    "analytics_text": "We use analytics cookies to understand how visitors interact with our website. This helps us improve our content and user experience. These cookies collect information anonymously.",
+                    "functionality_heading": "Functionality Cookies",
+                    "functionality_text": "These cookies allow our website to remember choices you make (such as your language preference) and provide enhanced, personalized features.",
+                    "advertising_heading": "Advertising Cookies",
+                    "advertising_text": "We may use advertising cookies to deliver relevant advertisements to you and track the effectiveness of our marketing campaigns.",
+                    "third_party_heading": "Third-Party Cookies",
+                    "third_party_text": "In addition to our own cookies, we may use various third-party cookies to report usage statistics, deliver advertisements, and provide social media features.",
+                    "managing_heading": "Managing Cookies",
+                    "managing_intro": "You can control and/or delete cookies as you wish. You can delete all cookies that are already on your computer and you can set most browsers to prevent them from being placed. However, if you do this, you may have to manually adjust some preferences every time you visit our site.",
+                    "how_to_control_heading": "How to Control Cookies",
+                    "control_items": ["Browser settings: Most browsers allow you to refuse or accept cookies", "Third-party tools: Use browser extensions or privacy tools", "Opt-out links: Some third-party services provide opt-out mechanisms"],
+                    "updates_heading": "Updates to This Policy",
+                    "updates_text": "We may update this Cookie Policy from time to time. We encourage you to review this page periodically for any changes.",
+                    "contact_heading": "Contact Us",
+                    "contact_intro": "If you have questions about our use of cookies, please contact us at:",
+                    "contact_email_label": "Email:"
+                }
+
+            # Генерируем списки HTML
+            control_items_list = '\n            '.join([f"<li>{item}</li>" for item in cookie_content.get('control_items', [])])
+
             main_content = f"""<main>
 <section class="py-20 bg-white">
     <div class="container mx-auto px-6 max-w-4xl">
@@ -7249,42 +7472,40 @@ Return ONLY the content for <main> tag."""
 
         <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
 
-        <h2 class="text-2xl font-bold mt-8 mb-4">1. What Are Cookies</h2>
-        <p>Cookies are small text files that are placed on your device when you visit our website. They help us provide you with a better experience by remembering your preferences and understanding how you use our site.</p>
-        
-        <h2 class="text-2xl font-bold mt-8 mb-4">2. Types of Cookies We Use</h2>
-        
-        <h3 class="text-xl font-semibold mt-6 mb-3">Essential Cookies</h3>
-        <p>These cookies are necessary for the website to function properly. They enable basic functions like page navigation and access to secure areas of the website.</p>
-        
-        <h3 class="text-xl font-semibold mt-6 mb-3">Analytics Cookies</h3>
-        <p>We use analytics cookies to understand how visitors interact with our website. This helps us improve our content and user experience. These cookies collect information anonymously.</p>
-        
-        <h3 class="text-xl font-semibold mt-6 mb-3">Functionality Cookies</h3>
-        <p>These cookies allow our website to remember choices you make (such as your language preference) and provide enhanced, personalized features.</p>
-        
-        <h3 class="text-xl font-semibold mt-6 mb-3">Advertising Cookies</h3>
-        <p>We may use advertising cookies to deliver relevant advertisements to you and track the effectiveness of our marketing campaigns.</p>
-        
-        <h2 class="text-2xl font-bold mt-8 mb-4">3. Third-Party Cookies</h2>
-        <p>In addition to our own cookies, we may use various third-party cookies to report usage statistics, deliver advertisements, and provide social media features.</p>
-        
-        <h2 class="text-2xl font-bold mt-8 mb-4">4. Managing Cookies</h2>
-        <p>You can control and/or delete cookies as you wish. You can delete all cookies that are already on your computer and you can set most browsers to prevent them from being placed. However, if you do this, you may have to manually adjust some preferences every time you visit our site.</p>
-        
-        <h3 class="text-xl font-semibold mt-6 mb-3">How to Control Cookies</h3>
+        <h2 class="text-2xl font-bold mt-8 mb-4">1. {cookie_content.get('what_are_cookies_heading', 'What Are Cookies')}</h2>
+        <p>{cookie_content.get('what_are_cookies_text', '')}</p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">2. {cookie_content.get('types_heading', 'Types of Cookies We Use')}</h2>
+
+        <h3 class="text-xl font-semibold mt-6 mb-3">{cookie_content.get('essential_heading', 'Essential Cookies')}</h3>
+        <p>{cookie_content.get('essential_text', '')}</p>
+
+        <h3 class="text-xl font-semibold mt-6 mb-3">{cookie_content.get('analytics_heading', 'Analytics Cookies')}</h3>
+        <p>{cookie_content.get('analytics_text', '')}</p>
+
+        <h3 class="text-xl font-semibold mt-6 mb-3">{cookie_content.get('functionality_heading', 'Functionality Cookies')}</h3>
+        <p>{cookie_content.get('functionality_text', '')}</p>
+
+        <h3 class="text-xl font-semibold mt-6 mb-3">{cookie_content.get('advertising_heading', 'Advertising Cookies')}</h3>
+        <p>{cookie_content.get('advertising_text', '')}</p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">3. {cookie_content.get('third_party_heading', 'Third-Party Cookies')}</h2>
+        <p>{cookie_content.get('third_party_text', '')}</p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">4. {cookie_content.get('managing_heading', 'Managing Cookies')}</h2>
+        <p>{cookie_content.get('managing_intro', '')}</p>
+
+        <h3 class="text-xl font-semibold mt-6 mb-3">{cookie_content.get('how_to_control_heading', 'How to Control Cookies')}</h3>
         <ul class="list-disc pl-6 my-4">
-            <li>Browser settings: Most browsers allow you to refuse or accept cookies</li>
-            <li>Third-party tools: Use browser extensions or privacy tools</li>
-            <li>Opt-out links: Some third-party services provide opt-out mechanisms</li>
+            {control_items_list}
         </ul>
-        
-        <h2 class="text-2xl font-bold mt-8 mb-4">5. Updates to This Policy</h2>
-        <p>We may update this Cookie Policy from time to time. We encourage you to review this page periodically for any changes.</p>
-        
-        <h2 class="text-2xl font-bold mt-8 mb-4">6. Contact Us</h2>
-        <p>If you have questions about our use of cookies, please contact us at:</p>
-        <p class="mt-2">Email: {site_name.lower().replace(' ', '')}@gmail.com</p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">5. {cookie_content.get('updates_heading', 'Updates to This Policy')}</h2>
+        <p>{cookie_content.get('updates_text', '')}</p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">6. {cookie_content.get('contact_heading', 'Contact Us')}</h2>
+        <p>{cookie_content.get('contact_intro', '')}</p>
+        <p class="mt-2">{cookie_content.get('contact_email_label', 'Email:')} {site_name.lower().replace(' ', '')}@gmail.com</p>
         </div>
     </div>
 </section>
