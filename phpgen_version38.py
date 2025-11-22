@@ -1375,6 +1375,29 @@ Example:
 
 Return ONLY valid JSON, no additional text or markdown formatting."""
 
+        elif content_type == "section_headings":
+            prompt = f"""Generate common section headings for a {theme} business website.
+
+Return as JSON object with these EXACT fields:
+- "featured_solutions": "Featured Solutions" section heading (2-4 words)
+- "our_process": "Our Process" section heading (2-4 words)
+- "faq": "Frequently Asked Questions" section heading (3-6 words)
+- "our_approach": "Our Approach" section heading (2-4 words)
+- "our_values": "Our Values" or "Our Fundamental Values" section heading (2-5 words)
+
+{language_instruction}
+
+Example:
+{{
+  "featured_solutions": "Featured Solutions",
+  "our_process": "Our Process",
+  "faq": "Frequently Asked Questions",
+  "our_approach": "Our Approach",
+  "our_values": "Our Fundamental Values"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
         elif content_type == "thankyou_content":
             prompt = f"""Generate thank you page translations for a {theme} business website.
 
@@ -1587,7 +1610,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     print(f"    ⚠️  Получено {len(content['testimonials'])} элементов вместо {num_items} для testimonials, используем их")
 
             # Для объектных типов контента - проверяем что это словарь
-            elif content_type in ["hero_content", "achievements_content", "cta_content", "contact_page_content", "blog_page_content", "policy_content", "footer_content", "menu_content", "about_content", "gallery_content", "approach_content", "blog_article_full"]:
+            elif content_type in ["hero_content", "achievements_content", "cta_content", "contact_page_content", "blog_page_content", "policy_content", "footer_content", "menu_content", "about_content", "gallery_content", "approach_content", "blog_article_full", "section_headings", "blog_section_headers"]:
                 if not isinstance(content, dict):
                     print(f"    ⚠️  Получен неверный тип данных для {content_type}, используем fallback")
                     return None
@@ -2223,6 +2246,10 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         if not available_solutions:
             return ""
 
+        # Получаем переведенные заголовки секций
+        section_headings = self.generate_theme_content_via_api(theme, "section_headings", 1)
+        featured_solutions_heading = section_headings.get('featured_solutions', 'Featured Solutions') if section_headings else 'Featured Solutions'
+
         # Генерируем карточки только для доступных решений
         cards_html = ""
         for sol in available_solutions:
@@ -2245,7 +2272,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         return f"""
     <section class="py-20 bg-gray-50">
         <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center mb-12">Featured Solutions</h2>
+            <h2 class="text-4xl font-bold text-center mb-12">{featured_solutions_heading}</h2>
             <div class="grid {grid_class} gap-8">{cards_html}
             </div>
         </div>
@@ -2260,6 +2287,10 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         if not steps:
             steps = self.get_theme_based_process_steps(theme)
 
+        # Получаем переведенные заголовки секций
+        section_headings = self.generate_theme_content_via_api(theme, "section_headings", 1)
+        our_process_heading = section_headings.get('our_process', 'Our Process') if section_headings else 'Our Process'
+
         if variation == 1:
             return f"""
     <section class="py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
@@ -2268,7 +2299,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
         <div class="container mx-auto px-6 relative z-10">
             <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold mb-4">Our Process</h2>
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">{our_process_heading}</h2>
                 <p class="text-xl text-gray-600 max-w-2xl mx-auto">Simple, transparent, and effective workflow designed for your success</p>
             </div>
 
@@ -2347,7 +2378,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
             <div class="text-center mb-20">
-                <h2 class="text-4xl md:text-5xl font-bold mb-4">Our Process</h2>
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">{our_process_heading}</h2>
                 <p class="text-xl text-gray-600 max-w-2xl mx-auto">A proven methodology to transform your ideas into reality</p>
             </div>
 
@@ -2425,7 +2456,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
     <section class="py-20 bg-gradient-to-b from-white to-gray-50">
         <div class="container mx-auto px-6">
             <div class="text-center mb-20">
-                <h2 class="text-4xl md:text-5xl font-bold mb-4">Our Process</h2>
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">{our_process_heading}</h2>
                 <p class="text-xl text-gray-600 max-w-2xl mx-auto">Every great project starts with a solid plan</p>
             </div>
 
@@ -3042,6 +3073,78 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                 </a>
             </div>
             <div class="grid md:grid-cols-3 gap-8">{articles_html}
+            </div>
+        </div>
+    </section>"""
+
+    def generate_faq_section(self, theme, primary):
+        """Генерирует секцию FAQ с переведенными заголовками"""
+        # Получаем переведенные заголовки секций
+        section_headings = self.generate_theme_content_via_api(theme, "section_headings", 1)
+        faq_heading = section_headings.get('faq', 'Frequently Asked Questions') if section_headings else 'Frequently Asked Questions'
+
+        return f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">{faq_heading}</h2>
+                <p class="text-gray-600 text-lg">Find answers to common questions about our services</p>
+            </div>
+            <div class="max-w-3xl mx-auto space-y-4">
+                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
+                    <h3 class="text-xl font-bold mb-2 text-{primary}">What services do you offer?</h3>
+                    <p class="text-gray-600">We provide comprehensive {theme} services tailored to your specific needs, including consultation, implementation, and ongoing support.</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
+                    <h3 class="text-xl font-bold mb-2 text-{primary}">How long does a typical project take?</h3>
+                    <p class="text-gray-600">Project timelines vary based on scope and complexity. We provide detailed timelines during the initial consultation phase.</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
+                    <h3 class="text-xl font-bold mb-2 text-{primary}">Do you offer support after project completion?</h3>
+                    <p class="text-gray-600">Yes, we provide comprehensive post-project support and maintenance to ensure long-term success.</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
+                    <h3 class="text-xl font-bold mb-2 text-{primary}">What makes your company different?</h3>
+                    <p class="text-gray-600">Our commitment to quality, personalized approach, and proven track record set us apart in the industry.</p>
+                </div>
+            </div>
+        </div>
+    </section>"""
+
+    def generate_our_approach_section(self, theme, primary):
+        """Генерирует секцию Our Approach с переведенными заголовками"""
+        # Получаем переведенные заголовки секций
+        section_headings = self.generate_theme_content_via_api(theme, "section_headings", 1)
+        our_approach_heading = section_headings.get('our_approach', 'Our Approach') if section_headings else 'Our Approach'
+
+        return f"""
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-4xl font-bold text-center mb-16">{our_approach_heading}</h2>
+                <div class="space-y-8">
+                    <div class="flex gap-6">
+                        <div class="flex-shrink-0 w-16 h-16 bg-{primary} rounded-lg flex items-center justify-center text-white text-2xl font-bold">1</div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-3">Client-Centered Solutions</h3>
+                            <p class="text-gray-600 text-lg">We prioritize understanding your unique challenges and goals to deliver customized solutions that drive real results.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-6">
+                        <div class="flex-shrink-0 w-16 h-16 bg-{primary} rounded-lg flex items-center justify-center text-white text-2xl font-bold">2</div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-3">Innovation & Excellence</h3>
+                            <p class="text-gray-600 text-lg">We combine cutting-edge techniques with industry best practices to ensure superior outcomes.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-6">
+                        <div class="flex-shrink-0 w-16 h-16 bg-{primary} rounded-lg flex items-center justify-center text-white text-2xl font-bold">3</div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-3">Transparent Communication</h3>
+                            <p class="text-gray-600 text-lg">Regular updates and open dialogue ensure you're always informed about your project's progress.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>"""
@@ -6081,65 +6184,9 @@ setTimeout(showCookieNotice, 1000);
 
             'why_choose_us': self.generate_why_choose_us_section(theme, primary),
 
-            'faq_section': f"""
-    <section class="py-20 bg-white">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">Frequently Asked Questions</h2>
-                <p class="text-gray-600 text-lg">Find answers to common questions about our services</p>
-            </div>
-            <div class="max-w-3xl mx-auto space-y-4">
-                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
-                    <h3 class="text-xl font-bold mb-2 text-{primary}">What services do you offer?</h3>
-                    <p class="text-gray-600">We provide comprehensive {theme} services tailored to your specific needs, including consultation, implementation, and ongoing support.</p>
-                </div>
-                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
-                    <h3 class="text-xl font-bold mb-2 text-{primary}">How long does a typical project take?</h3>
-                    <p class="text-gray-600">Project timelines vary based on scope and complexity. We provide detailed timelines during the initial consultation phase.</p>
-                </div>
-                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
-                    <h3 class="text-xl font-bold mb-2 text-{primary}">Do you offer support after project completion?</h3>
-                    <p class="text-gray-600">Yes, we provide comprehensive post-project support and maintenance to ensure long-term success.</p>
-                </div>
-                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
-                    <h3 class="text-xl font-bold mb-2 text-{primary}">What makes your company different?</h3>
-                    <p class="text-gray-600">Our commitment to quality, personalized approach, and proven track record set us apart in the industry.</p>
-                </div>
-            </div>
-        </div>
-    </section>""",
+            'faq_section': self.generate_faq_section(theme, primary),
 
-            'approach_section': f"""
-    <section class="py-20 bg-gray-50">
-        <div class="container mx-auto px-6">
-            <div class="max-w-4xl mx-auto">
-                <h2 class="text-4xl font-bold text-center mb-16">Our Approach</h2>
-                <div class="space-y-8">
-                    <div class="flex gap-6">
-                        <div class="flex-shrink-0 w-16 h-16 bg-{primary} rounded-lg flex items-center justify-center text-white text-2xl font-bold">1</div>
-                        <div>
-                            <h3 class="text-2xl font-bold mb-3">Client-Centered Solutions</h3>
-                            <p class="text-gray-600 text-lg">We prioritize understanding your unique challenges and goals to deliver customized solutions that drive real results.</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-6">
-                        <div class="flex-shrink-0 w-16 h-16 bg-{primary} rounded-lg flex items-center justify-center text-white text-2xl font-bold">2</div>
-                        <div>
-                            <h3 class="text-2xl font-bold mb-3">Innovation & Excellence</h3>
-                            <p class="text-gray-600 text-lg">We combine cutting-edge techniques with industry best practices to ensure superior outcomes.</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-6">
-                        <div class="flex-shrink-0 w-16 h-16 bg-{primary} rounded-lg flex items-center justify-center text-white text-2xl font-bold">3</div>
-                        <div>
-                            <h3 class="text-2xl font-bold mb-3">Transparent Communication</h3>
-                            <p class="text-gray-600 text-lg">Regular updates and open dialogue ensure you're always informed about your project's progress.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>""",
+            'approach_section': self.generate_our_approach_section(theme, primary),
 
             'benefits_grid': self.generate_benefits_section(theme, primary),
 
@@ -6220,6 +6267,11 @@ setTimeout(showCookieNotice, 1000);
 REQUIREMENTS:
 - Heading section with page title
 - Company story/mission section with rich text content
+- Our Fundamental Values section with 3 value cards (NO images, use icons):
+  * Each card should have an icon, heading, and description
+  * Values like: Passion, Authenticity, Excellence (or similar industry-appropriate values)
+  * Icons using SVG (e.g., heart icon for Passion, location icon for Authenticity, mountain/trophy icon for Excellence)
+  * Cards should be in a responsive grid (3 columns on desktop, 1 column on mobile)
 - Team section with 3 team member cards, each with:
   * Image: images/team1.jpg, images/team2.jpg, images/team3.jpg
   * Name and role/title
@@ -6231,6 +6283,8 @@ REQUIREMENTS:
 - NO emojis, NO prices
 
 CRITICAL:
+- Values section comes BEFORE team section
+- Values section MUST have a translated heading like "Our Fundamental Values" or "Our Core Values"
 - MUST use images/team1.jpg, images/team2.jpg, images/team3.jpg for team members
 - Team cards should be in a responsive grid (3 columns on desktop, 1 column on mobile)
 - Page MUST have a CTA button at the bottom that links to contact.php{language_requirement}
@@ -6243,8 +6297,13 @@ Return ONLY the content for <main> tag."""
 REQUIREMENTS:
 - Heading section with page title
 - Company story/mission section with rich text content
-- Values or team section with descriptive text-based cards (NO images)
-- Use icons or text-only cards to describe team members or company values
+- Our Fundamental Values section with 3 value cards (NO images, use icons):
+  * Each card should have an icon, heading, and description
+  * Values like: Passion, Authenticity, Excellence (or similar industry-appropriate values)
+  * Icons using SVG (e.g., heart icon for Passion, location icon for Authenticity, mountain/trophy icon for Excellence)
+  * Cards should be in a responsive grid (3 columns on desktop, 1 column on mobile)
+- Team section with descriptive text-based cards (NO images)
+- Use icons or text-only cards to describe team members
 - MUST include a call-to-action button at the bottom that redirects to contact.php: <a href="contact.php" class="...">Contact Us</a>
 - Modern, professional design with Tailwind CSS
 - Color scheme: {colors.get('primary')} primary, {colors.get('hover')} hover
@@ -6252,6 +6311,7 @@ REQUIREMENTS:
 - NO emojis, NO prices
 
 CRITICAL:
+- Values section MUST have a translated heading like "Our Fundamental Values" or "Our Core Values"
 - DO NOT use any images - create compelling content using text, typography, and icons only
 - Focus on storytelling through well-crafted text sections
 - Page MUST have a CTA button at the bottom that links to contact.php{language_requirement}
