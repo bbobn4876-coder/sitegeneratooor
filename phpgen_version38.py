@@ -4816,8 +4816,8 @@ setTimeout(showCookieNotice, 1000);
     <section class="min-h-screen flex items-center">
         <div class="grid md:grid-cols-2 w-full">
             <div class="bg-gradient-to-br from-{primary} to-{hover} p-12 md:p-20 flex flex-col justify-center text-white">
-                <h1 class="text-5xl md:text-6xl font-bold mb-6">Let's Work Together</h1>
-                <p class="text-xl mb-12 opacity-90">Transform your vision into reality. We're here to help you succeed.</p>
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">{heading}</h1>
+                <p class="text-xl mb-12 opacity-90">{subheading}</p>
 
                 <div class="space-y-8">
                     <div class="flex items-center">
@@ -4825,7 +4825,7 @@ setTimeout(showCookieNotice, 1000);
                             <svg class="w-7 h-7 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path></svg>
                         </div>
                         <div>
-                            <p class="text-sm opacity-75">Phone</p>
+                            <p class="text-sm opacity-75">{phone_label_display}</p>
                             <p class="text-lg font-semibold">{contact_data_3["phone"]}</p>
                         </div>
                     </div>
@@ -4834,7 +4834,7 @@ setTimeout(showCookieNotice, 1000);
                             <svg class="w-7 h-7 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>
                         </div>
                         <div>
-                            <p class="text-sm opacity-75">Email</p>
+                            <p class="text-sm opacity-75">{email_label_display}</p>
                             <p class="text-lg font-semibold">{site_name.lower().replace(' ', '')}@gmail.com</p>
                         </div>
                     </div>
@@ -4843,7 +4843,7 @@ setTimeout(showCookieNotice, 1000);
                             <svg class="w-7 h-7 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
                         </div>
                         <div>
-                            <p class="text-sm opacity-75">Address</p>
+                            <p class="text-sm opacity-75">{address_label}</p>
                             <p class="text-lg font-semibold">{contact_data_3["address"]}</p>
                         </div>
                     </div>
@@ -4851,21 +4851,21 @@ setTimeout(showCookieNotice, 1000);
             </div>
 
             <div class="bg-white p-12 md:p-20 flex flex-col justify-center">
-                <h2 class="text-3xl font-bold mb-8">Send a Message</h2>
+                <h2 class="text-3xl font-bold mb-8">{info_heading}</h2>
                 <form action="thanks_you.php" method="POST" class="space-y-6">
                     <div>
-                        <input type="text" name="name" required class="w-full px-0 py-3 border-0 border-b-2 border-gray-300 focus:border-{primary} transition-all outline-none text-lg" placeholder="Your Name *">
+                        <input type="text" name="name" required class="w-full px-0 py-3 border-0 border-b-2 border-gray-300 focus:border-{primary} transition-all outline-none text-lg" placeholder="{name_label} *">
                     </div>
                     <div>
-                        <input type="email" name="email" required class="w-full px-0 py-3 border-0 border-b-2 border-gray-300 focus:border-{primary} transition-all outline-none text-lg" placeholder="Your Email *">
+                        <input type="email" name="email" required class="w-full px-0 py-3 border-0 border-b-2 border-gray-300 focus:border-{primary} transition-all outline-none text-lg" placeholder="{email_label} *">
                     </div>
                     <div>
-                        <input type="tel" name="phone" class="w-full px-0 py-3 border-0 border-b-2 border-gray-300 focus:border-{primary} transition-all outline-none text-lg" placeholder="Phone Number">
+                        <input type="tel" name="phone" class="w-full px-0 py-3 border-0 border-b-2 border-gray-300 focus:border-{primary} transition-all outline-none text-lg" placeholder="{phone_label}">
                     </div>
                     <div>
-                        <textarea name="message" rows="5" required class="w-full px-0 py-3 border-0 border-b-2 border-gray-300 focus:border-{primary} transition-all outline-none resize-none text-lg" placeholder="Your Message *"></textarea>
+                        <textarea name="message" rows="5" required class="w-full px-0 py-3 border-0 border-b-2 border-gray-300 focus:border-{primary} transition-all outline-none resize-none text-lg" placeholder="{message_label} *"></textarea>
                     </div>
-                    <button type="submit" class="bg-{primary} hover:bg-{hover} text-white px-12 py-4 rounded-full text-lg font-bold transition-all shadow-lg hover:shadow-xl transform hover:scale-105">Send Message</button>
+                    <button type="submit" class="bg-{primary} hover:bg-{hover} text-white px-12 py-4 rounded-full text-lg font-bold transition-all shadow-lg hover:shadow-xl transform hover:scale-105">{submit_button}</button>
                 </form>
             </div>
         </div>
@@ -4878,8 +4878,8 @@ setTimeout(showCookieNotice, 1000);
     <section class="py-20 bg-gray-50 relative">
         <div class="container mx-auto px-6">
             <div class="text-center mb-16">
-                <h1 class="text-5xl md:text-6xl font-bold mb-6">Start Your Journey</h1>
-                <p class="text-xl text-gray-600">Tell us about your project and let's create something amazing together</p>
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">{heading}</h1>
+                <p class="text-xl text-gray-600">{subheading}</p>
             </div>
 
             <div class="max-w-5xl mx-auto relative">
@@ -4887,24 +4887,24 @@ setTimeout(showCookieNotice, 1000);
                     <form action="thanks_you.php" method="POST" class="space-y-8">
                         <div class="grid md:grid-cols-3 gap-6">
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-3">NAME *</label>
+                                <label class="block text-sm font-bold text-gray-700 mb-3">{name_label.upper()} *</label>
                                 <input type="text" name="name" required class="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-{primary} focus:bg-white transition-all outline-none">
                             </div>
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-3">EMAIL *</label>
+                                <label class="block text-sm font-bold text-gray-700 mb-3">{email_label.upper()} *</label>
                                 <input type="email" name="email" required class="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-{primary} focus:bg-white transition-all outline-none">
                             </div>
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-3">PHONE</label>
+                                <label class="block text-sm font-bold text-gray-700 mb-3">{phone_label.upper()}</label>
                                 <input type="tel" name="phone" class="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-{primary} focus:bg-white transition-all outline-none">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-3">YOUR MESSAGE *</label>
+                            <label class="block text-sm font-bold text-gray-700 mb-3">{message_label.upper()} *</label>
                             <textarea name="message" rows="6" required class="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-{primary} focus:bg-white transition-all outline-none resize-none"></textarea>
                         </div>
                         <div class="flex justify-center pt-4">
-                            <button type="submit" class="bg-{primary} hover:bg-{hover} text-white px-16 py-5 rounded-xl text-lg font-bold transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1">Submit</button>
+                            <button type="submit" class="bg-{primary} hover:bg-{hover} text-white px-16 py-5 rounded-xl text-lg font-bold transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1">{submit_button}</button>
                         </div>
                     </form>
                 </div>
@@ -4914,22 +4914,22 @@ setTimeout(showCookieNotice, 1000);
                         <div class="w-12 h-12 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-3">
                             <svg class="w-6 h-6 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                         </div>
-                        <h3 class="font-bold text-gray-900 mb-1">Email</h3>
+                        <h3 class="font-bold text-gray-900 mb-1">{email_label_display}</h3>
                         <p class="text-sm text-gray-600">{site_name.lower().replace(' ', '')}@gmail.com</p>
                     </div>
                     <div class="bg-white rounded-2xl shadow-xl p-6 text-center border-t-4 border-{primary}">
                         <div class="w-12 h-12 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-3">
                             <svg class="w-6 h-6 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
                         </div>
-                        <h3 class="font-bold text-gray-900 mb-1">Phone</h3>
+                        <h3 class="font-bold text-gray-900 mb-1">{phone_label_display}</h3>
                         <p class="text-sm text-gray-600">{contact_data_1["phone"]}</p>
                     </div>
                     <div class="bg-white rounded-2xl shadow-xl p-6 text-center border-t-4 border-{primary}">
                         <div class="w-12 h-12 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <svg class="w-6 h-6 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <svg class="w-6 h-6 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         </div>
-                        <h3 class="font-bold text-gray-900 mb-1">Hours</h3>
-                        <p class="text-sm text-gray-600">Mon-Fri: 9AM-6PM</p>
+                        <h3 class="font-bold text-gray-900 mb-1">{address_label}</h3>
+                        <p class="text-sm text-gray-600">{contact_data_1["address"]}</p>
                     </div>
                 </div>
             </div>
@@ -4943,8 +4943,8 @@ setTimeout(showCookieNotice, 1000);
     <section class="py-20 bg-gradient-to-br from-gray-50 to-white">
         <div class="container mx-auto px-6">
             <div class="text-center mb-12">
-                <h1 class="text-5xl md:text-6xl font-bold mb-6">Get Started</h1>
-                <p class="text-xl text-gray-600">Fill out the form below and we'll get back to you shortly</p>
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">{heading}</h1>
+                <p class="text-xl text-gray-600">{subheading}</p>
             </div>
 
             <div class="max-w-4xl mx-auto">
@@ -4954,16 +4954,16 @@ setTimeout(showCookieNotice, 1000);
                             <div>
                                 <label class="block text-gray-700 font-bold mb-3 flex items-center">
                                     <svg class="w-5 h-5 mr-2 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                    Full Name <span class="text-red-500 ml-1">*</span>
+                                    {name_label} <span class="text-red-500 ml-1">*</span>
                                 </label>
-                                <input type="text" name="name" required class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none" placeholder="John Doe">
+                                <input type="text" name="name" required class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none">
                             </div>
                             <div>
                                 <label class="block text-gray-700 font-bold mb-3 flex items-center">
                                     <svg class="w-5 h-5 mr-2 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                                    Email Address <span class="text-red-500 ml-1">*</span>
+                                    {email_label} <span class="text-red-500 ml-1">*</span>
                                 </label>
-                                <input type="email" name="email" required class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none" placeholder="john@example.com">
+                                <input type="email" name="email" required class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none">
                             </div>
                         </div>
 
@@ -4971,30 +4971,30 @@ setTimeout(showCookieNotice, 1000);
                             <div>
                                 <label class="block text-gray-700 font-bold mb-3 flex items-center">
                                     <svg class="w-5 h-5 mr-2 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                                    Phone Number
+                                    {phone_label}
                                 </label>
-                                <input type="tel" name="phone" class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none" placeholder="+1 (555) 123-4567">
+                                <input type="tel" name="phone" class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none">
                             </div>
                             <div>
                                 <label class="block text-gray-700 font-bold mb-3 flex items-center">
                                     <svg class="w-5 h-5 mr-2 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                                    Company
+                                    {info_heading}
                                 </label>
-                                <input type="text" name="company" class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none" placeholder="Your Company">
+                                <input type="text" name="company" class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none">
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-gray-700 font-bold mb-3 flex items-center">
                                 <svg class="w-5 h-5 mr-2 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
-                                Your Message <span class="text-red-500 ml-1">*</span>
+                                {message_label} <span class="text-red-500 ml-1">*</span>
                             </label>
-                            <textarea name="message" rows="6" required class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none resize-none" placeholder="Tell us about your project and how we can help..."></textarea>
+                            <textarea name="message" rows="6" required class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:border-{primary} focus:ring-2 focus:ring-{primary}/20 transition-all outline-none resize-none"></textarea>
                         </div>
 
                         <div class="flex justify-center pt-4">
                             <button type="submit" class="bg-{primary} hover:bg-{hover} text-white px-16 py-5 rounded-xl text-lg font-bold transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center">
-                                Send Message
+                                {submit_button}
                                 <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                             </button>
                         </div>
@@ -5002,16 +5002,16 @@ setTimeout(showCookieNotice, 1000);
 
                     <div class="mt-12 pt-8 border-t border-gray-200 grid md:grid-cols-3 gap-6 text-center">
                         <div>
-                            <p class="text-sm text-gray-500 mb-1">Email</p>
+                            <p class="text-sm text-gray-500 mb-1">{email_label_display}</p>
                             <p class="font-semibold text-gray-900">{site_name.lower().replace(' ', '')}@gmail.com</p>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500 mb-1">Phone</p>
+                            <p class="text-sm text-gray-500 mb-1">{phone_label_display}</p>
                             <p class="font-semibold text-gray-900">{contact_data_2["phone"]}</p>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500 mb-1">Response Time</p>
-                            <p class="font-semibold text-gray-900">Within 24 hours</p>
+                            <p class="text-sm text-gray-500 mb-1">{address_label}</p>
+                            <p class="font-semibold text-gray-900">{contact_data_2["address"]}</p>
                         </div>
                     </div>
                 </div>
@@ -5566,6 +5566,58 @@ setTimeout(showCookieNotice, 1000);
         </div>
     </section>"""
 
+    def generate_why_choose_us_section(self, theme, primary):
+        """Генерирует секцию Why Choose Us через API с языковой поддержкой"""
+        benefits_data = self.generate_theme_content_via_api(theme, "benefits_content", 3)
+
+        # Fallback если API не вернул результат
+        if not benefits_data or not benefits_data.get('benefits'):
+            heading = 'Why Choose Us'
+            subheading = 'We deliver exceptional results through our commitment to quality, innovation, and customer satisfaction'
+            benefits = [
+                {'title': 'Proven Track Record', 'description': 'Over 15 years of delivering successful projects across various industries'},
+                {'title': 'Fast Delivery', 'description': 'We understand deadlines and consistently deliver projects on time'},
+                {'title': 'Best Value', 'description': 'Competitive pricing without compromising on quality or service'}
+            ]
+        else:
+            heading = benefits_data.get('heading', 'Why Choose Us')
+            subheading = 'We deliver exceptional results through our commitment to quality, innovation, and customer satisfaction'
+            benefits = benefits_data.get('benefits', [])
+
+        # SVG icons для трех преимуществ
+        icons = [
+            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>',
+            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>',
+            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>'
+        ]
+
+        # Генерируем карточки
+        cards_html = ''
+        for i, benefit in enumerate(benefits[:3]):
+            icon = icons[i] if i < len(icons) else icons[0]
+            cards_html += f"""
+                <div class="text-center p-6">
+                    <div class="w-20 h-20 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-10 h-10 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            {icon}
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">{benefit.get('title', 'Benefit')}</h3>
+                    <p class="text-gray-600">{benefit.get('description', 'Description')}</p>
+                </div>"""
+
+        return f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">{heading}</h2>
+                <p class="text-gray-600 text-lg max-w-2xl mx-auto">{subheading}</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">{cards_html}
+            </div>
+        </div>
+    </section>"""
+
     def generate_testimonials_section(self, theme, primary):
         """Генерирует секцию отзывов через API с языковой поддержкой"""
         testimonials_data = self.generate_theme_content_via_api(theme, "testimonials_content", 3)
@@ -5783,93 +5835,7 @@ setTimeout(showCookieNotice, 1000);
             # НОВЫЕ ТЕКСТОВЫЕ СЕКЦИИ (БЕЗ ИЗОБРАЖЕНИЙ)
             'stats_section': self.generate_stats_section(theme, primary),
 
-            'why_choose_us': f"""
-    <section class="py-20 bg-white">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">Why Choose Us</h2>
-                <p class="text-gray-600 text-lg max-w-2xl mx-auto">We deliver exceptional results through our commitment to quality, innovation, and customer satisfaction</p>
-            </div>
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="text-center p-6">
-                    <div class="w-20 h-20 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <svg class="w-10 h-10 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">Proven Track Record</h3>
-                    <p class="text-gray-600">Over 15 years of delivering successful projects across various industries</p>
-                </div>
-                <div class="text-center p-6">
-                    <div class="w-20 h-20 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <svg class="w-10 h-10 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">Fast Delivery</h3>
-                    <p class="text-gray-600">We understand deadlines and consistently deliver projects on time</p>
-                </div>
-                <div class="text-center p-6">
-                    <div class="w-20 h-20 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <svg class="w-10 h-10 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">Best Value</h3>
-                    <p class="text-gray-600">Competitive pricing without compromising on quality or service</p>
-                </div>
-            </div>
-        </div>
-    </section>""",
-
-            'timeline_process': f"""
-    <section class="py-20 bg-gray-50">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">Our Process</h2>
-                <p class="text-gray-600 text-lg">A streamlined approach to deliver exceptional results</p>
-            </div>
-            <div class="max-w-4xl mx-auto">
-                <div class="relative">
-                    <div class="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-{primary}/20"></div>
-                    <div class="space-y-12">
-                        <div class="flex items-center">
-                            <div class="w-1/2 pr-8 text-right">
-                                <h3 class="text-2xl font-bold mb-2">1. Discovery</h3>
-                                <p class="text-gray-600">We analyze your needs and create a detailed project roadmap</p>
-                            </div>
-                            <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center text-white font-bold z-10">1</div>
-                            <div class="w-1/2 pl-8"></div>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-1/2 pr-8"></div>
-                            <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center text-white font-bold z-10">2</div>
-                            <div class="w-1/2 pl-8">
-                                <h3 class="text-2xl font-bold mb-2">2. Planning</h3>
-                                <p class="text-gray-600">Strategic planning and resource allocation for optimal results</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-1/2 pr-8 text-right">
-                                <h3 class="text-2xl font-bold mb-2">3. Execution</h3>
-                                <p class="text-gray-600">Implementation with regular updates and quality checkpoints</p>
-                            </div>
-                            <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center text-white font-bold z-10">3</div>
-                            <div class="w-1/2 pl-8"></div>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-1/2 pr-8"></div>
-                            <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center text-white font-bold z-10">4</div>
-                            <div class="w-1/2 pl-8">
-                                <h3 class="text-2xl font-bold mb-2">4. Delivery</h3>
-                                <p class="text-gray-600">Final review, optimization, and successful project handover</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>""",
+            'why_choose_us': self.generate_why_choose_us_section(theme, primary),
 
             'faq_section': f"""
     <section class="py-20 bg-white">
