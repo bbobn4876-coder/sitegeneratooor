@@ -899,22 +899,35 @@ Example format:
 Return ONLY valid JSON, no additional text or markdown formatting."""
 
         elif content_type == "work_showcase":
-            prompt = f"""Generate {num_items} case studies for a {theme} business.
+            prompt = f"""Generate work showcase section for a {theme} business with {num_items} case studies.
 
-Return as JSON array with these EXACT fields:
-- "title": case title (3-5 words)
-- "description": project description (2 sentences max, 40 words max)
-- "metrics": array of exactly 3 short metrics (5-8 words each)
+Return as JSON object with these EXACT fields:
+- "section_heading": Section heading (3-5 words, e.g., "Our Work & Expertise", "Portfolio & Projects")
+- "section_description": Section description (2 sentences, 25-35 words)
+- "cases": Array of {num_items} case studies, each with:
+  * "title": case title (3-5 words)
+  * "description": project description (2 sentences max, 40 words max)
+  * "metrics": array of exactly 3 short metrics (5-8 words each)
+- "cta_heading": CTA heading at bottom (4-7 words, action-oriented)
+- "cta_description": CTA description (2 sentences, 20-30 words)
+- "cta_button": CTA button text (2-4 words)
 
 Be specific to {theme} industry. Keep descriptions concise.{global_price_ban}{theme_specific_instructions}{language_instruction}
 
 Example:
-[
-  {{"title": "Digital Platform Launch", "description": "Created comprehensive solution for enterprise client. Delivered measurable improvements in efficiency and user satisfaction.", "metrics": ["Enhanced operational efficiency", "Improved user experience", "Successful deployment"]}},
-  {{"title": "System Optimization", "description": "Modernized infrastructure for growing organization. Achieved better performance through strategic improvements.", "metrics": ["Better system performance", "Increased capacity", "Enhanced security"]}}
-]
+{{
+  "section_heading": "Our Work & Expertise",
+  "section_description": "We bring proven experience and innovative solutions to every project. Here are some highlights from our journey in delivering exceptional results.",
+  "cases": [
+    {{"title": "Digital Platform Launch", "description": "Created comprehensive solution for enterprise client. Delivered measurable improvements in efficiency and user satisfaction.", "metrics": ["Enhanced operational efficiency", "Improved user experience", "Successful deployment"]}},
+    {{"title": "System Optimization", "description": "Modernized infrastructure for growing organization. Achieved better performance through strategic improvements.", "metrics": ["Better system performance", "Increased capacity", "Enhanced security"]}}
+  ],
+  "cta_heading": "Ready to Create Your Success Story?",
+  "cta_description": "These are just a few examples of how we've helped organizations achieve their goals. Let's discuss how we can bring similar results to your business.",
+  "cta_button": "Start Your Project"
+}}
 
-Return ONLY complete valid JSON array with {num_items} items. No markdown, no extra text."""
+Return ONLY complete valid JSON object. No markdown, no extra text."""
 
         elif content_type == "about_content":
             prompt = f"""Generate About Us section content for a {theme} business.
@@ -1029,40 +1042,50 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         elif content_type == "testimonials_content":
             prompt = f"""Generate {num_items} client testimonials for a {theme} business.
 
-Return as JSON array with these EXACT fields for each testimonial:
-- "quote": The testimonial text (15-25 words, authentic and specific)
-- "name": Client full name
-- "position": Job title (2-4 words)
-- "company": Company name or description (2-4 words)
-- "rating": Always "5" (5 stars)
+Return as JSON object with these EXACT fields:
+- "heading": Section heading (2-4 words, e.g., "What Our Clients Say", "Client Reviews", "Testimonials")
+- "testimonials": Array of {num_items} testimonials, each with:
+  * "quote": The testimonial text (15-25 words, authentic and specific)
+  * "name": Client full name
+  * "position": Job title (2-4 words)
+  * "company": Company name or description (2-4 words)
+  * "rating": Always "5" (5 stars)
 
 Be specific to {theme} industry. Make testimonials sound genuine and professional.{global_price_ban}{theme_specific_instructions}{language_instruction}
 
 Example:
-[
-  {{"quote": "Outstanding service and exceptional results. The team went above and beyond to ensure our project's success.", "name": "John Anderson", "position": "CEO", "company": "Tech Solutions", "rating": "5"}},
-  {{"quote": "Professional, reliable, and highly skilled. They delivered exactly what we needed, on time and within budget.", "name": "Sarah Mitchell", "position": "Director", "company": "Marketing Agency", "rating": "5"}}
-]
+{{
+  "heading": "What Our Clients Say",
+  "testimonials": [
+    {{"quote": "Outstanding service and exceptional results. The team went above and beyond to ensure our project's success.", "name": "John Anderson", "position": "CEO", "company": "Tech Solutions", "rating": "5"}},
+    {{"quote": "Professional, reliable, and highly skilled. They delivered exactly what we needed, on time and within budget.", "name": "Sarah Mitchell", "position": "Director", "company": "Marketing Agency", "rating": "5"}}
+  ]
+}}
 
-Return ONLY valid JSON array with {num_items} items, no additional text or markdown formatting."""
+Return ONLY valid JSON object, no additional text or markdown formatting."""
 
         elif content_type == "benefits_content":
             prompt = f"""Generate {num_items} key benefits for a {theme} business.
 
-Return as JSON array with these EXACT fields for each benefit:
-- "title": Benefit name (2-4 words)
-- "description": Benefit description (10-15 words)
+Return as JSON object with these EXACT fields:
+- "heading": Section heading (2-3 words, e.g., "Key Benefits", "Our Advantages", "Why Choose Us")
+- "benefits": Array of {num_items} benefits, each with:
+  * "title": Benefit name (2-4 words)
+  * "description": Benefit description (10-15 words)
 
 Be specific to {theme} industry. Focus on real business benefits.{global_price_ban}{theme_specific_instructions}{language_instruction}
 
 Example:
-[
-  {{"title": "Cost Efficiency", "description": "Maximize your ROI with our optimized processes and competitive pricing structure"}},
-  {{"title": "Scalability", "description": "Solutions designed to grow with your business needs and adapt to market changes"}},
-  {{"title": "24/7 Support", "description": "Round-the-clock assistance to ensure your operations run smoothly"}}
-]
+{{
+  "heading": "Key Benefits",
+  "benefits": [
+    {{"title": "Cost Efficiency", "description": "Maximize your ROI with our optimized processes and competitive pricing structure"}},
+    {{"title": "Scalability", "description": "Solutions designed to grow with your business needs and adapt to market changes"}},
+    {{"title": "24/7 Support", "description": "Round-the-clock assistance to ensure your operations run smoothly"}}
+  ]
+}}
 
-Return ONLY valid JSON array with {num_items} items, no additional text or markdown formatting."""
+Return ONLY valid JSON object, no additional text or markdown formatting."""
 
         elif content_type == "cta_content":
             prompt = f"""Generate call-to-action section content for a {theme} business.
@@ -1248,6 +1271,55 @@ Example:
   "services": "Services",
   "blog": "Blog",
   "contact": "Contact"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "features_comparison":
+            prompt = f"""Generate features comparison section for a {theme} business.
+
+Return as JSON object with these EXACT fields:
+- "section_heading": Main section heading (3-5 words, e.g., "What Sets Us Apart", "Why Choose Us")
+- "section_description": Brief description (15-20 words explaining value proposition)
+- "features": Array of exactly 4 key features, each with:
+  * "heading": Feature heading (3-5 words)
+  * "description": Feature description (10-15 words)
+- "cta_heading": CTA box heading (4-8 words, action-oriented and engaging)
+- "cta_description": CTA box description (15-20 words, explain benefits of contacting)
+- "cta_button": CTA button text (2-4 words)
+
+Be specific to {theme} industry. Focus on competitive advantages.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+{{
+  "section_heading": "What Sets Us Apart",
+  "section_description": "We combine expertise, innovation, and dedication to deliver exceptional results that exceed expectations.",
+  "features": [
+    {{"heading": "Industry-Leading Expertise", "description": "Our team brings years of specialized experience to every project"}},
+    {{"heading": "Customized Solutions", "description": "Tailored approaches designed specifically for your unique needs"}},
+    {{"heading": "Results-Driven Approach", "description": "Focused on delivering measurable outcomes and ROI"}},
+    {{"heading": "Ongoing Partnership", "description": "Long-term support and collaboration beyond project completion"}}
+  ],
+  "cta_heading": "Let's Build Something Great Together",
+  "cta_description": "Contact us today to discuss your project and discover how we can help you achieve your goals.",
+  "cta_button": "Start Your Project"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "blog_section_headers":
+            prompt = f"""Generate blog section headers for a {theme} business website.
+
+Return as JSON object with these EXACT fields:
+- "section_heading": Blog section heading (3-5 words, e.g., "Latest from Our Blog", "Recent Articles", "Industry Insights")
+- "view_all_text": "View all" button text (2-3 words)
+
+{language_instruction}
+
+Example:
+{{
+  "section_heading": "Latest from Our Blog",
+  "view_all_text": "View All"
 }}
 
 Return ONLY valid JSON, no additional text or markdown formatting."""
@@ -2480,10 +2552,15 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
     def generate_work_showcase_section(self, site_name, theme, primary, hover):
         """Генерирует секцию Work Showcase с уникальными кейсами через API"""
         # Получаем кейсы через API
-        case_studies = self.generate_theme_content_via_api(theme, "work_showcase", 4)
+        work_data = self.generate_theme_content_via_api(theme, "work_showcase", 4)
 
         # Fallback если API не вернул результат
-        if not case_studies or len(case_studies) < 4:
+        if not work_data or not work_data.get('cases') or len(work_data.get('cases', [])) < 4:
+            section_heading = 'Our Work & Expertise'
+            section_description = 'We bring proven experience and innovative solutions to every project. Here are some highlights from our journey in delivering exceptional results.'
+            cta_heading = 'Ready to Create Your Success Story?'
+            cta_description = "These are just a few examples of how we've helped organizations achieve their goals. Let's discuss how we can bring similar results to your business."
+            cta_button = 'Start Your Project'
             case_studies = [
                 {
                     'title': 'Strategic Implementation Project',
@@ -2506,6 +2583,13 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     'metrics': ['Improved coordination', 'Better efficiency', 'Recognized achievement']
                 }
             ]
+        else:
+            section_heading = work_data.get('section_heading', 'Our Work & Expertise')
+            section_description = work_data.get('section_description', 'We bring proven experience and innovative solutions to every project.')
+            cta_heading = work_data.get('cta_heading', 'Ready to Create Your Success Story?')
+            cta_description = work_data.get('cta_description', "Let's discuss how we can help you achieve your goals.")
+            cta_button = work_data.get('cta_button', 'Start Your Project')
+            case_studies = work_data.get('cases', [])
 
         # SVG иконки для карточек
         icons = [
@@ -2546,10 +2630,9 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
     <section class="py-20 bg-gray-50">
         <div class="container mx-auto px-6">
             <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">Our Work & Expertise</h2>
+                <h2 class="text-4xl font-bold mb-4">{section_heading}</h2>
                 <p class="text-gray-600 text-lg max-w-3xl mx-auto">
-                    We bring proven experience and innovative solutions to every project.
-                    Here are some highlights from our journey in delivering exceptional results.
+                    {section_description}
                 </p>
             </div>
 
@@ -2557,13 +2640,12 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             </div>
 
             <div class="bg-{primary} rounded-xl p-8 text-white text-center">
-                <h3 class="text-2xl font-bold mb-4">Ready to Create Your Success Story?</h3>
+                <h3 class="text-2xl font-bold mb-4">{cta_heading}</h3>
                 <p class="text-white/90 mb-6 max-w-2xl mx-auto">
-                    These are just a few examples of how we've helped organizations achieve their goals.
-                    Let's discuss how we can bring similar results to your business.
+                    {cta_description}
                 </p>
                 <a href="contact.php" class="inline-block bg-white text-{primary} hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold transition shadow-lg hover:shadow-xl">
-                    Start Your Project
+                    {cta_button}
                 </a>
             </div>
         </div>
@@ -2711,6 +2793,17 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
     def generate_blog_preview_section(self, site_name, theme, primary, hover):
         """Генерирует секцию Blog Preview через API с языковой поддержкой"""
+        # Получаем заголовки секции через API
+        blog_headers = self.generate_theme_content_via_api(theme, "blog_section_headers", 1)
+
+        # Fallback для заголовков
+        if not blog_headers:
+            section_heading = 'Latest from Our Blog'
+            view_all_text = 'View All'
+        else:
+            section_heading = blog_headers.get('section_heading', 'Latest from Our Blog')
+            view_all_text = blog_headers.get('view_all_text', 'View All')
+
         # Получаем 3 блог поста через API
         blog_posts = self.generate_theme_content_via_api(theme, "blog_posts", 3)
 
@@ -2743,9 +2836,9 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
     <section class="py-20 bg-gray-50">
         <div class="container mx-auto px-6">
             <div class="flex justify-between items-center mb-12">
-                <h2 class="text-4xl font-bold">Latest from Our Blog</h2>
+                <h2 class="text-4xl font-bold">{section_heading}</h2>
                 <a href="blog.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                    View All →
+                    {view_all_text} →
                 </a>
             </div>
             <div class="grid md:grid-cols-3 gap-8">{articles_html}
@@ -5438,10 +5531,11 @@ setTimeout(showCookieNotice, 1000);
 
     def generate_benefits_section(self, theme, primary):
         """Генерирует секцию Key Benefits через API с языковой поддержкой"""
-        benefits = self.generate_theme_content_via_api(theme, "benefits_content", 6)
+        benefits_data = self.generate_theme_content_via_api(theme, "benefits_content", 6)
 
         # Fallback если API не вернул результат
-        if not benefits:
+        if not benefits_data or not benefits_data.get('benefits'):
+            heading = 'Key Benefits'
             benefits = [
                 {'title': 'Cost Efficiency', 'description': 'Maximize your ROI with our optimized processes and competitive pricing structure'},
                 {'title': 'Scalability', 'description': 'Solutions designed to grow with your business needs and adapt to market changes'},
@@ -5450,6 +5544,9 @@ setTimeout(showCookieNotice, 1000);
                 {'title': 'Quality Assurance', 'description': 'Rigorous testing and quality control at every stage of development'},
                 {'title': 'Innovation', 'description': 'Stay ahead with the latest technologies and industry best practices'}
             ]
+        else:
+            heading = benefits_data.get('heading', 'Key Benefits')
+            benefits = benefits_data.get('benefits', [])
 
         # Генерируем карточки преимуществ
         cards_html = ''
@@ -5460,15 +5557,10 @@ setTimeout(showCookieNotice, 1000);
                     <p class="text-gray-600">{benefit.get('description', 'Description')}</p>
                 </div>"""
 
-        # Получаем заголовок через тот же API (используем первый benefit для заголовка или дефолт)
-        # Для заголовка используем стандартный текст, который будет переведен через API
-        language = self.blueprint.get('language', 'English')
-        heading = 'Key Benefits'
-
         return f"""
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center mb-16">Key Benefits</h2>
+            <h2 class="text-4xl font-bold text-center mb-16">{heading}</h2>
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">{cards_html}
             </div>
         </div>
@@ -5476,15 +5568,19 @@ setTimeout(showCookieNotice, 1000);
 
     def generate_testimonials_section(self, theme, primary):
         """Генерирует секцию отзывов через API с языковой поддержкой"""
-        testimonials = self.generate_theme_content_via_api(theme, "testimonials_content", 3)
+        testimonials_data = self.generate_theme_content_via_api(theme, "testimonials_content", 3)
 
         # Fallback если API не вернул результат
-        if not testimonials:
+        if not testimonials_data or not testimonials_data.get('testimonials'):
+            heading = 'What Our Clients Say'
             testimonials = [
                 {'quote': 'Outstanding service and exceptional results. The team went above and beyond to ensure our project success.', 'name': 'John Anderson', 'position': 'CEO', 'company': 'Tech Solutions', 'rating': '5'},
                 {'quote': 'Professional, reliable, and highly skilled. They delivered exactly what we needed, on time and within budget.', 'name': 'Sarah Mitchell', 'position': 'Director', 'company': 'Marketing Agency', 'rating': '5'},
                 {'quote': 'Excellent communication throughout the project. Their expertise and dedication made all the difference.', 'name': 'Michael Chen', 'position': 'Founder', 'company': 'StartupHub', 'rating': '5'}
             ]
+        else:
+            heading = testimonials_data.get('heading', 'What Our Clients Say')
+            testimonials = testimonials_data.get('testimonials', [])
 
         # Генерируем карточки отзывов
         cards_html = ''
@@ -5503,7 +5599,7 @@ setTimeout(showCookieNotice, 1000);
         return f"""
     <section class="py-20 bg-gray-50">
         <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center mb-16">What Our Clients Say</h2>
+            <h2 class="text-4xl font-bold text-center mb-16">{heading}</h2>
             <div class="grid md:grid-cols-3 gap-8">{cards_html}
             </div>
         </div>
@@ -5535,6 +5631,70 @@ setTimeout(showCookieNotice, 1000);
                     <a href="services.php" class="inline-block bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-{primary} transition">
                         {cta_data.get('button_secondary', 'View Services')}
                     </a>
+                </div>
+            </div>
+        </div>
+    </section>"""
+
+    def generate_features_comparison_section(self, theme, primary, hover):
+        """Генерирует секцию Features Comparison (What Sets Us Apart) через API с языковой поддержкой"""
+        features_data = self.generate_theme_content_via_api(theme, "features_comparison", 1)
+
+        # Fallback если API не вернул результат
+        if not features_data or not features_data.get('features'):
+            section_heading = 'What Sets Us Apart'
+            section_description = 'We combine expertise, innovation, and dedication to deliver exceptional results that exceed expectations.'
+            cta_heading = "Let's Build Something Great Together"
+            cta_description = 'Contact us today to discuss your project and discover how we can help you achieve your goals.'
+            cta_button = 'Start Your Project'
+            features = [
+                {'heading': 'Industry-Leading Expertise', 'description': 'Our team brings years of specialized experience to every project'},
+                {'heading': 'Customized Solutions', 'description': 'Tailored approaches designed specifically for your unique needs'},
+                {'heading': 'Results-Driven Approach', 'description': 'Focused on delivering measurable outcomes and ROI'},
+                {'heading': 'Ongoing Partnership', 'description': 'Long-term support and collaboration beyond project completion'}
+            ]
+        else:
+            section_heading = features_data.get('section_heading', 'What Sets Us Apart')
+            section_description = features_data.get('section_description', 'We combine expertise, innovation, and dedication to deliver exceptional results.')
+            cta_heading = features_data.get('cta_heading', "Let's Build Something Great Together")
+            cta_description = features_data.get('cta_description', 'Contact us today to discuss your project.')
+            cta_button = features_data.get('cta_button', 'Start Your Project')
+            features = features_data.get('features', [])
+
+        # Генерируем список фич
+        features_html = ''
+        for feature in features[:4]:
+            features_html += f"""
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0 w-6 h-6 bg-{primary} rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg mb-1">{feature.get('heading', 'Feature')}</h3>
+                                <p class="text-gray-600">{feature.get('description', 'Description')}</p>
+                            </div>
+                        </div>"""
+
+        return f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-4xl font-bold mb-6">{section_heading}</h2>
+                    <p class="text-gray-600 text-lg mb-8">{section_description}</p>
+                    <div class="space-y-4">{features_html}
+                    </div>
+                </div>
+                <div>
+                    <div class="bg-gradient-to-br from-{primary} to-{hover} rounded-xl p-12 text-white">
+                        <h3 class="text-3xl font-bold mb-6">{cta_heading}</h3>
+                        <p class="text-white/90 mb-8">{cta_description}</p>
+                        <a href="contact.php" class="inline-block bg-white text-{primary} px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition">
+                            {cta_button}
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -5777,72 +5937,7 @@ setTimeout(showCookieNotice, 1000);
 
             'cta_centered': self.generate_cta_section(theme, primary),
 
-            'features_list': f"""
-    <section class="py-20 bg-white">
-        <div class="container mx-auto px-6">
-            <div class="grid md:grid-cols-2 gap-12 items-center">
-                <div>
-                    <h2 class="text-4xl font-bold mb-6">What Sets Us Apart</h2>
-                    <p class="text-gray-600 text-lg mb-8">We combine expertise, innovation, and dedication to deliver exceptional results that exceed expectations.</p>
-                    <div class="space-y-4">
-                        <div class="flex gap-4">
-                            <div class="flex-shrink-0 w-6 h-6 bg-{primary} rounded-full flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-lg mb-1">Industry-Leading Expertise</h3>
-                                <p class="text-gray-600">Our team brings years of specialized experience to every project</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-4">
-                            <div class="flex-shrink-0 w-6 h-6 bg-{primary} rounded-full flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-lg mb-1">Customized Solutions</h3>
-                                <p class="text-gray-600">Tailored approaches designed specifically for your unique needs</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-4">
-                            <div class="flex-shrink-0 w-6 h-6 bg-{primary} rounded-full flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-lg mb-1">Results-Driven Approach</h3>
-                                <p class="text-gray-600">Focused on delivering measurable outcomes and ROI</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-4">
-                            <div class="flex-shrink-0 w-6 h-6 bg-{primary} rounded-full flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-lg mb-1">Ongoing Partnership</h3>
-                                <p class="text-gray-600">Long-term support and collaboration beyond project completion</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="bg-gradient-to-br from-{primary} to-{hover} rounded-xl p-12 text-white">
-                        <h3 class="text-3xl font-bold mb-6">Let's Build Something Great Together</h3>
-                        <p class="text-white/90 mb-8">Contact us today to discuss your project and discover how we can help you achieve your goals.</p>
-                        <a href="contact.php" class="inline-block bg-white text-{primary} px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition">
-                            Start Your Project
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>""",
+            'features_list': self.generate_features_comparison_section(theme, primary, hover),
         }
 
         # Фильтруем секции, требующие gallery изображения
