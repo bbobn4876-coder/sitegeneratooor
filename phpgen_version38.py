@@ -5809,7 +5809,7 @@ setTimeout(showCookieNotice, 1000);
                     </svg>
                 </div>
                 <h1 class="text-5xl md:text-6xl font-bold mb-6">{thanks_content.get('thank_you', 'Thank You!')}</h1>
-                <p class="text-xl text-gray-600 mb-8">{thanks_content.get('received_message', 'Your message has been sent successfully. We\'ll get back to you soon.')}</p>
+                <p class="text-xl text-gray-600 mb-8">{thanks_content.get('received_message', "Your message has been sent successfully. We'll get back to you soon.")}</p>
                 <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
                     {thanks_content.get('return_home', 'Return to Homepage')}
                 </a>
@@ -5836,7 +5836,7 @@ setTimeout(showCookieNotice, 1000);
                     {thanks_content.get('success', 'Success!')}
                 </h1>
                 <p class="text-2xl text-gray-700 mb-4 font-semibold">{thanks_content.get('thank_you', 'Thank you for reaching out!')}</p>
-                <p class="text-lg text-gray-600 mb-10">{thanks_content.get('response_time', 'We\'ve received your message and will respond within 24 hours.')}</p>
+                <p class="text-lg text-gray-600 mb-10">{thanks_content.get('response_time', "We've received your message and will respond within 24 hours.")}</p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-lg text-lg font-semibold transition transform hover:scale-105 shadow-xl">
                         {thanks_content.get('back_home', 'Back to Home')}
@@ -5880,7 +5880,7 @@ setTimeout(showCookieNotice, 1000);
                             <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold">2</div>
                             <div class="ml-6">
                                 <h3 class="text-xl font-bold mb-2">{thanks_content.get('personalized_response', 'Personalized Response')}</h3>
-                                <p class="text-gray-600">{thanks_content.get('response_description', 'We\'ll prepare a detailed response tailored to your specific needs.')}</p>
+                                <p class="text-gray-600">{thanks_content.get('response_description', "We'll prepare a detailed response tailored to your specific needs.")}</p>
                             </div>
                         </div>
                         <div class="flex items-start">
@@ -5911,7 +5911,7 @@ setTimeout(showCookieNotice, 1000);
             <div class="max-w-xl mx-auto text-center">
                 <h1 class="text-7xl md:text-8xl font-bold mb-8 text-{primary}">{thanks_content.get('thank_you', 'Thanks!')}</h1>
                 <div class="w-24 h-1 bg-{primary} mx-auto mb-8"></div>
-                <p class="text-2xl text-gray-700 mb-4">{thanks_content.get('received_message', 'We\'ve received your message.')}</p>
+                <p class="text-2xl text-gray-700 mb-4">{thanks_content.get('received_message', "We've received your message.")}</p>
                 <p class="text-lg text-gray-600 mb-12">{thanks_content.get('get_back_soon', 'Our team will respond shortly.')}</p>
                 <a href="index.php" class="text-{primary} hover:text-{hover} text-lg font-semibold transition border-b-2 border-{primary}">
                     ← {thanks_content.get('back_home', 'Back to Home')}
@@ -5998,7 +5998,7 @@ setTimeout(showCookieNotice, 1000);
                     </div>
                     <h1 class="text-6xl font-bold mb-6">{thanks_content.get('message_sent', 'Message Received!')}</h1>
                     <p class="text-2xl text-gray-700 mb-3">{thanks_content.get('thank_you', 'Thank you for contacting us.')}</p>
-                    <p class="text-lg text-gray-600 mb-10">{thanks_content.get('get_back_soon', 'We\'ll be in touch very soon!')}</p>
+                    <p class="text-lg text-gray-600 mb-10">{thanks_content.get('get_back_soon', "We'll be in touch very soon!")}</p>
                 </div>
 
                 <div class="bg-gray-50 rounded-2xl p-8 mb-10">
@@ -6446,9 +6446,9 @@ setTimeout(showCookieNotice, 1000);
         if page_name in ['privacy', 'terms', 'cookie']:
             return self.generate_policy_page(page_name, output_dir)
 
-        # Для blog страниц используем готовый контент (DISABLED - blog1-blog6 pages removed)
-        # if page_name in ['blog1', 'blog2', 'blog3', 'blog4', 'blog5', 'blog6']:
-        #     return self.generate_blog_page(page_name, output_dir)
+        # Для blog страниц используем готовый контент
+        if page_name in ['blog1', 'blog2', 'blog3', 'blog4', 'blog5', 'blog6']:
+            return self.generate_blog_page(page_name, output_dir)
         
         # Для главной страницы blog (список статей)
         if page_name == 'blog':
@@ -6596,7 +6596,7 @@ REQUIREMENTS:
 Return ONLY the content for <main> tag."""
             }
         }
-        
+
         config = page_configs.get(page_name)
         if not config:
             print(f"    ⚠️  Неизвестная страница: {page_name}")
