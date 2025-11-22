@@ -1191,6 +1191,44 @@ Example:
 
 Return ONLY valid JSON, no additional text or markdown formatting."""
 
+        elif content_type == "blog_article_full":
+            # num_items используется как article_number (1-6)
+            article_number = num_items
+            prompt = f"""Generate a complete blog article for a {theme} business.
+
+Article should be article #{article_number} of 6 total articles about {theme}.
+
+Return as JSON object with these EXACT fields:
+- "title": Article title (5-10 words, specific to {theme})
+- "date": Publication date in format "Month DD, YYYY" (recent date)
+- "author": Author name (e.g., "{theme} Team", "Expert Team")
+- "intro_paragraph": Opening paragraph (2-3 sentences introducing the topic)
+- "sections": Array of 3-4 content sections, each with:
+  * "heading": Section heading (3-6 words)
+  * "content": Section content (2-3 paragraphs, 4-6 sentences total)
+
+Make each article unique and specific to {theme} industry. Topics should be educational, informative, or provide industry insights.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+{{
+  "title": "The Future of {theme}",
+  "date": "November 15, 2025",
+  "author": "{theme} Expert Team",
+  "intro_paragraph": "The {theme} industry is evolving rapidly...",
+  "sections": [
+    {{
+      "heading": "Key Innovations",
+      "content": "Recent advances have transformed..."
+    }},
+    {{
+      "heading": "What This Means",
+      "content": "These changes impact..."
+    }}
+  ]
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
         elif content_type == "menu_content":
             prompt = f"""Generate navigation menu translations for a {theme} business website.
 
@@ -1219,7 +1257,9 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
         # Вызываем API с разными max_tokens в зависимости от типа контента
         # Некоторые типы контента требуют больше токенов
-        if content_type == "work_showcase":
+        if content_type == "blog_article_full":
+            max_tokens = 4000  # Большой лимит для полной статьи с несколькими секциями
+        elif content_type == "work_showcase":
             max_tokens = 3000  # Больше токенов для 4 детальных кейсов
         elif content_type in ["services", "featured_solutions", "process_steps", "blog_posts", "benefits_content"]:
             max_tokens = 2500  # Увеличенный лимит для списков
@@ -1293,7 +1333,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     print(f"    ⚠️  Получено {len(content)} элементов вместо {num_items} для {content_type}, используем их")
 
             # Для объектных типов контента - проверяем что это словарь
-            elif content_type in ["hero_content", "achievements_content", "cta_content", "contact_page_content", "blog_page_content", "policy_content", "footer_content", "menu_content", "about_content", "gallery_content", "approach_content"]:
+            elif content_type in ["hero_content", "achievements_content", "cta_content", "contact_page_content", "blog_page_content", "policy_content", "footer_content", "menu_content", "about_content", "gallery_content", "approach_content", "blog_article_full"]:
                 if not isinstance(content, dict):
                     print(f"    ⚠️  Получен неверный тип данных для {content_type}, используем fallback")
                     return None
@@ -4624,29 +4664,29 @@ setTimeout(showCookieNotice, 1000);
                 <form action="thanks_you.php" method="POST" class="space-y-6">
                     <div class="grid md:grid-cols-2 gap-6">
                         <div>
-                            <label for="name" class="block text-gray-700 font-semibold mb-2">Full Name <span class="text-red-500">*</span></label>
-                            <input type="text" id="name" name="name" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none" placeholder="John Doe">
+                            <label for="name" class="block text-gray-700 font-semibold mb-2">{name_label} <span class="text-red-500">*</span></label>
+                            <input type="text" id="name" name="name" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none">
                         </div>
                         <div>
-                            <label for="email" class="block text-gray-700 font-semibold mb-2">Email Address <span class="text-red-500">*</span></label>
-                            <input type="email" id="email" name="email" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none" placeholder="john@example.com">
+                            <label for="email" class="block text-gray-700 font-semibold mb-2">{email_label} <span class="text-red-500">*</span></label>
+                            <input type="email" id="email" name="email" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none">
                         </div>
                     </div>
                     <div class="grid md:grid-cols-2 gap-6">
                         <div>
-                            <label for="phone" class="block text-gray-700 font-semibold mb-2">Phone</label>
-                            <input type="tel" id="phone" name="phone" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none" placeholder="+1 (555) 123-4567">
+                            <label for="phone" class="block text-gray-700 font-semibold mb-2">{phone_label}</label>
+                            <input type="tel" id="phone" name="phone" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none">
                         </div>
                         <div>
-                            <label for="company" class="block text-gray-700 font-semibold mb-2">Company</label>
-                            <input type="text" id="company" name="company" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none" placeholder="Your Company">
+                            <label for="company" class="block text-gray-700 font-semibold mb-2">{info_heading}</label>
+                            <input type="text" id="company" name="company" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none">
                         </div>
                     </div>
                     <div>
-                        <label for="message" class="block text-gray-700 font-semibold mb-2">Message <span class="text-red-500">*</span></label>
-                        <textarea id="message" name="message" rows="6" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none resize-none" placeholder="Tell us about your project..."></textarea>
+                        <label for="message" class="block text-gray-700 font-semibold mb-2">{message_label} <span class="text-red-500">*</span></label>
+                        <textarea id="message" name="message" rows="6" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-{primary} transition-all outline-none resize-none"></textarea>
                     </div>
-                    <button type="submit" class="w-full bg-{primary} hover:bg-{hover} text-white py-4 rounded-lg text-lg font-bold transition-all shadow-lg hover:shadow-xl transform hover:scale-105">Send Message</button>
+                    <button type="submit" class="w-full bg-{primary} hover:bg-{hover} text-white py-4 rounded-lg text-lg font-bold transition-all shadow-lg hover:shadow-xl transform hover:scale-105">{submit_button}</button>
                 </form>
             </div>
 
@@ -4655,21 +4695,21 @@ setTimeout(showCookieNotice, 1000);
                     <div class="w-16 h-16 bg-{primary} rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg class="w-8 h-8 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">Email Us</h3>
+                    <h3 class="text-xl font-bold mb-2">{email_label_display}</h3>
                     <p class="text-gray-600">{site_name.lower().replace(' ', '')}@gmail.com</p>
                 </div>
                 <div class="text-center p-8 bg-gradient-to-br from-{primary}/5 to-white rounded-xl hover:shadow-lg transition-shadow">
                     <div class="w-16 h-16 bg-{primary} rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg class="w-8 h-8 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">Call Us</h3>
+                    <h3 class="text-xl font-bold mb-2">{phone_label_display}</h3>
                     <p class="text-gray-600">{contact_data_2["phone"]}</p>
                 </div>
                 <div class="text-center p-8 bg-gradient-to-br from-{primary}/5 to-white rounded-xl hover:shadow-lg transition-shadow">
                     <div class="w-16 h-16 bg-{primary} rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg class="w-8 h-8 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">Visit Us</h3>
+                    <h3 class="text-xl font-bold mb-2">{address_label}</h3>
                     <p class="text-gray-600">{contact_data_2["address"]}</p>
                 </div>
             </div>
@@ -6314,7 +6354,14 @@ Return ONLY the content for <main> tag."""
         primary = colors.get('primary', 'blue-600')
         hover = colors.get('hover', 'blue-700')
 
-        blog_titles = {
+        # Определяем номер статьи (1-6)
+        article_number = int(page_name.replace('blog', ''))
+
+        # Генерируем контент статьи через API
+        article_data = self.generate_theme_content_via_api(theme, "blog_article_full", article_number)
+
+        # Fallback titles если API не вернул результат
+        fallback_titles = {
             'blog1': f'The Future of {theme}',
             'blog2': f'Top 5 Trends in {theme}',
             'blog3': f'How to Choose the Right {theme} Service',
@@ -6323,126 +6370,28 @@ Return ONLY the content for <main> tag."""
             'blog6': f'The Complete {theme} Guide'
         }
 
-        blog_contents = {
-            'blog1': f"""
-            <p class="text-lg text-gray-700 mb-6">
-                The {theme} industry is evolving rapidly, and staying ahead of the curve is essential for success.
-                In this article, we explore the latest innovations and what they mean for your business.
-            </p>
-            <h2 class="text-2xl font-bold mt-8 mb-4">Key Innovations</h2>
-            <p class="text-gray-700 mb-6">
-                Recent technological advances have transformed how we approach {theme}. From automation to
-                personalized services, the landscape is changing faster than ever before.
-            </p>
-            <h2 class="text-2xl font-bold mt-8 mb-4">What This Means For You</h2>
-            <p class="text-gray-700 mb-6">
-                Understanding these changes can help you make better decisions for your needs. Whether you're
-                looking to upgrade your current setup or start fresh, staying informed is crucial.
-            </p>
-            """,
-            'blog2': f"""
-            <p class="text-lg text-gray-700 mb-6">
-                The {theme} sector is constantly evolving. Here are the top 5 trends you need to know about
-                to stay competitive in today's market.
-            </p>
-            <h2 class="text-2xl font-bold mt-8 mb-4">1. Digital Transformation</h2>
-            <p class="text-gray-700 mb-6">
-                More businesses are embracing digital solutions to streamline operations and improve customer experience.
-            </p>
-            <h2 class="text-2xl font-bold mt-8 mb-4">2. Sustainability Focus</h2>
-            <p class="text-gray-700 mb-6">
-                Environmental responsibility is becoming a key differentiator in the {theme} industry.
-            </p>
-            <h2 class="text-2xl font-bold mt-8 mb-4">3. Personalization</h2>
-            <p class="text-gray-700 mb-6">
-                Customers expect tailored solutions that meet their specific needs and preferences.
-            </p>
-            """,
-            'blog3': f"""
-            <p class="text-lg text-gray-700 mb-6">
-                Choosing the right {theme} service can be challenging. This guide will help you make an
-                informed decision that's right for your needs.
-            </p>
-            <h2 class="text-2xl font-bold mt-8 mb-4">Assess Your Needs</h2>
-            <p class="text-gray-700 mb-6">
-                Start by clearly defining what you need from a {theme} service. Consider your budget,
-                timeline, and specific requirements.
-            </p>
-            <h2 class="text-2xl font-bold mt-8 mb-4">Research Options</h2>
-            <p class="text-gray-700 mb-6">
-                Take time to research different providers and compare their offerings. Look for reviews,
-                testimonials, and case studies.
-            </p>
-            <h2 class="text-2xl font-bold mt-8 mb-4">Make Contact</h2>
-            <p class="text-gray-700 mb-6">
-                Don't hesitate to reach out to providers directly. A good consultation can help you
-                determine if they're the right fit for your needs.
-            </p>
-            """,
-            'blog4': f"""
-            <p class="text-lg text-gray-700 mb-6">
-                Achieving success in {theme} requires following proven strategies and techniques. Learn from
-                industry experts and implement these best practices to maximize your results.
-            </p>
-            <h2 class="text-2xl font-bold mt-8 mb-4">Set Clear Goals</h2>
-            <p class="text-gray-700 mb-6">
-                Define specific, measurable objectives for your {theme} initiatives. Clear goals provide
-                direction and help you track progress effectively.
-            </p>
-            <h2 class="text-2xl font-bold mt-8 mb-4">Plan Strategically</h2>
-            <p class="text-gray-700 mb-6">
-                Develop a comprehensive plan that outlines the steps needed to achieve your goals. Include
-                timelines, resources, and key milestones.
-            </p>
-            <h2 class="text-2xl font-bold mt-8 mb-4">Execute Consistently</h2>
-            <p class="text-gray-700 mb-6">
-                Consistency is key to success. Implement your strategies methodically and make adjustments
-                based on performance data and feedback.
-            </p>
-            """,
-            'blog5': f"""
-            <p class="text-lg text-gray-700 mb-6">
-                Avoiding common pitfalls can save you time, money, and frustration. Discover the most frequent
-                mistakes in {theme} and learn how to prevent them.
-            </p>
-            <h2 class="text-2xl font-bold mt-8 mb-4">Mistake 1: Lack of Planning</h2>
-            <p class="text-gray-700 mb-6">
-                Rushing into {theme} projects without proper planning often leads to costly delays and
-                suboptimal results. Take time to plan thoroughly.
-            </p>
-            <h2 class="text-2xl font-bold mt-8 mb-4">Mistake 2: Ignoring Expert Advice</h2>
-            <p class="text-gray-700 mb-6">
-                Trying to handle everything yourself can backfire. Consult with professionals who have
-                experience in {theme} to avoid common pitfalls.
-            </p>
-            <h2 class="text-2xl font-bold mt-8 mb-4">Mistake 3: Cutting Corners</h2>
-            <p class="text-gray-700 mb-6">
-                Quality matters in {theme}. Choosing the cheapest option or skipping important steps often
-                results in poor outcomes that cost more to fix later.
-            </p>
-            """,
-            'blog6': f"""
-            <p class="text-lg text-gray-700 mb-6">
-                This comprehensive guide covers everything you need to know about {theme}. Whether you're a
-                beginner or looking to deepen your knowledge, this resource has you covered.
-            </p>
-            <h2 class="text-2xl font-bold mt-8 mb-4">Understanding the Basics</h2>
-            <p class="text-gray-700 mb-6">
-                Start with the fundamentals of {theme}. Learn key concepts, terminology, and principles
-                that form the foundation of successful implementation.
-            </p>
-            <h2 class="text-2xl font-bold mt-8 mb-4">Advanced Techniques</h2>
-            <p class="text-gray-700 mb-6">
-                Once you've mastered the basics, explore advanced strategies that can take your {theme}
-                efforts to the next level. Discover professional tips and insider knowledge.
-            </p>
-            <h2 class="text-2xl font-bold mt-8 mb-4">Putting It All Together</h2>
-            <p class="text-gray-700 mb-6">
-                Learn how to integrate everything you've learned into a cohesive approach. Create a roadmap
-                for success and start implementing your {theme} strategy today.
-            </p>
-            """
-        }
+        blog_titles = {
+            page_name: article_data.get('title', fallback_titles.get(page_name, f'{theme} Article'))
+        } if article_data else fallback_titles
+
+        # Генерируем контент из API или используем fallback
+        if article_data and article_data.get('sections'):
+            # Формируем HTML из API данных
+            content_html = f'<p class="text-lg text-gray-700 mb-6">{article_data.get("intro_paragraph", "")}</p>\n'
+            for section in article_data.get('sections', []):
+                content_html += f'<h2 class="text-2xl font-bold mt-8 mb-4">{section.get("heading", "")}</h2>\n'
+                content_html += f'<p class="text-gray-700 mb-6">{section.get("content", "")}</p>\n'
+            blog_contents = {page_name: content_html}
+        else:
+            # Fallback контент
+            blog_contents = {
+                'blog1': f'<p class="text-lg text-gray-700 mb-6">The {theme} industry is evolving rapidly...</p><h2 class="text-2xl font-bold mt-8 mb-4">Key Innovations</h2><p class="text-gray-700 mb-6">Recent technological advances have transformed how we approach {theme}.</p>',
+                'blog2': f'<p class="text-lg text-gray-700 mb-6">The {theme} sector is constantly evolving. Here are the top 5 trends...</p><h2 class="text-2xl font-bold mt-8 mb-4">1. Digital Transformation</h2><p class="text-gray-700 mb-6">More businesses are embracing digital solutions...</p>',
+                'blog3': f'<p class="text-lg text-gray-700 mb-6">Choosing the right {theme} service can be challenging...</p><h2 class="text-2xl font-bold mt-8 mb-4">Assess Your Needs</h2><p class="text-gray-700 mb-6">Start by clearly defining what you need...</p>',
+                'blog4': f'<p class="text-lg text-gray-700 mb-6">Achieving success in {theme} requires following proven strategies...</p><h2 class="text-2xl font-bold mt-8 mb-4">Set Clear Goals</h2><p class="text-gray-700 mb-6">Define specific, measurable objectives...</p>',
+                'blog5': f'<p class="text-lg text-gray-700 mb-6">Avoiding common pitfalls can save you time, money, and frustration...</p><h2 class="text-2xl font-bold mt-8 mb-4">Mistake 1: Lack of Planning</h2><p class="text-gray-700 mb-6">Rushing into {theme} projects without proper planning...</p>',
+                'blog6': f'<p class="text-lg text-gray-700 mb-6">This comprehensive guide covers everything you need to know about {theme}...</p><h2 class="text-2xl font-bold mt-8 mb-4">Understanding the Basics</h2><p class="text-gray-700 mb-6">Start with the fundamentals of {theme}...</p>'
+            }
 
         blog_images = {
             'blog1': 'images/blog1.jpg',
@@ -6528,11 +6477,15 @@ Return ONLY the content for <main> tag."""
         </div>
         '''
 
+        # Получаем дату и автора из API или используем fallback
+        article_date = article_data.get('date', 'November 2025') if article_data else 'November 2025'
+        article_author = article_data.get('author', f'{site_name} Team') if article_data else f'{site_name} Team'
+
         main_content = f"""<main>
 <section class="py-20 bg-white">
     <div class="container mx-auto px-6 max-w-4xl">
         <h1 class="text-4xl md:text-5xl font-bold mb-4">{blog_titles[page_name]}</h1>
-        <p class="text-gray-500 mb-8">Published on November 15, 2025 by {site_name} Team</p>
+        <p class="text-gray-500 mb-8">Published on {article_date} by {article_author}</p>
 
         {image_section}
 
