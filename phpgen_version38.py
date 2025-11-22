@@ -1324,23 +1324,99 @@ Example:
 
 Return ONLY valid JSON, no additional text or markdown formatting."""
 
+        elif content_type == "cookie_notice_content":
+            prompt = f"""Generate cookie notice translations for a {theme} business website.
+
+Return as JSON object with these EXACT fields:
+- "message": Cookie notice message (15-25 words explaining cookie usage)
+- "learn_more": "Learn more" or "Cookie Policy" link text (2-3 words)
+- "accept": "Accept" button text (1-2 words)
+- "decline": "Decline" button text (1-2 words)
+- "accept_all": "Accept All" button text (2-3 words)
+- "ok": "OK" button text (1 word)
+- "consent_title": "Cookie Consent" heading (2-3 words)
+- "best_experience": "Best experience" message (10-15 words)
+
+{language_instruction}
+
+Example:
+{{
+  "message": "We use cookies to enhance your browsing experience. By continuing, you agree to our Cookie Policy.",
+  "learn_more": "Learn more",
+  "accept": "Accept",
+  "decline": "Decline",
+  "accept_all": "Accept All",
+  "ok": "OK",
+  "consent_title": "Cookie Consent",
+  "best_experience": "This website uses cookies to ensure you get the best experience."
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "thankyou_content":
+            prompt = f"""Generate thank you page translations for a {theme} business website.
+
+Return as JSON object with these EXACT fields:
+- "thank_you": "Thank You!" heading (2-3 words)
+- "success": "Success!" heading (1-2 words)
+- "message_sent": "Message Sent Successfully!" heading (3-5 words)
+- "received_message": Success message (10-15 words about message being received)
+- "get_back_soon": Message about response time (8-12 words)
+- "response_time": "We'll respond within 24 hours" message (5-8 words)
+- "return_home": "Return to Homepage" button text (2-4 words)
+- "back_home": "Back to Home" button text (2-4 words)
+- "view_services": "View Services" button text (2-3 words)
+- "what_next": "What Happens Next?" heading (2-4 words)
+- "review_message": "We Review Your Message" step heading (3-5 words)
+- "review_description": Description for review step (10-15 words)
+- "personalized_response": "Personalized Response" step heading (2-3 words)
+- "response_description": Description for response step (10-15 words)
+- "get_back": "Get Back to You" step heading (3-5 words)
+- "get_back_description": Description for getting back (8-12 words)
+- "thank_contacting": "Thank you for contacting" text (4-6 words)
+
+{language_instruction}
+
+Example:
+{{
+  "thank_you": "Thank You!",
+  "success": "Success!",
+  "message_sent": "Message Sent Successfully!",
+  "received_message": "Your message has been sent successfully. We'll get back to you soon.",
+  "get_back_soon": "We'll get back to you soon.",
+  "response_time": "Expect a response within 24 hours via email.",
+  "return_home": "Return to Homepage",
+  "back_home": "Back to Home",
+  "view_services": "View Services",
+  "what_next": "What Happens Next?",
+  "review_message": "We Review Your Message",
+  "review_description": "Our team will carefully review your inquiry within the next few hours.",
+  "personalized_response": "Personalized Response",
+  "response_description": "We'll prepare a detailed response tailored to your specific needs.",
+  "get_back": "Get Back to You",
+  "get_back_description": "Expect a response from us within 24 hours via email.",
+  "thank_contacting": "Thank you for contacting"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
         else:
             return None
 
         # Вызываем API с разными max_tokens в зависимости от типа контента
         # Некоторые типы контента требуют больше токенов
         if content_type == "blog_article_full":
-            max_tokens = 4000  # Большой лимит для полной статьи с несколькими секциями
+            max_tokens = 8000  # Большой лимит для полной статьи с несколькими секциями
         elif content_type == "work_showcase":
-            max_tokens = 3000  # Больше токенов для 4 детальных кейсов
+            max_tokens = 6000  # Больше токенов для 4 детальных кейсов
         elif content_type in ["services", "featured_solutions", "process_steps", "blog_posts", "benefits_content"]:
-            max_tokens = 2500  # Увеличенный лимит для списков
+            max_tokens = 5000  # Увеличенный лимит для списков
         elif content_type in ["approach_content", "about_content", "gallery_content"]:
-            max_tokens = 2500  # Увеличенный лимит для контента с несколькими параграфами
+            max_tokens = 4000  # Увеличенный лимит для контента с несколькими параграфами
         elif content_type == "testimonials_content":
-            max_tokens = 2000  # Достаточно для 3 отзывов
+            max_tokens = 4000  # Достаточно для 3 отзывов
         else:
-            max_tokens = 1800  # Для простых объектов (hero, achievements, cta, contact, blog, policy, footer)
+            max_tokens = 3000  # Для простых объектов (hero, achievements, cta, contact, blog, policy, footer)
 
         print(f"    🤖 Генерация контента для темы '{theme}' ({content_type})...")
         response = self.call_api(prompt, max_tokens=max_tokens)
@@ -4338,6 +4414,23 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         primary = colors.get('primary', 'blue-600')
         hover = colors.get('hover', 'blue-700')
         site_name = self.blueprint.get('site_name', 'Company')
+        theme = self.blueprint.get('theme', 'business')
+
+        # Получаем переводы cookie notice через API
+        cookie_content = self.generate_theme_content_via_api(theme, "cookie_notice_content", 1)
+
+        # Fallback если API не вернул результат
+        if not cookie_content:
+            cookie_content = {
+                'message': 'We use cookies to enhance your browsing experience. By continuing, you agree to our Cookie Policy.',
+                'learn_more': 'Learn more',
+                'accept': 'Accept',
+                'decline': 'Decline',
+                'accept_all': 'Accept All',
+                'ok': 'OK',
+                'consent_title': 'Cookie Consent',
+                'best_experience': 'This website uses cookies to ensure you get the best experience.'
+            }
 
         # Выбираем случайный вариант из 9
         variation = random.randint(1, 9)
@@ -4353,14 +4446,14 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             <svg class="w-6 h-6 flex-shrink-0 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <p class="text-sm">We use cookies to enhance your browsing experience. By continuing, you agree to our <a href="cookie.php" class="underline hover:text-{primary} transition">Cookie Policy</a>.</p>
+            <p class="text-sm">{cookie_content.get('message', 'We use cookies to enhance your browsing experience.')}</p>
         </div>
         <div class="flex gap-3">
             <button onclick="acceptCookies()" class="bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg text-sm font-semibold transition">
-                Accept
+                {cookie_content.get('accept', 'Accept')}
             </button>
             <button onclick="dismissCookieNotice()" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-lg text-sm font-semibold transition">
-                Decline
+                {cookie_content.get('decline', 'Decline')}
             </button>
         </div>
     </div>
@@ -4388,16 +4481,16 @@ setTimeout(showCookieNotice, 1000);
             <div class="flex items-start gap-4">
                 <div class="text-4xl">🍪</div>
                 <div>
-                    <h3 class="font-bold text-lg mb-1">Cookie Consent</h3>
-                    <p class="text-gray-600 text-sm">This website uses cookies to ensure you get the best experience. <a href="cookie.php" class="text-{primary} underline hover:text-{hover} transition">Learn more</a></p>
+                    <h3 class="font-bold text-lg mb-1">{cookie_content.get('consent_title', 'Cookie Consent')}</h3>
+                    <p class="text-gray-600 text-sm">{cookie_content.get('best_experience', 'This website uses cookies to ensure you get the best experience.')} <a href="cookie.php" class="text-{primary} underline hover:text-{hover} transition">{cookie_content.get('learn_more', 'Learn more')}</a></p>
                 </div>
             </div>
             <div class="flex gap-3 flex-shrink-0">
                 <button onclick="acceptCookies()" class="bg-{primary} hover:bg-{hover} text-white px-8 py-3 rounded-lg font-semibold transition shadow-lg">
-                    Accept All
+                    {cookie_content.get('accept_all', 'Accept All')}
                 </button>
                 <button onclick="dismissCookieNotice()" class="border-2 border-gray-300 hover:border-gray-400 text-gray-700 px-8 py-3 rounded-lg font-semibold transition">
-                    Decline
+                    {cookie_content.get('decline', 'Decline')}
                 </button>
             </div>
         </div>
@@ -4422,10 +4515,10 @@ setTimeout(showCookieNotice, 1000);
                 return f"""
 <div id="cookie-notice" class="fixed bottom-0 left-0 right-0 bg-{primary} text-white py-3 px-6 z-50 hidden">
     <div class="container mx-auto flex items-center justify-between">
-        <p class="text-sm">🍪 We use cookies. <a href="cookie.php" class="underline font-semibold hover:opacity-80 transition">Cookie Policy</a></p>
+        <p class="text-sm">🍪 {cookie_content.get('message', 'We use cookies.')}</p>
         <div class="flex gap-2">
             <button onclick="acceptCookies()" class="bg-white text-{primary} px-4 py-1 rounded font-semibold text-sm hover:opacity-90 transition">
-                OK
+                {cookie_content.get('ok', 'OK')}
             </button>
             <button onclick="dismissCookieNotice()" class="border border-white text-white px-4 py-1 rounded font-semibold text-sm hover:bg-white hover:text-{primary} transition">
                 ✕
@@ -4461,8 +4554,8 @@ setTimeout(showCookieNotice, 1000);
             </svg>
         </div>
         <div>
-            <h3 class="font-bold text-lg mb-2">Cookie Settings</h3>
-            <p class="text-gray-600 text-sm">We use cookies to improve your experience. By using our site, you accept our <a href="cookie.php" class="text-{primary} underline hover:text-{hover}">cookie policy</a>.</p>
+            <h3 class="font-bold text-lg mb-2">{cookie_content.get('consent_title', 'Cookie Settings')}</h3>
+            <p class="text-gray-600 text-sm">{cookie_content.get('best_experience', 'We use cookies to improve your experience.')} <a href="cookie.php" class="text-{primary} underline hover:text-{hover}">{cookie_content.get('learn_more', 'cookie policy')}</a>.</p>
         </div>
         <button onclick="dismissCookieNotice()" class="text-gray-400 hover:text-gray-600 flex-shrink-0">
             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -4472,10 +4565,10 @@ setTimeout(showCookieNotice, 1000);
     </div>
     <div class="flex gap-3">
         <button onclick="acceptCookies()" class="flex-1 bg-{primary} hover:bg-{hover} text-white py-2 rounded-lg font-semibold transition">
-            Accept
+            {cookie_content.get('accept', 'Accept')}
         </button>
         <button onclick="dismissCookieNotice()" class="flex-1 border-2 border-gray-300 hover:border-gray-400 text-gray-700 py-2 rounded-lg font-semibold transition">
-            Decline
+            {cookie_content.get('decline', 'Decline')}
         </button>
     </div>
 </div>
@@ -4506,11 +4599,11 @@ setTimeout(showCookieNotice, 1000);
                 </svg>
             </button>
         </div>
-        <h3 class="font-bold text-xl mb-2">Cookies Notice</h3>
-        <p class="text-gray-300 text-sm">We value your privacy. Read our <a href="cookie.php" class="text-{primary} underline hover:opacity-80">cookie policy</a> to learn more.</p>
+        <h3 class="font-bold text-xl mb-2">{cookie_content.get('consent_title', 'Cookies Notice')}</h3>
+        <p class="text-gray-300 text-sm">{cookie_content.get('best_experience', 'We value your privacy.')} <a href="cookie.php" class="text-{primary} underline hover:opacity-80">{cookie_content.get('learn_more', 'cookie policy')}</a></p>
     </div>
     <button onclick="acceptCookies()" class="w-full bg-{primary} hover:bg-{hover} text-white py-3 rounded-xl font-bold transition shadow-lg">
-        Accept Cookies
+        {cookie_content.get('accept', 'Accept Cookies')}
     </button>
 </div>
 <script>
@@ -4532,12 +4625,12 @@ setTimeout(showCookieNotice, 1000);
                 return f"""
 <div id="cookie-notice" class="fixed bottom-6 right-6 bg-white rounded-lg shadow-xl p-5 max-w-xs z-50 hidden border-l-4 border-{primary}">
     <div class="flex items-center justify-between mb-3">
-        <h4 class="font-bold text-gray-900">Cookie Notice</h4>
+        <h4 class="font-bold text-gray-900">{cookie_content.get('consent_title', 'Cookie Notice')}</h4>
         <button onclick="dismissCookieNotice()" class="text-gray-400 hover:text-gray-600">✕</button>
     </div>
-    <p class="text-gray-600 text-sm mb-4">We use cookies to personalize content. <a href="cookie.php" class="text-{primary} font-semibold hover:underline">Details</a></p>
+    <p class="text-gray-600 text-sm mb-4">{cookie_content.get('message', 'We use cookies to personalize content.')} <a href="cookie.php" class="text-{primary} font-semibold hover:underline">{cookie_content.get('learn_more', 'Details')}</a></p>
     <button onclick="acceptCookies()" class="w-full bg-{primary} hover:bg-{hover} text-white py-2 rounded-lg font-semibold text-sm transition">
-        Got it!
+        {cookie_content.get('ok', 'Got it!')}
     </button>
 </div>
 <script>
@@ -4561,9 +4654,9 @@ setTimeout(showCookieNotice, 1000);
                 # Маленькое 1: Таблетка снизу справа
                 return f"""
 <div id="cookie-notice" class="fixed bottom-6 right-6 bg-gray-900 text-white rounded-full px-5 py-3 shadow-lg z-50 hidden flex items-center gap-3">
-    <span class="text-sm">🍪 Cookies</span>
+    <span class="text-sm">🍪 {cookie_content.get('consent_title', 'Cookies')}</span>
     <button onclick="acceptCookies()" class="bg-{primary} hover:bg-{hover} text-white px-4 py-1 rounded-full text-xs font-semibold transition">
-        OK
+        {cookie_content.get('ok', 'OK')}
     </button>
 </div>
 <script>
@@ -4584,8 +4677,8 @@ setTimeout(showCookieNotice, 1000);
     <div class="flex items-center gap-2">
         <div class="w-8 h-8 bg-{primary} rounded-full flex items-center justify-center text-white font-bold text-sm">C</div>
         <div>
-            <p class="text-xs text-gray-700 font-semibold">Cookies active</p>
-            <button onclick="acceptCookies()" class="text-{primary} text-xs underline hover:no-underline">Agree</button>
+            <p class="text-xs text-gray-700 font-semibold">{cookie_content.get('message', 'Cookies active')}</p>
+            <button onclick="acceptCookies()" class="text-{primary} text-xs underline hover:no-underline">{cookie_content.get('accept', 'Agree')}</button>
         </div>
     </div>
 </div>
@@ -4604,7 +4697,7 @@ setTimeout(showCookieNotice, 1000);
                 # Маленькое 3: Minimal toast
                 return f"""
 <div id="cookie-notice" class="fixed bottom-6 right-6 bg-{primary} text-white rounded-lg px-6 py-3 shadow-lg z-50 hidden flex items-center gap-3">
-    <span class="text-sm font-medium">Cookies in use</span>
+    <span class="text-sm font-medium">{cookie_content.get('message', 'Cookies in use')}</span>
     <button onclick="acceptCookies()" class="text-white hover:opacity-80 font-bold text-lg">×</button>
 </div>
 <script>
@@ -5246,6 +5339,33 @@ setTimeout(showCookieNotice, 1000);
 
     def generate_thankyou_page(self, site_name, primary, hover):
         """Генерация Thanks You страницы с 6 вариациями"""
+        theme = self.blueprint.get('theme', 'business')
+
+        # Получаем переводы thank you page через API
+        thanks_content = self.generate_theme_content_via_api(theme, "thankyou_content", 1)
+
+        # Fallback если API не вернул результат
+        if not thanks_content:
+            thanks_content = {
+                'thank_you': 'Thank You!',
+                'success': 'Success!',
+                'message_sent': 'Message Sent Successfully!',
+                'received_message': 'Your message has been sent successfully. We\'ll get back to you soon.',
+                'get_back_soon': 'We\'ll get back to you soon.',
+                'response_time': 'Expect a response within 24 hours via email.',
+                'return_home': 'Return to Homepage',
+                'back_home': 'Back to Home',
+                'view_services': 'View Services',
+                'what_next': 'What Happens Next?',
+                'review_message': 'We Review Your Message',
+                'review_description': 'Our team will carefully review your inquiry within the next few hours.',
+                'personalized_response': 'Personalized Response',
+                'response_description': 'We\'ll prepare a detailed response tailored to your specific needs.',
+                'get_back': 'Get Back to You',
+                'get_back_description': 'Expect a response from us within 24 hours via email.',
+                'thank_contacting': 'Thank you for contacting'
+            }
+
         thanks_variant = random.randint(1, 6)
 
         # Вариация 1: Простая с иконкой галочки
@@ -5259,10 +5379,10 @@ setTimeout(showCookieNotice, 1000);
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                     </svg>
                 </div>
-                <h1 class="text-5xl md:text-6xl font-bold mb-6">Thank You!</h1>
-                <p class="text-xl text-gray-600 mb-8">Your message has been sent successfully. We'll get back to you soon.</p>
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">{thanks_content.get('thank_you', 'Thank You!')}</h1>
+                <p class="text-xl text-gray-600 mb-8">{thanks_content.get('received_message', 'Your message has been sent successfully. We\'ll get back to you soon.')}</p>
                 <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
-                    Return to Homepage
+                    {thanks_content.get('return_home', 'Return to Homepage')}
                 </a>
             </div>
         </div>
@@ -5284,16 +5404,16 @@ setTimeout(showCookieNotice, 1000);
                     </div>
                 </div>
                 <h1 class="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-{primary} to-{hover} bg-clip-text text-transparent">
-                    Success!
+                    {thanks_content.get('success', 'Success!')}
                 </h1>
-                <p class="text-2xl text-gray-700 mb-4 font-semibold">Thank you for reaching out!</p>
-                <p class="text-lg text-gray-600 mb-10">We've received your message and will respond within 24 hours.</p>
+                <p class="text-2xl text-gray-700 mb-4 font-semibold">{thanks_content.get('thank_you', 'Thank you for reaching out!')}</p>
+                <p class="text-lg text-gray-600 mb-10">{thanks_content.get('response_time', 'We\'ve received your message and will respond within 24 hours.')}</p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-lg text-lg font-semibold transition transform hover:scale-105 shadow-xl">
-                        Back to Home
+                        {thanks_content.get('back_home', 'Back to Home')}
                     </a>
                     <a href="services.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-10 py-4 rounded-lg text-lg font-semibold transition transform hover:scale-105">
-                        View Services
+                        {thanks_content.get('view_services', 'View Services')}
                     </a>
                 </div>
             </div>
@@ -5313,32 +5433,32 @@ setTimeout(showCookieNotice, 1000);
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
                     </div>
-                    <h1 class="text-5xl font-bold mb-4">Message Sent Successfully!</h1>
-                    <p class="text-xl text-gray-600">Thank you for contacting {site_name}</p>
+                    <h1 class="text-5xl font-bold mb-4">{thanks_content.get('message_sent', 'Message Sent Successfully!')}</h1>
+                    <p class="text-xl text-gray-600">{thanks_content.get('thank_contacting', 'Thank you for contacting')} {site_name}</p>
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-xl p-10 mb-12">
-                    <h2 class="text-2xl font-bold mb-8 text-center">What Happens Next?</h2>
+                    <h2 class="text-2xl font-bold mb-8 text-center">{thanks_content.get('what_next', 'What Happens Next?')}</h2>
                     <div class="space-y-6">
                         <div class="flex items-start">
                             <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold">1</div>
                             <div class="ml-6">
-                                <h3 class="text-xl font-bold mb-2">We Review Your Message</h3>
-                                <p class="text-gray-600">Our team will carefully review your inquiry within the next few hours.</p>
+                                <h3 class="text-xl font-bold mb-2">{thanks_content.get('review_message', 'We Review Your Message')}</h3>
+                                <p class="text-gray-600">{thanks_content.get('review_description', 'Our team will carefully review your inquiry within the next few hours.')}</p>
                             </div>
                         </div>
                         <div class="flex items-start">
                             <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold">2</div>
                             <div class="ml-6">
-                                <h3 class="text-xl font-bold mb-2">Personalized Response</h3>
-                                <p class="text-gray-600">We'll prepare a detailed response tailored to your specific needs.</p>
+                                <h3 class="text-xl font-bold mb-2">{thanks_content.get('personalized_response', 'Personalized Response')}</h3>
+                                <p class="text-gray-600">{thanks_content.get('response_description', 'We\'ll prepare a detailed response tailored to your specific needs.')}</p>
                             </div>
                         </div>
                         <div class="flex items-start">
                             <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold">3</div>
                             <div class="ml-6">
-                                <h3 class="text-xl font-bold mb-2">Get Back to You</h3>
-                                <p class="text-gray-600">Expect a response from us within 24 hours via email.</p>
+                                <h3 class="text-xl font-bold mb-2">{thanks_content.get('get_back', 'Get Back to You')}</h3>
+                                <p class="text-gray-600">{thanks_content.get('get_back_description', 'Expect a response from us within 24 hours via email.')}</p>
                             </div>
                         </div>
                     </div>
@@ -5346,7 +5466,7 @@ setTimeout(showCookieNotice, 1000);
 
                 <div class="text-center">
                     <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
-                        Return to Homepage
+                        {thanks_content.get('return_home', 'Return to Homepage')}
                     </a>
                 </div>
             </div>
@@ -5360,12 +5480,12 @@ setTimeout(showCookieNotice, 1000);
     <section class="min-h-screen flex items-center justify-center bg-white">
         <div class="container mx-auto px-6">
             <div class="max-w-xl mx-auto text-center">
-                <h1 class="text-7xl md:text-8xl font-bold mb-8 text-{primary}">Thanks!</h1>
+                <h1 class="text-7xl md:text-8xl font-bold mb-8 text-{primary}">{thanks_content.get('thank_you', 'Thanks!')}</h1>
                 <div class="w-24 h-1 bg-{primary} mx-auto mb-8"></div>
-                <p class="text-2xl text-gray-700 mb-4">We've received your message.</p>
-                <p class="text-lg text-gray-600 mb-12">Our team will respond shortly.</p>
+                <p class="text-2xl text-gray-700 mb-4">{thanks_content.get('received_message', 'We\'ve received your message.')}</p>
+                <p class="text-lg text-gray-600 mb-12">{thanks_content.get('get_back_soon', 'Our team will respond shortly.')}</p>
                 <a href="index.php" class="text-{primary} hover:text-{hover} text-lg font-semibold transition border-b-2 border-{primary}">
-                    ← Back to Home
+                    ← {thanks_content.get('back_home', 'Back to Home')}
                 </a>
             </div>
         </div>
@@ -5385,8 +5505,8 @@ setTimeout(showCookieNotice, 1000);
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                         </div>
-                        <h1 class="text-5xl font-bold mb-4">Thank You!</h1>
-                        <p class="text-xl text-gray-600">Your message has been successfully sent to our team.</p>
+                        <h1 class="text-5xl font-bold mb-4">{thanks_content.get('thank_you', 'Thank You!')}</h1>
+                        <p class="text-xl text-gray-600">{thanks_content.get('received_message', 'Your message has been successfully sent to our team.')}</p>
                     </div>
 
                     <div class="border-t border-gray-200 pt-8 mb-8">
@@ -5397,8 +5517,8 @@ setTimeout(showCookieNotice, 1000);
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                 </div>
-                                <p class="font-semibold text-gray-900">Response Time</p>
-                                <p class="text-sm text-gray-600">Within 24 hours</p>
+                                <p class="font-semibold text-gray-900">{thanks_content.get('response_time', 'Response Time')}</p>
+                                <p class="text-sm text-gray-600">{thanks_content.get('get_back_description', 'Within 24 hours')}</p>
                             </div>
                             <div>
                                 <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center mx-auto mb-3">
@@ -5423,7 +5543,7 @@ setTimeout(showCookieNotice, 1000);
 
                     <div class="text-center pt-4">
                         <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
-                            Back to Homepage
+                            {thanks_content.get('back_home', 'Back to Homepage')}
                         </a>
                     </div>
                 </div>
@@ -5447,9 +5567,9 @@ setTimeout(showCookieNotice, 1000);
                         </div>
                         <div class="absolute -top-2 -right-2 w-8 h-8 bg-{primary} rounded-full animate-ping"></div>
                     </div>
-                    <h1 class="text-6xl font-bold mb-6">Message Received!</h1>
-                    <p class="text-2xl text-gray-700 mb-3">Thank you for contacting us.</p>
-                    <p class="text-lg text-gray-600 mb-10">We'll be in touch very soon!</p>
+                    <h1 class="text-6xl font-bold mb-6">{thanks_content.get('message_sent', 'Message Received!')}</h1>
+                    <p class="text-2xl text-gray-700 mb-3">{thanks_content.get('thank_you', 'Thank you for contacting us.')}</p>
+                    <p class="text-lg text-gray-600 mb-10">{thanks_content.get('get_back_soon', 'We\'ll be in touch very soon!')}</p>
                 </div>
 
                 <div class="bg-gray-50 rounded-2xl p-8 mb-10">
@@ -5459,7 +5579,7 @@ setTimeout(showCookieNotice, 1000);
                             <svg class="w-8 h-8 text-{primary} mx-auto mb-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                             </svg>
-                            <p class="font-semibold text-gray-900">Our Services</p>
+                            <p class="font-semibold text-gray-900">{thanks_content.get('view_services', 'Our Services')}</p>
                         </a>
                         <a href="company.php" class="block p-6 bg-white rounded-xl hover:shadow-lg transition text-center">
                             <svg class="w-8 h-8 text-{primary} mx-auto mb-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -5478,7 +5598,7 @@ setTimeout(showCookieNotice, 1000);
 
                 <div class="text-center">
                     <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-12 py-4 rounded-full text-lg font-bold transition shadow-xl hover:shadow-2xl transform hover:scale-105">
-                        Return to Homepage
+                        {thanks_content.get('return_home', 'Return to Homepage')}
                     </a>
                 </div>
             </div>
