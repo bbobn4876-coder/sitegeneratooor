@@ -1217,13 +1217,35 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         elif content_type == "blog_article_full":
             # num_items используется как article_number (1-6)
             article_number = num_items
+
+            # Получаем title из blog_posts_previews если они есть
+            required_title = None
+            excerpt_text = None
+            date_text = None
+            if hasattr(self, 'blueprint') and 'blog_posts_previews' in self.blueprint:
+                previews = self.blueprint['blog_posts_previews']
+                if article_number <= len(previews):
+                    preview = previews[article_number - 1]
+                    required_title = preview.get('title')
+                    excerpt_text = preview.get('excerpt')
+                    date_text = preview.get('date')
+
+            # Создаем промпт с обязательным title если он известен
+            title_instruction = ""
+            if required_title:
+                title_instruction = f'\n\nCRITICAL REQUIREMENT: You MUST use EXACTLY this title: "{required_title}". Do NOT change or modify the title in any way.'
+                if date_text:
+                    title_instruction += f'\nCRITICAL REQUIREMENT: You MUST use EXACTLY this date: "{date_text}".'
+                if excerpt_text:
+                    title_instruction += f'\nThe article should expand on this excerpt: "{excerpt_text}"'
+
             prompt = f"""Generate a complete blog article for a {theme} business.
 
-Article should be article #{article_number} of 6 total articles about {theme}.
+Article should be article #{article_number} of 6 total articles about {theme}.{title_instruction}
 
 Return as JSON object with these EXACT fields:
-- "title": Article title (5-10 words, specific to {theme})
-- "date": Publication date in format "Month DD, YYYY" (recent date)
+- "title": Article title (5-10 words, specific to {theme}){' - MUST BE: "' + required_title + '"' if required_title else ''}
+- "date": Publication date in format "Month DD, YYYY" (recent date){' - MUST BE: "' + date_text + '"' if date_text else ''}
 - "author": Author name (e.g., "{theme} Team", "Expert Team")
 - "intro_paragraph": Opening paragraph (2-3 sentences introducing the topic)
 - "sections": Array of 3-4 content sections, each with:
@@ -1234,8 +1256,8 @@ Make each article unique and specific to {theme} industry. Topics should be educ
 
 Example:
 {{
-  "title": "The Future of {theme}",
-  "date": "November 15, 2025",
+  "title": "{required_title if required_title else 'The Future of ' + theme}",
+  "date": "{date_text if date_text else 'November 15, 2025'}",
   "author": "{theme} Expert Team",
   "intro_paragraph": "The {theme} industry is evolving rapidly...",
   "sections": [
@@ -1396,6 +1418,62 @@ Example:
   "get_back": "Get Back to You",
   "get_back_description": "Expect a response from us within 24 hours via email.",
   "thank_contacting": "Thank you for contacting"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "what_we_offer_content":
+            prompt = f"""Generate "What We Offer" section translations for a {theme} business website.
+
+Return as JSON object with these EXACT fields:
+- "heading": "What We Offer" section heading (2-4 words)
+- "subheading_1": First variation subheading (6-10 words, e.g., "Comprehensive solutions tailored to your needs")
+- "subheading_2": Second variation subheading (10-15 words, e.g., "Discover our range of professional services...")
+- "subheading_3": Third variation subheading (6-10 words, e.g., "Six core services that drive exceptional results")
+- "learn_more": "Learn More" button text (2-3 words)
+- "explore": "Explore" button text (1-2 words)
+
+{language_instruction}
+
+Example:
+{{
+  "heading": "What We Offer",
+  "subheading_1": "Comprehensive solutions tailored to your needs",
+  "subheading_2": "Discover our range of professional services designed to elevate your business",
+  "subheading_3": "Six core services that drive exceptional results",
+  "learn_more": "Learn More",
+  "explore": "Explore"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "blog_navigation_content":
+            prompt = f"""Generate blog navigation and CTA translations for a {theme} business website.
+
+Return as JSON object with these EXACT fields:
+- "want_learn_more": "Want to Learn More?" heading (3-5 words)
+- "contact_specific_needs": Contact message (8-15 words, e.g., "Contact us to discuss your specific needs...")
+- "get_in_touch": "Get in Touch" button text (2-4 words)
+- "interested_services": "Interested in Our Services?" heading (3-5 words)
+- "get_in_touch_today": Message about contacting today (10-15 words)
+- "contact_us": "Contact Us" button text (2-3 words)
+- "previous_article": "Previous Article" text (1-3 words)
+- "next_article": "Next Article" text (1-3 words)
+- "published_on": "Published on" text (1-3 words)
+
+{language_instruction}
+
+Example:
+{{
+  "want_learn_more": "Want to Learn More?",
+  "contact_specific_needs": "Contact us to discuss your specific needs and how we can help.",
+  "get_in_touch": "Get in Touch",
+  "interested_services": "Interested in Our Services?",
+  "get_in_touch_today": "Get in touch with us today to learn how we can help your business grow.",
+  "contact_us": "Contact Us",
+  "previous_article": "Previous Article",
+  "next_article": "Next Article",
+  "published_on": "Published on"
 }}
 
 Return ONLY valid JSON, no additional text or markdown formatting."""
@@ -2430,53 +2508,71 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         if not services:
             services = self.get_theme_based_what_we_offer(theme)
 
+        # Получаем переводы для What We Offer
+        what_we_offer_data = self.generate_theme_content_via_api(theme, "what_we_offer_content", 1)
+        if not what_we_offer_data:
+            what_we_offer_data = {
+                'heading': 'What We Offer',
+                'subheading_1': 'Comprehensive solutions tailored to your needs',
+                'subheading_2': 'Discover our range of professional services designed to elevate your business',
+                'subheading_3': 'Six core services that drive exceptional results',
+                'learn_more': 'Learn More',
+                'explore': 'Explore'
+            }
+        heading = what_we_offer_data.get('heading', 'What We Offer')
+        subheading_1 = what_we_offer_data.get('subheading_1', 'Comprehensive solutions tailored to your needs')
+        subheading_2 = what_we_offer_data.get('subheading_2', 'Discover our range of professional services designed to elevate your business')
+        subheading_3 = what_we_offer_data.get('subheading_3', 'Six core services that drive exceptional results')
+        learn_more = what_we_offer_data.get('learn_more', 'Learn More')
+        explore = what_we_offer_data.get('explore', 'Explore')
+
         if variation == 1:
             return f"""
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center mb-4">What We Offer</h2>
-            <p class="text-gray-600 text-center mb-12 text-lg">Comprehensive solutions tailored to your needs</p>
+            <h2 class="text-4xl font-bold text-center mb-4">{heading}</h2>
+            <p class="text-gray-600 text-center mb-12 text-lg">{subheading_1}</p>
             <div class="grid md:grid-cols-3 gap-6">
                 <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
                     <h4 class="text-xl font-bold mb-3">{services[0]['title']}</h4>
                     <p class="text-gray-600 mb-4">{services[0]['description']}</p>
                     <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                        Learn More →
+                        {learn_more} →
                     </a>
                 </div>
                 <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
                     <h4 class="text-xl font-bold mb-3">{services[1]['title']}</h4>
                     <p class="text-gray-600 mb-4">{services[1]['description']}</p>
                     <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                        Learn More →
+                        {learn_more} →
                     </a>
                 </div>
                 <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
                     <h4 class="text-xl font-bold mb-3">{services[2]['title']}</h4>
                     <p class="text-gray-600 mb-4">{services[2]['description']}</p>
                     <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                        Learn More →
+                        {learn_more} →
                     </a>
                 </div>
                 <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
                     <h4 class="text-xl font-bold mb-3">{services[3]['title']}</h4>
                     <p class="text-gray-600 mb-4">{services[3]['description']}</p>
                     <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                        Learn More →
+                        {learn_more} →
                     </a>
                 </div>
                 <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
                     <h4 class="text-xl font-bold mb-3">{services[4]['title']}</h4>
                     <p class="text-gray-600 mb-4">{services[4]['description']}</p>
                     <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                        Learn More →
+                        {learn_more} →
                     </a>
                 </div>
                 <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
                     <h4 class="text-xl font-bold mb-3">{services[5]['title']}</h4>
                     <p class="text-gray-600 mb-4">{services[5]['description']}</p>
                     <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                        Learn More →
+                        {learn_more} →
                     </a>
                 </div>
             </div>
@@ -2488,8 +2584,8 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
     <section class="py-20 bg-gradient-to-br from-gray-50 to-white">
         <div class="container mx-auto px-6">
             <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold mb-4">What We Offer</h2>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Discover our range of professional services designed to elevate your business</p>
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">{heading}</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">{subheading_2}</p>
             </div>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
@@ -2502,7 +2598,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     <h3 class="text-2xl font-bold mb-4">{services[0]['title']}</h3>
                     <p class="text-gray-600 leading-relaxed mb-6">{services[0]['description']}</p>
                     <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
-                        Explore <span class="ml-2">→</span>
+                        {explore} <span class="ml-2">→</span>
                     </a>
                 </div>
 
@@ -2515,7 +2611,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     <h3 class="text-2xl font-bold mb-4">{services[1]['title']}</h3>
                     <p class="text-gray-600 leading-relaxed mb-6">{services[1]['description']}</p>
                     <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
-                        Explore <span class="ml-2">→</span>
+                        {explore} <span class="ml-2">→</span>
                     </a>
                 </div>
 
@@ -2528,7 +2624,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     <h3 class="text-2xl font-bold mb-4">{services[2]['title']}</h3>
                     <p class="text-gray-600 leading-relaxed mb-6">{services[2]['description']}</p>
                     <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
-                        Explore <span class="ml-2">→</span>
+                        {explore} <span class="ml-2">→</span>
                     </a>
                 </div>
 
@@ -2541,7 +2637,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     <h3 class="text-2xl font-bold mb-4">{services[3]['title']}</h3>
                     <p class="text-gray-600 leading-relaxed mb-6">{services[3]['description']}</p>
                     <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
-                        Explore <span class="ml-2">→</span>
+                        {explore} <span class="ml-2">→</span>
                     </a>
                 </div>
 
@@ -2554,7 +2650,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     <h3 class="text-2xl font-bold mb-4">{services[4]['title']}</h3>
                     <p class="text-gray-600 leading-relaxed mb-6">{services[4]['description']}</p>
                     <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
-                        Explore <span class="ml-2">→</span>
+                        {explore} <span class="ml-2">→</span>
                     </a>
                 </div>
 
@@ -2567,7 +2663,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     <h3 class="text-2xl font-bold mb-4">{services[5]['title']}</h3>
                     <p class="text-gray-600 leading-relaxed mb-6">{services[5]['description']}</p>
                     <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
-                        Explore <span class="ml-2">→</span>
+                        {explore} <span class="ml-2">→</span>
                     </a>
                 </div>
             </div>
@@ -2579,8 +2675,8 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
     <section class="py-20 bg-gray-50">
         <div class="container mx-auto px-6">
             <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold mb-4">What We Offer</h2>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Six core services that drive exceptional results</p>
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">{heading}</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">{subheading_3}</p>
             </div>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
@@ -6566,6 +6662,24 @@ Return ONLY the content for <main> tag."""
         # Определяем номер статьи (1-6)
         article_number = int(page_name.replace('blog', ''))
 
+        # Получаем переводы для blog navigation
+        blog_nav_data = self.generate_theme_content_via_api(theme, "blog_navigation_content", 1)
+        if not blog_nav_data:
+            blog_nav_data = {
+                'interested_services': 'Interested in Our Services?',
+                'get_in_touch_today': 'Get in touch with us today to learn how we can help your business grow.',
+                'contact_us': 'Contact Us',
+                'previous_article': 'Previous Article',
+                'next_article': 'Next Article',
+                'published_on': 'Published on'
+            }
+        interested_services = blog_nav_data.get('interested_services', 'Interested in Our Services?')
+        get_in_touch_today = blog_nav_data.get('get_in_touch_today', 'Get in touch with us today to learn how we can help your business grow.')
+        contact_us = blog_nav_data.get('contact_us', 'Contact Us')
+        previous_article = blog_nav_data.get('previous_article', 'Previous Article')
+        next_article = blog_nav_data.get('next_article', 'Next Article')
+        published_on = blog_nav_data.get('published_on', 'Published on')
+
         # Генерируем контент статьи через API
         article_data = self.generate_theme_content_via_api(theme, "blog_article_full", article_number)
 
@@ -6645,7 +6759,7 @@ Return ONLY the content for <main> tag."""
                         <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                         </svg>
-                        Previous Article
+                        {previous_article}
                     </a>
                 '''
             else:
@@ -6654,7 +6768,7 @@ Return ONLY the content for <main> tag."""
             if current_nav['next']:
                 nav_buttons += f'''
                     <a href="{current_nav['next']}" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition">
-                        Next Article
+                        {next_article}
                         <svg class="w-5 h-5 ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                         </svg>
@@ -6668,9 +6782,9 @@ Return ONLY the content for <main> tag."""
             # Без стрелок - простые текстовые ссылки
             nav_links = []
             if current_nav['prev']:
-                nav_links.append(f'<a href="{current_nav["prev"]}" class="text-{primary} hover:text-{hover} font-semibold transition">Previous Article</a>')
+                nav_links.append(f'<a href="{current_nav["prev"]}" class="text-{primary} hover:text-{hover} font-semibold transition">{previous_article}</a>')
             if current_nav['next']:
-                nav_links.append(f'<a href="{current_nav["next"]}" class="text-{primary} hover:text-{hover} font-semibold transition">Next Article</a>')
+                nav_links.append(f'<a href="{current_nav["next"]}" class="text-{primary} hover:text-{hover} font-semibold transition">{next_article}</a>')
 
             if nav_links:
                 separator = ' <span class="text-gray-400">|</span> '
@@ -6694,7 +6808,7 @@ Return ONLY the content for <main> tag."""
 <section class="py-20 bg-white">
     <div class="container mx-auto px-6 max-w-4xl">
         <h1 class="text-4xl md:text-5xl font-bold mb-4">{blog_titles[page_name]}</h1>
-        <p class="text-gray-500 mb-8">Published on {article_date} by {article_author}</p>
+        <p class="text-gray-500 mb-8">{published_on} {article_date} by {article_author}</p>
 
         {image_section}
 
@@ -6705,10 +6819,10 @@ Return ONLY the content for <main> tag."""
         {nav_buttons}
 
         <div class="mt-12 p-8 bg-gradient-to-br from-{primary}/10 to-{primary}/5 rounded-xl text-center">
-            <h3 class="text-2xl font-bold mb-4">Interested in Our Services?</h3>
-            <p class="text-gray-700 mb-6">Get in touch with us today to learn how we can help your business grow.</p>
+            <h3 class="text-2xl font-bold mb-4">{interested_services}</h3>
+            <p class="text-gray-700 mb-6">{get_in_touch_today}</p>
             <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition">
-                Contact Us
+                {contact_us}
             </a>
         </div>
     </div>
@@ -6769,6 +6883,18 @@ Return ONLY the content for <main> tag."""
         subheading = blog_page_data.get('subheading', f'Insights, tips, and news about {theme}')
         read_more_text = blog_page_data.get('read_more', 'Read More')
         no_posts_text = blog_page_data.get('no_posts', 'No blog posts available yet')
+
+        # Получаем переводы для blog navigation
+        blog_nav_data = self.generate_theme_content_via_api(theme, "blog_navigation_content", 1)
+        if not blog_nav_data:
+            blog_nav_data = {
+                'want_learn_more': 'Want to Learn More?',
+                'contact_specific_needs': 'Contact us to discuss your specific needs and how we can help.',
+                'get_in_touch': 'Get in Touch'
+            }
+        want_learn_more = blog_nav_data.get('want_learn_more', 'Want to Learn More?')
+        contact_specific_needs = blog_nav_data.get('contact_specific_needs', 'Contact us to discuss your specific needs and how we can help.')
+        get_in_touch = blog_nav_data.get('get_in_touch', 'Get in Touch')
 
         # Генерируем статьи через API
         api_blog_posts = self.generate_theme_content_via_api(theme, "blog_posts", 6)
@@ -6831,6 +6957,9 @@ Return ONLY the content for <main> tag."""
                     'image': f'images/blog{i+1}.jpg'
                 })
 
+        # КРИТИЧЕСКИ ВАЖНО: Сохраняем blog posts в blueprint для использования в generate_blog_page
+        self.blueprint['blog_posts_previews'] = all_blog_articles
+
 
         # Используем заранее определенное количество статей (3 или 6)
         # self.num_blog_articles уже установлено в generate_website()
@@ -6880,10 +7009,10 @@ Return ONLY the content for <main> tag."""
 <section class="py-20 bg-gray-50">
     <div class="container mx-auto px-6">
         <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-4xl font-bold mb-6">Want to Learn More?</h2>
-            <p class="text-xl text-gray-600 mb-8">Contact us to discuss your specific needs and how we can help.</p>
+            <h2 class="text-4xl font-bold mb-6">{want_learn_more}</h2>
+            <p class="text-xl text-gray-600 mb-8">{contact_specific_needs}</p>
             <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition">
-                Get in Touch
+                {get_in_touch}
             </a>
         </div>
     </div>
