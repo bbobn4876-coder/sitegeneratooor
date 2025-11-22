@@ -1171,6 +1171,9 @@ Return as JSON object with these EXACT fields:
 - "legal": "Legal" section title (1 word)
 - "legal_info": "Legal Information" title (2 words)
 - "all_rights": "All rights reserved" text (3-4 words)
+- "privacy_policy": "Privacy Policy" translation (2-3 words)
+- "terms_of_service": "Terms of Service" translation (3-4 words)
+- "cookie_policy": "Cookie Policy" translation (2-3 words)
 
 Be specific to {theme} industry.{language_instruction}
 
@@ -1180,7 +1183,33 @@ Example:
   "quick_links": "Quick Links",
   "legal": "Legal",
   "legal_info": "Legal Information",
-  "all_rights": "All rights reserved"
+  "all_rights": "All rights reserved",
+  "privacy_policy": "Privacy Policy",
+  "terms_of_service": "Terms of Service",
+  "cookie_policy": "Cookie Policy"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "menu_content":
+            prompt = f"""Generate navigation menu translations for a {theme} business website.
+
+Return as JSON object with these EXACT fields:
+- "home": Translation for "Home" page
+- "company": Translation for "Company" or "About" page
+- "services": Translation for "Services" page
+- "blog": Translation for "Blog" page
+- "contact": Translation for "Contact" page
+
+{language_instruction}
+
+Example:
+{{
+  "home": "Home",
+  "company": "Company",
+  "services": "Services",
+  "blog": "Blog",
+  "contact": "Contact"
 }}
 
 Return ONLY valid JSON, no additional text or markdown formatting."""
@@ -1194,10 +1223,12 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             max_tokens = 3000  # Больше токенов для 4 детальных кейсов
         elif content_type in ["services", "featured_solutions", "process_steps", "blog_posts", "benefits_content"]:
             max_tokens = 2500  # Увеличенный лимит для списков
+        elif content_type in ["approach_content", "about_content", "gallery_content"]:
+            max_tokens = 2500  # Увеличенный лимит для контента с несколькими параграфами
         elif content_type == "testimonials_content":
             max_tokens = 2000  # Достаточно для 3 отзывов
         else:
-            max_tokens = 1500  # Для простых объектов (hero, achievements, cta, contact, blog, policy)
+            max_tokens = 1800  # Для простых объектов (hero, achievements, cta, contact, blog, policy, footer)
 
         print(f"    🤖 Генерация контента для темы '{theme}' ({content_type})...")
         response = self.call_api(prompt, max_tokens=max_tokens)
@@ -1262,7 +1293,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     print(f"    ⚠️  Получено {len(content)} элементов вместо {num_items} для {content_type}, используем их")
 
             # Для объектных типов контента - проверяем что это словарь
-            elif content_type in ["hero_content", "achievements_content", "cta_content", "contact_page_content", "blog_page_content", "policy_content", "footer_content"]:
+            elif content_type in ["hero_content", "achievements_content", "cta_content", "contact_page_content", "blog_page_content", "policy_content", "footer_content", "menu_content", "about_content", "gallery_content", "approach_content"]:
                 if not isinstance(content, dict):
                     print(f"    ⚠️  Получен неверный тип данных для {content_type}, используем fallback")
                     return None
@@ -2343,10 +2374,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     </div>
                     <div class="pt-4">
                         <h3 class="text-2xl font-bold mb-4 text-gray-900">{services[0]['title']}</h3>
-                        <p class="text-gray-600 leading-relaxed mb-6">{services[0]['description']}</p>
-                        <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
-                            Get Started <span class="ml-2">→</span>
-                        </div>
+                        <p class="text-gray-600 leading-relaxed">{services[0]['description']}</p>
                     </div>
                 </div>
 
@@ -2356,10 +2384,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     </div>
                     <div class="pt-4">
                         <h3 class="text-2xl font-bold mb-4 text-gray-900">{services[1]['title']}</h3>
-                        <p class="text-gray-600 leading-relaxed mb-6">{services[1]['description']}</p>
-                        <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
-                            Get Started <span class="ml-2">→</span>
-                        </div>
+                        <p class="text-gray-600 leading-relaxed">{services[1]['description']}</p>
                     </div>
                 </div>
 
@@ -2369,10 +2394,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     </div>
                     <div class="pt-4">
                         <h3 class="text-2xl font-bold mb-4 text-gray-900">{services[2]['title']}</h3>
-                        <p class="text-gray-600 leading-relaxed mb-6">{services[2]['description']}</p>
-                        <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
-                            Get Started <span class="ml-2">→</span>
-                        </div>
+                        <p class="text-gray-600 leading-relaxed">{services[2]['description']}</p>
                     </div>
                 </div>
 
@@ -2382,10 +2404,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     </div>
                     <div class="pt-4">
                         <h3 class="text-2xl font-bold mb-4 text-gray-900">{services[3]['title']}</h3>
-                        <p class="text-gray-600 leading-relaxed mb-6">{services[3]['description']}</p>
-                        <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
-                            Get Started <span class="ml-2">→</span>
-                        </div>
+                        <p class="text-gray-600 leading-relaxed">{services[3]['description']}</p>
                     </div>
                 </div>
 
@@ -2395,10 +2414,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     </div>
                     <div class="pt-4">
                         <h3 class="text-2xl font-bold mb-4 text-gray-900">{services[4]['title']}</h3>
-                        <p class="text-gray-600 leading-relaxed mb-6">{services[4]['description']}</p>
-                        <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
-                            Get Started <span class="ml-2">→</span>
-                        </div>
+                        <p class="text-gray-600 leading-relaxed">{services[4]['description']}</p>
                     </div>
                 </div>
 
@@ -2408,10 +2424,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     </div>
                     <div class="pt-4">
                         <h3 class="text-2xl font-bold mb-4 text-gray-900">{services[5]['title']}</h3>
-                        <p class="text-gray-600 leading-relaxed mb-6">{services[5]['description']}</p>
-                        <div class="flex items-center text-{primary} font-semibold group-hover:translate-x-2 transition-transform">
-                            Get Started <span class="ml-2">→</span>
-                        </div>
+                        <p class="text-gray-600 leading-relaxed">{services[5]['description']}</p>
                     </div>
                 </div>
             </div>
@@ -3769,19 +3782,32 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             selected_font = random.choice(font_options)
             self.selected_font = selected_font  # Сохраняем для использования в других местах
 
+            # Получаем переводы меню через API
+            menu_content = self.generate_theme_content_via_api(theme, "menu_content", 1)
+
+            # Fallback если API не вернул результат
+            if not menu_content:
+                menu_content = {
+                    'home': 'Home',
+                    'company': 'Company',
+                    'services': 'Services',
+                    'blog': 'Blog',
+                    'contact': 'Contact'
+                }
+
             # Определяем страницы в зависимости от типа сайта
             if self.site_type == "landing":
                 nav_pages = [
-                    ('Home', 'index.php'),
-                    ('Contact', 'index.php#contact')
+                    (menu_content.get('home', 'Home'), 'index.php'),
+                    (menu_content.get('contact', 'Contact'), 'index.php#contact')
                 ]
             else:
                 nav_pages = [
-                    ('Home', 'index.php'),
-                    ('Company', 'company.php'),
-                    ('Services', 'services.php'),
-                    ('Blog', 'blog.php'),
-                    ('Contact', 'contact.php')
+                    (menu_content.get('home', 'Home'), 'index.php'),
+                    (menu_content.get('company', 'Company'), 'company.php'),
+                    (menu_content.get('services', 'Services'), 'services.php'),
+                    (menu_content.get('blog', 'Blog'), 'blog.php'),
+                    (menu_content.get('contact', 'Contact'), 'contact.php')
                 ]
             
             # Случайный выбор варианта header (2 варианта)
@@ -3853,20 +3879,6 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 </header>"""
             
             print(f"  ✓ Header создан (вариант {header_variant}/2) с навигацией")
-            
-            # ГАРАНТИРОВАННЫЙ FOOTER (всегда создается, даже если API не отвечает)
-            footer_links = [
-                ('Home', 'index.php'),
-                ('Privacy Policy', 'privacy.php'),
-                ('Terms of Service', 'terms.php'),
-                ('Cookie Policy', 'cookie.php')
-            ]
-            
-            if self.site_type == "multipage":
-                footer_links.insert(1, ('Company', 'company.php'))
-                footer_links.insert(2, ('Services', 'services.php'))
-                footer_links.insert(3, ('Blog', 'blog.php'))
-                footer_links.insert(4, ('Contact', 'contact.php'))
 
             # Получаем контент footer через API
             footer_content = self.generate_theme_content_via_api(theme, "footer_content", 1)
@@ -3878,8 +3890,26 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     'quick_links': 'Quick Links',
                     'legal': 'Legal',
                     'legal_info': 'Legal Information',
-                    'all_rights': 'All rights reserved'
+                    'all_rights': 'All rights reserved',
+                    'privacy_policy': 'Privacy Policy',
+                    'terms_of_service': 'Terms of Service',
+                    'cookie_policy': 'Cookie Policy'
                 }
+
+            # ГАРАНТИРОВАННЫЙ FOOTER (всегда создается, даже если API не отвечает)
+            # Используем переводы из menu_content и footer_content
+            footer_links = [
+                (menu_content.get('home', 'Home'), 'index.php'),
+                (footer_content.get('privacy_policy', 'Privacy Policy'), 'privacy.php'),
+                (footer_content.get('terms_of_service', 'Terms of Service'), 'terms.php'),
+                (footer_content.get('cookie_policy', 'Cookie Policy'), 'cookie.php')
+            ]
+
+            if self.site_type == "multipage":
+                footer_links.insert(1, (menu_content.get('company', 'Company'), 'company.php'))
+                footer_links.insert(2, (menu_content.get('services', 'Services'), 'services.php'))
+                footer_links.insert(3, (menu_content.get('blog', 'Blog'), 'blog.php'))
+                footer_links.insert(4, (menu_content.get('contact', 'Contact'), 'contact.php'))
 
             tagline = footer_content.get('tagline', f'Your trusted partner in {theme}')
             quick_links_title = footer_content.get('quick_links', 'Quick Links')
@@ -3887,9 +3917,10 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             legal_info_title = footer_content.get('legal_info', 'Legal Information')
             all_rights_text = footer_content.get('all_rights', 'All rights reserved')
 
-            # Разделяем ссылки на основные страницы и policy страницы
-            main_links = [link for link in footer_links if link[0] not in ['Privacy Policy', 'Terms of Service', 'Cookie Policy']]
-            policy_links = [link for link in footer_links if link[0] in ['Privacy Policy', 'Terms of Service', 'Cookie Policy']]
+            # Разделяем ссылки на основные страницы и policy страницы (по URL вместо названий)
+            policy_urls = ['privacy.php', 'terms.php', 'cookie.php']
+            main_links = [link for link in footer_links if link[1] not in policy_urls]
+            policy_links = [link for link in footer_links if link[1] in policy_urls]
             
             # Случайный выбор варианта footer (4 варианта - убран вариант 3)
             footer_variant = random.choice([1, 2, 4, 5])  # Пропускаем вариант 3
@@ -4585,8 +4616,8 @@ setTimeout(showCookieNotice, 1000);
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
             <div class="text-center mb-12">
-                <h1 class="text-5xl md:text-6xl font-bold mb-6">Contact Us</h1>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Let's discuss your project and bring your ideas to life</p>
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">{heading}</h1>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">{subheading}</p>
             </div>
 
             <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl p-10 mb-16">
@@ -6577,51 +6608,67 @@ Return ONLY the content for <main> tag."""
         read_more_text = blog_page_data.get('read_more', 'Read More')
         no_posts_text = blog_page_data.get('no_posts', 'No blog posts available yet')
 
-        # Полный список статей (6 штук)
-        all_blog_articles = [
-            {
-                'title': f'The Future of {theme}',
-                'url': 'blog1.php',
-                'excerpt': f'Explore the latest innovations in {theme} and what they mean for your business.',
-                'date': 'November 15, 2025',
-                'image': 'images/blog1.jpg'
-            },
-            {
-                'title': f'Top 5 Trends in {theme}',
-                'url': 'blog2.php',
-                'excerpt': f'Stay competitive with these emerging trends in the {theme} industry.',
-                'date': 'November 10, 2025',
-                'image': 'images/blog2.jpg'
-            },
-            {
-                'title': f'How to Choose the Right {theme} Service',
-                'url': 'blog3.php',
-                'excerpt': f'A comprehensive guide to selecting the best {theme} solution for your needs.',
-                'date': 'November 5, 2025',
-                'image': 'images/blog3.jpg'
-            },
-            {
-                'title': f'Best Practices for {theme} Success',
-                'url': 'blog4.php',
-                'excerpt': f'Learn proven strategies and techniques to maximize your {theme} results.',
-                'date': 'November 1, 2025',
-                'image': 'images/blog4.jpg'
-            },
-            {
-                'title': f'Common {theme} Mistakes to Avoid',
-                'url': 'blog5.php',
-                'excerpt': f'Discover the pitfalls that could derail your {theme} projects and how to avoid them.',
-                'date': 'October 28, 2025',
-                'image': 'images/blog5.jpg'
-            },
-            {
-                'title': f'The Complete {theme} Guide',
-                'url': 'blog6.php',
-                'excerpt': f'Everything you need to know about {theme} in one comprehensive resource.',
-                'date': 'October 25, 2025',
-                'image': 'images/blog6.jpg'
-            }
-        ]
+        # Генерируем статьи через API
+        api_blog_posts = self.generate_theme_content_via_api(theme, "blog_posts", 6)
+
+        # Fallback если API не вернул результат
+        if not api_blog_posts or len(api_blog_posts) < 6:
+            all_blog_articles = [
+                {
+                    'title': f'The Future of {theme}',
+                    'url': 'blog1.php',
+                    'excerpt': f'Explore the latest innovations in {theme} and what they mean for your business.',
+                    'date': 'November 15, 2025',
+                    'image': 'images/blog1.jpg'
+                },
+                {
+                    'title': f'Top 5 Trends in {theme}',
+                    'url': 'blog2.php',
+                    'excerpt': f'Stay competitive with these emerging trends in the {theme} industry.',
+                    'date': 'November 10, 2025',
+                    'image': 'images/blog2.jpg'
+                },
+                {
+                    'title': f'How to Choose the Right {theme} Service',
+                    'url': 'blog3.php',
+                    'excerpt': f'A comprehensive guide to selecting the best {theme} solution for your needs.',
+                    'date': 'November 5, 2025',
+                    'image': 'images/blog3.jpg'
+                },
+                {
+                    'title': f'Best Practices for {theme} Success',
+                    'url': 'blog4.php',
+                    'excerpt': f'Learn proven strategies and techniques to maximize your {theme} results.',
+                    'date': 'November 1, 2025',
+                    'image': 'images/blog4.jpg'
+                },
+                {
+                    'title': f'Common {theme} Mistakes to Avoid',
+                    'url': 'blog5.php',
+                    'excerpt': f'Discover the pitfalls that could derail your {theme} projects and how to avoid them.',
+                    'date': 'October 28, 2025',
+                    'image': 'images/blog5.jpg'
+                },
+                {
+                    'title': f'The Complete {theme} Guide',
+                    'url': 'blog6.php',
+                    'excerpt': f'Everything you need to know about {theme} in one comprehensive resource.',
+                    'date': 'October 25, 2025',
+                    'image': 'images/blog6.jpg'
+                }
+            ]
+        else:
+            # Используем данные из API и добавляем URL и изображения
+            all_blog_articles = []
+            for i, post in enumerate(api_blog_posts[:6]):
+                all_blog_articles.append({
+                    'title': post.get('title', f'{theme} Article {i+1}'),
+                    'url': f'blog{i+1}.php',
+                    'excerpt': post.get('excerpt', f'Read about {theme}...'),
+                    'date': post.get('date', 'November 2025'),
+                    'image': f'images/blog{i+1}.jpg'
+                })
+
 
         # Используем заранее определенное количество статей (3 или 6)
         # self.num_blog_articles уже установлено в generate_website()
