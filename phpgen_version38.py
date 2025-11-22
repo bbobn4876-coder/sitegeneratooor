@@ -1468,17 +1468,45 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
             # Проверяем что получили ожидаемую структуру
             if content_type == "work_showcase":
-                if not isinstance(content, list) or len(content) < 4:
-                    print(f"    ⚠️  Получено меньше 4 кейсов ({len(content) if isinstance(content, list) else 0}), используем fallback")
+                if not isinstance(content, dict):
+                    print(f"    ⚠️  Получен неверный тип данных для {content_type} (ожидается объект), используем fallback")
+                    return None
+                if "cases" not in content or not isinstance(content["cases"], list) or len(content["cases"]) < 4:
+                    cases_len = len(content.get("cases", [])) if isinstance(content.get("cases"), list) else 0
+                    print(f"    ⚠️  Получено меньше 4 кейсов ({cases_len}), используем fallback")
                     return None
 
             # Для других типов списков - проверяем что получили хотя бы что-то
-            elif content_type in ["services", "featured_solutions", "process_steps", "blog_posts", "testimonials_content", "benefits_content"]:
+            elif content_type in ["services", "featured_solutions", "process_steps", "blog_posts"]:
                 if not isinstance(content, list) or len(content) == 0:
                     print(f"    ⚠️  Не получено элементов для {content_type}, используем fallback")
                     return None
                 elif len(content) < num_items:
                     print(f"    ⚠️  Получено {len(content)} элементов вместо {num_items} для {content_type}, используем их")
+
+            # Проверка для benefits_content - объект с массивом benefits
+            elif content_type == "benefits_content":
+                if not isinstance(content, dict):
+                    print(f"    ⚠️  Получен неверный тип данных для {content_type} (ожидается объект), используем fallback")
+                    return None
+                if "benefits" not in content or not isinstance(content["benefits"], list) or len(content["benefits"]) == 0:
+                    benefits_len = len(content.get("benefits", [])) if isinstance(content.get("benefits"), list) else 0
+                    print(f"    ⚠️  Не получено элементов для benefits ({benefits_len}), используем fallback")
+                    return None
+                elif len(content["benefits"]) < num_items:
+                    print(f"    ⚠️  Получено {len(content['benefits'])} элементов вместо {num_items} для benefits, используем их")
+
+            # Проверка для testimonials_content - объект с массивом testimonials
+            elif content_type == "testimonials_content":
+                if not isinstance(content, dict):
+                    print(f"    ⚠️  Получен неверный тип данных для {content_type} (ожидается объект), используем fallback")
+                    return None
+                if "testimonials" not in content or not isinstance(content["testimonials"], list) or len(content["testimonials"]) == 0:
+                    testimonials_len = len(content.get("testimonials", [])) if isinstance(content.get("testimonials"), list) else 0
+                    print(f"    ⚠️  Не получено элементов для testimonials ({testimonials_len}), используем fallback")
+                    return None
+                elif len(content["testimonials"]) < num_items:
+                    print(f"    ⚠️  Получено {len(content['testimonials'])} элементов вместо {num_items} для testimonials, используем их")
 
             # Для объектных типов контента - проверяем что это словарь
             elif content_type in ["hero_content", "achievements_content", "cta_content", "contact_page_content", "blog_page_content", "policy_content", "footer_content", "menu_content", "about_content", "gallery_content", "approach_content", "blog_article_full"]:
