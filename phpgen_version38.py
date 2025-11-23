@@ -6,6 +6,7 @@ import zipfile
 import shutil
 import base64
 import random
+import time
 from pathlib import Path
 from byteplussdkarkruntime import Ark
 from byteplussdkarkruntime.types.images.images import SequentialImageGenerationOptions
@@ -17,8 +18,56 @@ try:
 except ImportError:
     win32clipboard = None  # type: ignore
 
+# Опциональный импорт для воспроизведения звука
+try:
+    import winsound  # type: ignore
+except ImportError:
+    winsound = None  # type: ignore
+
 # Загрузка переменных окружения из .env файла (если есть)
 load_dotenv()
+
+# ============================================================================
+# SOUND NOTIFICATION FUNCTION
+# ============================================================================
+def play_notification_sound():
+    """Воспроизведение звукового уведомления после завершения генерации"""
+    notification_file = "notification.mp3"
+
+    try:
+        # Проверяем наличие файла notification.mp3
+        if os.path.exists(notification_file):
+            # Для Windows используем winsound
+            if winsound and os.name == 'nt':
+                try:
+                    # Конвертируем mp3 в wav временно или используем системный звук
+                    winsound.PlaySound(notification_file, winsound.SND_FILENAME | winsound.SND_ASYNC)
+                except:
+                    # Если не получилось, используем системный beep
+                    winsound.MessageBeep()
+            else:
+                # Для Linux/Mac пытаемся использовать системные команды
+                try:
+                    if os.name == 'posix':
+                        os.system(f'mpg123 -q "{notification_file}" 2>/dev/null &')
+                except:
+                    pass
+        else:
+            # Если файла нет, используем системный beep для Windows
+            if winsound and os.name == 'nt':
+                # Играем мелодичный beep
+                winsound.Beep(800, 200)  # частота 800Hz, длительность 200ms
+                time.sleep(0.1)
+                winsound.Beep(1000, 300)  # частота 1000Hz, длительность 300ms
+            else:
+                # Для Linux/Mac используем системный beep
+                try:
+                    os.system('printf "\\a"')
+                except:
+                    pass
+    except Exception as e:
+        # Тихо игнорируем ошибки воспроизведения звука
+        pass
 
 # ============================================================================
 # SECURITY SYSTEM - PASSWORD AUTHENTICATION WITH DEVICE MEMORY
@@ -8249,15 +8298,29 @@ if __name__ == "__main__":
 
     try:
         success = generator.generate_website(user_prompt, site_name=site_name, num_images=num_images, output_dir=output_dir, data_dir=data_dir, site_type=site_type)
-        
+
         if success:
             print("\n✨ Готово!")
         else:
             print("\n⚠️  Генерация завершена с предупреждениями")
-            
+
+        # Воспроизводим звуковое уведомление
+        print("\n🔔 Воспроизведение звукового сигнала...")
+        play_notification_sound()
+
+        # Ждем 6 секунд перед закрытием
+        print("⏱️  Консоль закроется через 6 секунд...")
+        time.sleep(6)
+
     except KeyboardInterrupt:
         print("\n\n⚠️  Прервано пользователем")
+        # Воспроизводим звук и ждем даже при прерывании
+        play_notification_sound()
+        time.sleep(6)
     except Exception as e:
         print(f"\n❌ Критическая ошибка: {e}")
         import traceback
         traceback.print_exc()
+        # Воспроизводим звук и ждем даже при ошибке
+        play_notification_sound()
+        time.sleep(6)
