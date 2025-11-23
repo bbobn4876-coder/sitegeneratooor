@@ -34,9 +34,9 @@ load_dotenv()
 def play_notification_sound():
     """Воспроизведение звукового уведомления после завершения генерации"""
     # Получаем путь к директории, где находится .exe файл
-    if getattr(sys, 'frozen', False):
+    if getattr(sys, 'frozen', False):  # type: ignore
         # Если программа запущена как .exe (PyInstaller)
-        exe_dir = os.path.dirname(sys.executable)
+        exe_dir = os.path.dirname(sys.executable)  # type: ignore
     else:
         # Если программа запущена как скрипт
         exe_dir = os.path.dirname(os.path.abspath(__file__))
