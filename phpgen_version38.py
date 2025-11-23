@@ -1672,6 +1672,29 @@ Example:
 
 Return ONLY valid JSON, no additional text or markdown formatting."""
 
+        elif content_type == "services_page_content":
+            prompt = f"""Generate translation content for a Services page for a {theme} business website.
+
+Return as JSON object with these EXACT fields:
+- "section_heading": Services section heading (2-3 words, e.g., "Our Services")
+- "section_description": Brief description of services (15-25 words)
+- "get_started_button": Button text for service cards (2-3 words, e.g., "Get Started")
+- "contact_cta": Call-to-action heading at bottom (4-8 words)
+- "contact_cta_description": CTA description (15-25 words)
+
+{language_instruction}
+
+Example:
+{{
+  "section_heading": "Our Services",
+  "section_description": "We offer comprehensive solutions tailored to meet your unique needs. Discover how our expertise can help your business grow.",
+  "get_started_button": "Get Started",
+  "contact_cta": "Ready to Get Started?",
+  "contact_cta_description": "Contact us today to discuss how our services can help you achieve your goals and drive success."
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
         elif content_type == "our_approach_blocks":
             prompt = f"""Generate "Our Approach" section blocks for a {theme} business website.
 
@@ -6284,6 +6307,246 @@ setTimeout(showCookieNotice, 1000);
     </section>
 </main>"""
 
+    def generate_services_page(self, site_name, primary, hover):
+        """Генерация Services страницы с 4 вариациями"""
+        theme = self.blueprint.get('theme', 'business')
+
+        # Получаем переводы services page через API
+        services_content = self.generate_theme_content_via_api(theme, "services_page_content", 1)
+
+        # Получаем данные о сервисах (3 для вариаций 1-2, 1 для вариаций 3-4)
+        services_data_3 = self.generate_theme_content_via_api(theme, "services", 3)
+        services_data_1 = self.generate_theme_content_via_api(theme, "services", 1)
+
+        # Fallback если API не вернул результат
+        if not services_content:
+            services_content = {
+                'section_heading': 'Our Services',
+                'section_description': 'We offer comprehensive solutions tailored to meet your unique needs. Discover how our expertise can help your business grow.',
+                'get_started_button': 'Get Started',
+                'contact_cta': 'Ready to Get Started?',
+                'contact_cta_description': 'Contact us today to discuss how our services can help you achieve your goals and drive success.'
+            }
+
+        if not services_data_3:
+            services_data_3 = [
+                {'title': 'Professional Services', 'description': 'Expert solutions tailored to your needs.'},
+                {'title': 'Consultation', 'description': 'Strategic guidance for your business.'},
+                {'title': 'Support', 'description': 'Ongoing assistance and maintenance.'}
+            ]
+
+        if not services_data_1:
+            services_data_1 = [
+                {'title': 'Professional Services', 'description': 'Expert solutions tailored to your needs with comprehensive support and guidance.'}
+            ]
+
+        services_variant = random.randint(1, 4)
+
+        # Вариация 1: 3 блока в сетке
+        if services_variant == 1:
+            service_cards = ""
+            for i, service in enumerate(services_data_3, 1):
+                service_cards += f"""
+                <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group">
+                    <div class="h-64 overflow-hidden">
+                        <img src="images/service{i}.jpg" alt="{service['title']}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                    </div>
+                    <div class="p-8">
+                        <h3 class="text-2xl font-bold mb-4">{service['title']}</h3>
+                        <p class="text-gray-600 mb-6 leading-relaxed">{service['description']}</p>
+                        <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-3 rounded-lg font-semibold transition">
+                            {services_content.get('get_started_button', 'Get Started')}
+                        </a>
+                    </div>
+                </div>"""
+
+            return f"""<main>
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h1 class="text-5xl font-bold mb-6">{services_content.get('section_heading', 'Our Services')}</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">{services_content.get('section_description', 'We offer comprehensive solutions tailored to your needs.')}</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 mb-16">
+                {service_cards}
+            </div>
+
+            <div class="bg-{primary} text-white rounded-3xl p-12 text-center">
+                <h2 class="text-4xl font-bold mb-4">{services_content.get('contact_cta', 'Ready to Get Started?')}</h2>
+                <p class="text-xl mb-8 opacity-90">{services_content.get('contact_cta_description', 'Contact us today to discuss your needs.')}</p>
+                <a href="contact.php" class="inline-block bg-white text-{primary} hover:bg-gray-100 px-10 py-4 rounded-lg text-lg font-bold transition shadow-lg">
+                    {services_content.get('get_started_button', 'Get Started')}
+                </a>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 2: 2 блока в сетке
+        elif services_variant == 2:
+            # Используем только первые 2 сервиса
+            services_data_2 = services_data_3[:2]
+            service_cards = ""
+            for i, service in enumerate(services_data_2, 1):
+                service_cards += f"""
+                <div class="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden">
+                    <div class="h-80 overflow-hidden">
+                        <img src="images/service{i}.jpg" alt="{service['title']}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+                    </div>
+                    <div class="p-10">
+                        <h3 class="text-3xl font-bold mb-4 text-gray-900">{service['title']}</h3>
+                        <p class="text-gray-600 mb-8 text-lg leading-relaxed">{service['description']}</p>
+                        <a href="contact.php" class="inline-flex items-center bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg font-semibold transition text-lg">
+                            {services_content.get('get_started_button', 'Get Started')}
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>"""
+
+            return f"""<main>
+    <section class="py-20 bg-gradient-to-br from-gray-50 to-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-20">
+                <h1 class="text-6xl font-bold mb-6 bg-gradient-to-r from-{primary} to-{hover} bg-clip-text text-transparent">{services_content.get('section_heading', 'Our Services')}</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">{services_content.get('section_description', 'We offer comprehensive solutions tailored to your needs.')}</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-10 mb-20">
+                {service_cards}
+            </div>
+
+            <div class="bg-gradient-to-r from-{primary} to-{hover} text-white rounded-3xl p-16 text-center shadow-2xl">
+                <h2 class="text-5xl font-bold mb-6">{services_content.get('contact_cta', 'Ready to Get Started?')}</h2>
+                <p class="text-xl mb-10 opacity-95 max-w-2xl mx-auto">{services_content.get('contact_cta_description', 'Contact us today to discuss your needs.')}</p>
+                <a href="contact.php" class="inline-block bg-white text-{primary} hover:bg-gray-100 px-12 py-5 rounded-xl text-xl font-bold transition shadow-xl hover:shadow-2xl transform hover:scale-105">
+                    {services_content.get('get_started_button', 'Get Started')}
+                </a>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 3: 1 блок с текстом справа
+        elif services_variant == 3:
+            service = services_data_1[0]
+            return f"""<main>
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h1 class="text-5xl font-bold mb-6">{services_content.get('section_heading', 'Our Services')}</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">{services_content.get('section_description', 'We offer comprehensive solutions tailored to your needs.')}</p>
+            </div>
+
+            <div class="max-w-7xl mx-auto mb-20">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div class="order-2 md:order-1">
+                        <div class="h-96 rounded-2xl overflow-hidden shadow-2xl">
+                            <img src="images/service1.jpg" alt="{service['title']}" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                    <div class="order-1 md:order-2">
+                        <h2 class="text-4xl font-bold mb-6 text-{primary}">{service['title']}</h2>
+                        <p class="text-lg text-gray-600 mb-8 leading-relaxed">{service['description']}</p>
+                        <div class="space-y-4 mb-8">
+                            <div class="flex items-start">
+                                <svg class="w-6 h-6 text-{primary} mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <p class="text-gray-700">Professional expertise and guidance</p>
+                            </div>
+                            <div class="flex items-start">
+                                <svg class="w-6 h-6 text-{primary} mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <p class="text-gray-700">Tailored solutions for your needs</p>
+                            </div>
+                            <div class="flex items-start">
+                                <svg class="w-6 h-6 text-{primary} mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <p class="text-gray-700">Ongoing support and maintenance</p>
+                            </div>
+                        </div>
+                        <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg font-bold text-lg transition shadow-lg hover:shadow-xl">
+                            {services_content.get('get_started_button', 'Get Started')}
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 rounded-3xl p-12 text-center">
+                <h2 class="text-4xl font-bold mb-4">{services_content.get('contact_cta', 'Ready to Get Started?')}</h2>
+                <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">{services_content.get('contact_cta_description', 'Contact us today to discuss your needs.')}</p>
+                <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-lg text-lg font-bold transition shadow-lg">
+                    {services_content.get('get_started_button', 'Get Started')}
+                </a>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 4: 1 блок с текстом слева
+        else:
+            service = services_data_1[0]
+            return f"""<main>
+    <section class="py-20 bg-gradient-to-br from-white to-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h1 class="text-5xl font-bold mb-6 text-{primary}">{services_content.get('section_heading', 'Our Services')}</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">{services_content.get('section_description', 'We offer comprehensive solutions tailored to your needs.')}</p>
+            </div>
+
+            <div class="max-w-7xl mx-auto mb-20">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h2 class="text-4xl font-bold mb-6">{service['title']}</h2>
+                        <p class="text-lg text-gray-600 mb-8 leading-relaxed">{service['description']}</p>
+                        <div class="bg-white rounded-xl p-8 shadow-lg mb-8">
+                            <h3 class="text-xl font-bold mb-4">Key Benefits</h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-center">
+                                    <div class="w-2 h-2 bg-{primary} rounded-full mr-3"></div>
+                                    <span class="text-gray-700">Expert team with years of experience</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <div class="w-2 h-2 bg-{primary} rounded-full mr-3"></div>
+                                    <span class="text-gray-700">Customized approach for every client</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <div class="w-2 h-2 bg-{primary} rounded-full mr-3"></div>
+                                    <span class="text-gray-700">Proven track record of success</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <a href="contact.php" class="inline-flex items-center bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg font-bold text-lg transition shadow-lg hover:shadow-xl">
+                            {services_content.get('get_started_button', 'Get Started')}
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                            </svg>
+                        </a>
+                    </div>
+                    <div>
+                        <div class="h-96 rounded-2xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-300">
+                            <img src="images/service1.jpg" alt="{service['title']}" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-{primary} text-white rounded-3xl p-12 text-center shadow-2xl">
+                <h2 class="text-4xl font-bold mb-4">{services_content.get('contact_cta', 'Ready to Get Started?')}</h2>
+                <p class="text-xl mb-8 opacity-90 max-w-2xl mx-auto">{services_content.get('contact_cta_description', 'Contact us today to discuss your needs.')}</p>
+                <a href="contact.php" class="inline-block bg-white text-{primary} hover:bg-gray-100 px-10 py-4 rounded-lg text-lg font-bold transition shadow-lg hover:shadow-xl">
+                    {services_content.get('get_started_button', 'Get Started')}
+                </a>
+            </div>
+        </div>
+    </section>
+</main>"""
+
     def generate_stats_section(self, theme, primary):
         """Генерирует секцию статистики через API с языковой поддержкой"""
         achievements_data = self.generate_theme_content_via_api(theme, "achievements_content", 1)
@@ -6872,6 +7135,13 @@ Return ONLY the content for <main> tag."""
 
             # Генерируем одну из 6 вариаций
             main_content = self.generate_thankyou_page(site_name, primary, hover)
+        elif page_name == 'services':
+            print(f"    📝 Генерация Services страницы (1 из 4 вариаций)...")
+            primary = colors.get('primary', 'blue-600')
+            hover = colors.get('hover', 'blue-700')
+
+            # Генерируем одну из 4 вариаций
+            main_content = self.generate_services_page(site_name, primary, hover)
         else:
             # Генерируем контент через API для других страниц
             print(f"    📝 Генерация контента для {page_name}...")
