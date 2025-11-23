@@ -3343,6 +3343,10 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
     def generate_services_cards_section(self, site_name, theme, primary, hover):
         """Генерирует секцию Services Cards (3 карточки) через API с языковой поддержкой"""
+        # Получаем заголовки секций через API для перевода
+        section_headings = self.generate_theme_content_via_api(theme, "section_headings", 1)
+        services_heading = section_headings.get('services', 'Our Services') if section_headings else 'Our Services'
+
         # Получаем 3 сервиса через API
         services = self.generate_theme_content_via_api(theme, "services", 3)
 
@@ -3373,16 +3377,13 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                         </svg>
                     </div>
                     <h3 class="text-2xl font-bold mb-4 group-hover:text-{primary} transition-colors">{service['title']}</h3>
-                    <p class="text-gray-600 mb-6">{service['description']}</p>
-                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-3 rounded-lg font-semibold transition opacity-0 group-hover:opacity-100">
-                        Get Started
-                    </a>
+                    <p class="text-gray-600">{service['description']}</p>
                 </div>"""
 
         return f"""
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center mb-12">Our Services</h2>
+            <h2 class="text-4xl font-bold text-center mb-12">{services_heading}</h2>
             <div class="grid md:grid-cols-3 gap-8">{cards_html}
             </div>
         </div>
@@ -6353,10 +6354,7 @@ setTimeout(showCookieNotice, 1000);
                     </div>
                     <div class="p-8">
                         <h3 class="text-2xl font-bold mb-4">{service['title']}</h3>
-                        <p class="text-gray-600 mb-6 leading-relaxed">{service['description']}</p>
-                        <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-3 rounded-lg font-semibold transition">
-                            {services_content.get('get_started_button', 'Get Started')}
-                        </a>
+                        <p class="text-gray-600 leading-relaxed">{service['description']}</p>
                     </div>
                 </div>"""
 
@@ -6374,10 +6372,7 @@ setTimeout(showCookieNotice, 1000);
 
             <div class="bg-{primary} text-white rounded-3xl p-12 text-center">
                 <h2 class="text-4xl font-bold mb-4">{services_content.get('contact_cta', 'Ready to Get Started?')}</h2>
-                <p class="text-xl mb-8 opacity-90">{services_content.get('contact_cta_description', 'Contact us today to discuss your needs.')}</p>
-                <a href="contact.php" class="inline-block bg-white text-{primary} hover:bg-gray-100 px-10 py-4 rounded-lg text-lg font-bold transition shadow-lg">
-                    {services_content.get('get_started_button', 'Get Started')}
-                </a>
+                <p class="text-xl opacity-90">{services_content.get('contact_cta_description', 'Contact us today to discuss your needs.')}</p>
             </div>
         </div>
     </section>
@@ -6396,13 +6391,7 @@ setTimeout(showCookieNotice, 1000);
                     </div>
                     <div class="p-10">
                         <h3 class="text-3xl font-bold mb-4 text-gray-900">{service['title']}</h3>
-                        <p class="text-gray-600 mb-8 text-lg leading-relaxed">{service['description']}</p>
-                        <a href="contact.php" class="inline-flex items-center bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg font-semibold transition text-lg">
-                            {services_content.get('get_started_button', 'Get Started')}
-                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                            </svg>
-                        </a>
+                        <p class="text-gray-600 text-lg leading-relaxed">{service['description']}</p>
                     </div>
                 </div>"""
 
@@ -6420,10 +6409,7 @@ setTimeout(showCookieNotice, 1000);
 
             <div class="bg-gradient-to-r from-{primary} to-{hover} text-white rounded-3xl p-16 text-center shadow-2xl">
                 <h2 class="text-5xl font-bold mb-6">{services_content.get('contact_cta', 'Ready to Get Started?')}</h2>
-                <p class="text-xl mb-10 opacity-95 max-w-2xl mx-auto">{services_content.get('contact_cta_description', 'Contact us today to discuss your needs.')}</p>
-                <a href="contact.php" class="inline-block bg-white text-{primary} hover:bg-gray-100 px-12 py-5 rounded-xl text-xl font-bold transition shadow-xl hover:shadow-2xl transform hover:scale-105">
-                    {services_content.get('get_started_button', 'Get Started')}
-                </a>
+                <p class="text-xl opacity-95 max-w-2xl mx-auto">{services_content.get('contact_cta_description', 'Contact us today to discuss your needs.')}</p>
             </div>
         </div>
     </section>
@@ -6450,7 +6436,7 @@ setTimeout(showCookieNotice, 1000);
                     <div class="order-1 md:order-2">
                         <h2 class="text-4xl font-bold mb-6 text-{primary}">{service['title']}</h2>
                         <p class="text-lg text-gray-600 mb-8 leading-relaxed">{service['description']}</p>
-                        <div class="space-y-4 mb-8">
+                        <div class="space-y-4">
                             <div class="flex items-start">
                                 <svg class="w-6 h-6 text-{primary} mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -6470,19 +6456,13 @@ setTimeout(showCookieNotice, 1000);
                                 <p class="text-gray-700">Ongoing support and maintenance</p>
                             </div>
                         </div>
-                        <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg font-bold text-lg transition shadow-lg hover:shadow-xl">
-                            {services_content.get('get_started_button', 'Get Started')}
-                        </a>
                     </div>
                 </div>
             </div>
 
             <div class="bg-gray-50 rounded-3xl p-12 text-center">
                 <h2 class="text-4xl font-bold mb-4">{services_content.get('contact_cta', 'Ready to Get Started?')}</h2>
-                <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">{services_content.get('contact_cta_description', 'Contact us today to discuss your needs.')}</p>
-                <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-lg text-lg font-bold transition shadow-lg">
-                    {services_content.get('get_started_button', 'Get Started')}
-                </a>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">{services_content.get('contact_cta_description', 'Contact us today to discuss your needs.')}</p>
             </div>
         </div>
     </section>
@@ -6504,7 +6484,7 @@ setTimeout(showCookieNotice, 1000);
                     <div>
                         <h2 class="text-4xl font-bold mb-6">{service['title']}</h2>
                         <p class="text-lg text-gray-600 mb-8 leading-relaxed">{service['description']}</p>
-                        <div class="bg-white rounded-xl p-8 shadow-lg mb-8">
+                        <div class="bg-white rounded-xl p-8 shadow-lg">
                             <h3 class="text-xl font-bold mb-4">Key Benefits</h3>
                             <ul class="space-y-3">
                                 <li class="flex items-center">
@@ -6521,12 +6501,6 @@ setTimeout(showCookieNotice, 1000);
                                 </li>
                             </ul>
                         </div>
-                        <a href="contact.php" class="inline-flex items-center bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg font-bold text-lg transition shadow-lg hover:shadow-xl">
-                            {services_content.get('get_started_button', 'Get Started')}
-                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                            </svg>
-                        </a>
                     </div>
                     <div>
                         <div class="h-96 rounded-2xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-300">
@@ -6538,10 +6512,7 @@ setTimeout(showCookieNotice, 1000);
 
             <div class="bg-{primary} text-white rounded-3xl p-12 text-center shadow-2xl">
                 <h2 class="text-4xl font-bold mb-4">{services_content.get('contact_cta', 'Ready to Get Started?')}</h2>
-                <p class="text-xl mb-8 opacity-90 max-w-2xl mx-auto">{services_content.get('contact_cta_description', 'Contact us today to discuss your needs.')}</p>
-                <a href="contact.php" class="inline-block bg-white text-{primary} hover:bg-gray-100 px-10 py-4 rounded-lg text-lg font-bold transition shadow-lg hover:shadow-xl">
-                    {services_content.get('get_started_button', 'Get Started')}
-                </a>
+                <p class="text-xl opacity-90 max-w-2xl mx-auto">{services_content.get('contact_cta_description', 'Contact us today to discuss your needs.')}</p>
             </div>
         </div>
     </section>
@@ -7433,7 +7404,11 @@ Return ONLY the content for <main> tag."""
         return fallbacks.get(page_name, f'<main><section class="py-20"><div class="container mx-auto px-6 text-center"><h1 class="text-4xl font-bold">{page_name.title()}</h1></div></section></main>')
     
     def generate_blog_page(self, page_name, output_dir):
-        """Генерация blog страниц с вариациями (с/без картинки, с/без стрелок)"""
+        """Генерация blog страниц с вариациями (с/без картинки, с/без стрелок)
+
+        КРИТИЧЕСКИ ВАЖНО: Заголовки, изображения и даты ВСЕГДА синхронизируются с blog_posts_previews
+        для согласованности между главной страницей, blog.php и отдельными статьями.
+        """
         site_name = self.blueprint.get('site_name', 'Company')
         theme = self.blueprint.get('theme', 'business')
         colors = self.blueprint.get('color_scheme', {})
@@ -7461,22 +7436,36 @@ Return ONLY the content for <main> tag."""
         next_article = blog_nav_data.get('next_article', 'Next Article')
         published_on = blog_nav_data.get('published_on', 'Published on')
 
-        # Генерируем контент статьи через API
+        # КРИТИЧЕСКИ ВАЖНО: Используем заголовки и даты из blog_posts_previews для синхронизации
+        # Это гарантирует, что заголовки на главной странице, blog.php и отдельных статьях совпадают
+        if hasattr(self, 'blueprint') and 'blog_posts_previews' in self.blueprint:
+            blog_posts_previews = self.blueprint['blog_posts_previews']
+            # Находим данные для текущей статьи (индекс = article_number - 1)
+            if article_number <= len(blog_posts_previews):
+                article_preview = blog_posts_previews[article_number - 1]
+                blog_title = article_preview['title']
+                article_date = article_preview['date']
+            else:
+                # Fallback если статьи нет в списке
+                blog_title = f'{theme} Article {article_number}'
+                article_date = 'November 2025'
+        else:
+            # Fallback если blog_posts_previews не существует
+            fallback_titles = {
+                'blog1': f'The Future of {theme}',
+                'blog2': f'Top 5 Trends in {theme}',
+                'blog3': f'How to Choose the Right {theme} Service',
+                'blog4': f'Best Practices for {theme} Success',
+                'blog5': f'Common {theme} Mistakes to Avoid',
+                'blog6': f'The Complete {theme} Guide'
+            }
+            blog_title = fallback_titles.get(page_name, f'{theme} Article')
+            article_date = 'November 2025'
+
+        # Генерируем ТОЛЬКО контент статьи через API (не заголовок и дату!)
         article_data = self.generate_theme_content_via_api(theme, "blog_article_full", article_number)
 
-        # Fallback titles если API не вернул результат
-        fallback_titles = {
-            'blog1': f'The Future of {theme}',
-            'blog2': f'Top 5 Trends in {theme}',
-            'blog3': f'How to Choose the Right {theme} Service',
-            'blog4': f'Best Practices for {theme} Success',
-            'blog5': f'Common {theme} Mistakes to Avoid',
-            'blog6': f'The Complete {theme} Guide'
-        }
-
-        blog_titles = {
-            page_name: article_data.get('title', fallback_titles.get(page_name, f'{theme} Article'))
-        } if article_data else fallback_titles
+        blog_titles = {page_name: blog_title}
 
         # Генерируем контент из API или используем fallback
         if article_data and article_data.get('sections'):
@@ -7531,8 +7520,8 @@ Return ONLY the content for <main> tag."""
         </div>
         '''
 
-        # Получаем дату и автора из API или используем fallback
-        article_date = article_data.get('date', 'November 2025') if article_data else 'November 2025'
+        # Используем дату из синхронизированных данных (уже установлена выше)
+        # Автора берем из API или используем fallback
         article_author = article_data.get('author', f'{site_name} Team') if article_data else f'{site_name} Team'
 
         main_content = f"""<main>
