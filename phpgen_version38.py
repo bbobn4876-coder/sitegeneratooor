@@ -1505,6 +1505,39 @@ Example:
 
 Return ONLY valid JSON, no additional text or markdown formatting."""
 
+        elif content_type == "button_texts":
+            prompt = f"""Generate common button text translations for a {theme} business website.
+
+Return as JSON object with these EXACT fields:
+- "contact_us": "Contact Us" button text (2-3 words)
+- "contact_us_today": "Contact Us Today" button text (3-4 words)
+- "start_your_project": "Start Your Project" button text (3-4 words)
+- "get_started": "Get Started" button text (2-3 words)
+- "learn_more": "Learn More" button text (2-3 words)
+- "view_services": "View Services" button text (2-3 words)
+- "view_all": "View All" button text (2-3 words)
+- "read_more": "Read More" button text (2-3 words)
+- "send_message": "Send Message" button text (2-3 words)
+- "submit": "Submit" button text (1-2 words)
+
+{language_instruction}
+
+Example:
+{{
+  "contact_us": "Contact Us",
+  "contact_us_today": "Contact Us Today",
+  "start_your_project": "Start Your Project",
+  "get_started": "Get Started",
+  "learn_more": "Learn More",
+  "view_services": "View Services",
+  "view_all": "View All",
+  "read_more": "Read More",
+  "send_message": "Send Message",
+  "submit": "Submit"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
         elif content_type == "our_approach_blocks":
             prompt = f"""Generate "Our Approach" section blocks for a {theme} business website.
 
@@ -1773,7 +1806,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     print(f"    ⚠️  Получено {len(content['testimonials'])} элементов вместо {num_items} для testimonials, используем их")
 
             # Для объектных типов контента - проверяем что это словарь
-            elif content_type in ["hero_content", "achievements_content", "cta_content", "contact_page_content", "blog_page_content", "policy_content", "footer_content", "menu_content", "about_content", "gallery_content", "approach_content", "blog_article_full", "section_headings", "blog_section_headers"]:
+            elif content_type in ["hero_content", "achievements_content", "cta_content", "contact_page_content", "blog_page_content", "policy_content", "footer_content", "menu_content", "about_content", "gallery_content", "approach_content", "blog_article_full", "section_headings", "blog_section_headers", "button_texts", "blog_navigation_content", "cookie_notice_content", "thankyou_content", "what_we_offer_content", "features_comparison"]:
                 if not isinstance(content, dict):
                     print(f"    ⚠️  Получен неверный тип данных для {content_type}, используем fallback")
                     return None
@@ -2413,6 +2446,10 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         section_headings = self.generate_theme_content_via_api(theme, "section_headings", 1)
         featured_solutions_heading = section_headings.get('featured_solutions', 'Featured Solutions') if section_headings else 'Featured Solutions'
 
+        # Получаем переводы кнопок
+        button_texts = self.generate_theme_content_via_api(theme, "button_texts", 1)
+        contact_us_text = button_texts.get('contact_us', 'Contact Us') if button_texts else 'Contact Us'
+
         # Генерируем карточки только для доступных решений
         cards_html = ""
         for sol in available_solutions:
@@ -2424,7 +2461,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                         <h3 class="text-white text-2xl font-bold mb-3">{sol['title']}</h3>
                         <p class="text-white/90 mb-4">{sol['description']}</p>
                         <a href="contact.php" class="inline-block bg-white text-{primary} px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition w-fit">
-                            Contact Us
+                            {contact_us_text}
                         </a>
                     </div>
                 </div>"""
@@ -2453,6 +2490,11 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         # Получаем переведенные заголовки секций
         section_headings = self.generate_theme_content_via_api(theme, "section_headings", 1)
         our_process_heading = section_headings.get('our_process', 'Our Process') if section_headings else 'Our Process'
+
+        # Получаем переводы кнопок
+        button_texts = self.generate_theme_content_via_api(theme, "button_texts", 1)
+        start_project_text = button_texts.get('start_your_project', 'Start Your Project') if button_texts else 'Start Your Project'
+        get_started_text = button_texts.get('get_started', 'Get Started') if button_texts else 'Get Started'
 
         if variation == 1:
             return f"""
@@ -2530,7 +2572,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
             <div class="text-center mt-16">
                 <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                    Start Your Project
+                    {start_project_text}
                 </a>
             </div>
         </div>
@@ -2607,7 +2649,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
                 <div class="text-center mt-16">
                     <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                        Get Started Today
+                        {get_started_text}
                     </a>
                 </div>
             </div>
@@ -2687,7 +2729,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
             <div class="text-center mt-16">
                 <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                    Start Your Journey
+                    {start_project_text}
                 </a>
             </div>
         </div>
