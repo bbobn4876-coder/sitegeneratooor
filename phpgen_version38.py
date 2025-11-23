@@ -741,7 +741,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 'phones': ['+31 20 684 2937', '+31 10 472 8156', '+31 30 591 3842'],
                 'cities': ['Amsterdam', 'Rotterdam', 'Utrecht', 'The Hague', 'Eindhoven', 'Groningen'],
                 'streets': ['Damrak', 'Kalverstraat', 'Leidsestraat', 'Nieuwendijk', 'Rokin'],
-                'postal_codes': ['1012', '3011', '3512', '2511', '5611']
+                'postal_codes': ['1012 AB', '3011 AD', '3512 AB', '2511 CM', '5611 AA']
             },
             'usa': {
                 'phones': ['+1 (555) 827-4163', '+1 (555) 392-6847', '+1 (555) 718-2945'],
@@ -753,7 +753,7 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 'phones': ['+44 20 7946 3825', '+44 161 824 7593', '+44 131 596 2847'],
                 'cities': ['London', 'Manchester', 'Birmingham', 'Edinburgh', 'Liverpool', 'Bristol'],
                 'streets': ['High Street', 'King Street', 'Oxford Street', 'Queen Street', 'Victoria Road'],
-                'postal_codes': ['SW1A', 'M1 1AD', 'B1 1AA', 'EH1 1YZ', 'L1 8JQ']
+                'postal_codes': ['SW1A 1AA', 'M1 1AD', 'B1 1AA', 'EH1 1YZ', 'L1 8JQ']
             },
             'germany': {
                 'phones': ['+49 30 8294 6375', '+49 89 5738 2946', '+49 40 6182 7394'],
@@ -766,6 +766,138 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 'cities': ['Paris', 'Lyon', 'Marseille', 'Toulouse', 'Nice', 'Bordeaux'],
                 'streets': ['Rue de la Paix', 'Avenue des Champs-Élysées', 'Rue Royale', 'Boulevard Haussmann'],
                 'postal_codes': ['75001', '69001', '13001', '31000', '06000']
+            },
+            'poland': {
+                'phones': ['+48 22 594 8372', '+48 12 374 9185', '+48 61 829 4736'],
+                'cities': ['Warsaw', 'Krakow', 'Poznan', 'Wroclaw', 'Gdansk', 'Lodz'],
+                'streets': ['ul. Nowy Świat', 'ul. Floriańska', 'ul. Piotrkowska', 'ul. Marszałkowska', 'ul. Długa'],
+                'postal_codes': ['00-001', '30-001', '61-001', '50-001', '80-001']
+            },
+            'spain': {
+                'phones': ['+34 91 528 4736', '+34 93 274 9185', '+34 95 482 7364'],
+                'cities': ['Madrid', 'Barcelona', 'Seville', 'Valencia', 'Bilbao', 'Malaga'],
+                'streets': ['Calle Mayor', 'Gran Via', 'Paseo de Gracia', 'Calle Alcalá', 'Rambla'],
+                'postal_codes': ['28001', '08001', '41001', '46001', '48001']
+            },
+            'italy': {
+                'phones': ['+39 06 4829 5173', '+39 02 5738 2946', '+39 055 394 8271'],
+                'cities': ['Rome', 'Milan', 'Florence', 'Venice', 'Naples', 'Turin'],
+                'streets': ['Via del Corso', 'Via Montenapoleone', 'Via Roma', 'Via Garibaldi', 'Piazza Navona'],
+                'postal_codes': ['00186', '20121', '50122', '30121', '80133']
+            },
+            'russia': {
+                'phones': ['+7 495 628 4937', '+7 812 574 8293', '+7 383 925 7384'],
+                'cities': ['Moscow', 'St Petersburg', 'Novosibirsk', 'Yekaterinburg', 'Kazan', 'Nizhny Novgorod'],
+                'streets': ['Tverskaya Street', 'Nevsky Prospekt', 'Lenina Street', 'Krasnaya Street', 'Arbat Street'],
+                'postal_codes': ['101000', '190000', '630000', '620000', '420000']
+            },
+            'ukraine': {
+                'phones': ['+380 44 528 7394', '+380 56 374 8295', '+380 32 685 2947'],
+                'cities': ['Kyiv', 'Kharkiv', 'Odesa', 'Dnipro', 'Lviv', 'Zaporizhzhia'],
+                'streets': ['Khreshchatyk Street', 'Sumska Street', 'Deribasivska Street', 'Shevchenka Avenue', 'Prospekt Svobody'],
+                'postal_codes': ['01001', '61001', '65001', '49000', '79000']
+            },
+            'turkey': {
+                'phones': ['+90 212 528 4937', '+90 312 684 2957', '+90 232 795 3841'],
+                'cities': ['Istanbul', 'Ankara', 'Izmir', 'Bursa', 'Antalya', 'Adana'],
+                'streets': ['Istiklal Caddesi', 'Atatürk Bulvarı', 'Kordon', 'Cumhuriyet Caddesi', 'Bağdat Caddesi'],
+                'postal_codes': ['34000', '06000', '35000', '16000', '07000']
+            },
+            'sweden': {
+                'phones': ['+46 8 528 4937', '+46 31 694 8275', '+46 40 582 7394'],
+                'cities': ['Stockholm', 'Gothenburg', 'Malmö', 'Uppsala', 'Västerås', 'Örebro'],
+                'streets': ['Drottninggatan', 'Kungsgatan', 'Storgatan', 'Vasagatan', 'Norrlandsgatan'],
+                'postal_codes': ['111 20', '411 05', '211 20', '753 10', '722 11']
+            },
+            'norway': {
+                'phones': ['+47 22 58 49 37', '+47 55 28 64 93', '+47 73 94 82 75'],
+                'cities': ['Oslo', 'Bergen', 'Trondheim', 'Stavanger', 'Drammen', 'Fredrikstad'],
+                'streets': ['Karl Johans gate', 'Storgaten', 'Torggaten', 'Jernbanetorget', 'Olav Kyrres gate'],
+                'postal_codes': ['0150', '5003', '7011', '4001', '3044']
+            },
+            'denmark': {
+                'phones': ['+45 33 52 84 93', '+45 86 29 47 58', '+45 98 74 52 83'],
+                'cities': ['Copenhagen', 'Aarhus', 'Odense', 'Aalborg', 'Esbjerg', 'Randers'],
+                'streets': ['Strøget', 'Vestergade', 'Nørregade', 'Østergade', 'Kongens Nytorv'],
+                'postal_codes': ['1000', '8000', '5000', '9000', '6700']
+            },
+            'finland': {
+                'phones': ['+358 9 528 4937', '+358 3 694 8275', '+358 8 472 9385'],
+                'cities': ['Helsinki', 'Espoo', 'Tampere', 'Vantaa', 'Oulu', 'Turku'],
+                'streets': ['Aleksanterinkatu', 'Mannerheimintie', 'Hämeenkatu', 'Yliopistonkatu', 'Kauppakatu'],
+                'postal_codes': ['00100', '02100', '33100', '01300', '90100']
+            },
+            'czech': {
+                'phones': ['+420 2 5284 9375', '+420 5 3749 2856', '+420 3 8425 7394'],
+                'cities': ['Prague', 'Brno', 'Ostrava', 'Plzeň', 'Liberec', 'Olomouc'],
+                'streets': ['Václavské náměstí', 'Národní třída', 'Na Příkopě', 'Masarykova', 'Česká'],
+                'postal_codes': ['110 00', '602 00', '702 00', '301 00', '460 00']
+            },
+            'austria': {
+                'phones': ['+43 1 528 4937', '+43 316 749 285', '+43 732 684 295'],
+                'cities': ['Vienna', 'Graz', 'Linz', 'Salzburg', 'Innsbruck', 'Klagenfurt'],
+                'streets': ['Kärntner Straße', 'Herrengasse', 'Landstraße', 'Graben', 'Mariahilfer Straße'],
+                'postal_codes': ['1010', '8010', '4020', '5020', '6020']
+            },
+            'switzerland': {
+                'phones': ['+41 44 528 49 37', '+41 22 694 82 75', '+41 31 582 73 94'],
+                'cities': ['Zurich', 'Geneva', 'Basel', 'Bern', 'Lausanne', 'Winterthur'],
+                'streets': ['Bahnhofstrasse', 'Rue du Rhône', 'Freie Strasse', 'Kramgasse', 'Rue de Lausanne'],
+                'postal_codes': ['8001', '1201', '4001', '3011', '1003']
+            },
+            'portugal': {
+                'phones': ['+351 21 528 4937', '+351 22 694 8275', '+351 239 582 749'],
+                'cities': ['Lisbon', 'Porto', 'Coimbra', 'Braga', 'Faro', 'Funchal'],
+                'streets': ['Avenida da Liberdade', 'Rua de Santa Catarina', 'Rua Ferreira Borges', 'Rua Augusta', 'Rua do Carmo'],
+                'postal_codes': ['1250-001', '4000-001', '3000-001', '4700-001', '8000-001']
+            },
+            'romania': {
+                'phones': ['+40 21 528 4937', '+40 264 749 285', '+40 256 682 749'],
+                'cities': ['Bucharest', 'Cluj-Napoca', 'Timișoara', 'Iași', 'Constanța', 'Craiova'],
+                'streets': ['Calea Victoriei', 'Strada Eroilor', 'Bulevardul Unirii', 'Strada Republicii', 'Bulevardul Ferdinand'],
+                'postal_codes': ['010001', '400001', '300001', '700001', '900001']
+            },
+            'greece': {
+                'phones': ['+30 21 0528 4937', '+30 231 0749 285', '+30 261 0682 749'],
+                'cities': ['Athens', 'Thessaloniki', 'Patras', 'Heraklion', 'Larissa', 'Volos'],
+                'streets': ['Ermou', 'Tsimiski', 'Agiou Nikolaou', 'Syntagma Square', 'Aristotelous'],
+                'postal_codes': ['105 63', '546 24', '262 21', '712 01', '412 22']
+            },
+            'hungary': {
+                'phones': ['+36 1 528 4937', '+36 62 749 285', '+36 52 682 749'],
+                'cities': ['Budapest', 'Debrecen', 'Szeged', 'Miskolc', 'Pécs', 'Győr'],
+                'streets': ['Váci utca', 'Andrássy út', 'Kossuth utca', 'Petőfi utca', 'Rákóczi út'],
+                'postal_codes': ['1051', '4024', '6720', '3525', '7621']
+            },
+            'belgium': {
+                'phones': ['+32 2 528 49 37', '+32 3 694 82 75', '+32 9 582 73 94'],
+                'cities': ['Brussels', 'Antwerp', 'Ghent', 'Charleroi', 'Liège', 'Bruges'],
+                'streets': ['Avenue Louise', 'Meir', 'Veldstraat', 'Rue Neuve', 'Korenmarkt'],
+                'postal_codes': ['1000', '2000', '9000', '6000', '4000']
+            },
+            'bulgaria': {
+                'phones': ['+359 2 528 4937', '+359 32 694 827', '+359 52 582 739'],
+                'cities': ['Sofia', 'Plovdiv', 'Varna', 'Burgas', 'Ruse', 'Stara Zagora'],
+                'streets': ['Vitosha Boulevard', 'Glavnata Street', 'Knyaz Boris I Boulevard', 'Aleksandrovska Street', 'Tsar Simeon Street'],
+                'postal_codes': ['1000', '4000', '9000', '8000', '7000']
+            },
+            'croatia': {
+                'phones': ['+385 1 528 4937', '+385 21 694 827', '+385 52 582 739'],
+                'cities': ['Zagreb', 'Split', 'Rijeka', 'Osijek', 'Zadar', 'Pula'],
+                'streets': ['Ilica', 'Riva', 'Korzo', 'Kapucinska', 'Kalelarga'],
+                'postal_codes': ['10000', '21000', '51000', '31000', '23000']
+            },
+            'serbia': {
+                'phones': ['+381 11 528 4937', '+381 21 694 827', '+381 18 582 739'],
+                'cities': ['Belgrade', 'Novi Sad', 'Niš', 'Kragujevac', 'Subotica', 'Zemun'],
+                'streets': ['Knez Mihailova', 'Zmaj Jovina', 'Obrenovićeva', 'Kralja Milana', 'Bulevar Oslobođenja'],
+                'postal_codes': ['11000', '21000', '18000', '34000', '24000']
+            },
+            'slovakia': {
+                'phones': ['+421 2 5284 9375', '+421 55 694 8275', '+421 37 582 7394'],
+                'cities': ['Bratislava', 'Košice', 'Prešov', 'Nitra', 'Žilina', 'Banská Bystrica'],
+                'streets': ['Obchodná', 'Hlavná', 'Masarykova', 'Štefánikova', 'Námestie SNP'],
+                'postal_codes': ['811 01', '040 01', '080 01', '949 01', '010 01']
             }
         }
 
@@ -787,8 +919,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
 
         # Fallback если страна не найдена
         return {
-            'phone': '+1 (555) 123-4567',
-            'address': '123 Business Street, Suite 100, New York, NY 10001'
+            'phone': '+1 (555) 739-2814',
+            'address': '456 Business Street, Suite 200, New York, NY 10001'
         }
 
     def generate_theme_content_via_api(self, theme, content_type, num_items=4):
@@ -1513,6 +1645,7 @@ Return as JSON object with these EXACT fields:
 - "contact_us_today": "Contact Us Today" button text (3-4 words)
 - "start_your_project": "Start Your Project" button text (3-4 words)
 - "get_started": "Get Started" button text (2-3 words)
+- "discuss_your_project": "Discuss Your Project" button text (3-4 words)
 - "learn_more": "Learn More" button text (2-3 words)
 - "view_services": "View Services" button text (2-3 words)
 - "view_all": "View All" button text (2-3 words)
@@ -1528,6 +1661,7 @@ Example:
   "contact_us_today": "Contact Us Today",
   "start_your_project": "Start Your Project",
   "get_started": "Get Started",
+  "discuss_your_project": "Discuss Your Project",
   "learn_more": "Learn More",
   "view_services": "View Services",
   "view_all": "View All",
@@ -2762,6 +2896,10 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         learn_more = what_we_offer_data.get('learn_more', 'Learn More')
         explore = what_we_offer_data.get('explore', 'Explore')
 
+        # Получаем переводы кнопок
+        button_texts = self.generate_theme_content_via_api(theme, "button_texts", 1)
+        discuss_project_text = button_texts.get('discuss_your_project', 'Discuss Your Project') if button_texts else 'Discuss Your Project'
+
         if variation == 1:
             return f"""
     <section class="py-20 bg-white">
@@ -2979,7 +3117,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
             <div class="text-center mt-16">
                 <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                    Discuss Your Project
+                    {discuss_project_text}
                 </a>
             </div>
         </div>
@@ -4733,7 +4871,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             elif footer_variant == 4:
                 # Вариант 4: 2 колонки (основные ссылки слева вертикально, policy + контакт справа)
                 # Получаем контактные данные из blueprint
-                contact_data = self.blueprint.get('contact_data', {'phone': '+1 (555) 123-4567', 'address': '123 Business Street'})
+                contact_data = self.blueprint.get('contact_data', {'phone': '+1 (555) 739-2814', 'address': '456 Business Street'})
                 self.footer_code = f"""<footer class="bg-gray-900 text-white py-12 mt-auto">
     <div class="container mx-auto px-6">
         <div class="grid md:grid-cols-2 gap-8">
