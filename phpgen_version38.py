@@ -32,10 +32,18 @@ load_dotenv()
 # ============================================================================
 def play_notification_sound():
     """Воспроизведение звукового уведомления после завершения генерации"""
-    notification_file = "notification.mp3"
+    # Получаем путь к директории, где находится .exe файл
+    if getattr(sys, 'frozen', False):
+        # Если программа запущена как .exe (PyInstaller)
+        exe_dir = os.path.dirname(sys.executable)
+    else:
+        # Если программа запущена как скрипт
+        exe_dir = os.path.dirname(os.path.abspath(__file__))
+
+    notification_file = os.path.join(exe_dir, "notification.mp3")
 
     try:
-        # Проверяем наличие файла notification.mp3
+        # Проверяем наличие файла notification.mp3 в папке с .exe
         if os.path.exists(notification_file):
             # Для Windows используем winsound
             if winsound and os.name == 'nt':
