@@ -1601,6 +1601,7 @@ Return as JSON object with these EXACT fields:
 - "received_message": Success message (10-15 words about message being received)
 - "get_back_soon": Message about response time (8-12 words)
 - "response_time": "We'll respond within 24 hours" message (5-8 words)
+- "explore_more_heading": "While You Wait, Explore More" section heading (4-6 words)
 - "return_home": "Return to Homepage" button text (2-4 words)
 - "back_home": "Back to Home" button text (2-4 words)
 - "view_services": "View Services" button text (2-3 words)
@@ -1625,6 +1626,7 @@ Example:
   "received_message": "Your message has been sent successfully. We'll get back to you soon.",
   "get_back_soon": "We'll get back to you soon.",
   "response_time": "Expect a response within 24 hours via email.",
+  "explore_more_heading": "While You Wait, Explore More",
   "return_home": "Return to Homepage",
   "back_home": "Back to Home",
   "view_services": "View Services",
@@ -1832,19 +1834,22 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 Return as JSON object with section headings and content. All text must be in the target language.
 
 Required fields:
+- "introduction_heading": Section 1 heading (e.g., "Introduction")
 - "introduction_text": Introduction paragraph (20-30 words)
-- "info_we_collect_heading": Section heading (e.g., "Information We Collect")
+- "info_we_collect_heading": Section 2 heading (e.g., "Information We Collect")
+- "info_we_collect_intro": Introduction text before subsections (e.g., "We may collect information about you in a variety of ways. The information we may collect includes:")
 - "personal_data_heading": Subsection heading (e.g., "Personal Data")
 - "personal_data_items": Array of 4 data items collected
 - "usage_data_heading": Subsection heading (e.g., "Usage Data")
 - "usage_data_items": Array of 4 usage data items
-- "how_we_use_heading": Section heading (e.g., "How We Use Your Information")
+- "how_we_use_heading": Section 3 heading (e.g., "How We Use Your Information")
+- "how_we_use_intro": Introduction text before list (e.g., "We use the information we collect to:")
 - "how_we_use_items": Array of 6 usage purposes
-- "data_security_heading": Section heading
+- "data_security_heading": Section 4 heading
 - "data_security_text": Paragraph (20-30 words)
-- "your_rights_heading": Section heading
+- "your_rights_heading": Section 5 heading
 - "your_rights_text": Paragraph (15-25 words)
-- "contact_heading": Section heading (e.g., "Contact Us")
+- "contact_heading": Section 6 heading (e.g., "Contact Us")
 - "contact_text": Paragraph (10-15 words)
 - "contact_email_label": Label before email (e.g., "Email:")
 
@@ -5945,10 +5950,10 @@ setTimeout(showCookieNotice, 1000);
                     <h1 class="text-5xl md:text-6xl font-bold mb-6">{title}</h1>
                     <p class="text-xl text-gray-600 mb-8">{subtitle}</p>
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl text-center">
+                        <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl text-center">
                             {button_primary}
                         </a>
-                        <a href="contact.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition text-center">
+                        <a href="services.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition text-center">
                             {button_secondary}
                         </a>
                     </div>
@@ -5994,10 +5999,10 @@ setTimeout(showCookieNotice, 1000);
                 <h1 class="text-5xl md:text-7xl font-bold mb-6 drop-shadow-lg">{title}</h1>
                 <p class="text-xl md:text-2xl mb-8 drop-shadow-lg">{subtitle}</p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="company.php" class="inline-block bg-white hover:bg-gray-100 text-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                    <a href="contact.php" class="inline-block bg-white hover:bg-gray-100 text-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
                         {button_primary}
                     </a>
-                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                    <a href="services.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
                         {button_secondary}
                     </a>
                 </div>
@@ -6037,10 +6042,10 @@ setTimeout(showCookieNotice, 1000);
                     {subtitle}
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
                         {button_primary}
                     </a>
-                    <a href="contact.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition">
+                    <a href="services.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition">
                         {button_secondary}
                     </a>
                 </div>
@@ -6087,10 +6092,10 @@ setTimeout(showCookieNotice, 1000);
                     <h1 class="text-5xl md:text-6xl font-bold mb-6">{title}</h1>
                     <p class="text-xl text-gray-600 mb-8">{subtitle}</p>
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl text-center">
+                        <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl text-center">
                             {button_primary}
                         </a>
-                        <a href="contact.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition text-center">
+                        <a href="services.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition text-center">
                             {button_secondary}
                         </a>
                     </div>
@@ -6116,9 +6121,12 @@ setTimeout(showCookieNotice, 1000);
                 'received_message': 'Your message has been sent successfully. We\'ll get back to you soon.',
                 'get_back_soon': 'We\'ll get back to you soon.',
                 'response_time': 'Expect a response within 24 hours via email.',
+                'explore_more_heading': 'While You Wait, Explore More',
                 'return_home': 'Return to Homepage',
                 'back_home': 'Back to Home',
                 'view_services': 'View Services',
+                'about_us': 'About Us',
+                'blog': 'Blog',
                 'what_next': 'What Happens Next?',
                 'review_message': 'We Review Your Message',
                 'review_description': 'Our team will carefully review your inquiry within the next few hours.',
@@ -6336,7 +6344,7 @@ setTimeout(showCookieNotice, 1000);
                 </div>
 
                 <div class="bg-gray-50 rounded-2xl p-8 mb-10">
-                    <h2 class="text-xl font-bold mb-6 text-center">While You Wait, Explore More</h2>
+                    <h2 class="text-xl font-bold mb-6 text-center">{thanks_content.get('explore_more_heading', 'While You Wait, Explore More')}</h2>
                     <div class="grid md:grid-cols-3 gap-4">
                         <a href="services.php" class="block p-6 bg-white rounded-xl hover:shadow-lg transition text-center">
                             <svg class="w-8 h-8 text-{primary} mx-auto mb-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -6380,6 +6388,9 @@ setTimeout(showCookieNotice, 1000);
         services_data_3 = self.generate_theme_content_via_api(theme, "services", 3)
         services_data_1 = self.generate_theme_content_via_api(theme, "services", 1)
 
+        # Получаем benefits для вариации 3 и 4
+        benefits_content = self.generate_theme_content_via_api(theme, "benefits_content", 3)
+
         # Fallback если API не вернул результат
         if not services_content:
             services_content = {
@@ -6401,6 +6412,16 @@ setTimeout(showCookieNotice, 1000);
             services_data_1 = [
                 {'title': 'Professional Services', 'description': 'Expert solutions tailored to your needs with comprehensive support and guidance.'}
             ]
+
+        if not benefits_content:
+            benefits_content = {
+                'heading': 'Key Benefits',
+                'benefits': [
+                    {'title': 'Expert team with years of experience', 'description': ''},
+                    {'title': 'Customized approach for every client', 'description': ''},
+                    {'title': 'Proven track record of success', 'description': ''}
+                ]
+            }
 
         services_variant = random.randint(1, 4)
 
@@ -6479,6 +6500,17 @@ setTimeout(showCookieNotice, 1000);
         # Вариация 3: 1 блок с текстом справа
         elif services_variant == 3:
             service = services_data_1[0]
+            # Генерируем список benefits из API
+            benefits_html = ""
+            for benefit in benefits_content.get('benefits', [])[:3]:
+                benefits_html += f"""
+                            <div class="flex items-start">
+                                <svg class="w-6 h-6 text-{primary} mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <p class="text-gray-700">{benefit['title']}</p>
+                            </div>"""
+
             return f"""<main>
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
@@ -6497,25 +6529,7 @@ setTimeout(showCookieNotice, 1000);
                     <div class="order-1 md:order-2">
                         <h2 class="text-4xl font-bold mb-6 text-{primary}">{service['title']}</h2>
                         <p class="text-lg text-gray-600 mb-8 leading-relaxed">{service['description']}</p>
-                        <div class="space-y-4">
-                            <div class="flex items-start">
-                                <svg class="w-6 h-6 text-{primary} mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                <p class="text-gray-700">Professional expertise and guidance</p>
-                            </div>
-                            <div class="flex items-start">
-                                <svg class="w-6 h-6 text-{primary} mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                <p class="text-gray-700">Tailored solutions for your needs</p>
-                            </div>
-                            <div class="flex items-start">
-                                <svg class="w-6 h-6 text-{primary} mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                <p class="text-gray-700">Ongoing support and maintenance</p>
-                            </div>
+                        <div class="space-y-4">{benefits_html}
                         </div>
                     </div>
                 </div>
@@ -6532,6 +6546,15 @@ setTimeout(showCookieNotice, 1000);
         # Вариация 4: 1 блок с текстом слева
         else:
             service = services_data_1[0]
+            # Генерируем список benefits из API
+            benefits_list_html = ""
+            for benefit in benefits_content.get('benefits', [])[:3]:
+                benefits_list_html += f"""
+                                <li class="flex items-center">
+                                    <div class="w-2 h-2 bg-{primary} rounded-full mr-3"></div>
+                                    <span class="text-gray-700">{benefit['title']}</span>
+                                </li>"""
+
             return f"""<main>
     <section class="py-20 bg-gradient-to-br from-white to-gray-50">
         <div class="container mx-auto px-6">
@@ -6546,20 +6569,8 @@ setTimeout(showCookieNotice, 1000);
                         <h2 class="text-4xl font-bold mb-6">{service['title']}</h2>
                         <p class="text-lg text-gray-600 mb-8 leading-relaxed">{service['description']}</p>
                         <div class="bg-white rounded-xl p-8 shadow-lg">
-                            <h3 class="text-xl font-bold mb-4">Key Benefits</h3>
-                            <ul class="space-y-3">
-                                <li class="flex items-center">
-                                    <div class="w-2 h-2 bg-{primary} rounded-full mr-3"></div>
-                                    <span class="text-gray-700">Expert team with years of experience</span>
-                                </li>
-                                <li class="flex items-center">
-                                    <div class="w-2 h-2 bg-{primary} rounded-full mr-3"></div>
-                                    <span class="text-gray-700">Customized approach for every client</span>
-                                </li>
-                                <li class="flex items-center">
-                                    <div class="w-2 h-2 bg-{primary} rounded-full mr-3"></div>
-                                    <span class="text-gray-700">Proven track record of success</span>
-                                </li>
+                            <h3 class="text-xl font-bold mb-4">{benefits_content.get('heading', 'Key Benefits')}</h3>
+                            <ul class="space-y-3">{benefits_list_html}
                             </ul>
                         </div>
                     </div>
@@ -7869,13 +7880,16 @@ Return ONLY the content for <main> tag."""
             # Fallback если API не вернул результат
             if not privacy_content or not isinstance(privacy_content, dict):
                 privacy_content = {
+                    "introduction_heading": "Introduction",
                     "introduction_text": f"{site_name} ('us', 'we', or 'our') is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website.",
                     "info_we_collect_heading": "Information We Collect",
+                    "info_we_collect_intro": "We may collect information about you in a variety of ways. The information we may collect includes:",
                     "personal_data_heading": "Personal Data",
                     "personal_data_items": ["Name and contact information (email address, phone number)", "Demographic information (age, gender, interests)", "Payment information for transactions", "Any other information you voluntarily provide"],
                     "usage_data_heading": "Usage Data",
                     "usage_data_items": ["IP address and browser type", "Pages visited and time spent on pages", "Referring website addresses", "Device information"],
                     "how_we_use_heading": "How We Use Your Information",
+                    "how_we_use_intro": "We use the information we collect to:",
                     "how_we_use_items": ["Provide, operate, and maintain our website and services", "Improve and personalize your experience", "Communicate with you about updates, offers, and news", "Process transactions and send transaction notifications", "Monitor and analyze usage patterns and trends", "Detect, prevent, and address technical issues and fraud"],
                     "data_security_heading": "Data Security",
                     "data_security_text": "We implement appropriate security measures to protect your personal information. However, no method of transmission over the Internet is 100% secure, and we cannot guarantee absolute security.",
@@ -7899,11 +7913,11 @@ Return ONLY the content for <main> tag."""
 
         <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
 
-        <h2 class="text-2xl font-bold mt-8 mb-4">1. Introduction</h2>
+        <h2 class="text-2xl font-bold mt-8 mb-4">1. {privacy_content.get('introduction_heading', 'Introduction')}</h2>
         <p>{privacy_content.get('introduction_text', '')}</p>
 
         <h2 class="text-2xl font-bold mt-8 mb-4">2. {privacy_content.get('info_we_collect_heading', 'Information We Collect')}</h2>
-        <p>We may collect information about you in a variety of ways. The information we may collect includes:</p>
+        <p>{privacy_content.get('info_we_collect_intro', 'We may collect information about you in a variety of ways. The information we may collect includes:')}</p>
 
         <h3 class="text-xl font-semibold mt-6 mb-3">{privacy_content.get('personal_data_heading', 'Personal Data')}</h3>
         <ul class="list-disc pl-6 my-4">
@@ -7916,7 +7930,7 @@ Return ONLY the content for <main> tag."""
         </ul>
 
         <h2 class="text-2xl font-bold mt-8 mb-4">3. {privacy_content.get('how_we_use_heading', 'How We Use Your Information')}</h2>
-        <p>We use the information we collect to:</p>
+        <p>{privacy_content.get('how_we_use_intro', 'We use the information we collect to:')}</p>
         <ul class="list-disc pl-6 my-4">
             {how_we_use_list}
         </ul>
