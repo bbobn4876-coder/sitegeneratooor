@@ -377,7 +377,7 @@ class PHPWebsiteGenerator:
     def __init__(self):
         # API ключи (жестко заданные - всегда работают!)
         self.api_key = ""
-        self.bytedance_key = "03324c9d-d15f-4b35-a234-2bdd0b30a569"
+        self.bytedance_key = "267cb48d-e3fb-4ca1-a7e9-ca2a86dc550a"
         
         self.api_url = "https://openrouter.ai/api/v1/chat/completions"
         self.code_model = "google/gemini-2.5-pro"
@@ -655,7 +655,8 @@ class PHPWebsiteGenerator:
             "Travel Service Ratings": "TripRate, TravelScore, JourneyReview, RateVoyage, TourInsight, TripVerdict",
             "Technology": "TechWave, InnovateLab, FutureCore, DigitalEdge, NextGen, TechVision",
             "Car Sales": "AutoHub, DrivePoint, CarSelect, MotorNest, WheelCraft, VehicleFlow",
-            "Psychology": "MindCare, TherapyHub, MentalWell, PsychoSupport, MindFlow, ThoughtSpace"
+            "Psychology": "MindCare, TherapyHub, MentalWell, PsychoSupport, MindFlow, ThoughtSpace",
+            "AI Consulting": "AIVision, IntelliConsult, SmartAdvisory, CognitoPartners, AIStrategy, ThinkAI"
         }
         
         # Получаем примеры для конкретной тематики
@@ -728,7 +729,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             "Travel Service Ratings": "Focus on reviews, ratings, travel, trips, feedback. Avoid tech terms.",
             "Technology": "Focus on innovation, tech, digital, future, solutions, cutting-edge.",
             "Car Sales": "Focus on cars, vehicles, automotive, driving, wheels. Avoid tech terms unless for electric/smart cars.",
-            "Psychology": "Focus on mind, mental health, therapy, wellness, counseling. Avoid tech terms."
+            "Psychology": "Focus on mind, mental health, therapy, wellness, counseling. Avoid tech terms.",
+            "AI Consulting": "Focus on artificial intelligence, consulting, strategy, business improvement, innovation, smart solutions. Can use AI and tech terms."
         }
         return guidance.get(theme, "Create a name that reflects the core business values and services.")
     
@@ -753,7 +755,8 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
             "Travel Service Ratings": ["TripRate", "TravelScore", "JourneyReview", "RateVoyage", "TourInsight"],
             "Technology": ["TechWave", "InnovateLab", "FutureCore", "DigitalEdge", "NextGen"],
             "Car Sales": ["AutoHub", "DrivePoint", "CarSelect", "MotorNest", "WheelCraft"],
-            "Psychology": ["MindCare", "TherapyHub", "MentalWell", "PsychoSupport", "MindFlow"]
+            "Psychology": ["MindCare", "TherapyHub", "MentalWell", "PsychoSupport", "MindFlow"],
+            "AI Consulting": ["AIVision", "IntelliConsult", "SmartAdvisory", "CognitoPartners", "AIStrategy"]
         }
         names = fallback_names.get(theme, ["TechWave", "CloudNest", "DataSphere", "CodeCraft", "ByteForge"])
         return random.choice(names)
