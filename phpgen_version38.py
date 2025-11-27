@@ -3997,15 +3997,19 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         num_sections = random.randint(5, 8)
         return random.sample(all_sections, num_sections)
     
-    def generate_image_via_bytedance(self, prompt, filename, output_dir):
+    def generate_image_via_bytedance(self, prompt, filename, output_dir, allow_text=False):
         """Генерация изображения через ByteDance Ark SDK"""
         # Убрали вывод отсюда - он делается в generate_images_for_site
 
         try:
+            # Формируем промпт с условным добавлением ограничения на текст
+            text_restriction = "" if allow_text else ", no text, no words, no letters"
+            full_prompt = f"{prompt}, professional photography, high quality, photorealistic, 4K{text_restriction}"
+
             # Генерация изображения через Ark API
             imagesResponse = self.ark_client.images.generate(
                 model="seedream-4-0-250828",
-                prompt=f"{prompt}, professional photography, high quality, photorealistic, 4K, no text, no words, no letters",
+                prompt=full_prompt,
                 response_format="url",
                 size="2K",
                 stream=True,
@@ -4128,6 +4132,14 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         theme_lower = theme.lower()
         country_lower = country.lower()
 
+        # Определяем, разрешены ли outdoor сцены с вывесками для данного типа бизнеса
+        # Для магазинов, ресторанов, кафе, салонов и других физических локаций разрешаем показывать здание снаружи
+        allow_outdoor_storefront = any(word in theme_lower for word in [
+            'furniture', 'restaurant', 'cafe', 'coffee', 'food', 'shop', 'store', 'retail',
+            'beauty', 'salon', 'spa', 'boutique', 'bakery', 'bar', 'pub', 'hotel',
+            'gym', 'fitness', 'studio', 'gallery', 'showroom'
+        ])
+
         # Определяем контекст работы в зависимости от темы
         work_context = ""
         work_setting = ""
@@ -4205,30 +4217,53 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         # Company: 4 опциональных для Home страницы (генерируются если num_images > 10)
 
         # Начинаем со статичных обязательных изображений
-        images_to_generate = [
-            # PRIORITY 1: Hero (обязательно - 1 шт)
-            {
-                'filename': 'hero.jpg',
-                'priority': 'required',
-                'prompt': f"Professional wide banner photograph for {theme} website. {work_setting}. {work_context}. Clean composition, natural lighting, high quality, photorealistic, 8k resolution. {ethnicity_context} if people are visible. STRICTLY NO outdoor scenes, NO streets, NO city exteriors. Interior setting only. No text or logos."
-            },
-            # PRIORITY 2: Services (обязательно - 3 шт)
+        images_to_generate = []
+
+        # PRIORITY 1: Hero (обязательно - 1 шт)
+        if allow_outdoor_storefront:
+            # Для магазинов/ресторанов - показываем здание снаружи с вывеской
+            hero_prompt = f"Professional wide banner photograph of {theme} building exterior. Beautiful storefront facade, attractive entrance, business sign with text '{site_name}' clearly visible on the sign. Clean modern architecture, inviting atmosphere, natural daylight, high quality, photorealistic, 8k resolution. Street view, welcoming commercial exterior."
+            hero_allow_text = True
+        else:
+            # Для остальных - интерьер без текста
+            hero_prompt = f"Professional wide banner photograph for {theme} website. {work_setting}. {work_context}. Clean composition, natural lighting, high quality, photorealistic, 8k resolution. {ethnicity_context} if people are visible. STRICTLY NO outdoor scenes, NO streets, NO city exteriors. Interior setting only."
+            hero_allow_text = False
+
+        images_to_generate.append({
+            'filename': 'hero.jpg',
+            'priority': 'required',
+            'prompt': hero_prompt,
+            'allow_text': hero_allow_text
+        })
+        # PRIORITY 2: Services (обязательно - 3 шт)
+        # Service1 - может показывать вывеску для магазинов/ресторанов
+        if allow_outdoor_storefront:
+            service1_prompt = f"Attractive exterior photograph of {theme} storefront. Clear view of entrance, window displays, business signage with '{site_name}' text visible. Welcoming facade, customers near entrance, professional commercial photography, natural daylight, high quality, photorealistic."
+            service1_allow_text = True
+        else:
+            service1_prompt = f"High-quality photograph representing {theme} services. {work_setting}. {work_context}. Professional service delivery, authentic indoor setting, natural lighting, clean composition, photorealistic. {ethnicity_context} if people are shown. STRICTLY NO outdoor scenes, NO streets. Interior only."
+            service1_allow_text = False
+
+        images_to_generate.extend([
             {
                 'filename': 'service1.jpg',
                 'priority': 'required',
-                'prompt': f"High-quality photograph representing {theme} services. {work_setting}. {work_context}. Professional service delivery, authentic indoor setting, natural lighting, clean composition, photorealistic. {ethnicity_context} if people are shown. STRICTLY NO outdoor scenes, NO streets. Interior only."
+                'prompt': service1_prompt,
+                'allow_text': service1_allow_text
             },
             {
                 'filename': 'service2.jpg',
                 'priority': 'required',
-                'prompt': f"Professional teamwork photograph for {theme} business. {work_setting}. {ethnicity_context} collaborating, {work_context}, natural interaction, productive atmosphere, photorealistic, bright natural light. STRICTLY NO outdoor scenes, NO streets. Interior only."
+                'prompt': f"Professional teamwork photograph for {theme} business. {work_setting}. {ethnicity_context} collaborating, {work_context}, natural interaction, productive atmosphere, photorealistic, bright natural light. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes, NO streets. Interior only.'}",
+                'allow_text': False
             },
             {
                 'filename': 'service3.jpg',
                 'priority': 'required',
-                'prompt': f"Professional service photograph for {theme} company. {work_setting}. {work_context}. Expert professionals at work, quality service delivery, attention to detail, natural lighting, photorealistic. {ethnicity_context} visible. STRICTLY NO outdoor scenes, NO streets. Interior only."
+                'prompt': f"Professional service photograph for {theme} company. {work_setting}. {work_context}. Expert professionals at work, quality service delivery, attention to detail, natural lighting, photorealistic. {ethnicity_context} visible. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes, NO streets. Interior only.'}",
+                'allow_text': False
             },
-        ]
+        ])
 
         # PRIORITY 3: Blog (динамически - 3 или 6 шт в зависимости от self.num_blog_articles)
         blog_prompts = [
@@ -4245,7 +4280,8 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             images_to_generate.append({
                 'filename': f'blog{i+1}.jpg',
                 'priority': 'required',
-                'prompt': blog_prompts[i]
+                'prompt': blog_prompts[i],
+                'allow_text': False
             })
 
         # PRIORITY 4: Services (дополнительные - 3 шт для Services страницы)
@@ -4253,17 +4289,20 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             {
                 'filename': 'service4.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional service delivery photograph for {theme} business. {work_setting}. {work_context}. Expert execution, quality craftsmanship, attention to detail, natural lighting, photorealistic. {ethnicity_context} if people are shown. STRICTLY NO outdoor scenes. Interior only."
+                'prompt': f"Professional service delivery photograph for {theme} business. {work_setting}. {work_context}. Expert execution, quality craftsmanship, attention to detail, natural lighting, photorealistic. {ethnicity_context} if people are shown. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'allow_text': False
             },
             {
                 'filename': 'service5.jpg',
                 'priority': 'optional',
-                'prompt': f"High-quality photograph showing {theme} service excellence. {work_setting}. {work_context}. Professional standards, precision work, modern tools and equipment, photorealistic. STRICTLY NO outdoor scenes. Interior only."
+                'prompt': f"High-quality photograph showing {theme} service excellence. {work_setting}. {work_context}. Professional standards, precision work, modern tools and equipment, photorealistic. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'allow_text': False
             },
             {
                 'filename': 'service6.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional service photograph for {theme} company. {work_setting}. {work_context}. Quality service provision, expert knowledge, customer-focused approach, photorealistic. {ethnicity_context} visible. STRICTLY NO outdoor scenes. Interior only."
+                'prompt': f"Professional service photograph for {theme} company. {work_setting}. {work_context}. Quality service provision, expert knowledge, customer-focused approach, photorealistic. {ethnicity_context} visible. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'allow_text': False
             },
         ])
 
@@ -4272,37 +4311,44 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             {
                 'filename': 'about.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional business photograph showing {theme} company culture. {work_setting}. {ethnicity_context} in natural professional setting, {work_context}, candid moments, warm atmosphere, photorealistic. STRICTLY NO outdoor scenes. Interior only."
+                'prompt': f"Professional business photograph showing {theme} company culture. {work_setting}. {ethnicity_context} in natural professional setting, {work_context}, candid moments, warm atmosphere, photorealistic. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'allow_text': False
             },
             {
                 'filename': 'mission.jpg',
                 'priority': 'optional',
-                'prompt': f"Inspiring photograph representing company mission and vision for {theme} business. {work_setting}. Forward-thinking perspective, aspirational imagery, professional indoor setting, authentic motivation, natural lighting, photorealistic. STRICTLY NO outdoor scenes. Interior only."
+                'prompt': f"Inspiring photograph representing company mission and vision for {theme} business. {work_setting}. Forward-thinking perspective, aspirational imagery, professional setting, authentic motivation, natural lighting, photorealistic. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'allow_text': False
             },
             {
                 'filename': 'values.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional photograph showcasing company values and culture for {theme}. {work_setting}. {ethnicity_context} demonstrating teamwork and collaboration, {work_context}, authentic workplace values, positive atmosphere, photorealistic. STRICTLY NO outdoor scenes. Interior only."
+                'prompt': f"Professional photograph showcasing company values and culture for {theme}. {work_setting}. {ethnicity_context} demonstrating teamwork and collaboration, {work_context}, authentic workplace values, positive atmosphere, photorealistic. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'allow_text': False
             },
             {
                 'filename': 'team.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional team photograph for {theme} company. {work_setting}. {ethnicity_context} in business setting, {work_context}, diverse professional team, confident and approachable, natural group composition, photorealistic. STRICTLY NO outdoor scenes. Interior only."
+                'prompt': f"Professional team photograph for {theme} company. {work_setting}. {ethnicity_context} in business setting, {work_context}, diverse professional team, confident and approachable, natural group composition, photorealistic. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'allow_text': False
             },
             {
                 'filename': 'team1.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional team member portrait for {theme} company. {work_setting}. {ethnicity_context} professional in workplace, {work_context}, confident demeanor, natural lighting, photorealistic. STRICTLY NO outdoor scenes. Interior only."
+                'prompt': f"Professional team member portrait for {theme} company. {work_setting}. {ethnicity_context} professional in workplace, {work_context}, confident demeanor, natural lighting, photorealistic. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'allow_text': False
             },
             {
                 'filename': 'team2.jpg',
                 'priority': 'optional',
-                'prompt': f"Business professional photograph for {theme} team. {work_setting}. {ethnicity_context} expert in their field, {work_context}, professional appearance, authentic portrait, photorealistic. STRICTLY NO outdoor scenes. Interior only."
+                'prompt': f"Business professional photograph for {theme} team. {work_setting}. {ethnicity_context} expert in their field, {work_context}, professional appearance, authentic portrait, photorealistic. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'allow_text': False
             },
             {
                 'filename': 'team3.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional team collaboration photograph for {theme} company. {work_setting}. {ethnicity_context} working together, {work_context}, authentic teamwork moment, natural interaction, photorealistic. STRICTLY NO outdoor scenes. Interior only."
+                'prompt': f"Professional team collaboration photograph for {theme} company. {work_setting}. {ethnicity_context} working together, {work_context}, authentic teamwork moment, natural interaction, photorealistic. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'allow_text': False
             },
         ])
 
@@ -4311,54 +4357,64 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             {
                 'filename': 'gallery1.jpg',
                 'priority': 'required',
-                'prompt': f"Showcase photograph highlighting {theme} work. {work_setting}. {work_context}. Portfolio quality, interesting composition, professional execution, authentic project, natural lighting, photorealistic. STRICTLY NO outdoor scenes. Interior only."
+                'prompt': f"Showcase photograph highlighting {theme} work. {work_setting}. {work_context}. Portfolio quality, interesting composition, professional execution, authentic project, natural lighting, photorealistic. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'allow_text': False
             },
             {
                 'filename': 'gallery2.jpg',
                 'priority': 'required',
-                'prompt': f"Professional portfolio photograph of {theme} project. {work_setting}. {work_context}. Different perspective, quality craftsmanship, authentic work, detailed shot, natural light, photorealistic. STRICTLY NO outdoor scenes. Interior only."
+                'prompt': f"Professional portfolio photograph of {theme} project. {work_setting}. {work_context}. Different perspective, quality craftsmanship, authentic work, detailed shot, natural light, photorealistic. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'allow_text': False
             },
             {
                 'filename': 'gallery3.jpg',
                 'priority': 'required',
-                'prompt': f"Quality showcase photograph for {theme} services. {work_setting}. {work_context}. Professional presentation, real project example, clean composition, authentic work, photorealistic. STRICTLY NO outdoor scenes. Interior only."
+                'prompt': f"Quality showcase photograph for {theme} services. {work_setting}. {work_context}. Professional presentation, real project example, clean composition, authentic work, photorealistic. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'allow_text': False
             },
             # PRIORITY 7: Gallery 4 (1 шт)
             {
                 'filename': 'gallery4.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional portfolio piece for {theme} company. {work_setting}. {work_context}. High-quality craftsmanship, finished project, authentic work, professional photography, photorealistic. STRICTLY NO outdoor scenes. Interior only."
+                'prompt': f"Professional portfolio piece for {theme} company. {work_setting}. {work_context}. High-quality craftsmanship, finished project, authentic work, professional photography, photorealistic. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'allow_text': False
             },
             # PRIORITY 8: Locations (6 шт)
             {
                 'filename': 'location1.jpg',
                 'priority': 'optional',
-                'prompt': f"Beautiful cityscape photograph of a major city {location_context}. Iconic architecture, vibrant urban landscape, famous landmarks, clear blue sky, natural daylight, professional travel photography, photorealistic, 8k quality."
+                'prompt': f"Beautiful cityscape photograph of a major city {location_context}. Iconic architecture, vibrant urban landscape, famous landmarks, clear blue sky, natural daylight, professional travel photography, photorealistic, 8k quality.",
+                'allow_text': False
             },
             {
                 'filename': 'location2.jpg',
                 'priority': 'optional',
-                'prompt': f"Stunning city view photograph {location_context}. Historic district, charming streets, cultural landmarks, authentic urban environment, golden hour lighting, professional cityscape photography, photorealistic."
+                'prompt': f"Stunning city view photograph {location_context}. Historic district, charming streets, cultural landmarks, authentic urban environment, golden hour lighting, professional cityscape photography, photorealistic.",
+                'allow_text': False
             },
             {
                 'filename': 'location3.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional city photograph {location_context}. Modern business district, contemporary architecture, dynamic city life, clean composition, bright daylight, high-quality urban photography, photorealistic."
+                'prompt': f"Professional city photograph {location_context}. Modern business district, contemporary architecture, dynamic city life, clean composition, bright daylight, high-quality urban photography, photorealistic.",
+                'allow_text': False
             },
             {
                 'filename': 'location4.jpg',
                 'priority': 'optional',
-                'prompt': f"Attractive cityscape showing urban beauty {location_context}. Waterfront view, riverside or canal scene, scenic city landscape, natural lighting, professional travel photography, photorealistic, detailed."
+                'prompt': f"Attractive cityscape showing urban beauty {location_context}. Waterfront view, riverside or canal scene, scenic city landscape, natural lighting, professional travel photography, photorealistic, detailed.",
+                'allow_text': False
             },
             {
                 'filename': 'location5.jpg',
                 'priority': 'optional',
-                'prompt': f"Impressive city photograph {location_context}. Cultural center, historic buildings, city square or plaza, authentic urban setting, clear weather, professional cityscape photography, photorealistic."
+                'prompt': f"Impressive city photograph {location_context}. Cultural center, historic buildings, city square or plaza, authentic urban setting, clear weather, professional cityscape photography, photorealistic.",
+                'allow_text': False
             },
             {
                 'filename': 'location6.jpg',
                 'priority': 'optional',
-                'prompt': f"High-quality urban photograph {location_context}. Residential and business areas, typical city architecture, local character, natural daylight, professional photography, photorealistic, vibrant colors."
+                'prompt': f"High-quality urban photograph {location_context}. Residential and business areas, typical city architecture, local character, natural daylight, professional photography, photorealistic, vibrant colors.",
+                'allow_text': False
             }
         ])
 
@@ -4383,7 +4439,8 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             result = self.generate_image_via_bytedance(
                 img_data['prompt'],
                 img_data['filename'],
-                images_dir
+                images_dir,
+                allow_text=img_data.get('allow_text', False)
             )
 
             # Если не получилось, создаем placeholder
@@ -4412,7 +4469,8 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                 result = self.generate_image_via_bytedance(
                     img_data['prompt'],
                     img_data['filename'],
-                    images_dir
+                    images_dir,
+                    allow_text=img_data.get('allow_text', False)
                 )
 
                 # Если не получилось, создаем placeholder
