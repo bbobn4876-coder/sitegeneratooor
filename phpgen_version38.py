@@ -4102,8 +4102,38 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         site_name = self.blueprint.get('site_name', 'Company')
         country = self.blueprint.get('country', 'USA')
 
-        # Создаем детальные контекстные промпты в зависимости от СТРАНЫ (не темы!)
+        # Создаем детальные контекстные промпты в зависимости от ТЕМЫ и СТРАНЫ
+        theme_lower = theme.lower()
         country_lower = country.lower()
+
+        # Определяем контекст работы в зависимости от темы
+        work_context = ""
+        work_setting = ""
+
+        if 'consulting' in theme_lower or 'it' in theme_lower or 'tech' in theme_lower or 'software' in theme_lower:
+            # IT/Tech Consulting - офисная среда
+            work_context = "professional office environment, business casual attire (shirts and trousers), people working at computers and laptops"
+            work_setting = "modern office interior, desk with computer monitors, meeting rooms, presentation screens with charts and graphs (NO text on charts)"
+        elif 'legal' in theme_lower or 'law' in theme_lower or 'attorney' in theme_lower:
+            # Legal - офисная среда, более формально
+            work_context = "professional law office environment, business formal attire, working with documents and laptops"
+            work_setting = "elegant office interior, bookshelves with legal books, meeting rooms, professional workspace"
+        elif 'furniture' in theme_lower or 'interior' in theme_lower or 'design' in theme_lower:
+            # Furniture Store - магазин мебели
+            work_context = "inside furniture showroom, customers sitting on sofas and chairs, testing furniture"
+            work_setting = "furniture store interior, display of sofas, chairs, tables, modern furniture arrangements, showroom atmosphere"
+        elif 'restaurant' in theme_lower or 'food' in theme_lower or 'cafe' in theme_lower:
+            # Restaurant/Cafe - интерьер заведения
+            work_context = "restaurant or cafe interior, staff and customers, dining atmosphere"
+            work_setting = "restaurant interior, tables with food, kitchen, welcoming atmosphere"
+        elif 'medical' in theme_lower or 'health' in theme_lower or 'clinic' in theme_lower:
+            # Medical - медицинские помещения
+            work_context = "medical office or clinic interior, healthcare professionals in medical attire"
+            work_setting = "clean medical facility interior, examination rooms, modern medical equipment"
+        else:
+            # General business - офисная среда
+            work_context = "professional office environment, business attire, workplace interaction"
+            work_setting = "modern office interior, professional workspace, meeting areas"
 
         # Определяем географический и этнический контекст на основе СТРАНЫ
         location_context = ""
@@ -4158,23 +4188,23 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             {
                 'filename': 'hero.jpg',
                 'priority': 'required',
-                'prompt': f"Professional wide banner photograph for {theme} website. {location_context}. Clean composition, natural lighting, high quality, photorealistic, 8k resolution. {ethnicity_context} if people are visible. No text or logos."
+                'prompt': f"Professional wide banner photograph for {theme} website. {work_setting}. {work_context}. Clean composition, natural lighting, high quality, photorealistic, 8k resolution. {ethnicity_context} if people are visible. STRICTLY NO outdoor scenes, NO streets, NO city exteriors. Interior setting only. No text or logos."
             },
             # PRIORITY 2: Services (обязательно - 3 шт)
             {
                 'filename': 'service1.jpg',
                 'priority': 'required',
-                'prompt': f"High-quality photograph representing {theme} services. {location_context}. Professional service delivery, real-world application, authentic setting, natural lighting, clean composition, photorealistic. {ethnicity_context} if people are shown."
+                'prompt': f"High-quality photograph representing {theme} services. {work_setting}. {work_context}. Professional service delivery, authentic indoor setting, natural lighting, clean composition, photorealistic. {ethnicity_context} if people are shown. STRICTLY NO outdoor scenes, NO streets. Interior only."
             },
             {
                 'filename': 'service2.jpg',
                 'priority': 'required',
-                'prompt': f"Professional teamwork photograph for {theme} business. {location_context}. {ethnicity_context} collaborating in modern office, natural interaction, authentic workplace, productive atmosphere, photorealistic, bright natural light."
+                'prompt': f"Professional teamwork photograph for {theme} business. {work_setting}. {ethnicity_context} collaborating, {work_context}, natural interaction, productive atmosphere, photorealistic, bright natural light. STRICTLY NO outdoor scenes, NO streets. Interior only."
             },
             {
                 'filename': 'service3.jpg',
                 'priority': 'required',
-                'prompt': f"Professional service photograph for {theme} company. {location_context}. Expert professionals at work, quality service delivery, attention to detail, authentic workplace setting, natural lighting, photorealistic. {ethnicity_context} visible."
+                'prompt': f"Professional service photograph for {theme} company. {work_setting}. {work_context}. Expert professionals at work, quality service delivery, attention to detail, natural lighting, photorealistic. {ethnicity_context} visible. STRICTLY NO outdoor scenes, NO streets. Interior only."
             },
         ]
 
@@ -4201,17 +4231,17 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             {
                 'filename': 'service4.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional service delivery photograph for {theme} business. {location_context}. Expert execution, quality craftsmanship, attention to detail, authentic work environment, natural lighting, photorealistic. {ethnicity_context} if people are shown."
+                'prompt': f"Professional service delivery photograph for {theme} business. {work_setting}. {work_context}. Expert execution, quality craftsmanship, attention to detail, natural lighting, photorealistic. {ethnicity_context} if people are shown. STRICTLY NO outdoor scenes. Interior only."
             },
             {
                 'filename': 'service5.jpg',
                 'priority': 'optional',
-                'prompt': f"High-quality photograph showing {theme} service excellence. {location_context}. Professional standards, precision work, modern tools and equipment, authentic workplace, photorealistic."
+                'prompt': f"High-quality photograph showing {theme} service excellence. {work_setting}. {work_context}. Professional standards, precision work, modern tools and equipment, photorealistic. STRICTLY NO outdoor scenes. Interior only."
             },
             {
                 'filename': 'service6.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional service photograph for {theme} company. {location_context}. Quality service provision, expert knowledge, customer-focused approach, authentic professional setting, photorealistic. {ethnicity_context} visible."
+                'prompt': f"Professional service photograph for {theme} company. {work_setting}. {work_context}. Quality service provision, expert knowledge, customer-focused approach, photorealistic. {ethnicity_context} visible. STRICTLY NO outdoor scenes. Interior only."
             },
         ])
 
@@ -4220,37 +4250,37 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             {
                 'filename': 'about.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional business photograph showing {theme} company culture. {location_context}. {ethnicity_context} in natural professional setting, authentic workplace environment, candid moments, warm atmosphere, photorealistic."
+                'prompt': f"Professional business photograph showing {theme} company culture. {work_setting}. {ethnicity_context} in natural professional setting, {work_context}, candid moments, warm atmosphere, photorealistic. STRICTLY NO outdoor scenes. Interior only."
             },
             {
                 'filename': 'mission.jpg',
                 'priority': 'optional',
-                'prompt': f"Inspiring photograph representing company mission and vision for {theme} business. {location_context}. Forward-thinking perspective, aspirational imagery, professional setting, authentic motivation, natural lighting, photorealistic."
+                'prompt': f"Inspiring photograph representing company mission and vision for {theme} business. {work_setting}. Forward-thinking perspective, aspirational imagery, professional indoor setting, authentic motivation, natural lighting, photorealistic. STRICTLY NO outdoor scenes. Interior only."
             },
             {
                 'filename': 'values.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional photograph showcasing company values and culture for {theme}. {location_context}. {ethnicity_context} demonstrating teamwork and collaboration, authentic workplace values, positive atmosphere, photorealistic."
+                'prompt': f"Professional photograph showcasing company values and culture for {theme}. {work_setting}. {ethnicity_context} demonstrating teamwork and collaboration, {work_context}, authentic workplace values, positive atmosphere, photorealistic. STRICTLY NO outdoor scenes. Interior only."
             },
             {
                 'filename': 'team.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional team photograph for {theme} company. {location_context}. {ethnicity_context} in business setting, diverse professional team, confident and approachable, natural group composition, photorealistic."
+                'prompt': f"Professional team photograph for {theme} company. {work_setting}. {ethnicity_context} in business setting, {work_context}, diverse professional team, confident and approachable, natural group composition, photorealistic. STRICTLY NO outdoor scenes. Interior only."
             },
             {
                 'filename': 'team1.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional team member portrait for {theme} company. {location_context}. {ethnicity_context} professional in workplace, confident demeanor, authentic business setting, natural lighting, photorealistic."
+                'prompt': f"Professional team member portrait for {theme} company. {work_setting}. {ethnicity_context} professional in workplace, {work_context}, confident demeanor, natural lighting, photorealistic. STRICTLY NO outdoor scenes. Interior only."
             },
             {
                 'filename': 'team2.jpg',
                 'priority': 'optional',
-                'prompt': f"Business professional photograph for {theme} team. {location_context}. {ethnicity_context} expert in their field, professional appearance, modern office environment, authentic portrait, photorealistic."
+                'prompt': f"Business professional photograph for {theme} team. {work_setting}. {ethnicity_context} expert in their field, {work_context}, professional appearance, authentic portrait, photorealistic. STRICTLY NO outdoor scenes. Interior only."
             },
             {
                 'filename': 'team3.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional team collaboration photograph for {theme} company. {location_context}. {ethnicity_context} working together, authentic teamwork moment, professional workplace, natural interaction, photorealistic."
+                'prompt': f"Professional team collaboration photograph for {theme} company. {work_setting}. {ethnicity_context} working together, {work_context}, authentic teamwork moment, natural interaction, photorealistic. STRICTLY NO outdoor scenes. Interior only."
             },
         ])
 
@@ -4259,23 +4289,23 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             {
                 'filename': 'gallery1.jpg',
                 'priority': 'required',
-                'prompt': f"Showcase photograph highlighting {theme} work. {location_context}. Portfolio quality, interesting composition, professional execution, authentic project, natural lighting, photorealistic."
+                'prompt': f"Showcase photograph highlighting {theme} work. {work_setting}. {work_context}. Portfolio quality, interesting composition, professional execution, authentic project, natural lighting, photorealistic. STRICTLY NO outdoor scenes. Interior only."
             },
             {
                 'filename': 'gallery2.jpg',
                 'priority': 'required',
-                'prompt': f"Professional portfolio photograph of {theme} project. {location_context}. Different perspective, quality craftsmanship, authentic work, detailed shot, natural light, photorealistic."
+                'prompt': f"Professional portfolio photograph of {theme} project. {work_setting}. {work_context}. Different perspective, quality craftsmanship, authentic work, detailed shot, natural light, photorealistic. STRICTLY NO outdoor scenes. Interior only."
             },
             {
                 'filename': 'gallery3.jpg',
                 'priority': 'required',
-                'prompt': f"Quality showcase photograph for {theme} services. {location_context}. Professional presentation, real project example, clean composition, authentic work, photorealistic."
+                'prompt': f"Quality showcase photograph for {theme} services. {work_setting}. {work_context}. Professional presentation, real project example, clean composition, authentic work, photorealistic. STRICTLY NO outdoor scenes. Interior only."
             },
             # PRIORITY 7: Gallery 4 (1 шт)
             {
                 'filename': 'gallery4.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional portfolio piece for {theme} company. {location_context}. High-quality craftsmanship, finished project, authentic work, professional photography, photorealistic."
+                'prompt': f"Professional portfolio piece for {theme} company. {work_setting}. {work_context}. High-quality craftsmanship, finished project, authentic work, professional photography, photorealistic. STRICTLY NO outdoor scenes. Interior only."
             },
             # PRIORITY 8: Locations (6 шт)
             {
@@ -6423,7 +6453,8 @@ setTimeout(showCookieNotice, 1000);
                 ]
             }
 
-        services_variant = random.randint(1, 4)
+        # Используем предвыбранный вариант или выбираем случайно
+        services_variant = getattr(self, 'selected_services_variant', random.randint(1, 4))
 
         # Вариация 1: 3 блока в сетке
         if services_variant == 1:
@@ -6905,8 +6936,74 @@ setTimeout(showCookieNotice, 1000);
         </div>
     </section>"""
 
+    def select_home_sections(self):
+        """Выбор секций для Home страницы без генерации контента"""
+        # Все доступные секции
+        all_section_keys = [
+            'image_text_about', 'gallery_centered', 'cards_3_animated',
+            'image_text_alternating', 'cards_6_grid', 'work_showcase',
+            'cards_3_carousel_bg', 'carousel_workflow', 'carousel_blog',
+            'contact_form_multistep', 'stats_section', 'why_choose_us',
+            'faq_section', 'approach_section', 'benefits_grid',
+            'testimonials_text', 'cta_centered', 'features_list'
+        ]
+
+        # Секции, требующие изображений
+        sections_requiring_gallery = {'gallery_centered'}
+
+        # Фильтруем доступные секции
+        available_section_keys = list(all_section_keys)
+
+        # Выбираем 5-6 случайных секций
+        random.shuffle(available_section_keys)
+        num_sections = random.randint(5, 6)
+        num_sections = min(num_sections, len(available_section_keys))
+        selected_sections = available_section_keys[:num_sections]
+
+        # Если contact_form_multistep в выбранных, переместить в конец
+        if 'contact_form_multistep' in selected_sections:
+            selected_sections.remove('contact_form_multistep')
+            selected_sections.append('contact_form_multistep')
+
+        return selected_sections
+
+    def calculate_required_images(self):
+        """Подсчет необходимых изображений на основе выбранных секций и страниц"""
+        required = set()
+
+        # Hero всегда нужен
+        required.add('hero.jpg')
+
+        # Services страница - в зависимости от варианта
+        if self.site_type == "multipage":
+            if self.selected_services_variant == 1:  # 3 блока
+                required.update(['service1.jpg', 'service2.jpg', 'service3.jpg'])
+            elif self.selected_services_variant == 2:  # 2 блока
+                required.update(['service1.jpg', 'service2.jpg'])
+            else:  # Вариант 3 или 4 - 1 блок
+                required.add('service1.jpg')
+
+        # Blog изображения
+        if self.site_type == "multipage":
+            for i in range(1, self.num_blog_articles + 1):
+                required.add(f'blog{i}.jpg')
+
+        # Gallery секция - только если выбрана
+        if 'gallery_centered' in self.selected_home_sections:
+            required.update(['gallery1.jpg', 'gallery2.jpg', 'gallery3.jpg'])
+
+        # About секции
+        if 'image_text_about' in self.selected_home_sections:
+            required.add('about.jpg')
+
+        # Company страница (если есть)
+        if self.site_type == "multipage" and self.num_images_to_generate >= 20:
+            required.update(['team1.jpg', 'team2.jpg', 'team3.jpg'])
+
+        return len(required)
+
     def generate_home_sections(self):
-        """Генерация случайных секций для Home страницы"""
+        """Генерация выбранных секций для Home страницы"""
         site_name = self.blueprint.get('site_name', 'Company')
         theme = self.blueprint.get('theme', 'business')
         country = self.blueprint.get('country', 'USA')
@@ -6914,81 +7011,37 @@ setTimeout(showCookieNotice, 1000);
         primary = colors.get('primary', 'blue-600')
         hover = colors.get('hover', 'blue-700')
 
-        # Все доступные секции (кроме Hero - она статична)
+        # Все доступные секции
         all_sections = {
             'image_text_about': self.generate_about_us_section(site_name, theme, primary, hover),
-
             'gallery_centered': self.generate_gallery_section(site_name, theme, primary, hover),
-
             'cards_3_animated': self.generate_services_cards_section(site_name, theme, primary, hover),
-
             'image_text_alternating': self.generate_image_text_alternating_section(site_name, theme, primary, hover),
-
             'cards_6_grid': self.generate_what_we_offer_section(site_name, theme, primary, hover),
-
             'work_showcase': self.generate_work_showcase_section(site_name, theme, primary, hover),
-
             'cards_3_carousel_bg': self.generate_featured_solutions_section(site_name, theme, primary, hover),
-
             'carousel_workflow': self.generate_our_process_section(site_name, theme, primary, hover),
-
             'carousel_blog': self.generate_blog_preview_section(site_name, theme, primary, hover),
-
             'contact_form_multistep': self.generate_contact_form_section(theme, primary, hover),
-
-            # НОВЫЕ ТЕКСТОВЫЕ СЕКЦИИ (БЕЗ ИЗОБРАЖЕНИЙ)
             'stats_section': self.generate_stats_section(theme, primary),
-
             'why_choose_us': self.generate_why_choose_us_section(theme, primary),
-
             'faq_section': self.generate_faq_section(theme, primary),
-
             'approach_section': self.generate_our_approach_section(theme, primary),
-
             'benefits_grid': self.generate_benefits_section(theme, primary),
-
             'testimonials_text': self.generate_testimonials_section(theme, primary),
-
             'cta_centered': self.generate_cta_section(theme, primary),
-
             'features_list': self.generate_features_comparison_section(theme, primary, hover),
         }
 
-        # Фильтруем секции, требующие gallery изображения
-        # Gallery изображения gallery1-3 теперь required (минимум 10 изображений)
-        # gallery4 optional, генерируется только при num_images >= 14
-        # Секции gallery используют gallery1-3, всегда доступны при минимуме
-        sections_requiring_gallery = {'gallery_centered'}
-
-        # Проверяем, сколько изображений будет сгенерировано
-        # Приоритетные (required): hero(1) + services(3) + blog(3) + gallery(3) = 10
-        # Gallery секции всегда доступны с минимумом 10 изображений
-        has_gallery_images = hasattr(self, 'num_images_to_generate') and self.num_images_to_generate >= 10
-
-        # Выбираем доступные секции
-        available_section_keys = list(all_sections.keys())
-
-        # Если gallery изображений не будет, убираем gallery секции (только при num_images < 10)
-        if not has_gallery_images:
-            available_section_keys = [k for k in available_section_keys if k not in sections_requiring_gallery]
-            print(f"  ⚠️  Gallery секции исключены (недостаточно изображений: нужно минимум 10)")
-
-        # Выбираем 5-6 случайных секций из доступных
-        random.shuffle(available_section_keys)
-        num_sections = random.randint(5, 6)
-        # Убедимся что не выбираем больше, чем доступно
-        num_sections = min(num_sections, len(available_section_keys))
-        selected_sections = available_section_keys[:num_sections]
-
-        # Если contact_form_multistep в выбранных секциях, переместить ее в конец
-        if 'contact_form_multistep' in selected_sections:
-            selected_sections.remove('contact_form_multistep')
-            selected_sections.append('contact_form_multistep')
-
-        print(f"  ✓ Выбрано {num_sections} случайных секций для Home страницы: {', '.join(selected_sections)}")
+        # Используем предвыбранные секции
+        selected_sections = getattr(self, 'selected_home_sections', [])
+        if not selected_sections:
+            # Fallback если секции не были выбраны
+            selected_sections = self.select_home_sections()
+            self.selected_home_sections = selected_sections
 
         # Возвращаем выбранные секции
-        return '\n'.join([all_sections[key] for key in selected_sections])
+        return '\n'.join([all_sections[key] for key in selected_sections if key in all_sections])
 
     def generate_page(self, page_name, output_dir):
         """Генерация страницы с максимальным качеством"""
@@ -8170,11 +8223,24 @@ Return ONLY the content for <main> tag."""
         print("\n[4/7] Favicon...")
         self.generate_favicon(output_dir)
 
-        print(f"\n[5/7] Изображения (приоритетная генерация {num_images} шт)...")
-        print(f"  📝 Статей блога: {self.num_blog_articles}")
-        self.generate_images_for_site(output_dir, num_images)
+        # НОВАЯ ЛОГИКА: Предварительный выбор секций и подсчет необходимых изображений
+        print("\n[5/7] Предварительное планирование контента...")
+        self.selected_home_sections = self.select_home_sections()
+        self.selected_services_variant = random.randint(1, 4)
+        print(f"  ✓ Выбраны секции для Home: {', '.join(self.selected_home_sections)}")
+        print(f"  ✓ Вариант Services страницы: {self.selected_services_variant}")
 
-        print("\n[6/7] Страницы...")
+        # Подсчитываем необходимое количество изображений
+        required_images = self.calculate_required_images()
+        # Минимум 3 изображения
+        actual_num_images = max(3, min(num_images, required_images))
+        print(f"  ✓ Необходимо изображений: {required_images}, будет сгенерировано: {actual_num_images}")
+
+        print(f"\n[6/7] Изображения ({actual_num_images} шт)...")
+        print(f"  📝 Статей блога: {self.num_blog_articles}")
+        self.generate_images_for_site(output_dir, actual_num_images)
+
+        print("\n[7/7] Страницы...")
 
         if site_type == "landing":
             # Лендинг - только главная страница с секциями + служебные страницы
