@@ -1591,6 +1591,21 @@ Example:
 
 Return ONLY valid JSON, no additional text or markdown formatting."""
 
+        elif content_type == "our_process_content":
+            prompt = f"""Generate "Our Process" section content for a {theme} business website.
+
+Return as JSON object with this EXACT field:
+- "subheading": Subheading for Our Process section (8-15 words, e.g., "A proven methodology to transform your ideas into reality")
+
+{language_instruction}
+
+Example:
+{{
+  "subheading": "A proven methodology to transform your ideas into reality"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
         elif content_type == "thankyou_content":
             prompt = f"""Generate thank you page translations for a {theme} business website.
 
@@ -2714,6 +2729,13 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         section_headings = self.generate_theme_content_via_api(theme, "section_headings", 1)
         our_process_heading = section_headings.get('our_process', 'Our Process') if section_headings else 'Our Process'
 
+        # Получаем переведенный подзаголовок для Our Process
+        process_content = self.generate_theme_content_via_api(theme, "our_process_content", 1)
+        if process_content and isinstance(process_content, dict):
+            process_subheading = process_content.get('subheading', 'A proven methodology to transform your ideas into reality')
+        else:
+            process_subheading = 'A proven methodology to transform your ideas into reality'
+
         # Получаем переводы кнопок
         button_texts = self.generate_theme_content_via_api(theme, "button_texts", 1)
         start_project_text = button_texts.get('start_your_project', 'Start Your Project') if button_texts else 'Start Your Project'
@@ -2728,7 +2750,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         <div class="container mx-auto px-6 relative z-10">
             <div class="text-center mb-16">
                 <h2 class="text-4xl md:text-5xl font-bold mb-4">{our_process_heading}</h2>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Simple, transparent, and effective workflow designed for your success</p>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">{process_subheading}</p>
             </div>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
@@ -2807,7 +2829,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         <div class="container mx-auto px-6">
             <div class="text-center mb-20">
                 <h2 class="text-4xl md:text-5xl font-bold mb-4">{our_process_heading}</h2>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">A proven methodology to transform your ideas into reality</p>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">{process_subheading}</p>
             </div>
 
             <div class="max-w-6xl mx-auto">
@@ -2885,7 +2907,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         <div class="container mx-auto px-6">
             <div class="text-center mb-20">
                 <h2 class="text-4xl md:text-5xl font-bold mb-4">{our_process_heading}</h2>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Every great project starts with a solid plan</p>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">{process_subheading}</p>
             </div>
 
             <div class="max-w-4xl mx-auto space-y-12">
@@ -6974,14 +6996,10 @@ setTimeout(showCookieNotice, 1000);
         # Hero всегда нужен
         required.add('hero.jpg')
 
-        # Services страница - в зависимости от варианта
+        # Services страница - всегда минимум 3 изображения
         if self.site_type == "multipage":
-            if self.selected_services_variant == 1:  # 3 блока
-                required.update(['service1.jpg', 'service2.jpg', 'service3.jpg'])
-            elif self.selected_services_variant == 2:  # 2 блока
-                required.update(['service1.jpg', 'service2.jpg'])
-            else:  # Вариант 3 или 4 - 1 блок
-                required.add('service1.jpg')
+            # Всегда генерируем минимум 3 изображения для Services, независимо от варианта
+            required.update(['service1.jpg', 'service2.jpg', 'service3.jpg'])
 
         # Blog изображения
         if self.site_type == "multipage":
@@ -8232,8 +8250,8 @@ Return ONLY the content for <main> tag."""
 
         # Подсчитываем необходимое количество изображений
         required_images = self.calculate_required_images()
-        # Минимум 3 изображения
-        actual_num_images = max(3, min(num_images, required_images))
+        # Минимум 14 изображений
+        actual_num_images = max(14, min(num_images, required_images))
         print(f"  ✓ Необходимо изображений: {required_images}, будет сгенерировано: {actual_num_images}")
 
         print(f"\n[6/7] Изображения ({actual_num_images} шт)...")
