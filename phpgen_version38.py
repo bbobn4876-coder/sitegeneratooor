@@ -1262,6 +1262,7 @@ Return ONLY valid JSON object, no additional text or markdown formatting."""
 
 Return as JSON object with these EXACT fields:
 - "heading": Section heading (2-3 words, e.g., "Key Benefits", "Our Advantages", "Why Choose Us")
+- "subheading": Supporting subheading text (10-20 words, e.g., "We deliver exceptional results through our commitment to quality, innovation, and customer satisfaction")
 - "benefits": Array of {num_items} benefits, each with:
   * "title": Benefit name (2-4 words)
   * "description": Benefit description (10-15 words)
@@ -1271,6 +1272,7 @@ Be specific to {theme} industry. Focus on real business benefits.{global_price_b
 Example:
 {{
   "heading": "Key Benefits",
+  "subheading": "We deliver exceptional results through our commitment to quality, innovation, and customer satisfaction",
   "benefits": [
     {{"title": "Cost Efficiency", "description": "Maximize your ROI with our optimized processes and competitive pricing structure"}},
     {{"title": "Scalability", "description": "Solutions designed to grow with your business needs and adapt to market changes"}},
@@ -1572,6 +1574,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             prompt = f"""Generate common section headings for a {theme} business website.
 
 Return as JSON object with these EXACT fields:
+- "services": "Our Services" section heading (2-4 words)
 - "featured_solutions": "Featured Solutions" section heading (2-4 words)
 - "our_process": "Our Process" section heading (2-4 words)
 - "faq": "Frequently Asked Questions" section heading (3-6 words)
@@ -1582,6 +1585,7 @@ Return as JSON object with these EXACT fields:
 
 Example:
 {{
+  "services": "Our Services",
   "featured_solutions": "Featured Solutions",
   "our_process": "Our Process",
   "faq": "Frequently Asked Questions",
@@ -4153,9 +4157,9 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             work_context = "professional law office environment, business formal attire, working with documents and laptops"
             work_setting = "elegant office interior, bookshelves with legal books, meeting rooms, professional workspace"
         elif 'furniture' in theme_lower or 'interior' in theme_lower or 'design' in theme_lower:
-            # Furniture Store - магазин мебели
-            work_context = "inside furniture showroom, customers sitting on sofas and chairs, testing furniture"
-            work_setting = "furniture store interior, display of sofas, chairs, tables, modern furniture arrangements, showroom atmosphere"
+            # Furniture Store - магазин мебели (ONLY behind glass or inside, NO outdoor furniture)
+            work_context = "inside furniture showroom, customers sitting on sofas and chairs, testing furniture, STRICTLY NO outdoor furniture"
+            work_setting = "furniture store interior, display of sofas, chairs, tables, modern furniture arrangements, showroom atmosphere. Furniture ONLY behind glass windows or inside the store, NO furniture on streets or outdoors"
         elif 'restaurant' in theme_lower or 'food' in theme_lower or 'cafe' in theme_lower:
             # Restaurant/Cafe - интерьер заведения
             work_context = "restaurant or cafe interior, staff and customers, dining atmosphere"
@@ -4222,7 +4226,11 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         # PRIORITY 1: Hero (обязательно - 1 шт)
         if allow_outdoor_storefront:
             # Для магазинов/ресторанов - показываем здание снаружи с вывеской
-            hero_prompt = f"Professional wide banner photograph of {theme} building exterior. Beautiful storefront facade, attractive entrance, business sign with text '{site_name}' clearly visible on the sign. Clean modern architecture, inviting atmosphere, natural daylight, high quality, photorealistic, 8k resolution. Street view, welcoming commercial exterior."
+            # Для мебельных магазинов - мебель ТОЛЬКО за стеклом или внутри
+            if 'furniture' in theme_lower:
+                hero_prompt = f"Professional wide banner photograph of {theme} building exterior. Beautiful storefront facade with large glass windows displaying furniture inside, attractive entrance, business sign with text '{site_name}' clearly visible on the sign. Furniture visible ONLY behind glass windows or inside the store, STRICTLY NO furniture on streets or outdoors. Clean modern architecture, inviting atmosphere, natural daylight, high quality, photorealistic, 8k resolution."
+            else:
+                hero_prompt = f"Professional wide banner photograph of {theme} building exterior. Beautiful storefront facade, attractive entrance, business sign with text '{site_name}' clearly visible on the sign. Clean modern architecture, inviting atmosphere, natural daylight, high quality, photorealistic, 8k resolution. Street view, welcoming commercial exterior."
             hero_allow_text = True
         else:
             # Для остальных - интерьер без текста
@@ -4238,7 +4246,11 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         # PRIORITY 2: Services (обязательно - 3 шт)
         # Service1 - может показывать вывеску для магазинов/ресторанов
         if allow_outdoor_storefront:
-            service1_prompt = f"Attractive exterior photograph of {theme} storefront. Clear view of entrance, window displays, business signage with '{site_name}' text visible. Welcoming facade, customers near entrance, professional commercial photography, natural daylight, high quality, photorealistic."
+            # Для мебельных магазинов - мебель ТОЛЬКО за стеклом или внутри
+            if 'furniture' in theme_lower:
+                service1_prompt = f"Attractive exterior photograph of {theme} storefront with large glass windows. Clear view of furniture displays behind glass windows, entrance, business signage with '{site_name}' text visible. Furniture ONLY behind glass or inside the store, STRICTLY NO furniture on streets or outdoors. Welcoming facade, customers near entrance, professional commercial photography, natural daylight, high quality, photorealistic."
+            else:
+                service1_prompt = f"Attractive exterior photograph of {theme} storefront. Clear view of entrance, window displays, business signage with '{site_name}' text visible. Welcoming facade, customers near entrance, professional commercial photography, natural daylight, high quality, photorealistic."
             service1_allow_text = True
         else:
             service1_prompt = f"High-quality photograph representing {theme} services. {work_setting}. {work_context}. Professional service delivery, authentic indoor setting, natural lighting, clean composition, photorealistic. {ethnicity_context} if people are shown. STRICTLY NO outdoor scenes, NO streets. Interior only."
@@ -6796,7 +6808,7 @@ setTimeout(showCookieNotice, 1000);
             ]
         else:
             heading = benefits_data.get('heading', 'Why Choose Us')
-            subheading = 'We deliver exceptional results through our commitment to quality, innovation, and customer satisfaction'
+            subheading = benefits_data.get('subheading', 'We deliver exceptional results through our commitment to quality, innovation, and customer satisfaction')
             benefits = benefits_data.get('benefits', [])
 
         # SVG icons для трех преимуществ
