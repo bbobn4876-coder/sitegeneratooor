@@ -4368,7 +4368,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         required_images = [img for img in images_to_generate if img.get('priority') == 'required']
         optional_images = [img for img in images_to_generate if img.get('priority') == 'optional']
 
-        print(f"\n🖼️  Генерация изображений: {num_images} шт. (минимум 17 обязательных)")
+        print(f"\n🖼️  Генерация изображений: {num_images} шт. (минимум 13 обязательных)")
         print(f"   📌 Обязательные: {len(required_images)} (hero + 3 services + {self.num_blog_articles} blog + 3 gallery)")
         print(f"   ⭐ Дополнительные: {len(optional_images)} (4 company, gallery4, 6 locations)")
 
@@ -8254,11 +8254,7 @@ Return ONLY the content for <main> tag."""
         actual_num_images = max(14, min(num_images, required_images))
         print(f"  ✓ Необходимо изображений: {required_images}, будет сгенерировано: {actual_num_images}")
 
-        print(f"\n[6/7] Изображения ({actual_num_images} шт)...")
-        print(f"  📝 Статей блога: {self.num_blog_articles}")
-        self.generate_images_for_site(output_dir, actual_num_images)
-
-        print("\n[7/7] Страницы...")
+        print("\n[6/7] Страницы...")
 
         if site_type == "landing":
             # Лендинг - только главная страница с секциями + служебные страницы
@@ -8286,7 +8282,11 @@ Return ONLY the content for <main> tag."""
                 if not success:
                     print(f"      ⚠️  Ошибка генерации {blog_page}.php, создан fallback")
 
-        print("\n[7/7] Дополнительные файлы...")
+        print(f"\n[7/7] Изображения ({actual_num_images} шт)...")
+        print(f"  📝 Статей блога: {self.num_blog_articles}")
+        self.generate_images_for_site(output_dir, actual_num_images)
+
+        print("\n[8/8] Дополнительные файлы...")
         self.generate_additional_files(output_dir)
         
         print("\n" + "=" * 60)
