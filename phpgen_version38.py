@@ -540,15 +540,23 @@ class PHPWebsiteGenerator:
         for attempt in range(5):
             try:
                 response = requests.post(
-                    self.api_url, 
-                    headers=headers, 
-                    data=json.dumps(data), 
+                    self.api_url,
+                    headers=headers,
+                    data=json.dumps(data),
                     timeout=240,  # Увеличен таймаут до 4 минут
                     verify=True   # SSL проверка
                 )
                 response.raise_for_status()
                 result = response.json()
-                return result['choices'][0]['message']['content']
+                content = result['choices'][0]['message']['content']
+                if not content or not content.strip():
+                    print(f"    ⚠️  API вернул пустой контент")
+                    if attempt < 4:
+                        import time
+                        time.sleep(3)
+                        continue
+                    return None
+                return content
                 
             except requests.exceptions.ChunkedEncodingError as e:
                 # Ошибка "Response ended prematurely"
@@ -1960,8 +1968,8 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         print(f"    🤖 Генерация контента для темы '{theme}' ({content_type})...")
         response = self.call_api(prompt, max_tokens=max_tokens)
 
-        if not response:
-            print(f"    ✗ API не вернул ответ для {content_type}")
+        if not response or not response.strip():
+            print(f"    ✗ API не вернул ответ для {content_type} (response is {'None' if response is None else 'empty'})")
             return None
 
         try:
@@ -4386,13 +4394,13 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             {
                 'filename': 'team1.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional team member portrait for {theme} company. {work_setting}. {ethnicity_context} professional in workplace, {work_context}, confident demeanor, natural lighting, photorealistic. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'prompt': f"Professional corporate headshot portrait. {ethnicity_context} business professional in formal business suit, white background, studio lighting, confident smile, photorealistic, high quality corporate photography. CRITICAL: Clean white background only, no other elements.",
                 'allow_text': False
             },
             {
                 'filename': 'team2.jpg',
                 'priority': 'optional',
-                'prompt': f"Business professional photograph for {theme} team. {work_setting}. {ethnicity_context} expert in their field, {work_context}, professional appearance, authentic portrait, photorealistic. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'prompt': f"Professional corporate headshot portrait. {ethnicity_context} business executive in formal business suit, white background, studio lighting, professional demeanor, photorealistic, high quality corporate photography. CRITICAL: Clean white background only, no other elements.",
                 'allow_text': False
             },
             {
