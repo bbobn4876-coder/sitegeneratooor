@@ -4481,9 +4481,10 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
         generated_count = 0
 
-        # ЭТАП 1: Генерируем ВСЕ обязательные изображения (минимум 10 шт)
-        print(f"\n   🔥 Этап 1/2: Генерация обязательных изображений...")
-        for img_data in required_images:
+        # ЭТАП 1: Генерируем обязательные изображения до лимита num_images
+        num_required_to_generate = min(len(required_images), num_images)
+        print(f"\n   🔥 Этап 1/2: Генерация обязательных изображений ({num_required_to_generate} шт)...")
+        for img_data in required_images[:num_required_to_generate]:
             print(f"      → {img_data['filename']}...", end=' ')
 
             # Сначала пробуем ByteDance
@@ -7123,9 +7124,8 @@ setTimeout(showCookieNotice, 1000);
         if 'image_text_about' in self.selected_home_sections:
             required.add('about.jpg')
 
-        # Company страница (если есть)
-        if self.site_type == "multipage" and self.num_images_to_generate >= 20:
-            required.update(['team1.jpg', 'team2.jpg', 'team3.jpg'])
+        # Company страница team изображения теперь опциональные (не включаем в required)
+        # Они будут генерироваться только если есть место после обязательных изображений
 
         return len(required)
 
@@ -7196,9 +7196,12 @@ setTimeout(showCookieNotice, 1000);
         # Языковая инструкция для всех промптов
         language_requirement = f"\n\nCRITICAL LANGUAGE REQUIREMENT: Generate ALL content (headings, text, buttons, labels) EXCLUSIVELY in {language}. Every single word MUST be in {language}. This is MANDATORY."
 
-        # Определяем промпт для Company в зависимости от количества изображений
-        if self.num_images_to_generate == 24:
-            # Если генерируем 24 изображения - используем team1-3.jpg
+        # Определяем промпт для Company в зависимости от наличия team изображений
+        # Проверяем, были ли сгенерированы team изображения
+        has_team_images = all(img in self.generated_images for img in ['team1.jpg', 'team2.jpg', 'team3.jpg'])
+
+        if has_team_images:
+            # Если есть team изображения - используем их
             company_prompt = f"""Create a professional COMPANY page for {site_name} - a {theme} business.
 
 REQUIREMENTS:
@@ -7228,7 +7231,7 @@ CRITICAL:
 
 Return ONLY the content for <main> tag."""
         else:
-            # Для 17, 19, 20 изображений - используем текстовые блоки без изображений
+            # Если нет team изображений - используем текстовые блоки без изображений
             company_prompt = f"""Create a professional COMPANY page for {site_name} - a {theme} business.
 
 REQUIREMENTS:
@@ -8358,10 +8361,12 @@ Return ONLY the content for <main> tag."""
         print(f"  ✓ Вариант Services страницы: {self.selected_services_variant}")
 
         # Подсчитываем необходимое количество изображений
-        required_images = self.calculate_required_images()
-        # Генерируем ровно столько, сколько запросил пользователь (без минимума)
-        actual_num_images = min(num_images, required_images) if required_images > 0 else num_images
-        print(f"  ✓ Необходимо изображений: {required_images}, будет сгенерировано: {actual_num_images}")
+        required_images_count = self.calculate_required_images()
+        # Генерируем только необходимое количество, не больше запрошенного
+        # Если нужно 10, а запросили 14 - генерируем 10 (избегаем лишних)
+        # Если нужно 14, а запросили 10 - генерируем 10 (не можем больше)
+        actual_num_images = min(num_images, required_images_count) if required_images_count > 0 else num_images
+        print(f"  ✓ Минимально необходимо изображений: {required_images_count}, будет сгенерировано: {actual_num_images}")
 
         print("\n[6/7] Страницы...")
 
