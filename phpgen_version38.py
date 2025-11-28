@@ -1210,33 +1210,28 @@ Example:
 Return ONLY valid JSON, no additional text or markdown formatting."""
 
         elif content_type == "achievements_content":
-            prompt = f"""Generate achievements/statistics section for a {theme} business.
+            prompt = f"""Generate achievements/statistics section for a {theme} business.{language_instruction}
+
+CRITICAL TRANSLATION REQUIREMENTS:
+- ALL fields including "heading" and ALL "stat_label" fields MUST be in {language}
+- Do NOT use English for ANY field, especially not for stat labels
+- Translate ALL text: "heading", "stat1_label", "stat2_label", "stat3_label", "stat4_label"
+- Numbers can stay as-is (like "500+", "98%"), but labels MUST be in {language}
 
 Return as JSON object with these EXACT fields:
-- "heading": Section heading (e.g., "Our Achievements", "Our Stats", "By The Numbers")
+- "heading": Section heading in {language} (e.g., achievements, statistics, results)
 - "stat1_number": First statistic number (e.g., "500+", "15+")
-- "stat1_label": First statistic label (2-3 words)
+- "stat1_label": First statistic label in {language} (2-3 words, specific to {theme})
 - "stat2_number": Second statistic number
-- "stat2_label": Second statistic label (2-3 words)
+- "stat2_label": Second statistic label in {language} (2-3 words, specific to {theme})
 - "stat3_number": Third statistic number
-- "stat3_label": Third statistic label (2-3 words)
+- "stat3_label": Third statistic label in {language} (2-3 words, specific to {theme})
 - "stat4_number": Fourth statistic number
-- "stat4_label": Fourth statistic label (2-3 words)
+- "stat4_label": Fourth statistic label in {language} (2-3 words, specific to {theme})
 
-Be specific to {theme} industry. Use realistic, impressive but believable numbers.{global_price_ban}{theme_specific_instructions}{language_instruction}
+Be specific to {theme} industry. Use realistic, impressive but believable numbers.{global_price_ban}{theme_specific_instructions}
 
-Example:
-{{
-  "heading": "Our Achievements",
-  "stat1_number": "500+",
-  "stat1_label": "Projects Completed",
-  "stat2_number": "15+",
-  "stat2_label": "Years Experience",
-  "stat3_number": "98%",
-  "stat3_label": "Client Satisfaction",
-  "stat4_number": "50+",
-  "stat4_label": "Team Members"
-}}
+REMEMBER: Every single word in heading and labels MUST be in {language} language. NO English words allowed!
 
 Return ONLY valid JSON, no additional text or markdown formatting."""
 
@@ -6797,48 +6792,60 @@ setTimeout(showCookieNotice, 1000);
 
     def generate_stats_section(self, theme, primary):
         """Генерирует секцию статистики через API с языковой поддержкой"""
-        achievements_data = self.generate_theme_content_via_api(theme, "achievements_content", 1)
+        language = self.blueprint.get('language', 'English')
 
-        # Fallback если API не вернул результат - пробуем еще раз
-        if not achievements_data:
-            print(f"    ⚠️  Первая попытка achievements_content не удалась, пробуем снова...")
+        # Пробуем до 3 раз получить контент от API
+        achievements_data = None
+        for attempt in range(3):
+            if attempt > 0:
+                print(f"    ⚠️  Попытка #{attempt + 1} для achievements_content...")
+                # Очищаем кэш для этого запроса, чтобы гарантировать новый API вызов
+                cache_key = f"{theme}_achievements_content_1_{language}"
+                if cache_key in self.theme_content_cache:
+                    del self.theme_content_cache[cache_key]
+
             achievements_data = self.generate_theme_content_via_api(theme, "achievements_content", 1)
 
-            if not achievements_data:
-                # Если и вторая попытка не удалась, используем минимальный fallback
-                print(f"    ⚠️  Используем базовый fallback для achievements_content")
-                achievements_data = {
-                    'heading': 'Stats',
-                    'stat1_number': '500+',
-                    'stat1_label': 'Projects',
-                    'stat2_number': '15+',
-                    'stat2_label': 'Years',
-                    'stat3_number': '98%',
-                    'stat3_label': 'Satisfaction',
-                    'stat4_number': '50+',
-                    'stat4_label': 'Team'
-                }
+            # Проверяем, что мы получили все необходимые поля
+            if achievements_data and all(key in achievements_data for key in ['heading', 'stat1_label', 'stat2_label', 'stat3_label', 'stat4_label']):
+                print(f"    ✓ achievements_content успешно получен с попытки #{attempt + 1}")
+                break
+
+        if not achievements_data:
+            # Если все попытки не удались, используем минимальный fallback
+            print(f"    ⚠️  Все 3 попытки achievements_content не удались, используем базовый fallback")
+            achievements_data = {
+                'heading': 'Stats',
+                'stat1_number': '500+',
+                'stat1_label': 'Projects',
+                'stat2_number': '15+',
+                'stat2_label': 'Years',
+                'stat3_number': '98%',
+                'stat3_label': 'Satisfaction',
+                'stat4_number': '50+',
+                'stat4_label': 'Team'
+            }
 
         return f"""
     <section class="py-20 bg-{primary}">
         <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center text-white mb-16">{achievements_data.get('heading', 'Our Achievements')}</h2>
+            <h2 class="text-4xl font-bold text-center text-white mb-16">{achievements_data.get('heading', 'Stats')}</h2>
             <div class="grid md:grid-cols-4 gap-8">
                 <div class="text-center">
                     <div class="text-5xl font-bold text-white mb-2">{achievements_data.get('stat1_number', '500+')}</div>
-                    <p class="text-white/80 text-lg">{achievements_data.get('stat1_label', 'Projects Completed')}</p>
+                    <p class="text-white/80 text-lg">{achievements_data.get('stat1_label', 'Projects')}</p>
                 </div>
                 <div class="text-center">
                     <div class="text-5xl font-bold text-white mb-2">{achievements_data.get('stat2_number', '15+')}</div>
-                    <p class="text-white/80 text-lg">{achievements_data.get('stat2_label', 'Years Experience')}</p>
+                    <p class="text-white/80 text-lg">{achievements_data.get('stat2_label', 'Years')}</p>
                 </div>
                 <div class="text-center">
                     <div class="text-5xl font-bold text-white mb-2">{achievements_data.get('stat3_number', '98%')}</div>
-                    <p class="text-white/80 text-lg">{achievements_data.get('stat3_label', 'Client Satisfaction')}</p>
+                    <p class="text-white/80 text-lg">{achievements_data.get('stat3_label', 'Satisfaction')}</p>
                 </div>
                 <div class="text-center">
                     <div class="text-5xl font-bold text-white mb-2">{achievements_data.get('stat4_number', '50+')}</div>
-                    <p class="text-white/80 text-lg">{achievements_data.get('stat4_label', 'Team Members')}</p>
+                    <p class="text-white/80 text-lg">{achievements_data.get('stat4_label', 'Team')}</p>
                 </div>
             </div>
         </div>
