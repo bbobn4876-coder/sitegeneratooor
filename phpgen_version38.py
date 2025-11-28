@@ -4329,35 +4329,26 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             'allow_text': hero_allow_text
         })
         # PRIORITY 2: Services (обязательно - 3 шт)
-        # Service1 - может показывать вывеску для магазинов/ресторанов
-        if allow_outdoor_storefront:
-            # Для мебельных магазинов - мебель ТОЛЬКО за стеклом или внутри
-            if 'furniture' in theme_lower:
-                service1_prompt = f"Attractive exterior photograph of {theme} storefront with large glass windows. Clear view of furniture displays behind glass windows, entrance, business signage with '{site_name}' text visible. Furniture ONLY behind glass or inside the store, STRICTLY NO furniture on streets or outdoors. Welcoming facade, customers near entrance, professional commercial photography, natural daylight, high quality, photorealistic."
-            else:
-                service1_prompt = f"Attractive exterior photograph of {theme} storefront. Clear view of entrance, window displays, business signage with '{site_name}' text visible. Welcoming facade, customers near entrance, professional commercial photography, natural daylight, high quality, photorealistic."
-            service1_allow_text = True
-        else:
-            service1_prompt = f"High-quality photograph representing {theme} services. {work_setting}. {work_context}. Professional service delivery, authentic indoor setting, natural lighting, clean composition, photorealistic. {ethnicity_context} if people are shown. STRICTLY NO outdoor scenes, NO streets. Interior only."
-            service1_allow_text = False
+        # Service images always show professionals in business suits in office environment
+        service1_prompt = f"Professional office photograph showing business professionals in formal business suits and dress shirts working together in modern office environment. {ethnicity_context}. Conference room or office meeting space, laptops and documents on table, collaborative discussion, natural office lighting, photorealistic, high quality. STRICTLY interior office setting only."
 
         images_to_generate.extend([
             {
                 'filename': 'service1.jpg',
                 'priority': 'required',
                 'prompt': service1_prompt,
-                'allow_text': service1_allow_text
+                'allow_text': False
             },
             {
                 'filename': 'service2.jpg',
                 'priority': 'required',
-                'prompt': f"Professional teamwork photograph for {theme} business. {work_setting}. {ethnicity_context} collaborating, {work_context}, natural interaction, productive atmosphere, photorealistic, bright natural light. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes, NO streets. Interior only.'}",
+                'prompt': f"Professional business photograph showing diverse team of professionals in formal business suits and dress shirts in modern office. {ethnicity_context} collaborating around desk with laptops, professional office interior, natural interaction, bright office lighting, photorealistic. STRICTLY NO outdoor scenes, interior office only.",
                 'allow_text': False
             },
             {
                 'filename': 'service3.jpg',
                 'priority': 'required',
-                'prompt': f"Professional service photograph for {theme} company. {work_setting}. {work_context}. Expert professionals at work, quality service delivery, attention to detail, natural lighting, photorealistic. {ethnicity_context} visible. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes, NO streets. Interior only.'}",
+                'prompt': f"High-quality office photograph with business professionals in formal business attire (suits, dress shirts, blazers) working in professional office environment. {ethnicity_context}. Modern office workspace, professional presentation or meeting, confident business people, natural office lighting, photorealistic. STRICTLY interior office setting only.",
                 'allow_text': False
             },
         ])
@@ -4386,19 +4377,19 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             {
                 'filename': 'service4.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional service delivery photograph for {theme} business. {work_setting}. {work_context}. Expert execution, quality craftsmanship, attention to detail, natural lighting, photorealistic. {ethnicity_context} if people are shown. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'prompt': f"Professional office photograph with business professionals in formal business suits working in modern office setting. {ethnicity_context}. Executive meeting or presentation, professional business environment, confident professionals, office interior, natural lighting, photorealistic. STRICTLY interior office only.",
                 'allow_text': False
             },
             {
                 'filename': 'service5.jpg',
                 'priority': 'optional',
-                'prompt': f"High-quality photograph showing {theme} service excellence. {work_setting}. {work_context}. Professional standards, precision work, modern tools and equipment, photorealistic. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'prompt': f"High-quality business photograph showing professionals in business suits and dress shirts in office environment. {ethnicity_context}. Modern office workspace, business people at work, professional atmosphere, office interior with computers and workspace, photorealistic. STRICTLY interior office setting only.",
                 'allow_text': False
             },
             {
                 'filename': 'service6.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional service photograph for {theme} company. {work_setting}. {work_context}. Quality service provision, expert knowledge, customer-focused approach, photorealistic. {ethnicity_context} visible. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'prompt': f"Professional business photograph with team in formal business attire (suits, blazers, dress shirts) in office setting. {ethnicity_context}. Professional office environment, collaborative work, modern business interior, confident professionals, photorealistic. STRICTLY interior office only.",
                 'allow_text': False
             },
         ])
@@ -4432,19 +4423,19 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             {
                 'filename': 'team1.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional corporate headshot portrait. {ethnicity_context} business professional in formal business suit, white background, studio lighting, confident smile, photorealistic, high quality corporate photography. CRITICAL: Clean white background only, no other elements.",
+                'prompt': f"Professional corporate headshot portrait of a male business professional. {ethnicity_context} man in formal business suit with dress shirt, clean white background, professional studio lighting, confident smile, friendly demeanor, photorealistic, high quality corporate photography. CRITICAL: Male person only, clean white background, no other elements, business attire.",
                 'allow_text': False
             },
             {
                 'filename': 'team2.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional corporate headshot portrait. {ethnicity_context} business executive in formal business suit, white background, studio lighting, professional demeanor, photorealistic, high quality corporate photography. CRITICAL: Clean white background only, no other elements.",
+                'prompt': f"Professional corporate headshot portrait of a female business professional. {ethnicity_context} woman in formal business attire (blazer, professional shirt), clean white background, professional studio lighting, confident smile, friendly demeanor, photorealistic, high quality corporate photography. CRITICAL: Female person only, clean white background, no other elements, business attire.",
                 'allow_text': False
             },
             {
                 'filename': 'team3.jpg',
                 'priority': 'optional',
-                'prompt': f"Professional team collaboration photograph for {theme} company. {work_setting}. {ethnicity_context} working together, {work_context}, authentic teamwork moment, natural interaction, photorealistic. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
+                'prompt': f"Professional corporate headshot portrait of a female business professional. {ethnicity_context} woman in formal business attire (blazer, professional shirt), clean white background, professional studio lighting, warm smile, approachable demeanor, photorealistic, high quality corporate photography. CRITICAL: Female person only, clean white background, no other elements, business attire.",
                 'allow_text': False
             },
         ])
@@ -7132,6 +7123,199 @@ setTimeout(showCookieNotice, 1000);
         </div>
     </section>"""
 
+    def generate_two_images_right_section(self, site_name, theme, primary, hover):
+        """Генерирует секцию с двумя изображениями справа и контентом слева с кнопкой на Contact"""
+        # Получаем контент через API
+        content_data = self.generate_theme_content_via_api(theme, "two_images_section", 1)
+
+        if not content_data:
+            content_data = {
+                'heading': 'Reduce Your Expenses by 50%',
+                'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+                'button_text': 'Learn More'
+            }
+
+        return f"""
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-5xl font-bold mb-6">{content_data.get('heading', 'Reduce Your Expenses by 50%')}</h2>
+                    <p class="text-gray-600 text-lg mb-8 leading-relaxed">{content_data.get('description', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.')}</p>
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                        {content_data.get('button_text', 'Learn More')} →
+                    </a>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-4">
+                        <img src="images/gallery1.jpg" alt="Professional work" class="rounded-2xl shadow-lg w-full h-64 object-cover">
+                    </div>
+                    <div class="space-y-4 mt-8">
+                        <img src="images/gallery2.jpg" alt="Team collaboration" class="rounded-2xl shadow-lg w-full h-64 object-cover">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>"""
+
+    def generate_contact_form_with_benefits_section(self, theme, primary, hover):
+        """Генерирует секцию с контактной формой справа и преимуществами слева"""
+        # Получаем контент через API
+        form_data = self.generate_theme_content_via_api(theme, "contact_form_benefits", 1)
+        benefits_data = self.generate_theme_content_via_api(theme, "benefits_list", 3)
+
+        if not form_data:
+            form_data = {
+                'heading': 'Transform Business Growth with Revolutionary Services',
+                'description': 'We specialize in investing in technological startups in the field of rear view. Duis aute irure dolor in osaedeut za sladoestrastie velit esse cilum dolore eu fugiat nulla pariatur. Excepteur sint osaedeut cupidatat not proident, sunt in culpa qui officia deserunt mollit anim id est Laborum.',
+                'name_label': 'Enter your Name',
+                'email_label': 'Enter a valid email address',
+                'submit_button': 'Connect With Us'
+            }
+
+        if not benefits_data:
+            benefits_data = [
+                {'title': 'Strategic Roadmap Planning'},
+                {'title': 'Cloud Solutions Implementation'},
+                {'title': 'Data-Driven Understanding'}
+            ]
+
+        benefits_html = ""
+        for benefit in benefits_data:
+            benefits_html += f"<li class=\"flex items-start\"><span class=\"text-{primary} mr-3 text-xl\">•</span><span class=\"text-lg\">{benefit.get('title', '')}</span></li>\n                    "
+
+        return f"""
+    <section class="py-20 bg-blue-600">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-start">
+                <div class="text-white">
+                    <h2 class="text-4xl font-bold mb-6">{form_data.get('heading', 'Transform Business Growth')}</h2>
+                    <p class="text-white opacity-90 mb-8 leading-relaxed">{form_data.get('description', 'We offer comprehensive solutions.')}</p>
+                    <ul class="space-y-4 text-white">
+                        {benefits_html}
+                    </ul>
+                </div>
+                <div class="bg-white rounded-2xl p-8 shadow-2xl">
+                    <h3 class="text-2xl font-bold mb-6">Order a Free Consultation</h3>
+                    <form action="thanks_you.php" method="POST" class="space-y-6">
+                        <div>
+                            <input type="text" id="name" name="name" placeholder="{form_data.get('name_label', 'Enter your Name')}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent">
+                        </div>
+                        <div>
+                            <input type="email" id="email" name="email" placeholder="{form_data.get('email_label', 'Enter a valid email address')}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent">
+                        </div>
+                        <div>
+                            <textarea id="message" name="message" rows="4" placeholder="Message" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-{primary} hover:bg-{hover} text-white py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                            {form_data.get('submit_button', 'Connect With Us')}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>"""
+
+    def generate_four_images_grid_section(self, site_name, theme, primary, hover):
+        """Генерирует секцию с 4 изображениями в сетке с кнопкой на Services"""
+        content_data = self.generate_theme_content_via_api(theme, "four_images_section", 1)
+
+        if not content_data:
+            content_data = {
+                'heading': 'Complete HR Management Support Services',
+                'description': 'Dignissim suspendisse in est ante in nibh mauris. Varius quam quisque id diam vel quam elementum pulvinar etiam. Nunc pulvinar sapien et ligula ullamcorper malesuada proin. Nunc mattis enim ut tellus elementum.',
+                'button_text': 'Read More'
+            }
+
+        return f"""
+    <section class="py-20 bg-blue-600">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-6">
+                        <img src="images/service1.jpg" alt="Service 1" class="rounded-xl shadow-lg w-full h-48 object-cover">
+                        <img src="images/service3.jpg" alt="Service 3" class="rounded-xl shadow-lg w-full h-48 object-cover">
+                    </div>
+                    <div class="space-y-6 mt-8">
+                        <img src="images/service2.jpg" alt="Service 2" class="rounded-xl shadow-lg w-full h-48 object-cover">
+                        <img src="images/service4.jpg" alt="Service 4" class="rounded-xl shadow-lg w-full h-48 object-cover" onerror="this.src='images/gallery1.jpg'">
+                    </div>
+                </div>
+                <div class="text-white">
+                    <h2 class="text-5xl font-bold mb-6">{content_data.get('heading', 'Complete HR Management Support Services')}</h2>
+                    <p class="text-white opacity-90 mb-8 text-lg leading-relaxed">{content_data.get('description', 'Professional services tailored to your needs.')}</p>
+                    <a href="services.php" class="inline-block border-2 border-white text-white hover:bg-white hover:text-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition">
+                        {content_data.get('button_text', 'Read More')}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>"""
+
+    def generate_our_team_section(self, site_name, theme, primary):
+        """Генерирует секцию Our Team с портретами членов команды"""
+        # Получаем данные команды через API
+        team_data = self.generate_theme_content_via_api(theme, "team_members", 3)
+
+        if not team_data:
+            team_data = [
+                {'name': 'Nat Reynolds', 'position': 'Worldwide Partner', 'gender': 'male'},
+                {'name': 'Jennie Roberts', 'position': 'Partner', 'gender': 'female'},
+                {'name': 'Mila Parker', 'position': 'Partner', 'gender': 'female'}
+            ]
+
+        # Генерируем карточки команды
+        team_cards = ""
+        for i, member in enumerate(team_data, 1):
+            team_cards += f"""
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <div class="h-80 overflow-hidden bg-gray-100">
+                        <img src="images/team{i}.jpg" alt="{member.get('name', 'Team Member')}" class="w-full h-full object-cover" onerror="this.src='images/about.jpg'">
+                    </div>
+                    <div class="p-8 text-center">
+                        <h3 class="text-2xl font-bold mb-2">{member.get('name', 'Team Member')}</h3>
+                        <p class="text-gray-600 font-semibold mb-4">{member.get('position', 'Team Member')}</p>
+                    </div>
+                </div>"""
+
+        return f"""
+    <section class="py-20 bg-blue-600">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-5xl font-bold text-white mb-4">Our Amazing Team</h2>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                {team_cards}
+            </div>
+        </div>
+    </section>"""
+
+    def generate_two_images_right_no_button_section(self, site_name, theme, primary):
+        """Генерирует секцию с двумя изображениями справа и контентом слева без кнопки"""
+        content_data = self.generate_theme_content_via_api(theme, "two_images_no_button", 1)
+
+        if not content_data:
+            content_data = {
+                'heading': 'Real-world Solutions Designed Just for You',
+                'description': 'Dignissim suspendisse in est ante in nibh mauris. Varius quam quisque id diam vel quam elementum pulvinar etiam. Nunc pulvinar sapien et ligula ullamcorper malesuada proin. Nunc mattis enim ut tellus elementum.'
+            }
+
+        return f"""
+    <section class="py-20 bg-gray-900 text-white">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-5xl font-bold mb-6">{content_data.get('heading', 'Real-world Solutions Designed Just for You')}</h2>
+                    <p class="text-gray-300 text-lg leading-relaxed">{content_data.get('description', 'Professional solutions tailored to your needs.')}</p>
+                </div>
+                <div class="grid grid-cols-1 gap-6">
+                    <img src="images/service1.jpg" alt="Professional work" class="rounded-2xl shadow-2xl w-full h-64 object-cover">
+                    <img src="images/service2.jpg" alt="Team collaboration" class="rounded-2xl shadow-2xl w-full h-64 object-cover">
+                </div>
+            </div>
+        </div>
+    </section>"""
+
     def select_home_sections(self):
         """Выбор секций для Home страницы без генерации контента"""
         # Все доступные секции
@@ -7141,7 +7325,9 @@ setTimeout(showCookieNotice, 1000);
             'cards_3_carousel_bg', 'carousel_workflow', 'carousel_blog',
             'contact_form_multistep', 'stats_section', 'why_choose_us',
             'faq_section', 'approach_section', 'benefits_grid',
-            'testimonials_text', 'cta_centered', 'features_list'
+            'testimonials_text', 'cta_centered', 'features_list',
+            'two_images_right', 'contact_form_benefits', 'four_images_grid',
+            'our_team', 'two_images_no_button'
         ]
 
         # Секции, требующие изображений
@@ -7233,6 +7419,11 @@ setTimeout(showCookieNotice, 1000);
             'testimonials_text': self.generate_testimonials_section(theme, primary),
             'cta_centered': self.generate_cta_section(theme, primary),
             'features_list': self.generate_features_comparison_section(theme, primary, hover),
+            'two_images_right': self.generate_two_images_right_section(site_name, theme, primary, hover),
+            'contact_form_benefits': self.generate_contact_form_with_benefits_section(theme, primary, hover),
+            'four_images_grid': self.generate_four_images_grid_section(site_name, theme, primary, hover),
+            'our_team': self.generate_our_team_section(site_name, theme, primary),
+            'two_images_no_button': self.generate_two_images_right_no_button_section(site_name, theme, primary),
         }
 
         # Используем предвыбранные секции
