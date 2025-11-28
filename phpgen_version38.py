@@ -380,8 +380,8 @@ class PHPWebsiteGenerator:
         self.bytedance_key = "267cb48d-e3fb-4ca1-a7e9-ca2a86dc550a"
         
         self.api_url = "https://openrouter.ai/api/v1/chat/completions"
-        self.code_model = "google/gemini-2.5-pro"
-        self.max_tokens = 16000
+        self.code_model = "prime-intellect/intellect-3"
+        self.max_tokens = 65536
         self.use_symfony = False
         self.site_type = "landing"  # "landing" или "multipage"
         self.blueprint = {}
@@ -515,13 +515,13 @@ class PHPWebsiteGenerator:
         # По умолчанию English
         return 'English'
 
-    def call_api(self, prompt, max_tokens=16000, model=None):
+    def call_api(self, prompt, max_tokens=65536, model=None):
         """Вызов API OpenRouter с retry логикой и обработкой всех типов ошибок"""
         if model is None:
             model = self.code_model
-        
-        if max_tokens > 16000:
-            max_tokens = 16000  # Ограничение для бесплатной модели
+
+        if max_tokens > 65536:
+            max_tokens = 65536  # Максимальное ограничение
             
         headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -2002,8 +2002,47 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                         response += '}'
                         print(f"    🔧 Попытка восстановления: добавлена закрывающая }}")
 
-            # Парсим JSON
-            content = json.loads(response)
+            # Парсим JSON с обработкой extra data
+            try:
+                content = json.loads(response)
+            except json.JSONDecodeError as e:
+                # Если ошибка "Extra data" - пытаемся найти первый валидный JSON
+                if "Extra data" in str(e):
+                    print(f"    🔧 Обнаружены лишние данные после JSON, попытка извлечения...")
+                    # Находим позицию где заканчивается валидный JSON
+                    # Для объекта: ищем первую закрывающую }
+                    # Для массива: ищем первую закрывающую ]
+                    if response.strip().startswith('{'):
+                        # Это объект - ищем парную закрывающую скобку
+                        bracket_count = 0
+                        for i, char in enumerate(response):
+                            if char == '{':
+                                bracket_count += 1
+                            elif char == '}':
+                                bracket_count -= 1
+                                if bracket_count == 0:
+                                    # Нашли конец JSON объекта
+                                    response = response[:i+1]
+                                    print(f"    🔧 Обрезан лишний текст, осталось {len(response)} символов")
+                                    break
+                    elif response.strip().startswith('['):
+                        # Это массив - ищем парную закрывающую скобку
+                        bracket_count = 0
+                        for i, char in enumerate(response):
+                            if char == '[':
+                                bracket_count += 1
+                            elif char == ']':
+                                bracket_count -= 1
+                                if bracket_count == 0:
+                                    # Нашли конец JSON массива
+                                    response = response[:i+1]
+                                    print(f"    🔧 Обрезан лишний текст, осталось {len(response)} символов")
+                                    break
+                    # Повторная попытка парсинга
+                    content = json.loads(response)
+                else:
+                    # Другая ошибка парсинга - пробрасываем дальше
+                    raise
 
             # Проверяем что получили ожидаемую структуру
             if content_type == "work_showcase":
@@ -4436,7 +4475,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         required_images = [img for img in images_to_generate if img.get('priority') == 'required']
         optional_images = [img for img in images_to_generate if img.get('priority') == 'optional']
 
-        print(f"\n🖼️  Генерация изображений: {num_images} шт. (минимум 13 обязательных)")
+        print(f"\n🖼️  Генерация изображений: {num_images} шт.")
         print(f"   📌 Обязательные: {len(required_images)} (hero + 3 services + {self.num_blog_articles} blog + 3 gallery)")
         print(f"   ⭐ Дополнительные: {len(optional_images)} (4 company, gallery4, 6 locations)")
 
@@ -8320,8 +8359,8 @@ Return ONLY the content for <main> tag."""
 
         # Подсчитываем необходимое количество изображений
         required_images = self.calculate_required_images()
-        # Минимум 14 изображений
-        actual_num_images = max(14, min(num_images, required_images))
+        # Генерируем ровно столько, сколько запросил пользователь (без минимума)
+        actual_num_images = min(num_images, required_images) if required_images > 0 else num_images
         print(f"  ✓ Необходимо изображений: {required_images}, будет сгенерировано: {actual_num_images}")
 
         print("\n[6/7] Страницы...")
