@@ -2559,63 +2559,85 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         # Первая секция (approach)
         if has_service1:
             section1 = f"""
-            <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
-                <div>
-                    <img src="images/service1.jpg" alt="{content.get('approach_title', 'Our Approach')}" class="rounded-xl shadow-lg w-full h-80 object-cover">
+            <div class="grid md:grid-cols-2 gap-16 items-center mb-24">
+                <div class="relative group">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-{primary} to-{hover} rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-300"></div>
+                    <img src="images/service1.jpg" alt="{content.get('approach_title', 'Our Approach')}" class="relative rounded-2xl shadow-2xl w-full h-96 object-cover transition-transform duration-300 group-hover:scale-[1.02]">
                 </div>
-                <div>
-                    <h3 class="text-3xl font-bold mb-4">{content.get('approach_title', 'Our Approach')}</h3>
-                    <p class="text-gray-700 mb-4">
-                        {content.get('approach_text1', 'We believe in a personalized approach to every project.')}
-                    </p>
-                    <p class="text-gray-700">
-                        {content.get('approach_text2', 'Our methodology combines industry best practices with innovative thinking.')}
-                    </p>
+                <div class="space-y-6">
+                    <div class="inline-block">
+                        <span class="bg-{primary} text-white px-4 py-2 rounded-full text-sm font-semibold tracking-wide uppercase">Notre Philosophie</span>
+                    </div>
+                    <h3 class="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">{content.get('approach_title', 'Our Approach')}</h3>
+                    <div class="space-y-4">
+                        <p class="text-lg text-gray-600 leading-relaxed">
+                            {content.get('approach_text1', 'We believe in a personalized approach to every project.')}
+                        </p>
+                        <p class="text-lg text-gray-600 leading-relaxed">
+                            {content.get('approach_text2', 'Our methodology combines industry best practices with innovative thinking.')}
+                        </p>
+                    </div>
                 </div>
             </div>"""
         else:
             section1 = f"""
-            <div class="mb-20">
-                <h3 class="text-3xl font-bold mb-4">{content.get('approach_title', 'Our Approach')}</h3>
-                <p class="text-gray-700 mb-4">
-                    {content.get('approach_text1', 'We believe in a personalized approach to every project.')}
-                </p>
-                <p class="text-gray-700">
-                    {content.get('approach_text2', 'Our methodology combines industry best practices with innovative thinking.')}
-                </p>
+            <div class="mb-24 text-center max-w-4xl mx-auto">
+                <div class="inline-block mb-6">
+                    <span class="bg-{primary} text-white px-4 py-2 rounded-full text-sm font-semibold tracking-wide uppercase">Notre Philosophie</span>
+                </div>
+                <h3 class="text-4xl md:text-5xl font-bold text-gray-900 mb-8 leading-tight">{content.get('approach_title', 'Our Approach')}</h3>
+                <div class="space-y-4">
+                    <p class="text-lg text-gray-600 leading-relaxed">
+                        {content.get('approach_text1', 'We believe in a personalized approach to every project.')}
+                    </p>
+                    <p class="text-lg text-gray-600 leading-relaxed">
+                        {content.get('approach_text2', 'Our methodology combines industry best practices with innovative thinking.')}
+                    </p>
+                </div>
             </div>"""
 
         # Вторая секция (why)
         if has_service2:
             section2 = f"""
-            <div class="grid md:grid-cols-2 gap-12 items-center">
-                <div>
-                    <h3 class="text-3xl font-bold mb-4">{content.get('why_title', 'Why Choose Us')}</h3>
-                    <p class="text-gray-700 mb-4">
-                        {content.get('why_text1', 'We have built a reputation for reliability and quality.')}
-                    </p>
-                    <p class="text-gray-700">
-                        {content.get('why_text2', 'Our commitment to your success drives everything we do.')}
-                    </p>
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <div class="space-y-6 order-2 md:order-1">
+                    <div class="inline-block">
+                        <span class="bg-{primary} text-white px-4 py-2 rounded-full text-sm font-semibold tracking-wide uppercase">Nos Avantages</span>
+                    </div>
+                    <h3 class="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">{content.get('why_title', 'Why Choose Us')}</h3>
+                    <div class="space-y-4">
+                        <p class="text-lg text-gray-600 leading-relaxed">
+                            {content.get('why_text1', 'We have built a reputation for reliability and quality.')}
+                        </p>
+                        <p class="text-lg text-gray-600 leading-relaxed">
+                            {content.get('why_text2', 'Our commitment to your success drives everything we do.')}
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <img src="images/service2.jpg" alt="{content.get('why_title', 'Why Choose Us')}" class="rounded-xl shadow-lg w-full h-80 object-cover">
+                <div class="relative group order-1 md:order-2">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-{hover} to-{primary} rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-300"></div>
+                    <img src="images/service2.jpg" alt="{content.get('why_title', 'Why Choose Us')}" class="relative rounded-2xl shadow-2xl w-full h-96 object-cover transition-transform duration-300 group-hover:scale-[1.02]">
                 </div>
             </div>"""
         else:
             section2 = f"""
-            <div>
-                <h3 class="text-3xl font-bold mb-4">{content.get('why_title', 'Why Choose Us')}</h3>
-                <p class="text-gray-700 mb-4">
-                    {content.get('why_text1', 'We have built a reputation for reliability and quality.')}
-                </p>
-                <p class="text-gray-700">
-                    {content.get('why_text2', 'Our commitment to your success drives everything we do.')}
-                </p>
+            <div class="text-center max-w-4xl mx-auto">
+                <div class="inline-block mb-6">
+                    <span class="bg-{primary} text-white px-4 py-2 rounded-full text-sm font-semibold tracking-wide uppercase">Nos Avantages</span>
+                </div>
+                <h3 class="text-4xl md:text-5xl font-bold text-gray-900 mb-8 leading-tight">{content.get('why_title', 'Why Choose Us')}</h3>
+                <div class="space-y-4">
+                    <p class="text-lg text-gray-600 leading-relaxed">
+                        {content.get('why_text1', 'We have built a reputation for reliability and quality.')}
+                    </p>
+                    <p class="text-lg text-gray-600 leading-relaxed">
+                        {content.get('why_text2', 'Our commitment to your success drives everything we do.')}
+                    </p>
+                </div>
             </div>"""
 
         return f"""
-    <section class="py-20 bg-gray-50">
+    <section class="py-24 bg-gradient-to-br from-gray-50 via-white to-gray-50">
         <div class="container mx-auto px-6">{section1}
 {section2}
         </div>
@@ -3557,47 +3579,59 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
             # Fallback если API не вернул результат
             if not api_blog_posts or len(api_blog_posts) < 6:
+                # Генерируем даты с интервалом ~6 месяцев от текущей даты
+                from datetime import datetime, timedelta
+                import random
+
+                now = datetime.now()
+                blog_dates = []
+                current_date = now
+                for i in range(6):
+                    blog_dates.append(current_date.strftime('%B %d, %Y'))
+                    # Вычитаем примерно 6 месяцев (150-210 дней)
+                    current_date = current_date - timedelta(days=random.randint(150, 210))
+
                 all_blog_articles = [
                     {
                         'title': f'The Future of {theme}',
                         'url': 'blog1.php',
                         'excerpt': f'Explore the latest innovations in {theme} and what they mean for your business.',
-                        'date': 'November 15, 2025',
+                        'date': blog_dates[0],
                         'image': 'images/blog1.jpg'
                     },
                     {
                         'title': f'Top 5 Trends in {theme}',
                         'url': 'blog2.php',
                         'excerpt': f'Stay competitive with these emerging trends in the {theme} industry.',
-                        'date': 'November 10, 2025',
+                        'date': blog_dates[1],
                         'image': 'images/blog2.jpg'
                     },
                     {
                         'title': f'How to Choose the Right {theme} Service',
                         'url': 'blog3.php',
                         'excerpt': f'A comprehensive guide to selecting the best {theme} solution for your needs.',
-                        'date': 'November 5, 2025',
+                        'date': blog_dates[2],
                         'image': 'images/blog3.jpg'
                     },
                     {
                         'title': f'Best Practices for {theme} Success',
                         'url': 'blog4.php',
                         'excerpt': f'Learn proven strategies and techniques to maximize your {theme} results.',
-                        'date': 'November 1, 2025',
+                        'date': blog_dates[3],
                         'image': 'images/blog4.jpg'
                     },
                     {
                         'title': f'Common {theme} Mistakes to Avoid',
                         'url': 'blog5.php',
                         'excerpt': f'Discover the pitfalls that could derail your {theme} projects and how to avoid them.',
-                        'date': 'October 28, 2025',
+                        'date': blog_dates[4],
                         'image': 'images/blog5.jpg'
                     },
                     {
                         'title': f'The Complete {theme} Guide',
                         'url': 'blog6.php',
                         'excerpt': f'Everything you need to know about {theme} in one comprehensive resource.',
-                        'date': 'October 25, 2025',
+                        'date': blog_dates[5],
                         'image': 'images/blog6.jpg'
                     }
                 ]
@@ -7853,14 +7887,22 @@ Return ONLY the content for <main> tag."""
         # Получаем контент blog page через API
         blog_page_data = self.generate_theme_content_via_api(theme, "blog_page_content", 1)
 
-        # Fallback если API не вернул результат
+        # Fallback если API не вернул результат - используем язык из blueprint
         if not blog_page_data:
-            blog_page_data = {
-                'heading': 'Our Blog',
-                'subheading': f'Insights, tips, and news about {theme}',
-                'read_more': 'Read More',
-                'no_posts': 'No blog posts available yet'
-            }
+            language = self.blueprint.get('language', 'English')
+            # Минимальный fallback - пробуем еще раз с упрощенным промптом
+            print(f"    ⚠️  Первая попытка blog_page_content не удалась, пробуем снова...")
+            blog_page_data = self.generate_theme_content_via_api(theme, "blog_page_content", 1)
+
+            if not blog_page_data:
+                # Если и вторая попытка не удалась, используем базовый fallback
+                print(f"    ⚠️  Используем базовый fallback для blog_page_content")
+                blog_page_data = {
+                    'heading': 'Blog',
+                    'subheading': f'{theme}',
+                    'read_more': 'Read More',
+                    'no_posts': 'No posts'
+                }
 
         heading = blog_page_data.get('heading', 'Our Blog')
         subheading = blog_page_data.get('subheading', f'Insights, tips, and news about {theme}')
@@ -7890,47 +7932,59 @@ Return ONLY the content for <main> tag."""
 
             # Fallback если API не вернул результат
             if not api_blog_posts or len(api_blog_posts) < 6:
+                # Генерируем даты с интервалом ~6 месяцев от текущей даты
+                from datetime import datetime, timedelta
+                import random
+
+                now = datetime.now()
+                blog_dates = []
+                current_date = now
+                for i in range(6):
+                    blog_dates.append(current_date.strftime('%B %d, %Y'))
+                    # Вычитаем примерно 6 месяцев (150-210 дней)
+                    current_date = current_date - timedelta(days=random.randint(150, 210))
+
                 all_blog_articles = [
                     {
                         'title': f'The Future of {theme}',
                         'url': 'blog1.php',
                         'excerpt': f'Explore the latest innovations in {theme} and what they mean for your business.',
-                        'date': 'November 15, 2025',
+                        'date': blog_dates[0],
                         'image': 'images/blog1.jpg'
                     },
                     {
                         'title': f'Top 5 Trends in {theme}',
                         'url': 'blog2.php',
                         'excerpt': f'Stay competitive with these emerging trends in the {theme} industry.',
-                        'date': 'November 10, 2025',
+                        'date': blog_dates[1],
                         'image': 'images/blog2.jpg'
                     },
                     {
                         'title': f'How to Choose the Right {theme} Service',
                         'url': 'blog3.php',
                         'excerpt': f'A comprehensive guide to selecting the best {theme} solution for your needs.',
-                        'date': 'November 5, 2025',
+                        'date': blog_dates[2],
                         'image': 'images/blog3.jpg'
                     },
                     {
                         'title': f'Best Practices for {theme} Success',
                         'url': 'blog4.php',
                         'excerpt': f'Learn proven strategies and techniques to maximize your {theme} results.',
-                        'date': 'November 1, 2025',
+                        'date': blog_dates[3],
                         'image': 'images/blog4.jpg'
                     },
                     {
                         'title': f'Common {theme} Mistakes to Avoid',
                         'url': 'blog5.php',
                         'excerpt': f'Discover the pitfalls that could derail your {theme} projects and how to avoid them.',
-                        'date': 'October 28, 2025',
+                        'date': blog_dates[4],
                         'image': 'images/blog5.jpg'
                     },
                     {
                         'title': f'The Complete {theme} Guide',
                         'url': 'blog6.php',
                         'excerpt': f'Everything you need to know about {theme} in one comprehensive resource.',
-                        'date': 'October 25, 2025',
+                        'date': blog_dates[5],
                         'image': 'images/blog6.jpg'
                     }
                 ]
