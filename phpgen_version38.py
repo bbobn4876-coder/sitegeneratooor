@@ -7606,6 +7606,113 @@ setTimeout(showCookieNotice, 1000);
         </div>
     </section>"""
 
+    def generate_hero_mission_variant_section(self, site_name, theme, primary, hover):
+        """Генерирует hero секцию с миссией и call-to-action блоками"""
+        # Получаем контент через API
+        hero_data = self.generate_theme_content_via_api(theme, "hero_mission_variant", 1)
+        mission_data = self.generate_theme_content_via_api(theme, "mission_content", 1)
+        cta_data = self.generate_theme_content_via_api(theme, "cta_bottom_block", 1)
+
+        if not hero_data:
+            hero_data = {
+                'heading': 'We are always beginner friendly',
+                'description': 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
+                'button_text': 'Read More'
+            }
+
+        if not mission_data:
+            # Темо-специфичные миссии
+            theme_lower = theme.lower()
+            if 'travel' in theme_lower or 'tour' in theme_lower:
+                mission_data = {
+                    'label': 'Our Mission',
+                    'heading': 'Explore',
+                    'heading_second': 'Every Corner',
+                    'subheading': 'Every Journey'
+                }
+            elif 'fitness' in theme_lower or 'gym' in theme_lower or 'sport' in theme_lower:
+                mission_data = {
+                    'label': 'Our Mission',
+                    'heading': 'Run',
+                    'heading_second': '',
+                    'subheading': 'Every Morning'
+                }
+            elif 'food' in theme_lower or 'restaurant' in theme_lower or 'cafe' in theme_lower:
+                mission_data = {
+                    'label': 'Our Mission',
+                    'heading': 'Serve Fresh',
+                    'heading_second': '',
+                    'subheading': 'Every Day'
+                }
+            elif 'education' in theme_lower or 'learning' in theme_lower:
+                mission_data = {
+                    'label': 'Our Mission',
+                    'heading': 'Learn New',
+                    'heading_second': '',
+                    'subheading': 'Every Day'
+                }
+            else:
+                mission_data = {
+                    'label': 'Our Mission',
+                    'heading': 'Excel',
+                    'heading_second': '',
+                    'subheading': 'Every Day'
+                }
+
+        if not cta_data:
+            cta_data = {
+                'heading': 'Future Run Club',
+                'description': 'A 2 to 4 mile Central Park run followed by brunch! As always, all levels are welcomed, and the goal is to meet some new running buddies and have fun.',
+                'button_text': 'Join Now'
+            }
+
+        return f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-3 gap-8 items-stretch">
+                <!-- Left Column: Main Content -->
+                <div class="flex flex-col justify-center">
+                    <h1 class="text-5xl font-bold mb-6 text-{primary}">{hero_data.get('heading', 'We are always beginner friendly')}</h1>
+                    <p class="text-sm text-gray-500 mb-4 italic">Image from Freepik</p>
+                    <p class="text-gray-600 mb-8 leading-relaxed">{hero_data.get('description', 'Professional services description.')}</p>
+                    <div>
+                        <a href="services.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                            {hero_data.get('button_text', 'Read More')}
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Center Column: Mission & CTA Blocks -->
+                <div class="flex flex-col gap-8">
+                    <!-- Mission Block -->
+                    <div class="text-white p-8 rounded-2xl flex flex-col justify-center" style="background: linear-gradient(135deg, #C8985A 0%, #B8885A 100%);">
+                        <p class="text-sm uppercase tracking-wider mb-4 opacity-90">{mission_data.get('label', 'Our Mission')}</p>
+                        <h2 class="text-6xl font-bold mb-2">{mission_data.get('heading', 'Excel')}</h2>
+                        <p class="text-xl uppercase tracking-wide">{mission_data.get('subheading', 'Every Day')}</p>
+                    </div>
+
+                    <!-- CTA Block -->
+                    <div class="bg-{primary} text-white p-8 rounded-2xl flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-2xl font-bold mb-4">{cta_data.get('heading', 'Join Us Today')}</h3>
+                            <p class="text-white opacity-90 mb-6 leading-relaxed">{cta_data.get('description', 'Get in touch with us.')}</p>
+                        </div>
+                        <div>
+                            <a href="contact.php" class="inline-block bg-white text-{primary} hover:bg-gray-100 px-6 py-3 rounded-lg font-semibold transition">
+                                {cta_data.get('button_text', 'Join Now')}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Image -->
+                <div class="flex items-stretch">
+                    <img src="images/hero.jpg" alt="{site_name}" class="rounded-2xl shadow-2xl w-full h-full object-cover" style="min-height: 500px;">
+                </div>
+            </div>
+        </div>
+    </section>"""
+
     def select_home_sections(self):
         """Выбор секций для Home страницы без генерации контента"""
         # Все доступные секции
@@ -7619,7 +7726,7 @@ setTimeout(showCookieNotice, 1000);
             'two_images_right', 'contact_form_benefits', 'four_images_grid',
             'our_team', 'two_images_no_button', 'qna_with_image',
             'contact_form_office_image', 'image_with_benefits',
-            'what_we_offer_variant', 'testimonials_with_image'
+            'what_we_offer_variant', 'testimonials_with_image', 'hero_mission_variant'
         ]
 
         # Секции, требующие изображений
@@ -7721,6 +7828,7 @@ setTimeout(showCookieNotice, 1000);
             'image_with_benefits': self.generate_image_with_benefits_section(site_name, theme, primary, hover),
             'what_we_offer_variant': self.generate_what_we_offer_variant_section(site_name, theme, primary),
             'testimonials_with_image': self.generate_testimonials_with_image_section(site_name, theme, primary),
+            'hero_mission_variant': self.generate_hero_mission_variant_section(site_name, theme, primary, hover),
         }
 
         # Используем предвыбранные секции
