@@ -4481,10 +4481,9 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
         generated_count = 0
 
-        # ЭТАП 1: Генерируем обязательные изображения до лимита num_images
-        num_required_to_generate = min(len(required_images), num_images)
-        print(f"\n   🔥 Этап 1/2: Генерация обязательных изображений ({num_required_to_generate} шт)...")
-        for img_data in required_images[:num_required_to_generate]:
+        # ЭТАП 1: Генерируем ВСЕ обязательные изображения (без ограничения num_images)
+        print(f"\n   🔥 Этап 1/2: Генерация обязательных изображений ({len(required_images)} шт)...")
+        for img_data in required_images:
             print(f"      → {img_data['filename']}...", end=' ')
 
             # Сначала пробуем ByteDance
@@ -4506,12 +4505,13 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             if result:
                 self.generated_images.append(img_data['filename'])
                 generated_count += 1
-                print(f"✓ ({generated_count}/{num_images})")
+                print(f"✓ ({generated_count})")
             else:
                 print("✗ ошибка")
 
-        # ЭТАП 2: Генерируем дополнительные изображения до лимита
-        remaining = num_images - generated_count
+        # ЭТАП 2: Генерируем дополнительные изображения если есть место
+        # (num_images может быть больше чем required, тогда добавляем optional)
+        remaining = max(0, num_images - generated_count)
         if remaining > 0:
             print(f"\n   ⭐ Этап 2/2: Генерация дополнительных изображений (осталось {remaining})...")
             for img_data in optional_images[:remaining]:
@@ -8362,11 +8362,11 @@ Return ONLY the content for <main> tag."""
 
         # Подсчитываем необходимое количество изображений
         required_images_count = self.calculate_required_images()
-        # Генерируем только необходимое количество, не больше запрошенного
+        # Генерируем столько, сколько НЕОБХОДИМО для сайта (игнорируем num_images если он больше)
         # Если нужно 10, а запросили 14 - генерируем 10 (избегаем лишних)
-        # Если нужно 14, а запросили 10 - генерируем 10 (не можем больше)
-        actual_num_images = min(num_images, required_images_count) if required_images_count > 0 else num_images
-        print(f"  ✓ Минимально необходимо изображений: {required_images_count}, будет сгенерировано: {actual_num_images}")
+        # Если нужно 14, а запросили 10 - генерируем 14 (всё необходимое)
+        actual_num_images = required_images_count if required_images_count > 0 else num_images
+        print(f"  ✓ Необходимо изображений: {required_images_count}, будет сгенерировано: {actual_num_images}")
 
         print("\n[6/7] Страницы...")
 
