@@ -7316,6 +7316,296 @@ setTimeout(showCookieNotice, 1000);
         </div>
     </section>"""
 
+    def generate_qna_with_image_section(self, site_name, theme, primary):
+        """Генерирует секцию Q&A с изображением справа и вопросами-ответами слева"""
+        # Получаем FAQ данные через API
+        faq_data = self.generate_theme_content_via_api(theme, "faq_content", 4)
+
+        if not faq_data or not isinstance(faq_data, dict) or 'items' not in faq_data:
+            faq_data = {
+                'heading': 'What drives us',
+                'items': [
+                    {'question': '01. Recruitment Staffing', 'answer': 'Answer. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur id suscipit ex. Suspendisse rhoncus laoreet purus quis elementum. Phasellus sed efficitur dolor, et ultricies sapien. Quisque fringilla sit amet dolor commodo efficitur. Aliquam et sem odio. In ullamcorper nisi nunc, et molestie ipsum iaculis sit amet.'},
+                    {'question': '02. Compensation Management', 'answer': 'Expert compensation strategies tailored to your organization.'},
+                    {'question': '03. Training Development', 'answer': 'Comprehensive training programs for employee growth.'},
+                    {'question': '04. Performance Management', 'answer': 'Effective performance evaluation and improvement systems.'}
+                ]
+            }
+
+        # Генерируем HTML для Q&A items
+        qa_items = ""
+        for i, item in enumerate(faq_data.get('items', [])[:4]):
+            is_first = i == 0
+            qa_items += f"""
+                <div class="border-b border-gray-200">
+                    <button class="w-full text-left py-6 flex justify-between items-center focus:outline-none group" onclick="toggleAccordion(this)">
+                        <span class="text-xl font-bold text-gray-900">{item.get('question', f'Question {i+1}')}</span>
+                        <svg class="w-6 h-6 transform transition-transform duration-200 group-hover:text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="accordion-content overflow-hidden transition-all duration-300 {'max-h-96' if is_first else 'max-h-0'}">
+                        <div class="pb-6 text-gray-600 leading-relaxed">
+                            {item.get('answer', 'Answer content here.')}
+                        </div>
+                    </div>
+                </div>"""
+
+        return f"""
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-5xl font-bold mb-4">{faq_data.get('heading', 'What drives us')}</h2>
+                <p class="text-gray-600 text-lg">Sample text. Click to select the text box. Click again or double click to start editing the text.</p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-12 items-start">
+                <div class="space-y-2">
+                    {qa_items}
+                </div>
+                <div class="sticky top-6">
+                    <img src="images/service1.jpg" alt="Professional service" class="rounded-2xl shadow-2xl w-full h-full object-cover" style="max-height: 600px;">
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+    function toggleAccordion(button) {{
+        const content = button.nextElementSibling;
+        const icon = button.querySelector('svg');
+        const allContents = document.querySelectorAll('.accordion-content');
+        const allIcons = document.querySelectorAll('.accordion-content').forEach(item => {{
+            if (item !== content) {{
+                item.style.maxHeight = '0';
+                item.previousElementSibling.querySelector('svg').style.transform = 'rotate(0deg)';
+            }}
+        }});
+        if (content.style.maxHeight === '0px' || !content.style.maxHeight) {{
+            content.style.maxHeight = content.scrollHeight + 'px';
+            icon.style.transform = 'rotate(180deg)';
+        }} else {{
+            content.style.maxHeight = '0';
+            icon.style.transform = 'rotate(0deg)';
+        }}
+    }}
+    </script>"""
+
+    def generate_contact_form_with_office_image_section(self, theme, primary, hover):
+        """Генерирует секцию контактной формы с изображением офиса справа"""
+        # Получаем контент через API
+        form_data = self.generate_theme_content_via_api(theme, "contact_form_quick", 1)
+
+        if not form_data:
+            form_data = {
+                'heading': 'Quick Online Consultancy',
+                'description': 'Sample text. Click to select the Text Element.',
+                'first_name_label': 'Enter your First Name',
+                'last_name_label': 'Enter your Last Name',
+                'email_label': 'Enter a valid email address',
+                'message_label': 'Enter your message',
+                'submit_button': 'Book a Consultation'
+            }
+
+        return f"""
+    <section class="py-20 bg-gray-900">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="bg-white rounded-2xl p-10 shadow-2xl">
+                    <h2 class="text-4xl font-bold mb-4">{form_data.get('heading', 'Quick Online Consultancy')}</h2>
+                    <p class="text-gray-600 mb-8">{form_data.get('description', 'Sample text. Click to select the Text Element.')}</p>
+                    <form action="thanks_you.php" method="POST" class="space-y-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <input type="text" id="first_name" name="first_name" placeholder="{form_data.get('first_name_label', 'Enter your First Name')}" required class="w-full px-4 py-3 border-b-2 border-gray-300 focus:border-{primary} focus:outline-none transition">
+                            </div>
+                            <div>
+                                <input type="text" id="last_name" name="last_name" placeholder="{form_data.get('last_name_label', 'Enter your Last Name')}" required class="w-full px-4 py-3 border-b-2 border-gray-300 focus:border-{primary} focus:outline-none transition">
+                            </div>
+                        </div>
+                        <div>
+                            <input type="email" id="email" name="email" placeholder="{form_data.get('email_label', 'Enter a valid email address')}" required class="w-full px-4 py-3 border-b-2 border-gray-300 focus:border-{primary} focus:outline-none transition">
+                        </div>
+                        <div>
+                            <textarea id="message" name="message" rows="4" placeholder="{form_data.get('message_label', 'Enter your message')}" class="w-full px-4 py-3 border-b-2 border-gray-300 focus:border-{primary} focus:outline-none transition"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-gray-900 hover:bg-gray-800 text-white py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                            {form_data.get('submit_button', 'Book a Consultation')}
+                        </button>
+                    </form>
+                    <p class="text-sm text-gray-500 mt-4 text-center">Images from Freepik</p>
+                </div>
+                <div class="h-full">
+                    <img src="images/service2.jpg" alt="Office environment" class="rounded-2xl shadow-2xl w-full h-full object-cover" style="min-height: 500px;">
+                </div>
+            </div>
+        </div>
+    </section>"""
+
+    def generate_image_with_benefits_section(self, site_name, theme, primary, hover):
+        """Генерирует секцию с фото и текстом слева, преимуществами справа"""
+        # Получаем контент через API
+        content_data = self.generate_theme_content_via_api(theme, "image_benefits_section", 1)
+        benefits_data = self.generate_theme_content_via_api(theme, "benefits_icons", 3)
+
+        if not content_data:
+            content_data = {
+                'heading': 'Make legal better',
+                'description': 'Pulvinar pellentesque habitant morbi tristique senectus et netus et. Venenatis tellus in metus vulputate. Aliquet nec ullamcorper sit amet risus nullam eget.',
+                'button_text': 'View More'
+            }
+
+        if not benefits_data:
+            benefits_data = [
+                {'icon': '⚖️', 'title': 'What We Do', 'description': 'Sample text. Click to select the text box. Click again or double click to start editing the text.'},
+                {'icon': '🏛️', 'title': 'Who We Are', 'description': 'Sample text. Click to select the text box. Click again or double click to start editing the text.'},
+                {'icon': '⚖️', 'title': 'How We Differ', 'description': 'Sample text. Click to select the text box. Click again or double click to start editing the text.'}
+            ]
+
+        benefits_html = ""
+        for benefit in benefits_data:
+            benefits_html += f"""
+                <div class="mb-8">
+                    <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2 text-white">{benefit.get('title', 'Benefit')}</h3>
+                    <p class="text-gray-300">{benefit.get('description', 'Sample text.')}</p>
+                </div>"""
+
+        return f"""
+    <section class="py-20 bg-blue-600">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-start">
+                <div>
+                    <h2 class="text-5xl font-bold mb-6 text-white">{content_data.get('heading', 'Make legal better')}</h2>
+                    <div class="mb-8">
+                        <img src="images/service3.jpg" alt="Professional service" class="rounded-xl shadow-2xl w-full h-80 object-cover">
+                    </div>
+                    <p class="text-white text-lg mb-8 leading-relaxed">{content_data.get('description', 'Professional services description.')}</p>
+                    <p class="text-white text-sm mb-6">Image from Freepik</p>
+                    <a href="contact.php" class="inline-block border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold transition">
+                        {content_data.get('button_text', 'View More')}
+                    </a>
+                </div>
+                <div class="text-white">
+                    {benefits_html}
+                </div>
+            </div>
+        </div>
+    </section>"""
+
+    def generate_what_we_offer_variant_section(self, site_name, theme, primary):
+        """Генерирует вариацию секции What We Offer с сеткой карточек"""
+        # Получаем контент через API
+        offers_data = self.generate_theme_content_via_api(theme, "what_we_offer_variant", 6)
+
+        if not offers_data or not isinstance(offers_data, list):
+            offers_data = [
+                {'title': 'Finance Awards', 'description': 'Sample text. Click to select the Text Element.'},
+                {'title': 'Life sciences and healthcare', 'description': 'Sample text. Click to select the Text Element.'},
+                {'title': 'Responsible Business', 'description': 'Sample text. Click to select the Text Element.'},
+                {'title': 'Join Us', 'description': 'Sample text. Click to select the Text Element.'},
+            ]
+
+        # Генерируем карточки
+        cards_html = ""
+        card_configs = [
+            {'bg': 'white', 'text': 'gray-900', 'has_button': False, 'has_image': False},
+            {'bg': primary, 'text': 'white', 'has_button': True, 'has_image': False},
+            {'bg': 'white', 'text': 'gray-900', 'has_button': False, 'has_image': False},
+            {'bg': 'white', 'text': 'gray-900', 'has_button': False, 'has_image': True},
+            {'bg': 'white', 'text': 'gray-900', 'has_button': False, 'has_image': False},
+            {'bg': 'white', 'text': 'gray-900', 'has_button': False, 'has_image': True},
+        ]
+
+        for i, (offer, config) in enumerate(zip(offers_data[:6], card_configs)):
+            card_class = f"bg-{config['bg']} text-{config['text']}" if config['bg'] != primary else f"bg-{primary} text-white"
+
+            if config['has_image']:
+                cards_html += f"""
+                <div class="overflow-hidden rounded-xl shadow-lg">
+                    <img src="images/service{(i % 3) + 1}.jpg" alt="{offer.get('title', 'Service')}" class="w-full h-full object-cover" style="min-height: 300px;">
+                </div>"""
+            else:
+                button_html = ""
+                if config['has_button']:
+                    button_html = f'<a href="#" class="inline-block border-2 border-white text-white hover:bg-white hover:text-{primary} px-6 py-2 rounded-lg font-semibold transition mt-4">Read More</a>'
+
+                cards_html += f"""
+                <div class="{card_class} p-8 rounded-xl shadow-lg flex flex-col justify-center" style="min-height: 300px;">
+                    <h3 class="text-3xl font-bold mb-4">{offer.get('title', 'Service Title')}</h3>
+                    <p class="{'text-white' if config['bg'] == primary else 'text-gray-600'} leading-relaxed">{offer.get('description', 'Sample text.')}</p>
+                    {button_html}
+                </div>"""
+
+        return f"""
+    <section class="py-20 bg-gray-900">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-5xl font-bold text-white mb-4">We serve our clients around the globe</h2>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                {cards_html}
+            </div>
+        </div>
+    </section>"""
+
+    def generate_testimonials_with_image_section(self, site_name, theme, primary):
+        """Генерирует секцию отзывов с изображением слева"""
+        # Получаем отзывы через API
+        testimonials_data = self.generate_theme_content_via_api(theme, "testimonials_carousel", 3)
+
+        if not testimonials_data or not isinstance(testimonials_data, list):
+            testimonials_data = [
+                {
+                    'text': 'The consulting firm provided exceptional service and valuable insights that significantly contributed to the success of our project. Their team demonstrated deep expertise in the field, delivering innovative solutions tailored to our specific needs.',
+                    'author': 'Nat Reynolds',
+                    'position': 'Developer, co-founder'
+                }
+            ]
+
+        # Берем первый отзыв для отображения
+        testimonial = testimonials_data[0]
+
+        return f"""
+    <section class="py-20" style="background-color: #8B9556;">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <img src="images/service1.jpg" alt="Client testimonial" class="rounded-2xl shadow-2xl w-full h-full object-cover" style="min-height: 500px;">
+                </div>
+                <div class="text-white">
+                    <h2 class="text-5xl font-bold mb-12">We provide value of our clients</h2>
+                    <div class="relative">
+                        <div class="text-8xl text-white opacity-30 absolute -top-8 -left-4">"</div>
+                        <div class="relative z-10 pl-8">
+                            <p class="text-xl italic mb-8 leading-relaxed">{testimonial.get('text', 'Great service and professional team.')}</p>
+                            <div class="mb-6">
+                                <h4 class="text-2xl font-bold">{testimonial.get('author', 'Client Name')}</h4>
+                                <p class="text-white opacity-80">{testimonial.get('position', 'Position, Company')}</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 mt-8 pl-8">
+                            <button class="w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center transition">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                </svg>
+                            </button>
+                            <button class="w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center transition">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-white text-sm mt-12 opacity-70">Images from <span class="underline">Freepik</span></p>
+                </div>
+            </div>
+        </div>
+    </section>"""
+
     def select_home_sections(self):
         """Выбор секций для Home страницы без генерации контента"""
         # Все доступные секции
@@ -7327,7 +7617,9 @@ setTimeout(showCookieNotice, 1000);
             'faq_section', 'approach_section', 'benefits_grid',
             'testimonials_text', 'cta_centered', 'features_list',
             'two_images_right', 'contact_form_benefits', 'four_images_grid',
-            'our_team', 'two_images_no_button'
+            'our_team', 'two_images_no_button', 'qna_with_image',
+            'contact_form_office_image', 'image_with_benefits',
+            'what_we_offer_variant', 'testimonials_with_image'
         ]
 
         # Секции, требующие изображений
@@ -7424,6 +7716,11 @@ setTimeout(showCookieNotice, 1000);
             'four_images_grid': self.generate_four_images_grid_section(site_name, theme, primary, hover),
             'our_team': self.generate_our_team_section(site_name, theme, primary),
             'two_images_no_button': self.generate_two_images_right_no_button_section(site_name, theme, primary),
+            'qna_with_image': self.generate_qna_with_image_section(site_name, theme, primary),
+            'contact_form_office_image': self.generate_contact_form_with_office_image_section(theme, primary, hover),
+            'image_with_benefits': self.generate_image_with_benefits_section(site_name, theme, primary, hover),
+            'what_we_offer_variant': self.generate_what_we_offer_variant_section(site_name, theme, primary),
+            'testimonials_with_image': self.generate_testimonials_with_image_section(site_name, theme, primary),
         }
 
         # Используем предвыбранные секции
