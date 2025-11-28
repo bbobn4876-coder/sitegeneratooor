@@ -1171,19 +1171,21 @@ Example:
 Return ONLY valid JSON, no additional text or markdown formatting."""
 
         elif content_type == "blog_posts":
+            from datetime import datetime
+            current_year = datetime.now().year
             prompt = f"""Generate {num_items} blog post previews for a {theme} business.
 
 Return as JSON array with these EXACT fields for each post:
 - "title": Blog post title (5-8 words)
 - "excerpt": Brief excerpt/summary (15-20 words)
-- "date": Recent date in format "Month DD, YYYY" (use realistic recent dates)
+- "date": Recent date in format "Month DD, YYYY" (use realistic recent dates from {current_year})
 
 Be specific to {theme} industry. Topics should be relevant, educational, or industry news.{global_price_ban}{theme_specific_instructions}{language_instruction}
 
 Example:
 [
-  {{"title": "The Future of {theme}", "excerpt": "Explore the latest innovations and what they mean for your business", "date": "November 15, 2025"}},
-  {{"title": "Top 5 Trends in {theme}", "excerpt": "Stay competitive with these emerging trends in the industry", "date": "November 10, 2025"}}
+  {{"title": "The Future of {theme}", "excerpt": "Explore the latest innovations and what they mean for your business", "date": "November 15, {current_year}"}},
+  {{"title": "Top 5 Trends in {theme}", "excerpt": "Stay competitive with these emerging trends in the industry", "date": "November 10, {current_year}"}}
 ]
 
 Return ONLY valid JSON array with {num_items} items, no additional text or markdown formatting."""
@@ -1416,6 +1418,9 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             # num_items используется как article_number (1-6)
             article_number = num_items
 
+            from datetime import datetime
+            current_year = datetime.now().year
+
             # Получаем title из blog_posts_previews если они есть
             required_title = None
             excerpt_text = None
@@ -1443,7 +1448,7 @@ Article should be article #{article_number} of 6 total articles about {theme}.{t
 
 Return as JSON object with these EXACT fields:
 - "title": Article title (5-10 words, specific to {theme}){' - MUST BE: "' + required_title + '"' if required_title else ''}
-- "date": Publication date in format "Month DD, YYYY" (recent date){' - MUST BE: "' + date_text + '"' if date_text else ''}
+- "date": Publication date in format "Month DD, YYYY" (recent date from {current_year}){' - MUST BE: "' + date_text + '"' if date_text else ''}
 - "author": Author name (e.g., "{theme} Team", "Expert Team")
 - "intro_paragraph": Opening paragraph (2-3 sentences introducing the topic)
 - "sections": Array of 3-4 content sections, each with:
@@ -1455,7 +1460,7 @@ Make each article unique and specific to {theme} industry. Topics should be educ
 Example:
 {{
   "title": "{required_title if required_title else 'The Future of ' + theme}",
-  "date": "{date_text if date_text else 'November 15, 2025'}",
+  "date": "{date_text if date_text else f'November 15, {current_year}'}",
   "author": "{theme} Expert Team",
   "intro_paragraph": "The {theme} industry is evolving rapidly...",
   "sections": [
@@ -4224,7 +4229,11 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         work_context = ""
         work_setting = ""
 
-        if 'consulting' in theme_lower or 'it' in theme_lower or 'tech' in theme_lower or 'software' in theme_lower:
+        if 'travel' in theme_lower or 'tour' in theme_lower or 'voyage' in theme_lower or 'tourism' in theme_lower:
+            # Travel/Tourism - красивые виды, достопримечательности, путешествия
+            work_context = "scenic destinations, beautiful landscapes, famous landmarks, tourist attractions, cultural sites, natural wonders, beaches, mountains, historical monuments"
+            work_setting = "breathtaking travel destinations, stunning natural scenery, iconic landmarks, picturesque locations, outdoor landscapes, beautiful vistas, tourist attractions, world-famous sites, exotic locations"
+        elif 'consulting' in theme_lower or 'it' in theme_lower or 'tech' in theme_lower or 'software' in theme_lower:
             # IT/Tech Consulting - офисная среда
             work_context = "professional office environment, business casual attire (shirts and trousers), people working at computers and laptops"
             work_setting = "modern office interior, desk with computer monitors, meeting rooms, presentation screens with charts and graphs (NO text on charts)"
@@ -7147,9 +7156,20 @@ setTimeout(showCookieNotice, 1000);
         num_sections = min(num_sections, len(available_section_keys))
         selected_sections = available_section_keys[:num_sections]
 
-        # Если contact_form_multistep в выбранных, переместить в конец
-        if 'contact_form_multistep' in selected_sections:
+        # Перемещаем FAQ и Contact Form в конец в правильном порядке
+        # FAQ должен быть предпоследним перед contact_form_multistep, или последним если contact_form нет
+        has_contact_form = 'contact_form_multistep' in selected_sections
+        has_faq = 'faq_section' in selected_sections
+
+        if has_contact_form:
             selected_sections.remove('contact_form_multistep')
+        if has_faq:
+            selected_sections.remove('faq_section')
+
+        # Добавляем в конец в правильном порядке
+        if has_faq:
+            selected_sections.append('faq_section')
+        if has_contact_form:
             selected_sections.append('contact_form_multistep')
 
         return selected_sections
@@ -7261,7 +7281,13 @@ setTimeout(showCookieNotice, 1000);
 
 REQUIREMENTS:
 - Heading section with page title
-- Company story/mission section with rich text content
+- Company story/mission section with rich, UNIQUE text content:
+  * Create a COMPLETELY ORIGINAL company history - DO NOT use generic templates
+  * Include specific founding year (between 2005-2015), specific founding location, founder motivation
+  * Describe unique challenges the founders faced and how they overcame them
+  * Explain company's growth journey with specific milestones
+  * Mission statement should be industry-specific and unique to {theme}
+  * Make it feel like a real, authentic company story with personality and character
 - Our Fundamental Values section with 3 value cards (NO images, use icons):
   * Each card should have an icon, heading, and description
   * Values like: Passion, Authenticity, Excellence (or similar industry-appropriate values)
@@ -7269,8 +7295,9 @@ REQUIREMENTS:
   * Cards should be in a responsive grid (3 columns on desktop, 1 column on mobile)
 - Team section with 3 team member cards, each with:
   * Image: images/team1.jpg, images/team2.jpg, images/team3.jpg
-  * Name and role/title
+  * Name and role/title (ONLY - NO icons, NO additional decorations)
   * Brief description
+  * Clean, minimal design with NO icons in team cards
 - MUST include a call-to-action button at the bottom that redirects to contact.php: <a href="contact.php" class="...">Contact Us</a>
 - Modern, professional design with Tailwind CSS
 - Color scheme: {colors.get('primary')} primary, {colors.get('hover')} hover
@@ -7282,6 +7309,7 @@ CRITICAL:
 - Values section MUST have a translated heading like "Our Fundamental Values" or "Our Core Values"
 - MUST use images/team1.jpg, images/team2.jpg, images/team3.jpg for team members
 - Team cards should be in a responsive grid (3 columns on desktop, 1 column on mobile)
+- Team cards MUST NOT include any icons - only image, name, role/title, and description
 - Page MUST have a CTA button at the bottom that links to contact.php{language_requirement}
 
 Return ONLY the content for <main> tag."""
@@ -7291,14 +7319,22 @@ Return ONLY the content for <main> tag."""
 
 REQUIREMENTS:
 - Heading section with page title
-- Company story/mission section with rich text content
+- Company story/mission section with rich, UNIQUE text content:
+  * Create a COMPLETELY ORIGINAL company history - DO NOT use generic templates
+  * Include specific founding year (between 2005-2015), specific founding location, founder motivation
+  * Describe unique challenges the founders faced and how they overcame them
+  * Explain company's growth journey with specific milestones
+  * Mission statement should be industry-specific and unique to {theme}
+  * Make it feel like a real, authentic company story with personality and character
 - Our Fundamental Values section with 3 value cards (NO images, use icons):
   * Each card should have an icon, heading, and description
   * Values like: Passion, Authenticity, Excellence (or similar industry-appropriate values)
   * Icons using SVG (e.g., heart icon for Passion, location icon for Authenticity, mountain/trophy icon for Excellence)
   * Cards should be in a responsive grid (3 columns on desktop, 1 column on mobile)
-- Team section with descriptive text-based cards (NO images)
-- Use icons or text-only cards to describe team members
+- Team section with descriptive text-based cards (NO images, NO icons)
+  * ONLY name, role/title, and brief description for each team member
+  * Clean, text-only design with NO icons, NO decorative elements
+  * Simple, professional typography-based cards
 - MUST include a call-to-action button at the bottom that redirects to contact.php: <a href="contact.php" class="...">Contact Us</a>
 - Modern, professional design with Tailwind CSS
 - Color scheme: {colors.get('primary')} primary, {colors.get('hover')} hover
@@ -7307,7 +7343,7 @@ REQUIREMENTS:
 
 CRITICAL:
 - Values section MUST have a translated heading like "Our Fundamental Values" or "Our Core Values"
-- DO NOT use any images - create compelling content using text, typography, and icons only
+- Team section MUST NOT include any icons - use ONLY text (name, role, description)
 - Focus on storytelling through well-crafted text sections
 - Page MUST have a CTA button at the bottom that links to contact.php{language_requirement}
 
