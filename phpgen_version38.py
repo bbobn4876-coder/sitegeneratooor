@@ -6799,19 +6799,25 @@ setTimeout(showCookieNotice, 1000);
         """Генерирует секцию статистики через API с языковой поддержкой"""
         achievements_data = self.generate_theme_content_via_api(theme, "achievements_content", 1)
 
-        # Fallback если API не вернул результат
+        # Fallback если API не вернул результат - пробуем еще раз
         if not achievements_data:
-            achievements_data = {
-                'heading': 'Our Achievements',
-                'stat1_number': '500+',
-                'stat1_label': 'Projects Completed',
-                'stat2_number': '15+',
-                'stat2_label': 'Years Experience',
-                'stat3_number': '98%',
-                'stat3_label': 'Client Satisfaction',
-                'stat4_number': '50+',
-                'stat4_label': 'Team Members'
-            }
+            print(f"    ⚠️  Первая попытка achievements_content не удалась, пробуем снова...")
+            achievements_data = self.generate_theme_content_via_api(theme, "achievements_content", 1)
+
+            if not achievements_data:
+                # Если и вторая попытка не удалась, используем минимальный fallback
+                print(f"    ⚠️  Используем базовый fallback для achievements_content")
+                achievements_data = {
+                    'heading': 'Stats',
+                    'stat1_number': '500+',
+                    'stat1_label': 'Projects',
+                    'stat2_number': '15+',
+                    'stat2_label': 'Years',
+                    'stat3_number': '98%',
+                    'stat3_label': 'Satisfaction',
+                    'stat4_number': '50+',
+                    'stat4_label': 'Team'
+                }
 
         return f"""
     <section class="py-20 bg-{primary}">
