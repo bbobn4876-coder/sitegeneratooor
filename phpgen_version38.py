@@ -7782,19 +7782,70 @@ setTimeout(showCookieNotice, 1000);
     def generate_testimonials_with_image_section(self, site_name, theme, primary):
         """Генерирует секцию отзывов с изображением слева"""
         # Получаем отзывы через API
-        testimonials_data = self.generate_theme_content_via_api(theme, "testimonials_carousel", 3)
+        testimonials_api_data = self.generate_theme_content_via_api(theme, "testimonials_content", 4)
 
-        if not testimonials_data or not isinstance(testimonials_data, list):
-            testimonials_data = [
+        # Обрабатываем данные из API
+        if testimonials_api_data and isinstance(testimonials_api_data, dict):
+            heading = testimonials_api_data.get('heading', 'What Our Clients Say')
+            testimonials_list = testimonials_api_data.get('testimonials', [])
+        else:
+            heading = None
+            testimonials_list = []
+
+        # Если данных нет, используем fallback с переводом
+        if not testimonials_list:
+            heading_fallback = 'What Our Clients Say'
+            heading = self.get_localized_fallback('testimonials_heading', heading_fallback)
+
+            testimonials_fallback = [
                 {
-                    'text': 'The consulting firm provided exceptional service and valuable insights that significantly contributed to the success of our project. Their team demonstrated deep expertise in the field, delivering innovative solutions tailored to our specific needs.',
-                    'author': 'Nat Reynolds',
-                    'position': 'Developer, co-founder'
+                    'quote': 'The consulting firm provided exceptional service and valuable insights that significantly contributed to the success of our project. Their team demonstrated deep expertise in the field, delivering innovative solutions tailored to our specific needs.',
+                    'name': 'Nat Reynolds',
+                    'position': 'Developer',
+                    'company': 'co-founder'
+                },
+                {
+                    'quote': 'Outstanding work and dedication. The team understood our requirements perfectly and delivered beyond our expectations with creative and efficient solutions.',
+                    'name': 'Sarah Mitchell',
+                    'position': 'Project Manager',
+                    'company': 'Tech Solutions Inc'
+                },
+                {
+                    'quote': 'Professional approach and excellent communication throughout the project. Their expertise helped us achieve our goals on time and within budget.',
+                    'name': 'Michael Chen',
+                    'position': 'CTO',
+                    'company': 'Innovation Labs'
+                },
+                {
+                    'quote': 'Highly recommend their services. The quality of work and attention to detail exceeded our expectations. A true partner in our success.',
+                    'name': 'Emily Johnson',
+                    'position': 'CEO',
+                    'company': 'Growth Ventures'
                 }
             ]
+            testimonials_list = self.get_localized_fallback('testimonials_list', testimonials_fallback)
 
-        # Берем первый отзыв для отображения
-        testimonial = testimonials_data[0]
+        # Генерируем HTML для всех отзывов
+        testimonials_html = ""
+        for idx, testimonial in enumerate(testimonials_list):
+            quote = testimonial.get('quote', 'Great service and professional team.')
+            name = testimonial.get('name', 'Client Name')
+            position = testimonial.get('position', 'Position')
+            company = testimonial.get('company', 'Company')
+
+            display_style = '' if idx == 0 else 'style="display: none;"'
+
+            testimonials_html += f"""
+                        <div class="testimonial-item" {display_style}>
+                            <div class="text-8xl text-white opacity-30 absolute -top-8 -left-4">"</div>
+                            <div class="relative z-10 pl-8">
+                                <p class="text-xl italic mb-8 leading-relaxed">{quote}</p>
+                                <div class="mb-6">
+                                    <h4 class="text-2xl font-bold">{name}</h4>
+                                    <p class="text-white opacity-80">{position}, {company}</p>
+                                </div>
+                            </div>
+                        </div>"""
 
         return f"""
     <section class="py-20" style="background-color: #8B9556;">
@@ -7804,34 +7855,47 @@ setTimeout(showCookieNotice, 1000);
                     <img src="images/service1.jpg" alt="Client testimonial" class="rounded-2xl shadow-2xl w-full h-full object-cover" style="min-height: 500px;">
                 </div>
                 <div class="text-white">
-                    <h2 class="text-5xl font-bold mb-12">We provide value of our clients</h2>
-                    <div class="relative">
-                        <div class="text-8xl text-white opacity-30 absolute -top-8 -left-4">"</div>
-                        <div class="relative z-10 pl-8">
-                            <p class="text-xl italic mb-8 leading-relaxed">{testimonial.get('text', 'Great service and professional team.')}</p>
-                            <div class="mb-6">
-                                <h4 class="text-2xl font-bold">{testimonial.get('author', 'Client Name')}</h4>
-                                <p class="text-white opacity-80">{testimonial.get('position', 'Position, Company')}</p>
-                            </div>
-                        </div>
+                    <h2 class="text-5xl font-bold mb-12">{heading}</h2>
+                    <div class="relative testimonials-carousel">
+{testimonials_html}
                         <div class="flex gap-4 mt-8 pl-8">
-                            <button class="w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center transition">
+                            <button onclick="previousTestimonial()" class="w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center transition">
                                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                                 </svg>
                             </button>
-                            <button class="w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center transition">
+                            <button onclick="nextTestimonial()" class="w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center transition">
                                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                 </svg>
                             </button>
                         </div>
                     </div>
-                    <p class="text-white text-sm mt-12 opacity-70">Images from <span class="underline">Freepik</span></p>
                 </div>
             </div>
         </div>
-    </section>"""
+    </section>
+
+    <script>
+        let currentTestimonial = 0;
+        const testimonials = document.querySelectorAll('.testimonial-item');
+
+        function showTestimonial(index) {{
+            testimonials.forEach((testimonial, i) => {{
+                testimonial.style.display = i === index ? 'block' : 'none';
+            }});
+        }}
+
+        function nextTestimonial() {{
+            currentTestimonial = (currentTestimonial + 1) % testimonials.length;
+            showTestimonial(currentTestimonial);
+        }}
+
+        function previousTestimonial() {{
+            currentTestimonial = (currentTestimonial - 1 + testimonials.length) % testimonials.length;
+            showTestimonial(currentTestimonial);
+        }}
+    </script>"""
 
     def generate_hero_mission_variant_section(self, site_name, theme, primary, hover):
         """Генерирует hero секцию с миссией и call-to-action блоками"""
