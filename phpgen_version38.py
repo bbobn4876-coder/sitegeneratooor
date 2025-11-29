@@ -5050,6 +5050,14 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                 'allow_text': False
             })
 
+            # Testimonials image для секции testimonials_with_image (опционально, для travel тематики)
+            images_to_generate.append({
+                'filename': 'testimonials.jpg',
+                'priority': 'optional',
+                'prompt': f"Professional travel photograph showing happy tourists at a famous landmark. {ethnicity_context} travelers posing in front of iconic tourist attraction (historic monument, famous building, scenic viewpoint). Tourists wearing casual vacation clothes, smiling and enjoying their trip, landmark clearly visible in background, sunny day, vibrant atmosphere, authentic travel moment, natural lighting, professional photography, photorealistic, 8k quality. CRITICAL: Focus on tourists with landmark backdrop, genuine vacation atmosphere.",
+                'allow_text': False
+            })
+
         # PRIORITY 6: Gallery (обязательно - 3 шт)
         images_to_generate.extend([
             {
@@ -8276,13 +8284,18 @@ setTimeout(showCookieNotice, 1000);
             ]
             testimonials_list = self.get_localized_fallback('testimonials_list', testimonials_fallback)
 
+        # Определяем какое изображение использовать (для travel темы - testimonials.jpg)
+        theme_lower = theme.lower()
+        if ('travel' in theme_lower or 'tour' in theme_lower or 'voyage' in theme_lower or 'tourism' in theme_lower) and self._has_image('testimonials.jpg'):
+            testimonial_image = 'testimonials.jpg'
+        else:
+            testimonial_image = 'service1.jpg'
+
         # Генерируем HTML для всех отзывов
         testimonials_html = ""
         for idx, testimonial in enumerate(testimonials_list):
             quote = testimonial.get('quote', 'Great service and professional team.')
             name = testimonial.get('name', 'Client Name')
-            position = testimonial.get('position', 'Position')
-            company = testimonial.get('company', 'Company')
 
             display_style = '' if idx == 0 else 'style="display: none;"'
 
@@ -8293,7 +8306,6 @@ setTimeout(showCookieNotice, 1000);
                                 <p class="text-xl italic mb-8 leading-relaxed">{quote}</p>
                                 <div class="mb-6">
                                     <h4 class="text-2xl font-bold">{name}</h4>
-                                    <p class="text-white opacity-80">{position}, {company}</p>
                                 </div>
                             </div>
                         </div>"""
@@ -8303,7 +8315,7 @@ setTimeout(showCookieNotice, 1000);
         <div class="container mx-auto px-6">
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 <div>
-                    <img src="images/service1.jpg" alt="Client testimonial" class="rounded-2xl shadow-2xl w-full h-full object-cover" style="min-height: 500px;">
+                    <img src="images/{testimonial_image}" alt="Client testimonial" class="rounded-2xl shadow-2xl w-full h-full object-cover" style="min-height: 500px;">
                 </div>
                 <div class="text-white">
                     <h2 class="text-5xl font-bold mb-12">{heading}</h2>
