@@ -7656,16 +7656,18 @@ setTimeout(showCookieNotice, 1000);
         team_data = self.generate_theme_content_via_api(theme, "team_members", 3)
 
         if not team_section_data:
-            team_section_data = {
+            team_section_fallback = {
                 'heading': 'Our Amazing Team'
             }
+            team_section_data = self.get_localized_fallback('team_section_content', team_section_fallback)
 
         if not team_data:
-            team_data = [
+            team_data_fallback = [
                 {'name': 'Nat Reynolds', 'position': 'Worldwide Partner', 'gender': 'male'},
                 {'name': 'Jennie Roberts', 'position': 'Partner', 'gender': 'female'},
                 {'name': 'Mila Parker', 'position': 'Partner', 'gender': 'female'}
             ]
+            team_data = self.get_localized_fallback('team_members', team_data_fallback)
 
         # Генерируем карточки команды
         team_cards = ""
@@ -7726,7 +7728,7 @@ setTimeout(showCookieNotice, 1000);
         faq_data = self.generate_theme_content_via_api(theme, "faq_content", 4)
 
         if not faq_data or not isinstance(faq_data, dict) or 'items' not in faq_data:
-            faq_data = {
+            faq_data_fallback = {
                 'heading': 'What drives us',
                 'description': 'Sample text. Click to select the text box. Click again or double click to start editing the text.',
                 'items': [
@@ -7736,6 +7738,7 @@ setTimeout(showCookieNotice, 1000);
                     {'question': '04. Performance Management', 'answer': 'Effective performance evaluation and improvement systems.'}
                 ]
             }
+            faq_data = self.get_localized_fallback('faq_content', faq_data_fallback)
 
         # Генерируем HTML для Q&A items
         qa_items = ""
@@ -7761,7 +7764,7 @@ setTimeout(showCookieNotice, 1000);
         <div class="container mx-auto px-6">
             <div class="text-center mb-12">
                 <h2 class="text-5xl font-bold mb-4">{faq_data.get('heading', 'What drives us')}</h2>
-                <p class="text-gray-600 text-lg">Sample text. Click to select the text box. Click again or double click to start editing the text.</p>
+                <p class="text-gray-600 text-lg">{faq_data.get('description', 'Find answers to your questions.')}</p>
             </div>
             <div class="grid md:grid-cols-2 gap-12 items-start">
                 <div class="space-y-2">
@@ -7920,12 +7923,13 @@ setTimeout(showCookieNotice, 1000);
         offers_data = self.generate_theme_content_via_api(theme, "what_we_offer_variant", 6)
 
         if not offers_data or not isinstance(offers_data, list):
-            offers_data = [
+            offers_data_fallback = [
                 {'title': 'Finance Awards', 'description': 'Sample text. Click to select the Text Element.'},
                 {'title': 'Life sciences and healthcare', 'description': 'Sample text. Click to select the Text Element.'},
                 {'title': 'Responsible Business', 'description': 'Sample text. Click to select the Text Element.'},
                 {'title': 'Join Us', 'description': 'Sample text. Click to select the Text Element.'},
             ]
+            offers_data = self.get_localized_fallback('what_we_offer_variant', offers_data_fallback)
 
         # Генерируем карточки
         cards_html = ""
@@ -8096,57 +8100,60 @@ setTimeout(showCookieNotice, 1000);
         cta_data = self.generate_theme_content_via_api(theme, "cta_bottom_block", 1)
 
         if not hero_data:
-            hero_data = {
+            hero_data_fallback = {
                 'heading': 'We are always beginner friendly',
                 'description': 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
                 'button_text': 'Read More'
             }
+            hero_data = self.get_localized_fallback('hero_mission_variant', hero_data_fallback)
 
         if not mission_data:
             # Темо-специфичные миссии
             theme_lower = theme.lower()
             if 'travel' in theme_lower or 'tour' in theme_lower:
-                mission_data = {
+                mission_data_fallback = {
                     'label': 'Our Mission',
                     'heading': 'Explore',
                     'heading_second': 'Every Corner',
                     'subheading': 'Every Journey'
                 }
             elif 'fitness' in theme_lower or 'gym' in theme_lower or 'sport' in theme_lower:
-                mission_data = {
+                mission_data_fallback = {
                     'label': 'Our Mission',
                     'heading': 'Run',
                     'heading_second': '',
                     'subheading': 'Every Morning'
                 }
             elif 'food' in theme_lower or 'restaurant' in theme_lower or 'cafe' in theme_lower:
-                mission_data = {
+                mission_data_fallback = {
                     'label': 'Our Mission',
                     'heading': 'Serve Fresh',
                     'heading_second': '',
                     'subheading': 'Every Day'
                 }
             elif 'education' in theme_lower or 'learning' in theme_lower:
-                mission_data = {
+                mission_data_fallback = {
                     'label': 'Our Mission',
                     'heading': 'Learn New',
                     'heading_second': '',
                     'subheading': 'Every Day'
                 }
             else:
-                mission_data = {
+                mission_data_fallback = {
                     'label': 'Our Mission',
                     'heading': 'Excel',
                     'heading_second': '',
                     'subheading': 'Every Day'
                 }
+            mission_data = self.get_localized_fallback('mission_content', mission_data_fallback)
 
         if not cta_data:
-            cta_data = {
+            cta_data_fallback = {
                 'heading': 'Future Run Club',
                 'description': 'A 2 to 4 mile Central Park run followed by brunch! As always, all levels are welcomed, and the goal is to meet some new running buddies and have fun.',
                 'button_text': 'Join Now'
             }
+            cta_data = self.get_localized_fallback('cta_bottom_block', cta_data_fallback)
 
         return f"""
     <section class="py-20 bg-white">
