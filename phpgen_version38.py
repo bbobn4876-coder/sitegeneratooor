@@ -1780,16 +1780,40 @@ IMPORTANT: Return ONLY valid JSON object with ALL 11 fields. No additional text,
         elif content_type == "services_page_content":
             prompt = f"""Generate translation content for a Services page for a {theme} business website.
 
-Return as JSON object with these EXACT fields:
+IMPORTANT: Create professional, engaging content that effectively presents the services offered by a {theme} business. The content should be clear, compelling, and encourage visitors to take action.
+
+Return as JSON object with these EXACT fields (all fields are REQUIRED and MUST be present):
 - "section_heading": Services section heading (2-3 words, e.g., "Our Services")
+  * Should be clear and professional
+  * Should be appropriate for the {theme} industry
+  * Examples: "Our Services", "What We Offer", "Services"
+
 - "section_description": Brief description of services (15-25 words)
+  * Should introduce the services in a compelling way
+  * Should highlight value proposition
+  * Should be specific to {theme} industry
+  * Example: "We offer comprehensive solutions tailored to meet your unique needs"
+
 - "get_started_button": Button text for service cards (2-3 words, e.g., "Get Started")
+  * Should be action-oriented
+  * Should encourage engagement
+  * Examples: "Get Started", "Learn More", "Explore"
+
 - "contact_cta": Call-to-action heading at bottom (4-8 words)
+  * Should be engaging and action-oriented
+  * Should create urgency or interest
+  * Examples: "Ready to Get Started?", "Let's Work Together"
+
 - "contact_cta_description": CTA description (15-25 words)
+  * Should explain benefits of contacting
+  * Should be persuasive and professional
+  * Should relate to {theme} industry
 
 {language_instruction}
 
-Example:
+CRITICAL: You MUST provide ALL 5 fields. Do NOT skip any fields. Return a complete JSON object.
+
+Example for {theme} business:
 {{
   "section_heading": "Our Services",
   "section_description": "We offer comprehensive solutions tailored to meet your unique needs. Discover how our expertise can help your business grow.",
@@ -1798,7 +1822,7 @@ Example:
   "contact_cta_description": "Contact us today to discuss how our services can help you achieve your goals and drive success."
 }}
 
-Return ONLY valid JSON, no additional text or markdown formatting."""
+IMPORTANT: Return ONLY valid JSON object with ALL 5 fields. No additional text, no markdown formatting, no explanations."""
 
         elif content_type == "our_approach_blocks":
             prompt = f"""Generate "Our Approach" section blocks for a {theme} business website.
@@ -2036,6 +2060,31 @@ Translate ALL values to {language}. Return ONLY the JSON object, nothing else. M
                     return None
                 else:
                     print(f"    ✓ Упрощенный промпт сработал для blog_section_headers")
+
+            # Специальная обработка для services_page_content - используем упрощенный промпт
+            elif content_type == "services_page_content":
+                print(f"    ⚠️  Первая попытка не удалась, пробуем упрощенный промпт для services_page_content...")
+                simplified_prompt = f"""You are a professional translator. Translate this services page content to {language} language for a {theme} website.
+
+CRITICAL: Return ONLY a valid JSON object. ALL text must be in {language} language.
+
+{{
+  "section_heading": "Our Services",
+  "section_description": "We offer comprehensive solutions tailored to meet your unique needs. Discover how our expertise can help your business grow.",
+  "get_started_button": "Get Started",
+  "contact_cta": "Ready to Get Started?",
+  "contact_cta_description": "Contact us today to discuss how our services can help you achieve your goals and drive success."
+}}
+
+Translate ALL values to {language}. Return ONLY the JSON object, nothing else. Make sure to provide all 5 fields."""
+
+                response = self.call_api(simplified_prompt, max_tokens=1500)
+
+                if not response or not response.strip():
+                    print(f"    ✗ Упрощенный промпт также не сработал для services_page_content")
+                    return None
+                else:
+                    print(f"    ✓ Упрощенный промпт сработал для services_page_content")
 
             else:
                 print(f"    ✗ API не вернул ответ для {content_type} (response is {'None' if response is None else 'empty'})")
