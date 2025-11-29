@@ -7410,7 +7410,8 @@ setTimeout(showCookieNotice, 1000);
                 'last_name_label': 'Enter your Last Name',
                 'email_label': 'Enter a valid email address',
                 'message_label': 'Enter your message',
-                'submit_button': 'Book a Consultation'
+                'submit_button': 'Book a Consultation',
+                'image_attribution': 'Images from Freepik'
             }
 
         return f"""
@@ -7439,7 +7440,7 @@ setTimeout(showCookieNotice, 1000);
                             {form_data.get('submit_button', 'Book a Consultation')}
                         </button>
                     </form>
-                    <p class="text-sm text-gray-500 mt-4 text-center">Images from Freepik</p>
+                    <p class="text-sm text-gray-500 mt-4 text-center">{form_data.get('image_attribution', 'Images from Freepik')}</p>
                 </div>
                 <div class="h-full">
                     <img src="images/service2.jpg" alt="Office environment" class="rounded-2xl shadow-2xl w-full h-full object-cover" style="min-height: 500px;">
@@ -7458,7 +7459,8 @@ setTimeout(showCookieNotice, 1000);
             content_data = {
                 'heading': 'Make legal better',
                 'description': 'Pulvinar pellentesque habitant morbi tristique senectus et netus et. Venenatis tellus in metus vulputate. Aliquet nec ullamcorper sit amet risus nullam eget.',
-                'button_text': 'View More'
+                'button_text': 'View More',
+                'image_attribution': 'Image from Freepik'
             }
 
         if not benefits_data:
@@ -7492,7 +7494,7 @@ setTimeout(showCookieNotice, 1000);
                         <img src="images/service3.jpg" alt="Professional service" class="rounded-xl shadow-2xl w-full h-80 object-cover">
                     </div>
                     <p class="text-white text-lg mb-8 leading-relaxed">{content_data.get('description', 'Professional services description.')}</p>
-                    <p class="text-white text-sm mb-6">Image from Freepik</p>
+                    <p class="text-white text-sm mb-6">{content_data.get('image_attribution', 'Image from Freepik')}</p>
                     <a href="contact.php" class="inline-block border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold transition">
                         {content_data.get('button_text', 'View More')}
                     </a>
@@ -7625,7 +7627,8 @@ setTimeout(showCookieNotice, 1000);
             hero_data = {
                 'heading': 'We are always beginner friendly',
                 'description': 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
-                'button_text': 'Read More'
+                'button_text': 'Read More',
+                'image_attribution': 'Image from Freepik'
             }
 
         if not mission_data:
@@ -7681,7 +7684,7 @@ setTimeout(showCookieNotice, 1000);
                 <!-- Left Column: Main Content -->
                 <div class="flex flex-col justify-center">
                     <h1 class="text-5xl font-bold mb-6 text-{primary}">{hero_data.get('heading', 'We are always beginner friendly')}</h1>
-                    <p class="text-sm text-gray-500 mb-4 italic">Image from Freepik</p>
+                    <p class="text-sm text-gray-500 mb-4 italic">{hero_data.get('image_attribution', 'Image from Freepik')}</p>
                     <p class="text-gray-600 mb-8 leading-relaxed">{hero_data.get('description', 'Professional services description.')}</p>
                     <div>
                         <a href="services.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
