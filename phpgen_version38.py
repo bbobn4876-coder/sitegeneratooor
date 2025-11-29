@@ -4933,6 +4933,12 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         # Service images always show professionals in business suits in office environment
         service1_prompt = f"Professional office photograph showing business professionals in formal business suits and dress shirts working together in modern office environment. {ethnicity_context}. Conference room or office meeting space, laptops and documents on table, collaborative discussion, natural office lighting, photorealistic, high quality. STRICTLY interior office setting only."
 
+        # Service3 prompt - для travel тематики используем изображение путешествий
+        if 'travel' in theme_lower or 'tour' in theme_lower or 'voyage' in theme_lower or 'tourism' in theme_lower:
+            service3_prompt = f"Professional travel photograph showing beautiful destination scene. Stunning natural landscape: pristine beach with turquoise ocean water, tropical paradise, palm trees, white sand beach, crystal clear water, scenic coastal view. {ethnicity_context} travelers enjoying the destination in background, relaxing beach atmosphere, natural daylight, professional travel photography, photorealistic, 8k quality. CRITICAL: Pure travel destination photograph, beautiful scenery, paradise location."
+        else:
+            service3_prompt = f"High-quality office photograph with business professionals in formal business attire (suits, dress shirts, blazers) working in professional office environment. {ethnicity_context}. Modern office workspace, professional presentation or meeting, confident business people, natural office lighting, photorealistic. STRICTLY interior office setting only."
+
         images_to_generate.extend([
             {
                 'filename': 'service1.jpg',
@@ -4949,7 +4955,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
             {
                 'filename': 'service3.jpg',
                 'priority': 'required',
-                'prompt': f"High-quality office photograph with business professionals in formal business attire (suits, dress shirts, blazers) working in professional office environment. {ethnicity_context}. Modern office workspace, professional presentation or meeting, confident business people, natural office lighting, photorealistic. STRICTLY interior office setting only.",
+                'prompt': service3_prompt,
                 'allow_text': False
             },
         ])
@@ -8488,6 +8494,25 @@ setTimeout(showCookieNotice, 1000);
             selected_sections.remove(contact_form)
         if has_faq:
             selected_sections.remove('faq_section')
+
+        # Проверяем, что benefits_grid не является последней секцией
+        # Последней секцией должна быть контактная форма, four_images_grid или image_with_benefits
+        allowed_last_sections = ['contact_form_multistep', 'contact_form_benefits', 'contact_form_office_image',
+                                 'four_images_grid', 'image_with_benefits']
+
+        # Если benefits_grid последний в списке и нет contact_form или FAQ, переместим его
+        if selected_sections and selected_sections[-1] == 'benefits_grid':
+            # Пытаемся найти разрешенную секцию для перемещения в конец
+            last_section_candidate = None
+            for section in ['four_images_grid', 'image_with_benefits']:
+                if section in selected_sections:
+                    last_section_candidate = section
+                    break
+
+            # Если нашли подходящую секцию, меняем местами
+            if last_section_candidate:
+                selected_sections.remove(last_section_candidate)
+                selected_sections.append(last_section_candidate)
 
         # Добавляем в конец в правильном порядке
         if has_faq:
