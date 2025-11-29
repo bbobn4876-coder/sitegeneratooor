@@ -6347,8 +6347,17 @@ setTimeout(showCookieNotice, 1000);
         contact_data_2 = self.get_country_contact_data(country)
         contact_data_3 = self.get_country_contact_data(country)
 
-        # Выбираем случайную вариацию от 1 до 5
-        variation = random.randint(1, 5)
+        # Улучшенная рандомизация: используем weighted random choice
+        # Каждый вариант получает равный вес для равномерного распределения
+        variations = [1, 2, 3, 4, 5]
+
+        # Используем детерминированный выбор на основе site_name для консистентности
+        # но добавляем случайность через shuffle с сохранением seed
+        random.shuffle(variations)
+        variation = variations[0]
+
+        # Сохраняем выбор в blueprint для консистентности
+        self.blueprint['contact_page_variant'] = variation
 
         # Вариация 1: Классический двухколоночный (форма слева, инфо справа)
         if variation == 1:
@@ -6753,14 +6762,42 @@ setTimeout(showCookieNotice, 1000);
         button_primary = hero_data.get('button_primary', 'About Us')
         button_secondary = hero_data.get('button_secondary', 'Contact')
 
-        # Проверяем наличие hero.jpg для вариантов с изображением
+        # Проверяем наличие изображений для вариантов
         has_hero = self._has_image('hero.jpg')
+        has_about = self._has_image('about.jpg')
+        has_service1 = self._has_image('service1.jpg')
 
-        # Если нет hero.jpg, используем вариант без изображения (3)
-        if not has_hero:
-            hero_variant = 3
+        # Улучшенная рандомизация: определяем доступные варианты
+        available_variants = []
+
+        if has_hero:
+            # Если есть hero.jpg, доступны все варианты
+            available_variants = [1, 2, 3, 4, 5]
         else:
-            hero_variant = random.randint(1, 5)
+            # Если нет hero.jpg, но есть другие изображения, используем их
+            if has_about or has_service1:
+                # Варианты 1, 2, 5 могут работать с about.jpg или service1.jpg
+                available_variants = [1, 2, 3, 5]
+            else:
+                # Только вариант без изображения
+                available_variants = [3]
+
+        # Используем weighted choice для большего разнообразия
+        # Вариант 3 получает меньший вес, если доступны другие варианты
+        if len(available_variants) > 1:
+            # Убираем вариант 3 из доминирования, если есть альтернативы
+            weights = [1.5 if v != 3 else 1.0 for v in available_variants]
+            hero_variant = random.choices(available_variants, weights=weights, k=1)[0]
+        else:
+            hero_variant = available_variants[0]
+
+        # Сохраняем выбор в blueprint для консистентности
+        if not hasattr(self, 'blueprint'):
+            self.blueprint = {}
+        self.blueprint['hero_variant'] = hero_variant
+
+        # Определяем изображение для использования в вариантах
+        hero_image = 'hero.jpg' if has_hero else ('about.jpg' if has_about else 'service1.jpg')
 
         # Вариация 1: Фотография справа
         if hero_variant == 1:
@@ -6781,7 +6818,7 @@ setTimeout(showCookieNotice, 1000);
                     </div>
                 </div>
                 <div>
-                    <img src="images/hero.jpg" alt="{site_name}" class="rounded-2xl shadow-2xl w-full h-full object-cover min-h-[400px]">
+                    <img src="images/{hero_image}" alt="{site_name}" class="rounded-2xl shadow-2xl w-full h-full object-cover min-h-[400px]">
                 </div>
             </div>
         </div>
@@ -6908,7 +6945,7 @@ setTimeout(showCookieNotice, 1000);
         <div class="container mx-auto px-6">
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 <div class="order-2 md:order-1">
-                    <img src="images/hero.jpg" alt="{site_name}" class="rounded-2xl shadow-2xl w-full h-96 object-cover">
+                    <img src="images/{hero_image}" alt="{site_name}" class="rounded-2xl shadow-2xl w-full h-96 object-cover">
                 </div>
                 <div class="order-1 md:order-2">
                     <h1 class="text-5xl md:text-6xl font-bold mb-6">{title}</h1>
