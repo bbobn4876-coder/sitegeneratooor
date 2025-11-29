@@ -1899,9 +1899,22 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
 Return as JSON object with section headings and content. All text must be in the target language.
 
+IMPORTANT: When referring to the company/business name, use the appropriate placeholder based on the target language:
+- French: [Nom de l'Entreprise de Voyages]
+- English: [Company Name]
+- Italian: [Nome dell'azienda]
+- Spanish: [Nombre de la empresa]
+- German: [Firmenname]
+- Polish: [Nazwa firmy]
+- Czech: [Název společnosti]
+- Dutch: [Bedrijfsnaam]
+- Other languages: [Site Name]
+
+Do NOT invent or use any specific company names. Always use the placeholder.
+
 Required fields:
 - "introduction_heading": Section 1 heading (e.g., "Introduction")
-- "introduction_text": Introduction paragraph (20-30 words)
+- "introduction_text": Introduction paragraph (20-30 words) - MUST use the appropriate company name placeholder
 - "info_we_collect_heading": Section 2 heading (e.g., "Information We Collect")
 - "info_we_collect_intro": Introduction text before subsections (e.g., "We may collect information about you in a variety of ways. The information we may collect includes:")
 - "personal_data_heading": Subsection heading (e.g., "Personal Data")
@@ -1928,11 +1941,24 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
 Return as JSON object with section headings and content. All text must be in the target language.
 
+IMPORTANT: When referring to the company/business name, use the appropriate placeholder based on the target language:
+- French: [Nom de l'Entreprise de Voyages]
+- English: [Company Name]
+- Italian: [Nome dell'azienda]
+- Spanish: [Nombre de la empresa]
+- German: [Firmenname]
+- Polish: [Nazwa firmy]
+- Czech: [Název společnosti]
+- Dutch: [Bedrijfsnaam]
+- Other languages: [Site Name]
+
+Do NOT invent or use any specific company names. Always use the placeholder.
+
 Required fields:
 - "agreement_heading": Section 1 heading (e.g., "Agreement to Terms")
-- "agreement_text": Paragraph (20-30 words)
+- "agreement_text": Paragraph (20-30 words) - MUST use the appropriate company name placeholder
 - "use_license_heading": Section 2 heading (e.g., "Use License")
-- "use_license_intro": Intro paragraph (20-30 words)
+- "use_license_intro": Intro paragraph (20-30 words) - MUST use the appropriate company name placeholder
 - "use_license_items": Array of 5 prohibited actions
 - "user_responsibilities_heading": Section 3 heading
 - "user_responsibilities_intro": Intro text (e.g., "As a user of our website, you agree to:")
@@ -1955,6 +1981,19 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             prompt = f"""Generate complete Cookie Policy page content for a {theme} business website.
 
 Return as JSON object with section headings and content. All text must be in the target language.
+
+IMPORTANT: When referring to the company/business name, use the appropriate placeholder based on the target language:
+- French: [Nom de l'Entreprise de Voyages]
+- English: [Company Name]
+- Italian: [Nome dell'azienda]
+- Spanish: [Nombre de la empresa]
+- German: [Firmenname]
+- Polish: [Nazwa firmy]
+- Czech: [Název społnosti]
+- Dutch: [Bedrijfsnaam]
+- Other languages: [Site Name]
+
+Do NOT invent or use any specific company names. Always use the placeholder.
 
 Required fields:
 - "what_are_cookies_heading": Section 1 heading (e.g., "What Are Cookies")
