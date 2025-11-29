@@ -7170,7 +7170,8 @@ setTimeout(showCookieNotice, 1000);
                 'description': 'We specialize in investing in technological startups in the field of rear view. Duis aute irure dolor in osaedeut za sladoestrastie velit esse cilum dolore eu fugiat nulla pariatur. Excepteur sint osaedeut cupidatat not proident, sunt in culpa qui officia deserunt mollit anim id est Laborum.',
                 'name_label': 'Enter your Name',
                 'email_label': 'Enter a valid email address',
-                'submit_button': 'Connect With Us'
+                'submit_button': 'Connect With Us',
+                'form_heading': 'Order a Free Consultation'
             }
 
         if not benefits_data:
@@ -7196,7 +7197,7 @@ setTimeout(showCookieNotice, 1000);
                     </ul>
                 </div>
                 <div class="bg-white rounded-2xl p-8 shadow-2xl">
-                    <h3 class="text-2xl font-bold mb-6">Order a Free Consultation</h3>
+                    <h3 class="text-2xl font-bold mb-6">{form_data.get('form_heading', 'Order a Free Consultation')}</h3>
                     <form action="thanks_you.php" method="POST" class="space-y-6">
                         <div>
                             <input type="text" id="name" name="name" placeholder="{form_data.get('name_label', 'Enter your Name')}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent">
@@ -7255,7 +7256,13 @@ setTimeout(showCookieNotice, 1000);
     def generate_our_team_section(self, site_name, theme, primary):
         """Генерирует секцию Our Team с портретами членов команды"""
         # Получаем данные команды через API
+        team_section_data = self.generate_theme_content_via_api(theme, "team_section_content", 1)
         team_data = self.generate_theme_content_via_api(theme, "team_members", 3)
+
+        if not team_section_data:
+            team_section_data = {
+                'heading': 'Our Amazing Team'
+            }
 
         if not team_data:
             team_data = [
@@ -7282,7 +7289,7 @@ setTimeout(showCookieNotice, 1000);
     <section class="py-20 bg-blue-600">
         <div class="container mx-auto px-6">
             <div class="text-center mb-16">
-                <h2 class="text-5xl font-bold text-white mb-4">Our Amazing Team</h2>
+                <h2 class="text-5xl font-bold text-white mb-4">{team_section_data.get('heading', 'Our Amazing Team')}</h2>
             </div>
             <div class="grid md:grid-cols-3 gap-8">
                 {team_cards}
@@ -7324,6 +7331,7 @@ setTimeout(showCookieNotice, 1000);
         if not faq_data or not isinstance(faq_data, dict) or 'items' not in faq_data:
             faq_data = {
                 'heading': 'What drives us',
+                'description': 'Sample text. Click to select the text box. Click again or double click to start editing the text.',
                 'items': [
                     {'question': '01. Recruitment Staffing', 'answer': 'Answer. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur id suscipit ex. Suspendisse rhoncus laoreet purus quis elementum. Phasellus sed efficitur dolor, et ultricies sapien. Quisque fringilla sit amet dolor commodo efficitur. Aliquam et sem odio. In ullamcorper nisi nunc, et molestie ipsum iaculis sit amet.'},
                     {'question': '02. Compensation Management', 'answer': 'Expert compensation strategies tailored to your organization.'},
