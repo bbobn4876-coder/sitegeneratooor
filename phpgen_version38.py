@@ -4999,7 +4999,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         images_to_generate.extend([
             {
                 'filename': 'about.jpg',
-                'priority': 'optional',
+                'priority': 'required',
                 'prompt': f"Professional business photograph showing {theme} company culture. {work_setting}. {ethnicity_context} in natural professional setting, {work_context}, candid moments, warm atmosphere, photorealistic. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
                 'allow_text': False
             },
