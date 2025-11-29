@@ -2145,6 +2145,212 @@ Required fields:
 
 Return ONLY valid JSON, no additional text or markdown formatting."""
 
+        elif content_type == "two_images_no_button":
+            prompt = f"""Generate content for a two-image section without button for a {theme} business.
+
+Return as JSON object with these EXACT fields:
+- "heading": Compelling section heading (4-8 words, specific to {theme} industry)
+- "description": Detailed description (20-35 words explaining the value proposition)
+
+Make the content highly specific to the {theme} industry. Focus on real benefits and professional solutions.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+{{
+  "heading": "Real-world Solutions Designed Just for You",
+  "description": "Professional solutions tailored to meet your specific needs and exceed expectations in the {theme} industry."
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "two_images_section":
+            prompt = f"""Generate content for a two-image section with button for a {theme} business.
+
+Return as JSON object with these EXACT fields:
+- "heading": Compelling section heading (4-8 words, specific to {theme} industry)
+- "description": Detailed description (20-35 words explaining the value proposition)
+- "button_text": Call-to-action button text (2-3 words)
+
+Make the content highly specific to the {theme} industry. Focus on real benefits and professional solutions.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+{{
+  "heading": "Transform Your Business Operations",
+  "description": "Comprehensive solutions designed to streamline workflows and maximize efficiency in the {theme} sector.",
+  "button_text": "Learn More"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "four_images_section":
+            prompt = f"""Generate content for a four-image grid section for a {theme} business.
+
+Return as JSON object with these EXACT fields:
+- "heading": Compelling section heading (4-8 words, specific to {theme} industry)
+- "description": Detailed description (20-35 words explaining comprehensive services)
+- "button_text": Call-to-action button text (2-3 words)
+
+Make the content highly specific to the {theme} industry. Emphasize comprehensive support and professional services.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+{{
+  "heading": "Complete Professional Support Services",
+  "description": "End-to-end solutions covering every aspect of your business needs in the {theme} industry with expert guidance.",
+  "button_text": "Read More"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "contact_form_benefits":
+            prompt = f"""Generate content for a contact form section with benefits for a {theme} business.
+
+Return as JSON object with these EXACT fields:
+- "heading": Main section heading (4-8 words, action-oriented for {theme})
+- "description": Compelling description about services (30-50 words, specific to {theme} industry)
+- "name_label": Placeholder for name field (2-4 words)
+- "email_label": Placeholder for email field (3-5 words)
+- "message_label": Placeholder for message field (1-2 words)
+- "submit_button": Submit button text (2-4 words)
+- "form_heading": Form heading (3-5 words)
+
+Make the content highly specific to the {theme} industry. Avoid generic Lorem Ipsum text.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+{{
+  "heading": "Transform Business Growth with Expert Services",
+  "description": "We specialize in delivering innovative solutions tailored to your industry needs. Our expert team provides comprehensive support to help you achieve measurable results and sustainable growth.",
+  "name_label": "Enter your Name",
+  "email_label": "Enter a valid email address",
+  "message_label": "Message",
+  "submit_button": "Connect With Us",
+  "form_heading": "Request a Free Consultation"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "benefits_list":
+            prompt = f"""Generate {num_items} key benefits for a {theme} business.
+
+Return as JSON array of objects, where each object has:
+- "title": Benefit title (3-5 words, specific to {theme} industry)
+
+Make the benefits highly specific to the {theme} industry. Focus on strategic advantages and professional capabilities.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+[
+  {{"title": "Strategic Planning Excellence"}},
+  {{"title": "Advanced Technology Integration"}},
+  {{"title": "Data-Driven Insights"}}
+]
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "contact_form_quick":
+            prompt = f"""Generate content for a quick contact form for a {theme} business.
+
+Return as JSON object with these EXACT fields:
+- "heading": Form section heading (3-5 words)
+- "subheading": Brief description (10-15 words)
+- "name_label": Placeholder for name field (2-4 words)
+- "email_label": Placeholder for email field (3-5 words)
+- "phone_label": Placeholder for phone field (2-4 words)
+- "message_label": Placeholder for message field (1-2 words)
+- "submit_button": Submit button text (2-3 words)
+
+Make the content professional and specific to {theme} industry.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+{{
+  "heading": "Get in Touch",
+  "subheading": "Contact us today to discuss your project needs",
+  "name_label": "Your Name",
+  "email_label": "Your Email Address",
+  "phone_label": "Phone Number",
+  "message_label": "Message",
+  "submit_button": "Send Message"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "image_benefits_section":
+            prompt = f"""Generate content for an image with benefits section for a {theme} business.
+
+Return as JSON object with these EXACT fields:
+- "heading": Main section heading (4-7 words, specific to {theme})
+- "description": Description paragraph (20-35 words)
+- "button_text": Call-to-action button text (2-3 words)
+
+Make the content highly specific to the {theme} industry.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+{{
+  "heading": "Innovative Solutions for Modern Challenges",
+  "description": "Our comprehensive approach combines cutting-edge technology with industry expertise to deliver exceptional results tailored to your business needs.",
+  "button_text": "Discover More"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "benefits_icons":
+            prompt = f"""Generate {num_items} benefits with icons for a {theme} business.
+
+Return as JSON array of objects, where each object has:
+- "title": Benefit title (3-6 words, specific to {theme} industry)
+- "description": Brief benefit description (10-15 words)
+- "icon": Icon name (e.g., "check-circle", "star", "shield", "rocket", "award")
+
+Make the benefits highly specific to the {theme} industry.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+[
+  {{"title": "Expert Team", "description": "Skilled professionals with extensive industry experience and proven results", "icon": "award"}},
+  {{"title": "Quality Assurance", "description": "Rigorous testing and quality control for exceptional outcomes", "icon": "shield"}},
+  {{"title": "Innovation Focus", "description": "Cutting-edge solutions leveraging latest industry advancements", "icon": "rocket"}}
+]
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "what_we_offer_variant":
+            prompt = f"""Generate {num_items} service offerings for a {theme} business.
+
+Return as JSON array of objects, where each object has:
+- "title": Service title (2-5 words)
+- "description": Service description (12-18 words)
+- "icon": Icon identifier (e.g., "service1", "service2", etc.)
+
+Make the services highly specific to the {theme} industry.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+[
+  {{"title": "Strategic Consulting", "description": "Expert guidance to optimize your business strategy and achieve sustainable growth", "icon": "service1"}},
+  {{"title": "Technology Solutions", "description": "Advanced technical implementations tailored to your specific operational requirements", "icon": "service2"}}
+]
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "faq_content":
+            prompt = f"""Generate FAQ content for a {theme} business.
+
+Return as JSON object with these EXACT fields:
+- "heading": FAQ section heading (2-4 words, e.g., "Frequently Asked Questions", "Common Questions")
+- "description": Brief description (10-20 words about the FAQ section)
+- "items": Array of exactly {num_items} FAQ items, each with:
+  * "question": Question text (5-10 words, specific to {theme} industry)
+  * "answer": Answer text (15-30 words, informative and specific)
+
+Make the content highly specific to the {theme} industry. Questions should address real concerns customers have.{global_price_ban}{theme_specific_instructions}{language_instruction}
+
+Example:
+{{
+  "heading": "Frequently Asked Questions",
+  "description": "Find answers to common questions about our services and approach",
+  "items": [
+    {{"question": "What services do you offer?", "answer": "We provide comprehensive solutions tailored to your specific needs in the {theme} industry, including consulting, implementation, and ongoing support."}},
+    {{"question": "How long does a typical project take?", "answer": "Project timelines vary based on scope and complexity, but we work efficiently to deliver results within agreed timeframes."}}
+  ]
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
         else:
             return None
 
@@ -2156,9 +2362,9 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             max_tokens = 8000  # Большой лимит для полной статьи с несколькими секциями
         elif content_type == "work_showcase":
             max_tokens = 6000  # Больше токенов для 4 детальных кейсов
-        elif content_type in ["services", "featured_solutions", "process_steps", "blog_posts", "benefits_content"]:
+        elif content_type in ["services", "featured_solutions", "process_steps", "blog_posts", "benefits_content", "benefits_list", "benefits_icons", "what_we_offer_variant"]:
             max_tokens = 5000  # Увеличенный лимит для списков
-        elif content_type in ["approach_content", "about_content", "gallery_content", "faq_blocks", "services_page_content", "thankyou_content", "what_we_offer_content"]:
+        elif content_type in ["approach_content", "about_content", "gallery_content", "faq_blocks", "services_page_content", "thankyou_content", "what_we_offer_content", "contact_form_benefits", "contact_form_quick", "faq_content"]:
             max_tokens = 4000  # Увеличенный лимит для контента с несколькими параграфами и полями
         elif content_type == "testimonials_content":
             max_tokens = 4000  # Достаточно для 3 отзывов
@@ -2342,7 +2548,7 @@ Translate ALL values to {language}. Return ONLY the JSON object, nothing else. M
                     return None
 
             # Для других типов списков - проверяем что получили хотя бы что-то
-            elif content_type in ["services", "featured_solutions", "process_steps", "blog_posts"]:
+            elif content_type in ["services", "featured_solutions", "process_steps", "blog_posts", "benefits_list", "benefits_icons", "what_we_offer_variant"]:
                 if not isinstance(content, list) or len(content) == 0:
                     print(f"    ⚠️  Не получено элементов для {content_type}, используем fallback")
                     return None
@@ -2373,8 +2579,20 @@ Translate ALL values to {language}. Return ONLY the JSON object, nothing else. M
                 elif len(content["testimonials"]) < num_items:
                     print(f"    ⚠️  Получено {len(content['testimonials'])} элементов вместо {num_items} для testimonials, используем их")
 
+            # Проверка для faq_content - объект с массивом items
+            elif content_type == "faq_content":
+                if not isinstance(content, dict):
+                    print(f"    ⚠️  Получен неверный тип данных для {content_type} (ожидается объект), используем fallback")
+                    return None
+                if "items" not in content or not isinstance(content["items"], list) or len(content["items"]) == 0:
+                    items_len = len(content.get("items", [])) if isinstance(content.get("items"), list) else 0
+                    print(f"    ⚠️  Не получено элементов для faq items ({items_len}), используем fallback")
+                    return None
+                elif len(content["items"]) < num_items:
+                    print(f"    ⚠️  Получено {len(content['items'])} элементов вместо {num_items} для faq items, используем их")
+
             # Для объектных типов контента - проверяем что это словарь
-            elif content_type in ["hero_content", "achievements_content", "cta_content", "contact_page_content", "blog_page_content", "policy_content", "footer_content", "menu_content", "about_content", "gallery_content", "approach_content", "blog_article_full", "section_headings", "blog_section_headers", "button_texts", "blog_navigation_content", "cookie_notice_content", "thankyou_content", "what_we_offer_content", "features_comparison"]:
+            elif content_type in ["hero_content", "achievements_content", "cta_content", "contact_page_content", "blog_page_content", "policy_content", "footer_content", "menu_content", "about_content", "gallery_content", "approach_content", "blog_article_full", "section_headings", "blog_section_headers", "button_texts", "blog_navigation_content", "cookie_notice_content", "thankyou_content", "what_we_offer_content", "features_comparison", "two_images_no_button", "two_images_section", "four_images_section", "contact_form_benefits", "contact_form_quick", "image_benefits_section"]:
                 if not isinstance(content, dict):
                     print(f"    ⚠️  Получен неверный тип данных для {content_type} (получен {type(content).__name__} вместо dict)")
 
