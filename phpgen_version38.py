@@ -7784,7 +7784,7 @@ setTimeout(showCookieNotice, 1000);
         form_data = self.generate_theme_content_via_api(theme, "contact_form_quick", 1)
 
         if not form_data:
-            form_data = {
+            form_data_fallback = {
                 'heading': 'Quick Online Consultancy',
                 'description': 'Sample text. Click to select the Text Element.',
                 'first_name_label': 'Enter your First Name',
@@ -7793,6 +7793,7 @@ setTimeout(showCookieNotice, 1000);
                 'message_label': 'Enter your message',
                 'submit_button': 'Book a Consultation'
             }
+            form_data = self.get_localized_fallback('contact_form_quick', form_data_fallback)
 
         return f"""
     <section class="py-20 bg-gray-900">
@@ -8205,21 +8206,33 @@ setTimeout(showCookieNotice, 1000);
         num_sections = min(num_sections, len(available_section_keys))
         selected_sections = available_section_keys[:num_sections]
 
-        # Перемещаем FAQ и Contact Form в конец в правильном порядке
-        # FAQ должен быть предпоследним перед contact_form_multistep, или последним если contact_form нет
-        has_contact_form = 'contact_form_multistep' in selected_sections
+        # Все типы контактных форм
+        contact_form_types = ['contact_form_multistep', 'contact_form_benefits', 'contact_form_office_image']
+
+        # Находим все контактные формы в выбранных секциях
+        selected_contact_forms = [cf for cf in contact_form_types if cf in selected_sections]
+
+        # Если выбрано несколько контактных форм, оставляем только одну (первую)
+        if len(selected_contact_forms) > 1:
+            for cf in selected_contact_forms[1:]:
+                selected_sections.remove(cf)
+
+        # Определяем, какая контактная форма осталась
+        contact_form = selected_contact_forms[0] if selected_contact_forms else None
         has_faq = 'faq_section' in selected_sections
 
-        if has_contact_form:
-            selected_sections.remove('contact_form_multistep')
+        # Перемещаем FAQ и Contact Form в конец в правильном порядке
+        # FAQ должен быть предпоследним перед contact_form, или последним если contact_form нет
+        if contact_form:
+            selected_sections.remove(contact_form)
         if has_faq:
             selected_sections.remove('faq_section')
 
         # Добавляем в конец в правильном порядке
         if has_faq:
             selected_sections.append('faq_section')
-        if has_contact_form:
-            selected_sections.append('contact_form_multistep')
+        if contact_form:
+            selected_sections.append(contact_form)
 
         return selected_sections
 
