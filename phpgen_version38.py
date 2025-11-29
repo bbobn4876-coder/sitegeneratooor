@@ -7563,6 +7563,7 @@ setTimeout(showCookieNotice, 1000);
                 'description': 'We specialize in investing in technological startups in the field of rear view. Duis aute irure dolor in osaedeut za sladoestrastie velit esse cilum dolore eu fugiat nulla pariatur. Excepteur sint osaedeut cupidatat not proident, sunt in culpa qui officia deserunt mollit anim id est Laborum.',
                 'name_label': 'Enter your Name',
                 'email_label': 'Enter a valid email address',
+                'message_label': 'Message',
                 'submit_button': 'Connect With Us',
                 'form_heading': 'Order a Free Consultation'
             }
@@ -7601,7 +7602,7 @@ setTimeout(showCookieNotice, 1000);
                             <input type="email" id="email" name="email" placeholder="{form_data.get('email_label', 'Enter a valid email address')}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent">
                         </div>
                         <div>
-                            <textarea id="message" name="message" rows="4" placeholder="Message" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent"></textarea>
+                            <textarea id="message" name="message" rows="4" placeholder="{form_data.get('message_label', 'Message')}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-{primary} focus:border-transparent"></textarea>
                         </div>
                         <button type="submit" class="w-full bg-{primary} hover:bg-{hover} text-white py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
                             {form_data.get('submit_button', 'Connect With Us')}
