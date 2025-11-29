@@ -6863,8 +6863,8 @@ setTimeout(showCookieNotice, 1000);
     <section class="py-20 bg-gray-50">
         <div class="container mx-auto px-6">
             <div class="text-center mb-16">
-                <h1 class="text-5xl font-bold mb-6">{services_content.get('section_heading', 'Our Services')}</h1>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">{services_content.get('section_description', 'We offer comprehensive solutions tailored to your needs.')}</p>
+                <h1 class="text-5xl font-bold mb-6">{services_content['section_heading']}</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">{services_content['section_description']}</p>
             </div>
 
             <div class="grid md:grid-cols-3 gap-8 mb-16">
@@ -6872,8 +6872,8 @@ setTimeout(showCookieNotice, 1000);
             </div>
 
             <div class="bg-{primary} text-white rounded-3xl p-12 text-center">
-                <h2 class="text-4xl font-bold mb-4">{services_content.get('contact_cta', 'Ready to Get Started?')}</h2>
-                <p class="text-xl opacity-90">{services_content.get('contact_cta_description', 'Contact us today to discuss your needs.')}</p>
+                <h2 class="text-4xl font-bold mb-4">{services_content['contact_cta']}</h2>
+                <p class="text-xl opacity-90">{services_content['contact_cta_description']}</p>
             </div>
         </div>
     </section>
@@ -6900,8 +6900,8 @@ setTimeout(showCookieNotice, 1000);
     <section class="py-20 bg-gradient-to-br from-gray-50 to-white">
         <div class="container mx-auto px-6">
             <div class="text-center mb-20">
-                <h1 class="text-6xl font-bold mb-6 bg-gradient-to-r from-{primary} to-{hover} bg-clip-text text-transparent">{services_content.get('section_heading', 'Our Services')}</h1>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">{services_content.get('section_description', 'We offer comprehensive solutions tailored to your needs.')}</p>
+                <h1 class="text-6xl font-bold mb-6 bg-gradient-to-r from-{primary} to-{hover} bg-clip-text text-transparent">{services_content['section_heading']}</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">{services_content['section_description']}</p>
             </div>
 
             <div class="grid md:grid-cols-2 gap-10 mb-20">
@@ -6909,8 +6909,8 @@ setTimeout(showCookieNotice, 1000);
             </div>
 
             <div class="bg-gradient-to-r from-{primary} to-{hover} text-white rounded-3xl p-16 text-center shadow-2xl">
-                <h2 class="text-5xl font-bold mb-6">{services_content.get('contact_cta', 'Ready to Get Started?')}</h2>
-                <p class="text-xl opacity-95 max-w-2xl mx-auto">{services_content.get('contact_cta_description', 'Contact us today to discuss your needs.')}</p>
+                <h2 class="text-5xl font-bold mb-6">{services_content['contact_cta']}</h2>
+                <p class="text-xl opacity-95 max-w-2xl mx-auto">{services_content['contact_cta_description']}</p>
             </div>
         </div>
     </section>
@@ -6934,8 +6934,8 @@ setTimeout(showCookieNotice, 1000);
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
             <div class="text-center mb-16">
-                <h1 class="text-5xl font-bold mb-6">{services_content.get('section_heading', 'Our Services')}</h1>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">{services_content.get('section_description', 'We offer comprehensive solutions tailored to your needs.')}</p>
+                <h1 class="text-5xl font-bold mb-6">{services_content['section_heading']}</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">{services_content['section_description']}</p>
             </div>
 
             <div class="max-w-7xl mx-auto mb-20">
@@ -6955,8 +6955,8 @@ setTimeout(showCookieNotice, 1000);
             </div>
 
             <div class="bg-gray-50 rounded-3xl p-12 text-center">
-                <h2 class="text-4xl font-bold mb-4">{services_content.get('contact_cta', 'Ready to Get Started?')}</h2>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">{services_content.get('contact_cta_description', 'Contact us today to discuss your needs.')}</p>
+                <h2 class="text-4xl font-bold mb-4">{services_content['contact_cta']}</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">{services_content['contact_cta_description']}</p>
             </div>
         </div>
     </section>
@@ -6978,8 +6978,8 @@ setTimeout(showCookieNotice, 1000);
     <section class="py-20 bg-gradient-to-br from-white to-gray-50">
         <div class="container mx-auto px-6">
             <div class="text-center mb-16">
-                <h1 class="text-5xl font-bold mb-6 text-{primary}">{services_content.get('section_heading', 'Our Services')}</h1>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">{services_content.get('section_description', 'We offer comprehensive solutions tailored to your needs.')}</p>
+                <h1 class="text-5xl font-bold mb-6 text-{primary}">{services_content['section_heading']}</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">{services_content['section_description']}</p>
             </div>
 
             <div class="max-w-7xl mx-auto mb-20">
@@ -6988,7 +6988,7 @@ setTimeout(showCookieNotice, 1000);
                         <h2 class="text-4xl font-bold mb-6">{service['title']}</h2>
                         <p class="text-lg text-gray-600 mb-8 leading-relaxed">{service['description']}</p>
                         <div class="bg-white rounded-xl p-8 shadow-lg">
-                            <h3 class="text-xl font-bold mb-4">{benefits_content.get('heading', 'Key Benefits')}</h3>
+                            <h3 class="text-xl font-bold mb-4">{benefits_content['heading']}</h3>
                             <ul class="space-y-3">{benefits_list_html}
                             </ul>
                         </div>
@@ -7002,8 +7002,8 @@ setTimeout(showCookieNotice, 1000);
             </div>
 
             <div class="bg-{primary} text-white rounded-3xl p-12 text-center shadow-2xl">
-                <h2 class="text-4xl font-bold mb-4">{services_content.get('contact_cta', 'Ready to Get Started?')}</h2>
-                <p class="text-xl opacity-90 max-w-2xl mx-auto">{services_content.get('contact_cta_description', 'Contact us today to discuss your needs.')}</p>
+                <h2 class="text-4xl font-bold mb-4">{services_content['contact_cta']}</h2>
+                <p class="text-xl opacity-90 max-w-2xl mx-auto">{services_content['contact_cta_description']}</p>
             </div>
         </div>
     </section>
