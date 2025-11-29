@@ -7693,10 +7693,11 @@ setTimeout(showCookieNotice, 1000);
         content_data = self.generate_theme_content_via_api(theme, "two_images_no_button", 1)
 
         if not content_data:
-            content_data = {
+            content_data_fallback = {
                 'heading': 'Real-world Solutions Designed Just for You',
                 'description': 'Dignissim suspendisse in est ante in nibh mauris. Varius quam quisque id diam vel quam elementum pulvinar etiam. Nunc pulvinar sapien et ligula ullamcorper malesuada proin. Nunc mattis enim ut tellus elementum.'
             }
+            content_data = self.get_localized_fallback('two_images_no_button', content_data_fallback)
 
         return f"""
     <section class="py-20 bg-gray-900 text-white">
