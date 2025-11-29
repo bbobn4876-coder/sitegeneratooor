@@ -533,7 +533,8 @@ class PHPWebsiteGenerator:
         data = {
             "model": model,
             "messages": [{"role": "user", "content": prompt}],
-            "max_tokens": max_tokens
+            "max_tokens": max_tokens,
+            "temperature": 0.7
         }
         
         # Retry до 5 раз при ошибках
@@ -2116,6 +2117,59 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             print(f"    ✗ Неожиданная ошибка для {content_type}: {e}")
             return None
 
+    def get_localized_fallback(self, content_type, fallback_data):
+        """
+        Переводит fallback контент на нужный язык через API
+
+        Args:
+            content_type: Тип контента
+            fallback_data: Данные fallback на английском
+
+        Returns:
+            Переведенные данные или исходные данные при ошибке
+        """
+        language = self.blueprint.get('language', 'English')
+
+        # Если язык английский - возвращаем как есть
+        if language.lower() == 'english':
+            return fallback_data
+
+        # Создаем промпт для перевода
+        import json
+        fallback_json = json.dumps(fallback_data, ensure_ascii=False, indent=2)
+
+        prompt = f"""Translate the following JSON content to {language} language.
+Keep the JSON structure EXACTLY the same, only translate the text values.
+Preserve all keys in English.
+
+CRITICAL REQUIREMENT: You MUST translate ALL text values to {language}. Do NOT leave any text in English.
+
+Original JSON:
+{fallback_json}
+
+Return ONLY the translated JSON, no additional text or markdown formatting."""
+
+        try:
+            # Используем тот же API для перевода
+            translated_content = self.call_llm_api(prompt, max_tokens=4096)
+            if not translated_content:
+                print(f"    ⚠️  Не удалось перевести fallback для {content_type}, используем английский")
+                return fallback_data
+
+            # Очищаем от markdown форматирования
+            if translated_content.startswith('```'):
+                lines = translated_content.split('\n')
+                translated_content = '\n'.join([line for line in lines if not line.strip().startswith('```')])
+
+            # Парсим переведенный JSON
+            translated_data = json.loads(translated_content)
+            print(f"    ✓ Fallback успешно переведен на {language}")
+            return translated_data
+
+        except Exception as e:
+            print(f"    ⚠️  Ошибка перевода fallback для {content_type}: {e}, используем английский")
+            return fallback_data
+
     def get_theme_based_process_steps(self, theme):
         """Возвращает 4 шага процесса на основе темы"""
         theme_lower = theme.lower()
@@ -3065,7 +3119,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         # Получаем переводы для What We Offer
         what_we_offer_data = self.generate_theme_content_via_api(theme, "what_we_offer_content", 1)
         if not what_we_offer_data:
-            what_we_offer_data = {
+            what_we_offer_data_fallback = {
                 'heading': 'What We Offer',
                 'subheading_1': 'Comprehensive solutions tailored to your needs',
                 'subheading_2': 'Discover our range of professional services designed to elevate your business',
@@ -3073,6 +3127,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                 'learn_more': 'Learn More',
                 'explore': 'Explore'
             }
+            what_we_offer_data = self.get_localized_fallback('what_we_offer_content', what_we_offer_data_fallback)
         heading = what_we_offer_data.get('heading', 'What We Offer')
         subheading_1 = what_we_offer_data.get('subheading_1', 'Comprehensive solutions tailored to your needs')
         subheading_2 = what_we_offer_data.get('subheading_2', 'Discover our range of professional services designed to elevate your business')
@@ -3416,12 +3471,13 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
         # Fallback если API не вернул результат
         if not about_data:
-            about_data = {
+            about_data_fallback = {
                 'heading': 'About Us',
                 'paragraph1': f'We are dedicated to providing exceptional {theme} services that help our clients achieve their goals. With years of experience and a commitment to excellence, we deliver results that matter.',
                 'paragraph2': 'Our team of professionals brings expertise, innovation, and a customer-first approach to every project. We understand that every client is unique, and we tailor our solutions to meet your specific needs.',
                 'button_text': 'Learn More'
             }
+            about_data = self.get_localized_fallback('about_content', about_data_fallback)
 
         # API возвращает словарь для about_content, не список
         content = about_data if isinstance(about_data, dict) else about_data[0]
@@ -3456,11 +3512,12 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
         # Fallback если API не вернул результат
         if not gallery_data:
-            gallery_data = {
+            gallery_data_fallback = {
                 'heading': 'Our Gallery',
                 'subheading': 'Explore our latest projects and achievements',
                 'captions': ['Professional Excellence', 'Quality Service', 'Innovation']
             }
+            gallery_data = self.get_localized_fallback('gallery_content', gallery_data_fallback)
 
         # API возвращает словарь для gallery_content, не список
         content = gallery_data if isinstance(gallery_data, dict) else gallery_data[0]
@@ -3693,7 +3750,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
         # Fallback если API не вернул результат
         if not faq_data or not isinstance(faq_data, dict) or 'questions' not in faq_data:
-            faq_data = {
+            faq_data_fallback = {
                 "section_description": "Find answers to common questions about our services",
                 "questions": [
                     {
@@ -3714,6 +3771,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     }
                 ]
             }
+            faq_data = self.get_localized_fallback('faq_content', faq_data_fallback)
 
         section_description = faq_data.get('section_description', 'Find answers to common questions about our services')
         questions = faq_data.get('questions', [])
@@ -3750,7 +3808,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
         # Fallback если API не вернул результат
         if not approach_blocks or not isinstance(approach_blocks, list) or len(approach_blocks) < 3:
-            approach_blocks = [
+            approach_blocks_fallback = [
                 {
                     "title": "Client-Centered Solutions",
                     "description": "We prioritize understanding your unique challenges and goals to deliver customized solutions that drive real results."
@@ -3764,6 +3822,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     "description": "Regular updates and open dialogue ensure you're always informed about your project's progress."
                 }
             ]
+            approach_blocks = self.get_localized_fallback('our_approach_blocks', approach_blocks_fallback)
 
         return f"""
     <section class="py-20 bg-gray-50">
@@ -4963,13 +5022,14 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
             # Fallback если API не вернул результат
             if not menu_content:
-                menu_content = {
+                menu_content_fallback = {
                     'home': 'Home',
                     'company': 'Company',
                     'services': 'Services',
                     'blog': 'Blog',
                     'contact': 'Contact'
                 }
+                menu_content = self.get_localized_fallback('menu_content', menu_content_fallback)
 
             # Определяем страницы в зависимости от типа сайта
             if self.site_type == "landing":
@@ -5061,7 +5121,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
             # Fallback если API не вернул результат
             if not footer_content:
-                footer_content = {
+                footer_content_fallback = {
                     'tagline': f'Your trusted partner in {theme}',
                     'quick_links': 'Quick Links',
                     'legal': 'Legal',
@@ -5071,6 +5131,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                     'terms_of_service': 'Terms of Service',
                     'cookie_policy': 'Cookie Policy'
                 }
+                footer_content = self.get_localized_fallback('footer_content', footer_content_fallback)
 
             # ГАРАНТИРОВАННЫЙ FOOTER (всегда создается, даже если API не отвечает)
             # Используем переводы из menu_content и footer_content
@@ -5388,7 +5449,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
         # Fallback если API не вернул результат
         if not cookie_content:
-            cookie_content = {
+            cookie_content_fallback = {
                 'message': 'We use cookies to enhance your browsing experience. By continuing, you agree to our Cookie Policy.',
                 'learn_more': 'Learn more',
                 'accept': 'Accept',
@@ -5398,6 +5459,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
                 'consent_title': 'Cookie Consent',
                 'best_experience': 'This website uses cookies to ensure you get the best experience.'
             }
+            cookie_content = self.get_localized_fallback('cookie_notice_content', cookie_content_fallback)
 
         # Выбираем случайный вариант из 9
         variation = random.randint(1, 9)
@@ -5693,7 +5755,7 @@ setTimeout(showCookieNotice, 1000);
 
         # Fallback если API не вернул результат
         if not contact_page_data:
-            contact_page_data = {
+            contact_page_data_fallback = {
                 'heading': 'Get In Touch',
                 'subheading': 'Have a question or want to work together? We would love to hear from you.',
                 'name_label': 'Your Name',
@@ -5706,6 +5768,7 @@ setTimeout(showCookieNotice, 1000);
                 'phone_label_display': 'Phone',
                 'email_label_display': 'Email'
             }
+            contact_page_data = self.get_localized_fallback('contact_page_content', contact_page_data_fallback)
 
         heading = contact_page_data.get('heading', 'Get In Touch')
         subheading = contact_page_data.get('subheading', 'Have a question or want to work together?')
@@ -6117,12 +6180,13 @@ setTimeout(showCookieNotice, 1000);
 
         # Fallback если API не вернул результат
         if not hero_data:
-            hero_data = {
+            hero_data_fallback = {
                 'title': f'Welcome to {site_name}',
                 'subtitle': f'Your trusted partner in {theme}. We deliver exceptional results that exceed expectations.',
                 'button_primary': 'About Us',
                 'button_secondary': 'Contact'
             }
+            hero_data = self.get_localized_fallback('hero_content', hero_data_fallback)
 
         # Извлекаем данные
         title = hero_data.get('title', f'Welcome to {site_name}')
@@ -6313,7 +6377,7 @@ setTimeout(showCookieNotice, 1000);
 
         # Fallback если API не вернул результат
         if not thanks_content:
-            thanks_content = {
+            thanks_content_fallback = {
                 'thank_you': 'Thank You!',
                 'success': 'Success!',
                 'message_sent': 'Message Sent Successfully!',
@@ -6335,6 +6399,7 @@ setTimeout(showCookieNotice, 1000);
                 'get_back_description': 'Expect a response from us within 24 hours via email.',
                 'thank_contacting': 'Thank you for contacting'
             }
+            thanks_content = self.get_localized_fallback('thankyou_content', thanks_content_fallback)
 
         thanks_variant = random.randint(1, 6)
 
@@ -7165,7 +7230,7 @@ setTimeout(showCookieNotice, 1000);
         benefits_data = self.generate_theme_content_via_api(theme, "benefits_list", 3)
 
         if not form_data:
-            form_data = {
+            form_data_fallback = {
                 'heading': 'Transform Business Growth with Revolutionary Services',
                 'description': 'We specialize in investing in technological startups in the field of rear view. Duis aute irure dolor in osaedeut za sladoestrastie velit esse cilum dolore eu fugiat nulla pariatur. Excepteur sint osaedeut cupidatat not proident, sunt in culpa qui officia deserunt mollit anim id est Laborum.',
                 'name_label': 'Enter your Name',
@@ -7173,13 +7238,15 @@ setTimeout(showCookieNotice, 1000);
                 'submit_button': 'Connect With Us',
                 'form_heading': 'Order a Free Consultation'
             }
+            form_data = self.get_localized_fallback('contact_form_benefits', form_data_fallback)
 
         if not benefits_data:
-            benefits_data = [
+            benefits_data_fallback = [
                 {'title': 'Strategic Roadmap Planning'},
                 {'title': 'Cloud Solutions Implementation'},
                 {'title': 'Data-Driven Understanding'}
             ]
+            benefits_data = self.get_localized_fallback('benefits_list', benefits_data_fallback)
 
         benefits_html = ""
         for benefit in benefits_data:
