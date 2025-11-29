@@ -7924,13 +7924,33 @@ setTimeout(showCookieNotice, 1000);
             }
             content_data = self.get_localized_fallback('two_images_no_button', content_data_fallback)
 
+        # Randomly choose between 3 background variations
+        import random
+        bg_variation = random.choice(['dark', 'light', 'primary'])
+
+        if bg_variation == 'dark':
+            # Dark background (original)
+            bg_class = "bg-gray-900"
+            text_class = "text-white"
+            desc_class = "text-gray-300"
+        elif bg_variation == 'light':
+            # Light/white background
+            bg_class = "bg-white"
+            text_class = "text-gray-900"
+            desc_class = "text-gray-600"
+        else:
+            # Primary color background
+            bg_class = f"bg-{primary}"
+            text_class = "text-white"
+            desc_class = "text-white/90"
+
         return f"""
-    <section class="py-20 bg-gray-900 text-white">
+    <section class="py-20 {bg_class} {text_class}">
         <div class="container mx-auto px-6">
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 <div>
                     <h2 class="text-5xl font-bold mb-6">{content_data.get('heading', 'Real-world Solutions Designed Just for You')}</h2>
-                    <p class="text-gray-300 text-lg leading-relaxed">{content_data.get('description', 'Professional solutions tailored to your needs.')}</p>
+                    <p class="{desc_class} text-lg leading-relaxed">{content_data.get('description', 'Professional solutions tailored to your needs.')}</p>
                 </div>
                 <div class="grid grid-cols-1 gap-6">
                     <img src="images/service1.jpg" alt="Professional work" class="rounded-2xl shadow-2xl w-full h-64 object-cover">
