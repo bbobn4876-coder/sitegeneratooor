@@ -9067,9 +9067,44 @@ Return ONLY the content for <main> tag."""
         last_updated_label = policy_data.get('last_updated', 'Last updated')
         
         # УНИКАЛЬНЫЙ контент для каждой страницы
+        # Функция для замены плейсхолдеров названия компании во всех строках
+        def replace_placeholders(data, site_name):
+            """Рекурсивно заменяет плейсхолдеры названия компании на реальное имя"""
+            import re
+
+            # Паттерны для различных плейсхолдеров в разных языках
+            patterns = [
+                r"\[Nom de l['']Entreprise[^\]]*\]",  # Французский
+                r'\[Company Name[^\]]*\]',             # Английский
+                r"\[Nome dell['']azienda[^\]]*\]",   # Итальянский
+                r'\[Nombre de la empresa[^\]]*\]',     # Испанский
+                r'\[Firmenname[^\]]*\]',               # Немецкий
+                r'\[Nazwa firmy[^\]]*\]',              # Польский
+                r'\[Název společnosti[^\]]*\]',        # Чешский
+                r'\[Bedrijfsnaam[^\]]*\]',             # Нидерландский
+                r'\[Site Name[^\]]*\]',                # Общий
+                r'\[Business Name[^\]]*\]',            # Общий
+            ]
+
+            if isinstance(data, dict):
+                return {key: replace_placeholders(value, site_name) for key, value in data.items()}
+            elif isinstance(data, list):
+                return [replace_placeholders(item, site_name) for item in data]
+            elif isinstance(data, str):
+                result = data
+                for pattern in patterns:
+                    result = re.sub(pattern, site_name, result, flags=re.IGNORECASE)
+                return result
+            else:
+                return data
+
         if page_name == 'privacy':
             # Получаем полный переведенный контент privacy policy
             privacy_content = self.generate_theme_content_via_api(theme, "privacy_policy_full", 1)
+
+            # Заменяем плейсхолдеры на реальное название сайта
+            if privacy_content and isinstance(privacy_content, dict):
+                privacy_content = replace_placeholders(privacy_content, site_name)
 
             # Fallback если API не вернул результат
             if not privacy_content or not isinstance(privacy_content, dict):
@@ -9147,6 +9182,10 @@ Return ONLY the content for <main> tag."""
             # Получаем полный переведенный контент terms of service
             terms_content = self.generate_theme_content_via_api(theme, "terms_of_service_full", 1)
 
+            # Заменяем плейсхолдеры на реальное название сайта
+            if terms_content and isinstance(terms_content, dict):
+                terms_content = replace_placeholders(terms_content, site_name)
+
             # Fallback если API не вернул результат
             if not terms_content or not isinstance(terms_content, dict):
                 terms_content = {
@@ -9216,6 +9255,10 @@ Return ONLY the content for <main> tag."""
         elif page_name == 'cookie':
             # Получаем полный переведенный контент cookie policy
             cookie_content = self.generate_theme_content_via_api(theme, "cookie_policy_full", 1)
+
+            # Заменяем плейсхолдеры на реальное название сайта
+            if cookie_content and isinstance(cookie_content, dict):
+                cookie_content = replace_placeholders(cookie_content, site_name)
 
             # Fallback если API не вернул результат
             if not cookie_content or not isinstance(cookie_content, dict):
