@@ -1731,22 +1731,26 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         elif content_type == "button_texts":
             prompt = f"""Generate common button text translations for a {theme} business website.
 
-Return as JSON object with these EXACT fields:
-- "contact_us": "Contact Us" button text (2-3 words)
-- "contact_us_today": "Contact Us Today" button text (3-4 words)
-- "start_your_project": "Start Your Project" button text (3-4 words)
-- "get_started": "Get Started" button text (2-3 words)
-- "discuss_your_project": "Discuss Your Project" button text (3-4 words)
-- "learn_more": "Learn More" button text (2-3 words)
-- "view_services": "View Services" button text (2-3 words)
-- "view_all": "View All" button text (2-3 words)
-- "read_more": "Read More" button text (2-3 words)
-- "send_message": "Send Message" button text (2-3 words)
-- "submit": "Submit" button text (1-2 words)
+IMPORTANT: Create professional, action-oriented button texts that are appropriate for the {theme} industry. Each button text should be clear, concise, and encourage user engagement.
+
+Return as JSON object with these EXACT fields (all fields are REQUIRED and MUST be present):
+- "contact_us": "Contact Us" button text (2-3 words, professional call-to-action)
+- "contact_us_today": "Contact Us Today" button text (3-4 words, urgent call-to-action)
+- "start_your_project": "Start Your Project" button text (3-4 words, action-oriented)
+- "get_started": "Get Started" button text (2-3 words, beginner-friendly)
+- "discuss_your_project": "Discuss Your Project" button text (3-4 words, consultative approach)
+- "learn_more": "Learn More" button text (2-3 words, informational)
+- "view_services": "View Services" button text (2-3 words, navigational)
+- "view_all": "View All" button text (2-3 words, browsing action)
+- "read_more": "Read More" button text (2-3 words, content action)
+- "send_message": "Send Message" button text (2-3 words, form submission)
+- "submit": "Submit" button text (1-2 words, generic submission)
 
 {language_instruction}
 
-Example:
+CRITICAL: You MUST provide ALL 11 button texts. Do NOT skip any fields. Return a complete JSON object.
+
+Example for {theme} business:
 {{
   "contact_us": "Contact Us",
   "contact_us_today": "Contact Us Today",
@@ -1761,7 +1765,7 @@ Example:
   "submit": "Submit"
 }}
 
-Return ONLY valid JSON, no additional text or markdown formatting."""
+IMPORTANT: Return ONLY valid JSON object with ALL 11 fields. No additional text, no markdown formatting, no explanations."""
 
         elif content_type == "services_page_content":
             prompt = f"""Generate translation content for a Services page for a {theme} business website.
@@ -1970,8 +1974,39 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         response = self.call_api(prompt, max_tokens=max_tokens)
 
         if not response or not response.strip():
-            print(f"    ✗ API не вернул ответ для {content_type} (response is {'None' if response is None else 'empty'})")
-            return None
+            # Специальная обработка для button_texts - используем упрощенный промпт
+            if content_type == "button_texts":
+                print(f"    ⚠️  Первая попытка не удалась, пробуем упрощенный промпт для button_texts...")
+                simplified_prompt = f"""You are a professional translator. Translate these button texts to {language} language for a {theme} website.
+
+CRITICAL: Return ONLY a valid JSON object. ALL text must be in {language} language.
+
+{{
+  "contact_us": "Contact Us",
+  "contact_us_today": "Contact Us Today",
+  "start_your_project": "Start Your Project",
+  "get_started": "Get Started",
+  "discuss_your_project": "Discuss Your Project",
+  "learn_more": "Learn More",
+  "view_services": "View Services",
+  "view_all": "View All",
+  "read_more": "Read More",
+  "send_message": "Send Message",
+  "submit": "Submit"
+}}
+
+Translate ALL values to {language}. Return ONLY the JSON object, nothing else."""
+
+                response = self.call_api(simplified_prompt, max_tokens=2000)
+
+                if not response or not response.strip():
+                    print(f"    ✗ Упрощенный промпт также не сработал для button_texts")
+                    return None
+                else:
+                    print(f"    ✓ Упрощенный промпт сработал для button_texts")
+            else:
+                print(f"    ✗ API не вернул ответ для {content_type} (response is {'None' if response is None else 'empty'})")
+                return None
 
         try:
             # Очищаем ответ от markdown форматирования если есть
