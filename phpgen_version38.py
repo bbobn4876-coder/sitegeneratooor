@@ -2256,7 +2256,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
 
         try:
             # Используем тот же API для перевода
-            translated_content = self.call_llm_api(prompt, max_tokens=4096)
+            translated_content = self.call_api(prompt, max_tokens=4096)
             if not translated_content:
                 print(f"    ⚠️  Не удалось перевести fallback для {content_type}, используем английский")
                 return fallback_data
