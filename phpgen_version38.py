@@ -1894,6 +1894,43 @@ Example:
 
 Return ONLY valid JSON, no additional text or markdown formatting."""
 
+        elif content_type == "team_section_content":
+            prompt = f"""Generate team section heading for a {theme} business website.
+
+Return as JSON object with:
+- "heading": Team section main heading (2-4 words, e.g., "Our Amazing Team", "Meet Our Team", "Our Experts")
+
+{language_instruction}
+
+Example:
+{{
+  "heading": "Our Amazing Team"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "team_members":
+            prompt = f"""Generate team member profiles for a {theme} business website.
+
+Return as JSON array of exactly {num_items} team members. Each member should have:
+- "name": Full name (first and last name)
+- "position": Job title or role (2-4 words, e.g., "Worldwide Partner", "Senior Consultant", "Managing Director")
+- "gender": Either "male" or "female" (for image generation purposes)
+
+Create realistic, professional names and positions appropriate for a {theme} business.
+Ensure diversity in positions and genders.
+
+{language_instruction}
+
+Example for 3 members:
+[
+  {{"name": "Nat Reynolds", "position": "Worldwide Partner", "gender": "male"}},
+  {{"name": "Jennie Roberts", "position": "Partner", "gender": "female"}},
+  {{"name": "Mila Parker", "position": "Partner", "gender": "female"}}
+]
+
+Return ONLY valid JSON array, no additional text or markdown formatting."""
+
         elif content_type == "privacy_policy_full":
             prompt = f"""Generate complete Privacy Policy page content for a {theme} business website.
 
@@ -4674,19 +4711,19 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
             },
             {
                 'filename': 'team1.jpg',
-                'priority': 'optional',
+                'priority': 'required',
                 'prompt': f"Professional corporate headshot portrait of a male business professional. {ethnicity_context} man in formal business suit with dress shirt, clean white background, professional studio lighting, confident smile, friendly demeanor, photorealistic, high quality corporate photography. CRITICAL: Male person only, clean white background, no other elements, business attire.",
                 'allow_text': False
             },
             {
                 'filename': 'team2.jpg',
-                'priority': 'optional',
+                'priority': 'required',
                 'prompt': f"Professional corporate headshot portrait of a female business professional. {ethnicity_context} woman in formal business attire (blazer, professional shirt), clean white background, professional studio lighting, confident smile, friendly demeanor, photorealistic, high quality corporate photography. CRITICAL: Female person only, clean white background, no other elements, business attire.",
                 'allow_text': False
             },
             {
                 'filename': 'team3.jpg',
-                'priority': 'optional',
+                'priority': 'required',
                 'prompt': f"Professional corporate headshot portrait of a female business professional. {ethnicity_context} woman in formal business attire (blazer, professional shirt), clean white background, professional studio lighting, warm smile, approachable demeanor, photorealistic, high quality corporate photography. CRITICAL: Female person only, clean white background, no other elements, business attire.",
                 'allow_text': False
             },
@@ -7546,7 +7583,7 @@ setTimeout(showCookieNotice, 1000);
                 </div>"""
 
         return f"""
-    <section class="py-20 bg-blue-600">
+    <section class="py-20 bg-{primary}">
         <div class="container mx-auto px-6">
             <div class="text-center mb-16">
                 <h2 class="text-5xl font-bold text-white mb-4">{team_section_data.get('heading', 'Our Amazing Team')}</h2>
