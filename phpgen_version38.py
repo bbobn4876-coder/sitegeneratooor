@@ -1931,6 +1931,69 @@ Example for 3 members:
 
 Return ONLY valid JSON array, no additional text or markdown formatting."""
 
+        elif content_type == "hero_mission_variant":
+            prompt = f"""Generate hero section content for a {theme} business website.
+
+Return as JSON object with:
+- "heading": Main heading (4-7 words, friendly and welcoming message)
+- "description": Descriptive paragraph (20-35 words)
+- "button_text": Call-to-action button text (1-3 words, e.g., "Read More", "Learn More", "Get Started")
+
+{language_instruction}
+
+Example:
+{{
+  "heading": "We are always beginner friendly",
+  "description": "Professional services tailored to your needs with personalized approach and commitment to excellence.",
+  "button_text": "Read More"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "mission_content":
+            prompt = f"""Generate mission block content for a {theme} business website.
+
+Return as JSON object with:
+- "label": Small label text (2-3 words, e.g., "Our Mission", "Our Vision", "Our Goal")
+- "heading": Main heading word (1-2 words, action verb like "Explore", "Excel", "Achieve", "Deliver")
+- "heading_second": Optional second line (0-2 words, can be empty string "")
+- "subheading": Subheading text (2-3 words, e.g., "Every Journey", "Every Day", "Every Time")
+
+Create an inspiring mission statement appropriate for a {theme} business.
+
+{language_instruction}
+
+Example for travel business:
+{{
+  "label": "Our Mission",
+  "heading": "Explore",
+  "heading_second": "",
+  "subheading": "Every Journey"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
+        elif content_type == "cta_bottom_block":
+            prompt = f"""Generate call-to-action block content for a {theme} business website.
+
+Return as JSON object with:
+- "heading": CTA heading (2-5 words, engaging and action-oriented)
+- "description": Description text (20-35 words, explain the offer or invitation)
+- "button_text": Button text (1-3 words, e.g., "Join Now", "Sign Up", "Get Started", "Contact Us")
+
+Create compelling CTA content appropriate for a {theme} business.
+
+{language_instruction}
+
+Example:
+{{
+  "heading": "Join Our Community",
+  "description": "Connect with like-minded professionals and take advantage of exclusive benefits, resources, and networking opportunities.",
+  "button_text": "Join Now"
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
+
         elif content_type == "privacy_policy_full":
             prompt = f"""Generate complete Privacy Policy page content for a {theme} business website.
 
@@ -4602,13 +4665,17 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
             # Для магазинов/ресторанов - показываем здание снаружи с вывеской
             # Для мебельных магазинов - мебель ТОЛЬКО за стеклом или внутри
             if 'furniture' in theme_lower:
-                hero_prompt = f"Professional wide banner photograph of {theme} building exterior. Beautiful storefront facade with large glass windows displaying furniture inside, attractive entrance, business sign with text '{site_name}' clearly visible on the sign. Furniture visible ONLY behind glass windows or inside the store, STRICTLY NO furniture on streets or outdoors. Clean modern architecture, inviting atmosphere, natural daylight, high quality, photorealistic, 8k resolution."
+                hero_prompt = f"Professional wide banner photograph of {theme} building exterior. Beautiful storefront facade with large glass windows displaying furniture inside, attractive entrance, business sign with text '{site_name}' clearly visible on the sign. Furniture visible ONLY behind glass windows or inside the store, STRICTLY NO furniture on streets or outdoors. Clean modern architecture, inviting atmosphere, natural daylight, high quality, photorealistic, 8k resolution. CRITICAL: Pure photograph only, NO website headers, NO navigation bars, NO UI elements, NO overlaid text."
             else:
-                hero_prompt = f"Professional wide banner photograph of {theme} building exterior. Beautiful storefront facade, attractive entrance, business sign with text '{site_name}' clearly visible on the sign. Clean modern architecture, inviting atmosphere, natural daylight, high quality, photorealistic, 8k resolution. Street view, welcoming commercial exterior."
+                hero_prompt = f"Professional wide banner photograph of {theme} building exterior. Beautiful storefront facade, attractive entrance, business sign with text '{site_name}' clearly visible on the sign. Clean modern architecture, inviting atmosphere, natural daylight, high quality, photorealistic, 8k resolution. Street view, welcoming commercial exterior. CRITICAL: Pure photograph only, NO website headers, NO navigation bars, NO UI elements, NO overlaid text."
             hero_allow_text = True
         else:
-            # Для остальных - интерьер без текста
-            hero_prompt = f"Professional wide banner photograph for {theme} website. {work_setting}. {work_context}. Clean composition, natural lighting, high quality, photorealistic, 8k resolution. {ethnicity_context} if people are visible. STRICTLY NO outdoor scenes, NO streets, NO city exteriors. Interior setting only."
+            # Для остальных - интерьер без текста, для Travel - красивые виды
+            if 'travel' in theme_lower or 'tour' in theme_lower or 'voyage' in theme_lower or 'tourism' in theme_lower:
+                # Для Travel: красивое изображение места назначения с человеком
+                hero_prompt = f"Professional wide banner photograph for {theme} website. Beautiful travel destination scene: stunning beach with turquoise water, mountains in background, modern resort buildings along the coast, sunny day with clear blue sky. {ethnicity_context} person relaxing in foreground (sitting at a cafe table or terrace), enjoying the view, natural lifestyle photography. Clean composition, natural lighting, high quality, photorealistic, 8k resolution. CRITICAL: Pure photograph only, NO website headers, NO navigation bars, NO UI elements, NO text overlays, just a beautiful travel scene."
+            else:
+                hero_prompt = f"Professional wide banner photograph for {theme} website. {work_setting}. {work_context}. Clean composition, natural lighting, high quality, photorealistic, 8k resolution. {ethnicity_context} if people are visible. STRICTLY NO outdoor scenes, NO streets, NO city exteriors. Interior setting only. CRITICAL: Pure photograph only, NO website headers, NO navigation bars, NO UI elements, NO text overlays."
             hero_allow_text = False
 
         images_to_generate.append({
