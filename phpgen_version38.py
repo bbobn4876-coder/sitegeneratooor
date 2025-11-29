@@ -7675,18 +7675,32 @@ setTimeout(showCookieNotice, 1000);
         benefits_data = self.generate_theme_content_via_api(theme, "benefits_icons", 3)
 
         if not content_data:
-            content_data = {
-                'heading': 'Make legal better',
-                'description': 'Pulvinar pellentesque habitant morbi tristique senectus et netus et. Venenatis tellus in metus vulputate. Aliquet nec ullamcorper sit amet risus nullam eget.',
-                'button_text': 'View More'
+            content_data_fallback = {
+                'heading': 'Our Commitment to Excellence',
+                'description': 'We deliver exceptional results through innovative solutions, expert knowledge, and dedicated service. Our team combines years of industry experience with cutting-edge approaches to provide value that exceeds expectations.',
+                'button_text': 'Learn More'
             }
+            content_data = self.get_localized_fallback('image_benefits_content', content_data_fallback)
 
         if not benefits_data:
-            benefits_data = [
-                {'icon': '⚖️', 'title': 'What We Do', 'description': 'Sample text. Click to select the text box. Click again or double click to start editing the text.'},
-                {'icon': '🏛️', 'title': 'Who We Are', 'description': 'Sample text. Click to select the text box. Click again or double click to start editing the text.'},
-                {'icon': '⚖️', 'title': 'How We Differ', 'description': 'Sample text. Click to select the text box. Click again or double click to start editing the text.'}
+            benefits_data_fallback = [
+                {
+                    'icon': '⚖️',
+                    'title': 'What We Do',
+                    'description': 'We provide comprehensive solutions tailored to your unique needs. Our services combine industry expertise with innovative approaches to deliver measurable results and sustainable growth.'
+                },
+                {
+                    'icon': '🏛️',
+                    'title': 'Who We Are',
+                    'description': 'A team of dedicated professionals committed to excellence. We bring together diverse expertise, proven experience, and a passion for helping our clients achieve their goals.'
+                },
+                {
+                    'icon': '⚖️',
+                    'title': 'How We Differ',
+                    'description': 'Our client-focused approach sets us apart. We prioritize transparency, communication, and collaboration to ensure every project delivers exceptional value and lasting impact.'
+                }
             ]
+            benefits_data = self.get_localized_fallback('image_benefits_blocks', benefits_data_fallback)
 
         benefits_html = ""
         for benefit in benefits_data:
