@@ -4933,12 +4933,6 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         # Service images always show professionals in business suits in office environment
         service1_prompt = f"Professional office photograph showing business professionals in formal business suits and dress shirts working together in modern office environment. {ethnicity_context}. Conference room or office meeting space, laptops and documents on table, collaborative discussion, natural office lighting, photorealistic, high quality. STRICTLY interior office setting only."
 
-        # Service3 prompt - для travel тематики используем изображение путешествий
-        if 'travel' in theme_lower or 'tour' in theme_lower or 'voyage' in theme_lower or 'tourism' in theme_lower:
-            service3_prompt = f"Professional travel photograph showing beautiful destination scene. Stunning natural landscape: pristine beach with turquoise ocean water, tropical paradise, palm trees, white sand beach, crystal clear water, scenic coastal view. {ethnicity_context} travelers enjoying the destination in background, relaxing beach atmosphere, natural daylight, professional travel photography, photorealistic, 8k quality. CRITICAL: Pure travel destination photograph, beautiful scenery, paradise location."
-        else:
-            service3_prompt = f"High-quality office photograph with business professionals in formal business attire (suits, dress shirts, blazers) working in professional office environment. {ethnicity_context}. Modern office workspace, professional presentation or meeting, confident business people, natural office lighting, photorealistic. STRICTLY interior office setting only."
-
         images_to_generate.extend([
             {
                 'filename': 'service1.jpg',
@@ -4955,7 +4949,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
             {
                 'filename': 'service3.jpg',
                 'priority': 'required',
-                'prompt': service3_prompt,
+                'prompt': f"High-quality office photograph with business professionals in formal business attire (suits, dress shirts, blazers) working in professional office environment. {ethnicity_context}. Modern office workspace, professional presentation or meeting, confident business people, natural office lighting, photorealistic. STRICTLY interior office setting only.",
                 'allow_text': False
             },
         ])
@@ -5046,6 +5040,15 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                 'allow_text': False
             },
         ])
+
+        # Benefits image для секции image_with_benefits (опционально, для travel тематики)
+        if 'travel' in theme_lower or 'tour' in theme_lower or 'voyage' in theme_lower or 'tourism' in theme_lower:
+            images_to_generate.append({
+                'filename': 'benefits.jpg',
+                'priority': 'optional',
+                'prompt': f"Professional travel photograph showing beautiful destination scene. Stunning natural landscape: pristine beach with turquoise ocean water, tropical paradise, palm trees, white sand beach, crystal clear water, scenic coastal view. {ethnicity_context} travelers enjoying the destination in background, relaxing beach atmosphere, natural daylight, professional travel photography, photorealistic, 8k quality. CRITICAL: Pure travel destination photograph, beautiful scenery, paradise location.",
+                'allow_text': False
+            })
 
         # PRIORITY 6: Gallery (обязательно - 3 шт)
         images_to_generate.extend([
@@ -8140,6 +8143,15 @@ setTimeout(showCookieNotice, 1000);
                     <p class="text-gray-300">{benefit.get('description', 'Sample text.')}</p>
                 </div>"""
 
+        # Для travel тематики используем benefits.jpg, для остальных - service3.jpg
+        theme_lower = theme.lower()
+        if 'travel' in theme_lower or 'tour' in theme_lower or 'voyage' in theme_lower or 'tourism' in theme_lower:
+            image_file = 'benefits.jpg'
+            image_alt = 'Travel destination'
+        else:
+            image_file = 'service3.jpg'
+            image_alt = 'Professional service'
+
         return f"""
     <section class="py-20 bg-blue-600">
         <div class="container mx-auto px-6">
@@ -8147,7 +8159,7 @@ setTimeout(showCookieNotice, 1000);
                 <div>
                     <h2 class="text-5xl font-bold mb-6 text-white">{content_data.get('heading', 'Make legal better')}</h2>
                     <div class="mb-8">
-                        <img src="images/service3.jpg" alt="Professional service" class="rounded-xl shadow-2xl w-full h-80 object-cover">
+                        <img src="images/{image_file}" alt="{image_alt}" class="rounded-xl shadow-2xl w-full h-80 object-cover">
                     </div>
                     <p class="text-white text-lg mb-8 leading-relaxed">{content_data.get('description', 'Professional services description.')}</p>
                     <a href="contact.php" class="inline-block border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold transition">
