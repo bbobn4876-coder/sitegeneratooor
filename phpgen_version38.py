@@ -1555,7 +1555,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
 
 IMPORTANT: Create professional, engaging section headers that encourage readers to explore blog content. The headers should be appropriate for the {theme} industry.
 
-Return as JSON object with these EXACT fields (both fields are REQUIRED and MUST be present):
+Return as JSON object with these EXACT fields (all fields are REQUIRED and MUST be present):
 - "section_heading": Blog section heading (3-5 words, e.g., "Latest from Our Blog", "Recent Articles", "Industry Insights")
   * Should be engaging and relevant to {theme}
   * Should invite users to explore the blog content
@@ -1564,18 +1564,23 @@ Return as JSON object with these EXACT fields (both fields are REQUIRED and MUST
   * Should be a clear call-to-action
   * Should be concise and action-oriented
   * Examples: "View All", "Read More", "See All Posts"
+- "read_more": "Read more" link text for individual blog posts (2-3 words)
+  * Should encourage clicking to read the full article
+  * Should be action-oriented
+  * Examples: "Read More", "Learn More", "Continue Reading"
 
 {language_instruction}
 
-CRITICAL: You MUST provide BOTH fields. Do NOT skip any fields. Return a complete JSON object.
+CRITICAL: You MUST provide ALL THREE fields. Do NOT skip any fields. Return a complete JSON object.
 
 Example for {theme} business:
 {{
   "section_heading": "Latest from Our Blog",
-  "view_all_text": "View All"
+  "view_all_text": "View All",
+  "read_more": "Read More"
 }}
 
-IMPORTANT: Return ONLY valid JSON object with BOTH fields. No additional text, no markdown formatting, no explanations. The response must be a valid JSON object, not an array or string."""
+IMPORTANT: Return ONLY valid JSON object with ALL THREE fields. No additional text, no markdown formatting, no explanations. The response must be a valid JSON object, not an array or string."""
 
         elif content_type == "cookie_notice_content":
             prompt = f"""Generate cookie notice translations for a {theme} business website.
@@ -3928,11 +3933,16 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
 
         # Fallback для заголовков
         if not blog_headers:
-            section_heading = 'Latest from Our Blog'
-            view_all_text = 'View All'
-        else:
-            section_heading = blog_headers.get('section_heading', 'Latest from Our Blog')
-            view_all_text = blog_headers.get('view_all_text', 'View All')
+            headers_fallback = {
+                'section_heading': 'Latest from Our Blog',
+                'view_all_text': 'View All',
+                'read_more': 'Read More'
+            }
+            blog_headers = self.get_localized_fallback('blog_section_headers', headers_fallback)
+
+        section_heading = blog_headers.get('section_heading', 'Latest from Our Blog')
+        view_all_text = blog_headers.get('view_all_text', 'View All')
+        read_more_text = blog_headers.get('read_more', 'Read More')
 
         # КРИТИЧЕСКИ ВАЖНО: Проверяем, есть ли уже blog_posts_previews в blueprint
         # Если есть - используем их для синхронизации с blog.php и blog1-blog6.php
@@ -4030,7 +4040,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                         <h3 class="text-xl font-bold mb-3">{post['title']}</h3>
                         <p class="text-gray-600 mb-4">{post.get('excerpt', post.get('description', ''))}</p>
                         <a href="blog{article_num}.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                            Read More →
+                            {read_more_text} →
                         </a>
                     </div>
                 </article>"""
@@ -9019,12 +9029,13 @@ Return ONLY the content for <main> tag."""
             if not blog_page_data:
                 # Если и вторая попытка не удалась, используем базовый fallback
                 print(f"    ⚠️  Используем базовый fallback для blog_page_content")
-                blog_page_data = {
+                blog_page_fallback = {
                     'heading': 'Blog',
                     'subheading': f'{theme}',
                     'read_more': 'Read More',
                     'no_posts': 'No posts'
                 }
+                blog_page_data = self.get_localized_fallback('blog_page_content', blog_page_fallback)
 
         heading = blog_page_data.get('heading', 'Our Blog')
         subheading = blog_page_data.get('subheading', f'Insights, tips, and news about {theme}')
@@ -9034,11 +9045,12 @@ Return ONLY the content for <main> tag."""
         # Получаем переводы для blog navigation
         blog_nav_data = self.generate_theme_content_via_api(theme, "blog_navigation_content", 1)
         if not blog_nav_data:
-            blog_nav_data = {
+            blog_nav_fallback = {
                 'want_learn_more': 'Want to Learn More?',
                 'contact_specific_needs': 'Contact us to discuss your specific needs and how we can help.',
                 'get_in_touch': 'Get in Touch'
             }
+            blog_nav_data = self.get_localized_fallback('blog_navigation_content', blog_nav_fallback)
         want_learn_more = blog_nav_data.get('want_learn_more', 'Want to Learn More?')
         contact_specific_needs = blog_nav_data.get('contact_specific_needs', 'Contact us to discuss your specific needs and how we can help.')
         get_in_touch = blog_nav_data.get('get_in_touch', 'Get in Touch')
