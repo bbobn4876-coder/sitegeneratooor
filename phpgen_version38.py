@@ -544,7 +544,7 @@ class PHPWebsiteGenerator:
                     self.api_url,
                     headers=headers,
                     data=json.dumps(data),
-                    timeout=240,  # Увеличен таймаут до 4 минут
+                    timeout=360,  # Увеличен таймаут до 6 минут
                     verify=True   # SSL проверка
                 )
                 response.raise_for_status()
@@ -554,7 +554,10 @@ class PHPWebsiteGenerator:
                     print(f"    ⚠️  API вернул пустой контент")
                     if attempt < 4:
                         import time
-                        time.sleep(3)
+                        # Экспоненциальная задержка: 5, 10, 15, 20 секунд
+                        delay = 5 * (attempt + 1)
+                        print(f"    ⏳ Ожидание {delay} секунд перед повторной попыткой...")
+                        time.sleep(delay)
                         continue
                     return None
                 return content
@@ -562,9 +565,11 @@ class PHPWebsiteGenerator:
             except requests.exceptions.ChunkedEncodingError as e:
                 # Ошибка "Response ended prematurely"
                 if attempt < 4:
-                    print(f"    ⚠️  Соединение прервано, попытка {attempt + 2}/5...")
                     import time
-                    time.sleep(5)  # Увеличенная пауза
+                    # Экспоненциальная задержка: 5, 10, 15, 20 секунд
+                    delay = 5 * (attempt + 1)
+                    print(f"    ⚠️  Соединение прервано, попытка {attempt + 2}/5... (ожидание {delay}с)")
+                    time.sleep(delay)
                     continue
                 else:
                     print(f"    ✗ Соединение прервано после 5 попыток")
@@ -573,9 +578,11 @@ class PHPWebsiteGenerator:
             except requests.exceptions.ConnectionError as e:
                 # Ошибки соединения
                 if attempt < 4:
-                    print(f"    ⚠️  Ошибка соединения, попытка {attempt + 2}/5...")
                     import time
-                    time.sleep(5)
+                    # Экспоненциальная задержка: 5, 10, 15, 20 секунд
+                    delay = 5 * (attempt + 1)
+                    print(f"    ⚠️  Ошибка соединения, попытка {attempt + 2}/5... (ожидание {delay}с)")
+                    time.sleep(delay)
                     continue
                 else:
                     print(f"    ✗ Ошибка соединения после 5 попыток")
@@ -584,9 +591,11 @@ class PHPWebsiteGenerator:
             except requests.exceptions.SSLError as e:
                 # SSL ошибка - пробуем еще раз
                 if attempt < 4:
-                    print(f"    ⚠️  SSL ошибка, попытка {attempt + 2}/5...")
                     import time
-                    time.sleep(3)
+                    # Экспоненциальная задержка: 5, 10, 15, 20 секунд
+                    delay = 5 * (attempt + 1)
+                    print(f"    ⚠️  SSL ошибка, попытка {attempt + 2}/5... (ожидание {delay}с)")
+                    time.sleep(delay)
                     continue
                 else:
                     print(f"    ✗ SSL ошибка после 5 попыток")
@@ -595,9 +604,11 @@ class PHPWebsiteGenerator:
             except requests.exceptions.Timeout as e:
                 # Таймаут
                 if attempt < 4:
-                    print(f"    ⚠️  Таймаут запроса, попытка {attempt + 2}/5...")
                     import time
-                    time.sleep(5)
+                    # Экспоненциальная задержка: 5, 10, 15, 20 секунд
+                    delay = 5 * (attempt + 1)
+                    print(f"    ⚠️  Таймаут запроса, попытка {attempt + 2}/5... (ожидание {delay}с)")
+                    time.sleep(delay)
                     continue
                 else:
                     print(f"    ✗ Таймаут после 5 попыток")
@@ -606,9 +617,11 @@ class PHPWebsiteGenerator:
             except requests.exceptions.HTTPError as e:
                 if e.response.status_code >= 500:
                     if attempt < 4:
-                        print(f"    ⚠️  Ошибка сервера {e.response.status_code}, попытка {attempt + 2}/5...")
                         import time
-                        time.sleep(3)
+                        # Экспоненциальная задержка: 5, 10, 15, 20 секунд
+                        delay = 5 * (attempt + 1)
+                        print(f"    ⚠️  Ошибка сервера {e.response.status_code}, попытка {attempt + 2}/5... (ожидание {delay}с)")
+                        time.sleep(delay)
                         continue
                     else:
                         print(f"    ✗ Ошибка API после 5 попыток: {e.response.status_code}")
@@ -620,9 +633,11 @@ class PHPWebsiteGenerator:
             except (KeyError, ValueError, json.JSONDecodeError) as e:
                 # Ошибки парсинга JSON ответа
                 if attempt < 4:
-                    print(f"    ⚠️  Некорректный ответ API, попытка {attempt + 2}/5...")
                     import time
-                    time.sleep(3)
+                    # Экспоненциальная задержка: 5, 10, 15, 20 секунд
+                    delay = 5 * (attempt + 1)
+                    print(f"    ⚠️  Некорректный ответ API, попытка {attempt + 2}/5... (ожидание {delay}с)")
+                    time.sleep(delay)
                     continue
                 else:
                     print(f"    ✗ Некорректный ответ после 5 попыток")
@@ -632,9 +647,11 @@ class PHPWebsiteGenerator:
                 # Любые другие ошибки
                 error_msg = str(e)
                 if attempt < 4:
-                    print(f"    ⚠️  Ошибка: {error_msg[:50]}, попытка {attempt + 2}/5...")
                     import time
-                    time.sleep(3)
+                    # Экспоненциальная задержка: 5, 10, 15, 20 секунд
+                    delay = 5 * (attempt + 1)
+                    print(f"    ⚠️  Ошибка: {error_msg[:50]}, попытка {attempt + 2}/5... (ожидание {delay}с)")
+                    time.sleep(delay)
                     continue
                 print(f"    ✗ Ошибка после 5 попыток: {error_msg[:100]}")
                 return None
