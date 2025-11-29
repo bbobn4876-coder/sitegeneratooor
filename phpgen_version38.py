@@ -4973,11 +4973,11 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                 'allow_text': False
             })
 
-        # PRIORITY 4: Services (дополнительные - 3 шт для Services страницы)
+        # PRIORITY 4: Services (service4 обязательный, 5-6 опциональные - для Services страницы)
         images_to_generate.extend([
             {
                 'filename': 'service4.jpg',
-                'priority': 'optional',
+                'priority': 'required',
                 'prompt': f"Professional office photograph with business professionals in formal business suits working in modern office setting. {ethnicity_context}. Executive meeting or presentation, professional business environment, confident professionals, office interior, natural lighting, photorealistic. STRICTLY interior office only.",
                 'allow_text': False
             },
@@ -5114,8 +5114,8 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         optional_images = [img for img in images_to_generate if img.get('priority') == 'optional']
 
         print(f"\n🖼️  Генерация изображений: {num_images} шт.")
-        print(f"   📌 Обязательные: {len(required_images)} (hero + 3 services + {self.num_blog_articles} blog + 3 gallery)")
-        print(f"   ⭐ Дополнительные: {len(optional_images)} (4 company, gallery4, 6 locations)")
+        print(f"   📌 Обязательные: {len(required_images)} (hero + 4 services + {self.num_blog_articles} blog + about + 3 gallery + 3 team)")
+        print(f"   ⭐ Дополнительные: {len(optional_images)} (3 company, gallery4, 6 locations, 2 services)")
 
         generated_count = 0
 
