@@ -7203,7 +7203,7 @@ setTimeout(showCookieNotice, 1000);
         if not achievements_data:
             # Если все попытки не удались, используем минимальный fallback
             print(f"    ⚠️  Все 3 попытки achievements_content не удались, используем базовый fallback")
-            achievements_data = {
+            achievements_data_fallback = {
                 'heading': 'Stats',
                 'stat1_number': '500+',
                 'stat1_label': 'Projects',
@@ -7214,6 +7214,7 @@ setTimeout(showCookieNotice, 1000);
                 'stat4_number': '50+',
                 'stat4_label': 'Team'
             }
+            achievements_data = self.get_localized_fallback('achievements_content', achievements_data_fallback)
 
         return f"""
     <section class="py-20 bg-{primary}">
@@ -7246,18 +7247,21 @@ setTimeout(showCookieNotice, 1000);
 
         # Fallback если API не вернул результат
         if not benefits_data or not benefits_data.get('benefits'):
-            heading = 'Key Benefits'
-            benefits = [
-                {'title': 'Cost Efficiency', 'description': 'Maximize your ROI with our optimized processes and competitive pricing structure'},
-                {'title': 'Scalability', 'description': 'Solutions designed to grow with your business needs and adapt to market changes'},
-                {'title': '24/7 Support', 'description': 'Round-the-clock assistance to ensure your operations run smoothly'},
-                {'title': 'Expert Team', 'description': 'Skilled professionals with extensive industry experience and certifications'},
-                {'title': 'Quality Assurance', 'description': 'Rigorous testing and quality control at every stage of development'},
-                {'title': 'Innovation', 'description': 'Stay ahead with the latest technologies and industry best practices'}
-            ]
-        else:
-            heading = benefits_data.get('heading', 'Key Benefits')
-            benefits = benefits_data.get('benefits', [])
+            benefits_data_fallback = {
+                'heading': 'Key Benefits',
+                'benefits': [
+                    {'title': 'Cost Efficiency', 'description': 'Maximize your ROI with our optimized processes and competitive pricing structure'},
+                    {'title': 'Scalability', 'description': 'Solutions designed to grow with your business needs and adapt to market changes'},
+                    {'title': '24/7 Support', 'description': 'Round-the-clock assistance to ensure your operations run smoothly'},
+                    {'title': 'Expert Team', 'description': 'Skilled professionals with extensive industry experience and certifications'},
+                    {'title': 'Quality Assurance', 'description': 'Rigorous testing and quality control at every stage of development'},
+                    {'title': 'Innovation', 'description': 'Stay ahead with the latest technologies and industry best practices'}
+                ]
+            }
+            benefits_data = self.get_localized_fallback('benefits_content', benefits_data_fallback)
+
+        heading = benefits_data.get('heading', 'Key Benefits')
+        benefits = benefits_data.get('benefits', [])
 
         # Генерируем карточки преимуществ
         cards_html = ''
