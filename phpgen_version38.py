@@ -1536,19 +1536,29 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         elif content_type == "blog_section_headers":
             prompt = f"""Generate blog section headers for a {theme} business website.
 
-Return as JSON object with these EXACT fields:
+IMPORTANT: Create professional, engaging section headers that encourage readers to explore blog content. The headers should be appropriate for the {theme} industry.
+
+Return as JSON object with these EXACT fields (both fields are REQUIRED and MUST be present):
 - "section_heading": Blog section heading (3-5 words, e.g., "Latest from Our Blog", "Recent Articles", "Industry Insights")
+  * Should be engaging and relevant to {theme}
+  * Should invite users to explore the blog content
+  * Examples: "Latest from Our Blog", "Industry Insights", "Recent Updates"
 - "view_all_text": "View all" button text (2-3 words)
+  * Should be a clear call-to-action
+  * Should be concise and action-oriented
+  * Examples: "View All", "Read More", "See All Posts"
 
 {language_instruction}
 
-Example:
+CRITICAL: You MUST provide BOTH fields. Do NOT skip any fields. Return a complete JSON object.
+
+Example for {theme} business:
 {{
   "section_heading": "Latest from Our Blog",
   "view_all_text": "View All"
 }}
 
-Return ONLY valid JSON, no additional text or markdown formatting."""
+IMPORTANT: Return ONLY valid JSON object with BOTH fields. No additional text, no markdown formatting, no explanations. The response must be a valid JSON object, not an array or string."""
 
         elif content_type == "cookie_notice_content":
             prompt = f"""Generate cookie notice translations for a {theme} business website.
@@ -2004,6 +2014,29 @@ Translate ALL values to {language}. Return ONLY the JSON object, nothing else.""
                     return None
                 else:
                     print(f"    ✓ Упрощенный промпт сработал для button_texts")
+
+            # Специальная обработка для blog_section_headers - используем упрощенный промпт
+            elif content_type == "blog_section_headers":
+                print(f"    ⚠️  Первая попытка не удалась, пробуем упрощенный промпт для blog_section_headers...")
+                simplified_prompt = f"""You are a professional translator. Translate these blog section headers to {language} language for a {theme} website.
+
+CRITICAL: Return ONLY a valid JSON object (not an array, not a string). ALL text must be in {language} language.
+
+{{
+  "section_heading": "Latest from Our Blog",
+  "view_all_text": "View All"
+}}
+
+Translate ALL values to {language}. Return ONLY the JSON object, nothing else. Make sure it's an object with curly braces {{}}, not an array with square brackets []."""
+
+                response = self.call_api(simplified_prompt, max_tokens=1000)
+
+                if not response or not response.strip():
+                    print(f"    ✗ Упрощенный промпт также не сработал для blog_section_headers")
+                    return None
+                else:
+                    print(f"    ✓ Упрощенный промпт сработал для blog_section_headers")
+
             else:
                 print(f"    ✗ API не вернул ответ для {content_type} (response is {'None' if response is None else 'empty'})")
                 return None
@@ -2133,7 +2166,44 @@ Translate ALL values to {language}. Return ONLY the JSON object, nothing else.""
             # Для объектных типов контента - проверяем что это словарь
             elif content_type in ["hero_content", "achievements_content", "cta_content", "contact_page_content", "blog_page_content", "policy_content", "footer_content", "menu_content", "about_content", "gallery_content", "approach_content", "blog_article_full", "section_headings", "blog_section_headers", "button_texts", "blog_navigation_content", "cookie_notice_content", "thankyou_content", "what_we_offer_content", "features_comparison"]:
                 if not isinstance(content, dict):
-                    print(f"    ⚠️  Получен неверный тип данных для {content_type}, используем fallback")
+                    print(f"    ⚠️  Получен неверный тип данных для {content_type} (получен {type(content).__name__} вместо dict)")
+
+                    # Специальная обработка для blog_section_headers - пробуем упрощенный промпт
+                    if content_type == "blog_section_headers":
+                        print(f"    ⚠️  Пробуем упрощенный промпт для blog_section_headers...")
+                        simplified_prompt = f"""You are a professional translator. Translate these blog section headers to {language} language for a {theme} website.
+
+CRITICAL: Return ONLY a valid JSON object (not an array, not a string). ALL text must be in {language} language.
+
+{{
+  "section_heading": "Latest from Our Blog",
+  "view_all_text": "View All"
+}}
+
+Translate ALL values to {language}. Return ONLY the JSON object, nothing else. Make sure it's an object with curly braces {{}}, not an array with square brackets []."""
+
+                        retry_response = self.call_api(simplified_prompt, max_tokens=1000)
+
+                        if retry_response and retry_response.strip():
+                            try:
+                                # Очищаем от markdown
+                                retry_response = retry_response.strip()
+                                if retry_response.startswith('```'):
+                                    lines = retry_response.split('\n')
+                                    retry_response = '\n'.join(lines[1:-1]) if len(lines) > 2 else retry_response
+                                    retry_response = retry_response.replace('```json', '').replace('```', '').strip()
+
+                                retry_content = json.loads(retry_response)
+                                if isinstance(retry_content, dict):
+                                    print(f"    ✓ Упрощенный промпт сработал для blog_section_headers")
+                                    self.theme_content_cache[cache_key] = retry_content
+                                    print(f"    ✓ Контент успешно сгенерирован для '{theme}' (OK)")
+                                    return retry_content
+                            except:
+                                pass
+
+                        print(f"    ✗ Упрощенный промпт также не сработал для blog_section_headers")
+
                     return None
 
             # Сохраняем в кэш
