@@ -1997,8 +1997,8 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             max_tokens = 6000  # Больше токенов для 4 детальных кейсов
         elif content_type in ["services", "featured_solutions", "process_steps", "blog_posts", "benefits_content"]:
             max_tokens = 5000  # Увеличенный лимит для списков
-        elif content_type in ["approach_content", "about_content", "gallery_content", "faq_blocks"]:
-            max_tokens = 4000  # Увеличенный лимит для контента с несколькими параграфами
+        elif content_type in ["approach_content", "about_content", "gallery_content", "faq_blocks", "services_page_content", "thankyou_content", "what_we_offer_content"]:
+            max_tokens = 4000  # Увеличенный лимит для контента с несколькими параграфами и полями
         elif content_type == "testimonials_content":
             max_tokens = 4000  # Достаточно для 3 отзывов
         else:
