@@ -5041,11 +5041,11 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
             },
         ])
 
-        # Benefits image для секции image_with_benefits (опционально, для travel тематики)
+        # Benefits image для секции image_with_benefits (обязательно для travel тематики)
         if 'travel' in theme_lower or 'tour' in theme_lower or 'voyage' in theme_lower or 'tourism' in theme_lower:
             images_to_generate.append({
                 'filename': 'benefits.jpg',
-                'priority': 'optional',
+                'priority': 'required',
                 'prompt': f"Professional travel photograph showing beautiful destination scene. Stunning natural landscape: pristine beach with turquoise ocean water, tropical paradise, palm trees, white sand beach, crystal clear water, scenic coastal view. {ethnicity_context} travelers enjoying the destination in background, relaxing beach atmosphere, natural daylight, professional travel photography, photorealistic, 8k quality. CRITICAL: Pure travel destination photograph, beautiful scenery, paradise location.",
                 'allow_text': False
             })
@@ -5131,8 +5131,8 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         optional_images = [img for img in images_to_generate if img.get('priority') == 'optional']
 
         print(f"\n🖼️  Генерация изображений: {num_images} шт.")
-        print(f"   📌 Обязательные: {len(required_images)} (hero + 4 services + {self.num_blog_articles} blog + about + 3 gallery + 3 team)")
-        print(f"   ⭐ Дополнительные: {len(optional_images)} (3 company, gallery4, 6 locations, 2 services)")
+        print(f"   📌 Обязательные: {len(required_images)} (hero + 4 services + {self.num_blog_articles} blog + about + 3 gallery + 3 team + benefits для travel)")
+        print(f"   ⭐ Дополнительные: {len(optional_images)} (3 company, gallery4, 6 locations, 2 services, testimonials для travel)")
 
         generated_count = 0
 
