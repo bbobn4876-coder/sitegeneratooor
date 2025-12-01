@@ -6762,42 +6762,25 @@ setTimeout(showCookieNotice, 1000);
         button_primary = hero_data.get('button_primary', 'About Us')
         button_secondary = hero_data.get('button_secondary', 'Contact')
 
-        # Проверяем наличие изображений для вариантов
-        has_hero = self._has_image('hero.jpg')
-        has_about = self._has_image('about.jpg')
-        has_service1 = self._has_image('service1.jpg')
+        # hero.jpg, about.jpg и service1.jpg всегда генерируются как 'required'
+        # поэтому можем смело использовать все варианты без проверки наличия изображений
+        # (изображения генерируются ПОСЛЕ страниц, поэтому self.generated_images пуст на этом этапе)
 
-        # Улучшенная рандомизация: определяем доступные варианты
-        available_variants = []
+        # Все 5 вариантов доступны, так как необходимые изображения будут сгенерированы
+        available_variants = [1, 2, 3, 4, 5]
 
-        if has_hero:
-            # Если есть hero.jpg, доступны все варианты
-            available_variants = [1, 2, 3, 4, 5]
-        else:
-            # Если нет hero.jpg, но есть другие изображения, используем их
-            if has_about or has_service1:
-                # Варианты 1, 2, 5 могут работать с about.jpg или service1.jpg
-                available_variants = [1, 2, 3, 5]
-            else:
-                # Только вариант без изображения
-                available_variants = [3]
-
-        # Используем weighted choice для большего разнообразия
-        # Вариант 3 получает меньший вес, если доступны другие варианты
-        if len(available_variants) > 1:
-            # Убираем вариант 3 из доминирования, если есть альтернативы
-            weights = [1.5 if v != 3 else 1.0 for v in available_variants]
-            hero_variant = random.choices(available_variants, weights=weights, k=1)[0]
-        else:
-            hero_variant = available_variants[0]
+        # Используем weighted choice для равномерного распределения
+        # Вариант 3 (без изображения) получает меньший вес для большего разнообразия
+        weights = [1.5, 1.5, 0.8, 1.5, 1.5]  # Вариант 3 с весом 0.8 вместо 1.5
+        hero_variant = random.choices(available_variants, weights=weights, k=1)[0]
 
         # Сохраняем выбор в blueprint для консистентности
         if not hasattr(self, 'blueprint'):
             self.blueprint = {}
         self.blueprint['hero_variant'] = hero_variant
 
-        # Определяем изображение для использования в вариантах
-        hero_image = 'hero.jpg' if has_hero else ('about.jpg' if has_about else 'service1.jpg')
+        # hero.jpg всегда будет сгенерирован
+        hero_image = 'hero.jpg'
 
         # Вариация 1: Фотография справа
         if hero_variant == 1:
