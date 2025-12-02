@@ -3456,7 +3456,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
 
         # Default / Business / Technology
         else:
-            return [
+            default_solutions = [
                 {'title': 'Consultation', 'description': 'Expert advice to help you make informed decisions about your project.'},
                 {'title': 'Planning', 'description': 'Strategic planning to ensure your project\'s success from start to finish.'},
                 {'title': 'Implementation', 'description': 'Professional execution with attention to every detail of your project.'},
@@ -3464,6 +3464,8 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                 {'title': 'Support', 'description': 'Ongoing support to help you get the most from your investment.'},
                 {'title': 'Optimization', 'description': 'Continuous improvement to keep your solution performing at its best.'}
             ]
+            # Локализуем каждую услугу
+            return [self.get_localized_fallback('featured_solutions', sol) for sol in default_solutions]
 
     def generate_featured_solutions_section(self, site_name, theme, primary, hover):
         """Генерирует секцию Featured Solutions с тематическим контентом"""
@@ -5166,24 +5168,37 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                 'prompt': f"Professional team photograph for {theme} company. {work_setting}. {ethnicity_context} in business setting, {work_context}, diverse professional team, confident and approachable, natural group composition, photorealistic. {'Interior or exterior setting.' if allow_outdoor_storefront else 'STRICTLY NO outdoor scenes. Interior only.'}",
                 'allow_text': False
             },
-            {
-                'filename': 'team1.jpg',
+        ])
+
+        # Генерируем team изображения на основе gender из API
+        team_members = self.generate_theme_content_via_api(theme, "team_members", 3)
+        if not team_members or not isinstance(team_members, list) or len(team_members) < 3:
+            # Fallback к дефолтным значениям если API не вернул результат
+            team_members = [
+                {'gender': 'male'},
+                {'gender': 'female'},
+                {'gender': 'female'}
+            ]
+
+        # Генерируем изображения для каждого члена команды на основе их gender
+        for i, member in enumerate(team_members[:3], 1):
+            gender = member.get('gender', 'male' if i == 1 else 'female').lower()
+
+            if gender == 'male' or gender == 'м' or gender == 'мужской':
+                gender_prompt = f"male business professional. {ethnicity_context} man in formal business suit with dress shirt"
+                gender_critical = "Male person only"
+            else:
+                gender_prompt = f"female business professional. {ethnicity_context} woman in formal business attire (blazer, professional shirt)"
+                gender_critical = "Female person only"
+
+            images_to_generate.append({
+                'filename': f'team{i}.jpg',
                 'priority': 'required',
-                'prompt': f"Professional corporate headshot portrait of a male business professional. {ethnicity_context} man in formal business suit with dress shirt, clean white background, professional studio lighting, confident smile, friendly demeanor, photorealistic, high quality corporate photography. CRITICAL: Male person only, clean white background, no other elements, business attire.",
+                'prompt': f"Professional corporate headshot portrait of a {gender_prompt}, clean white background, professional studio lighting, confident smile, friendly demeanor, photorealistic, high quality corporate photography. CRITICAL: {gender_critical}, clean white background, no other elements, business attire.",
                 'allow_text': False
-            },
-            {
-                'filename': 'team2.jpg',
-                'priority': 'required',
-                'prompt': f"Professional corporate headshot portrait of a female business professional. {ethnicity_context} woman in formal business attire (blazer, professional shirt), clean white background, professional studio lighting, confident smile, friendly demeanor, photorealistic, high quality corporate photography. CRITICAL: Female person only, clean white background, no other elements, business attire.",
-                'allow_text': False
-            },
-            {
-                'filename': 'team3.jpg',
-                'priority': 'required',
-                'prompt': f"Professional corporate headshot portrait of a female business professional. {ethnicity_context} woman in formal business attire (blazer, professional shirt), clean white background, professional studio lighting, warm smile, approachable demeanor, photorealistic, high quality corporate photography. CRITICAL: Female person only, clean white background, no other elements, business attire.",
-                'allow_text': False
-            },
+            })
+
+        images_to_generate.extend([
         ])
 
         # Benefits image для секции image_with_benefits (обязательно для travel тематики)
