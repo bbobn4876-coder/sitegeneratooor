@@ -7394,74 +7394,54 @@ setTimeout(showCookieNotice, 1000);
 
         # Вариация 3: Минималистичный дизайн
         elif company_variant == 3:
-            values_html = """
+            # Values section - динамические ценности
+            values_items_html_v3 = []
+            for value in company_values[:3]:
+                values_items_html_v3.append(f"""
+                    <div class="border-l-4 border-{primary} pl-6">
+                        <h3 class="text-2xl font-bold mb-2">{value.get('title', '')}</h3>
+                        <p class="text-gray-600 text-lg">{value.get('description', '')}</p>
+                    </div>""")
+
+            values_html = f"""
                 <div class="space-y-8">
-                    <div class="border-l-4 border-{primary} pl-6">
-                        <h3 class="text-2xl font-bold mb-2">Customer Focus</h3>
-                        <p class="text-gray-600 text-lg">Your success is our priority in everything we do.</p>
-                    </div>
-                    <div class="border-l-4 border-{primary} pl-6">
-                        <h3 class="text-2xl font-bold mb-2">Continuous Improvement</h3>
-                        <p class="text-gray-600 text-lg">Always learning, growing, and evolving.</p>
-                    </div>
-                    <div class="border-l-4 border-{primary} pl-6">
-                        <h3 class="text-2xl font-bold mb-2">Results Driven</h3>
-                        <p class="text-gray-600 text-lg">Focused on delivering measurable outcomes.</p>
-                    </div>
+                    {''.join(values_items_html_v3)}
                 </div>"""
 
+            # Team section - динамические члены команды
             if has_team_images:
-                team_html = """
+                team_items_html_v3 = []
+                orders = [('order-2 md:order-1', 'order-1 md:order-2'), ('', ''), ('order-2 md:order-1', 'order-1 md:order-2')]
+                for i, member in enumerate(team_members[:3]):
+                    text_order, img_order = orders[i]
+                    team_items_html_v3.append(f"""
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div class="{text_order}">
+                            <h3 class="text-3xl font-bold mb-2">{member.get('name', '')}</h3>
+                            <p class="text-{primary} text-xl font-semibold mb-4">{member.get('position', '')}</p>
+                            <p class="text-gray-600 text-lg">{member.get('description', '')}</p>
+                        </div>
+                        <div class="{img_order}">
+                            <img src="images/team{i+1}.jpg" alt="Team Member" class="rounded-2xl shadow-lg w-full h-96 object-cover">
+                        </div>
+                    </div>""")
+                team_html = f"""
                 <div class="space-y-12">
-                    <div class="grid md:grid-cols-2 gap-8 items-center">
-                        <div class="order-2 md:order-1">
-                            <h3 class="text-3xl font-bold mb-2">Sarah Johnson</h3>
-                            <p class="text-{primary} text-xl font-semibold mb-4">Chief Executive Officer</p>
-                            <p class="text-gray-600 text-lg">Passionate about building exceptional businesses and empowering teams.</p>
-                        </div>
-                        <div class="order-1 md:order-2">
-                            <img src="images/team1.jpg" alt="Team Member" class="rounded-2xl shadow-lg w-full h-96 object-cover">
-                        </div>
-                    </div>
-                    <div class="grid md:grid-cols-2 gap-8 items-center">
-                        <div>
-                            <img src="images/team2.jpg" alt="Team Member" class="rounded-2xl shadow-lg w-full h-96 object-cover">
-                        </div>
-                        <div>
-                            <h3 class="text-3xl font-bold mb-2">Michael Chen</h3>
-                            <p class="text-{primary} text-xl font-semibold mb-4">Chief Technology Officer</p>
-                            <p class="text-gray-600 text-lg">Expert in building scalable, innovative technology solutions.</p>
-                        </div>
-                    </div>
-                    <div class="grid md:grid-cols-2 gap-8 items-center">
-                        <div class="order-2 md:order-1">
-                            <h3 class="text-3xl font-bold mb-2">Emily Rodriguez</h3>
-                            <p class="text-{primary} text-xl font-semibold mb-4">Head of Operations</p>
-                            <p class="text-gray-600 text-lg">Dedicated to operational excellence and seamless delivery.</p>
-                        </div>
-                        <div class="order-1 md:order-2">
-                            <img src="images/team3.jpg" alt="Team Member" class="rounded-2xl shadow-lg w-full h-96 object-cover">
-                        </div>
-                    </div>
+                    {''.join(team_items_html_v3)}
                 </div>"""
             else:
-                team_html = """
+                team_items_html_v3_no_img = []
+                for i, member in enumerate(team_members[:3]):
+                    border_class = 'border-b border-gray-200 pb-8' if i < 2 else ''
+                    team_items_html_v3_no_img.append(f"""
+                    <div class="{border_class}">
+                        <h3 class="text-3xl font-bold mb-2">{member.get('name', '')}</h3>
+                        <p class="text-{primary} text-xl font-semibold mb-3">{member.get('position', '')}</p>
+                        <p class="text-gray-600 text-lg">{member.get('description', '')}</p>
+                    </div>""")
+                team_html = f"""
                 <div class="max-w-4xl mx-auto space-y-8">
-                    <div class="border-b border-gray-200 pb-8">
-                        <h3 class="text-3xl font-bold mb-2">Sarah Johnson</h3>
-                        <p class="text-{primary} text-xl font-semibold mb-3">Chief Executive Officer</p>
-                        <p class="text-gray-600 text-lg">Passionate about building exceptional businesses and empowering teams.</p>
-                    </div>
-                    <div class="border-b border-gray-200 pb-8">
-                        <h3 class="text-3xl font-bold mb-2">Michael Chen</h3>
-                        <p class="text-{primary} text-xl font-semibold mb-3">Chief Technology Officer</p>
-                        <p class="text-gray-600 text-lg">Expert in building scalable, innovative technology solutions.</p>
-                    </div>
-                    <div>
-                        <h3 class="text-3xl font-bold mb-2">Emily Rodriguez</h3>
-                        <p class="text-{primary} text-xl font-semibold mb-3">Head of Operations</p>
-                        <p class="text-gray-600 text-lg">Dedicated to operational excellence and seamless delivery.</p>
-                    </div>
+                    {''.join(team_items_html_v3_no_img)}
                 </div>"""
 
             return f"""<main>
@@ -7520,97 +7500,69 @@ setTimeout(showCookieNotice, 1000);
 
         # Вариация 4: Компактный дизайн с акцентом на ценности
         else:
-            values_html = """
+            # SVG icons для ценностей (4 иконки для 4 ценностей)
+            value_icons_v4 = [
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>',
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>',
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>',
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>'
+            ]
+
+            # Values section - динамические ценности (показываем до 4 ценностей)
+            values_items_html_v4 = []
+            num_values = min(len(company_values), 4) if isinstance(company_values, list) else 3
+            for i in range(num_values):
+                value = company_values[i] if i < len(company_values) else {'title': 'Value', 'description': 'Description'}
+                icon = value_icons_v4[i % len(value_icons_v4)]
+                values_items_html_v4.append(f"""
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 bg-{primary} rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                {icon}
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">{value.get('title', '')}</h3>
+                            <p class="text-gray-600">{value.get('description', '')}</p>
+                        </div>
+                    </div>""")
+
+            values_html = f"""
                 <div class="grid md:grid-cols-2 gap-8">
-                    <div class="flex items-start space-x-4">
-                        <div class="w-12 h-12 bg-{primary} rounded-lg flex items-center justify-center flex-shrink-0">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold mb-2">Client Success</h3>
-                            <p class="text-gray-600">Committed to helping our clients achieve their goals.</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start space-x-4">
-                        <div class="w-12 h-12 bg-{primary} rounded-lg flex items-center justify-center flex-shrink-0">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold mb-2">Innovation</h3>
-                            <p class="text-gray-600">Constantly evolving to stay ahead of the curve.</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start space-x-4">
-                        <div class="w-12 h-12 bg-{primary} rounded-lg flex items-center justify-center flex-shrink-0">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold mb-2">Teamwork</h3>
-                            <p class="text-gray-600">Collaboration is at the heart of everything we do.</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start space-x-4">
-                        <div class="w-12 h-12 bg-{primary} rounded-lg flex items-center justify-center flex-shrink-0">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold mb-2">Excellence</h3>
-                            <p class="text-gray-600">Delivering quality in every project we undertake.</p>
-                        </div>
-                    </div>
+                    {''.join(values_items_html_v4)}
                 </div>"""
 
+            # Team section - динамические члены команды
             if has_team_images:
-                team_html = """
+                team_items_html_v4 = []
+                for i, member in enumerate(team_members[:3]):
+                    team_items_html_v4.append(f"""
+                    <div>
+                        <img src="images/team{i+1}.jpg" alt="Team Member" class="w-full h-64 object-cover rounded-xl mb-4">
+                        <h3 class="text-xl font-bold">{member.get('name', '')}</h3>
+                        <p class="text-{primary} font-semibold">{member.get('position', '')}</p>
+                    </div>""")
+                team_html = f"""
                 <div class="grid md:grid-cols-3 gap-6">
-                    <div>
-                        <img src="images/team1.jpg" alt="Team Member" class="w-full h-64 object-cover rounded-xl mb-4">
-                        <h3 class="text-xl font-bold">Sarah Johnson</h3>
-                        <p class="text-{primary} font-semibold">CEO</p>
-                    </div>
-                    <div>
-                        <img src="images/team2.jpg" alt="Team Member" class="w-full h-64 object-cover rounded-xl mb-4">
-                        <h3 class="text-xl font-bold">Michael Chen</h3>
-                        <p class="text-{primary} font-semibold">CTO</p>
-                    </div>
-                    <div>
-                        <img src="images/team3.jpg" alt="Team Member" class="w-full h-64 object-cover rounded-xl mb-4">
-                        <h3 class="text-xl font-bold">Emily Rodriguez</h3>
-                        <p class="text-{primary} font-semibold">COO</p>
-                    </div>
+                    {''.join(team_items_html_v4)}
                 </div>"""
             else:
-                team_html = """
+                team_items_html_v4_no_img = []
+                for member in team_members[:3]:
+                    # Генерируем инициалы из имени
+                    name_parts = member.get('name', 'XX').split()
+                    initials = ''.join([part[0] for part in name_parts[:2]]).upper() if name_parts else 'XX'
+                    team_items_html_v4_no_img.append(f"""
+                    <div class="p-6">
+                        <div class="w-20 h-20 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl font-bold text-{primary}">{initials}</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-1">{member.get('name', '')}</h3>
+                        <p class="text-{primary} font-semibold">{member.get('position', '')}</p>
+                    </div>""")
+                team_html = f"""
                 <div class="grid md:grid-cols-3 gap-6 text-center">
-                    <div class="p-6">
-                        <div class="w-20 h-20 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <span class="text-2xl font-bold text-{primary}">SJ</span>
-                        </div>
-                        <h3 class="text-xl font-bold mb-1">Sarah Johnson</h3>
-                        <p class="text-{primary} font-semibold">CEO</p>
-                    </div>
-                    <div class="p-6">
-                        <div class="w-20 h-20 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <span class="text-2xl font-bold text-{primary}">MC</span>
-                        </div>
-                        <h3 class="text-xl font-bold mb-1">Michael Chen</h3>
-                        <p class="text-{primary} font-semibold">CTO</p>
-                    </div>
-                    <div class="p-6">
-                        <div class="w-20 h-20 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <span class="text-2xl font-bold text-{primary}">ER</span>
-                        </div>
-                        <h3 class="text-xl font-bold mb-1">Emily Rodriguez</h3>
-                        <p class="text-{primary} font-semibold">COO</p>
-                    </div>
+                    {''.join(team_items_html_v4_no_img)}
                 </div>"""
 
             return f"""<main>
