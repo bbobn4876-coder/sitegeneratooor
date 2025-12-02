@@ -2751,6 +2751,15 @@ Preserve all keys in English.
 
 CRITICAL REQUIREMENT: You MUST translate ALL text values to {language}. Do NOT leave any text in English.
 
+IMPORTANT EXCEPTION: Do NOT translate these fields as they are country-specific, not language-specific:
+- "phone" (phone numbers)
+- "email" (email addresses)
+- "address" (physical addresses including street names, cities, postal codes)
+- "city" (city names)
+- "street" (street names)
+- "postal_code" or "zip" (postal/zip codes)
+Keep these fields EXACTLY as they are in the original.
+
 Original JSON:
 {fallback_json}
 
