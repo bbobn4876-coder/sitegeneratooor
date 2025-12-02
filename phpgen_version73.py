@@ -2090,6 +2090,48 @@ Example:
 
 Return ONLY valid JSON, no additional text or markdown formatting."""
 
+        elif content_type == "company_values":
+            prompt = f"""Generate {num_items} company core values for a {theme} business website.
+
+Return as JSON array of exactly {num_items} values. Each value should have:
+- "title": Value name (1-3 words, e.g., "Passion", "Integrity", "Excellence", "Innovation", "Collaboration", "Quality", "Client Success", "Teamwork", "Customer Focus", "Continuous Improvement", "Results Driven")
+- "description": Value description (8-15 words explaining what this value means for the company)
+
+Create inspiring, professional values appropriate for a {theme} business.
+Make each value unique and meaningful. Focus on qualities that build trust and demonstrate commitment.
+
+{language_instruction}
+
+Example:
+[
+  {{"title": "Innovation", "description": "Pushing boundaries with creative solutions and cutting-edge approaches."}},
+  {{"title": "Integrity", "description": "Trust and transparency in everything we do."}},
+  {{"title": "Excellence", "description": "Committed to delivering the highest quality in every project."}}
+]
+
+Return ONLY valid JSON array, no additional text or markdown formatting."""
+
+        elif content_type == "button_labels":
+            prompt = f"""Generate button text labels for a {theme} business Company/About page.
+
+Return as JSON object with:
+- "contact_us": Contact button text (1-3 words, e.g., "Contact Us", "Get in Touch", "Reach Out")
+- "get_started": Get started button text (1-3 words, e.g., "Get Started", "Start Now", "Begin")
+- "learn_more": Learn more button text (1-3 words, e.g., "Learn More", "Discover More", "Find Out")
+
+Create natural, action-oriented button texts appropriate for a {theme} business.
+
+{language_instruction}
+
+Example:
+{{
+  "contact_us": "Contact Us",
+  "get_started": "Get Started",
+  "learn_more": "Learn More"
+}}
+
+Return ONLY valid JSON object, no additional text or markdown formatting."""
+
         elif content_type == "privacy_policy_full":
             prompt = f"""Generate complete Privacy Policy page content for a {theme} business website.
 
@@ -7060,6 +7102,15 @@ setTimeout(showCookieNotice, 1000);
         # Получаем контент about_content через API для истории компании
         about_data = self.generate_theme_content_via_api(theme, "about_content", 1)
 
+        # Получаем ценности компании через API (3 ценности)
+        company_values = self.generate_theme_content_via_api(theme, "company_values", 3)
+
+        # Получаем членов команды через API (3 члена)
+        team_members = self.generate_theme_content_via_api(theme, "team_members", 3)
+
+        # Получаем тексты кнопок через API
+        button_labels = self.generate_theme_content_via_api(theme, "button_labels", 1)
+
         # Fallback если API не вернул результат
         if not company_content:
             company_content = {
@@ -7081,6 +7132,40 @@ setTimeout(showCookieNotice, 1000);
             }
             about_data = self.get_localized_fallback('about_content', about_data)
 
+        if not company_values or not isinstance(company_values, list) or len(company_values) < 3:
+            company_values = [
+                {'title': 'Excellence', 'description': 'Committed to delivering the highest quality.'},
+                {'title': 'Innovation', 'description': 'Pushing boundaries with creative solutions.'},
+                {'title': 'Integrity', 'description': 'Trust and transparency in everything we do.'}
+            ]
+            company_values = [self.get_localized_fallback('company_values', val) for val in company_values]
+
+        if not team_members or not isinstance(team_members, list) or len(team_members) < 3:
+            team_members = [
+                {'name': 'Sarah Johnson', 'position': 'Chief Executive Officer', 'description': 'Leading our vision with passion and expertise.'},
+                {'name': 'Michael Chen', 'position': 'Chief Technology Officer', 'description': 'Driving innovation and technical excellence.'},
+                {'name': 'Emily Rodriguez', 'position': 'Head of Operations', 'description': 'Ensuring seamless execution and delivery.'}
+            ]
+            team_members = [self.get_localized_fallback('team_members', member) for member in team_members]
+
+        # Добавляем описания к членам команды, если их нет
+        team_descriptions = [
+            'Leading our vision with passion and expertise.',
+            'Driving innovation and technical excellence.',
+            'Ensuring seamless execution and delivery.'
+        ]
+        for i, member in enumerate(team_members):
+            if 'description' not in member or not member.get('description'):
+                member['description'] = team_descriptions[i % len(team_descriptions)]
+
+        if not button_labels or not isinstance(button_labels, dict):
+            button_labels = {
+                'contact_us': 'Contact Us',
+                'get_started': 'Get Started',
+                'learn_more': 'Learn More'
+            }
+            button_labels = self.get_localized_fallback('button_labels', button_labels)
+
         # Проверяем наличие team изображений
         has_team_images = all(img in self.generated_images for img in ['team1.jpg', 'team2.jpg', 'team3.jpg'])
 
@@ -7089,85 +7174,62 @@ setTimeout(showCookieNotice, 1000);
 
         # Вариация 1: Классический дизайн с историей, ценностями и командой
         if company_variant == 1:
-            # Values section
-            values_html = """
+            # SVG icons для ценностей
+            value_icons = [
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>',
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>',
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>'
+            ]
+
+            # Values section - динамические ценности
+            values_items_html = []
+            for i, value in enumerate(company_values[:3]):
+                icon = value_icons[i % len(value_icons)]
+                values_items_html.append(f"""
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                {icon}
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">{value.get('title', '')}</h3>
+                        <p class="text-gray-600">{value.get('description', '')}</p>
+                    </div>""")
+
+            values_html = f"""
                 <div class="grid md:grid-cols-3 gap-8">
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg class="w-8 h-8 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-bold mb-2">Passion</h3>
-                        <p class="text-gray-600">We love what we do and it shows in our work.</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg class="w-8 h-8 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-bold mb-2">Integrity</h3>
-                        <p class="text-gray-600">Trust and transparency in everything we do.</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg class="w-8 h-8 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-bold mb-2">Excellence</h3>
-                        <p class="text-gray-600">Committed to delivering the highest quality.</p>
-                    </div>
+                    {''.join(values_items_html)}
                 </div>"""
 
-            # Team section
+            # Team section - динамические члены команды
             if has_team_images:
-                team_html = """
+                team_items_html = []
+                for i, member in enumerate(team_members[:3]):
+                    team_items_html.append(f"""
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <img src="images/team{i+1}.jpg" alt="Team Member" class="w-full h-64 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-1">{member.get('name', '')}</h3>
+                            <p class="text-{primary} font-semibold mb-3">{member.get('position', '')}</p>
+                            <p class="text-gray-600">{member.get('description', '')}</p>
+                        </div>
+                    </div>""")
+                team_html = f"""
                 <div class="grid md:grid-cols-3 gap-8">
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                        <img src="images/team1.jpg" alt="Team Member" class="w-full h-64 object-cover">
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-1">Sarah Johnson</h3>
-                            <p class="text-{primary} font-semibold mb-3">Chief Executive Officer</p>
-                            <p class="text-gray-600">Leading our vision with passion and expertise.</p>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                        <img src="images/team2.jpg" alt="Team Member" class="w-full h-64 object-cover">
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-1">Michael Chen</h3>
-                            <p class="text-{primary} font-semibold mb-3">Chief Technology Officer</p>
-                            <p class="text-gray-600">Driving innovation and technical excellence.</p>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                        <img src="images/team3.jpg" alt="Team Member" class="w-full h-64 object-cover">
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-1">Emily Rodriguez</h3>
-                            <p class="text-{primary} font-semibold mb-3">Head of Operations</p>
-                            <p class="text-gray-600">Ensuring seamless execution and delivery.</p>
-                        </div>
-                    </div>
+                    {''.join(team_items_html)}
                 </div>"""
             else:
-                team_html = """
+                team_items_html = []
+                for i, member in enumerate(team_members[:3]):
+                    team_items_html.append(f"""
+                    <div class="bg-white rounded-xl shadow-lg p-8">
+                        <h3 class="text-xl font-bold mb-1">{member.get('name', '')}</h3>
+                        <p class="text-{primary} font-semibold mb-3">{member.get('position', '')}</p>
+                        <p class="text-gray-600">{member.get('description', '')}</p>
+                    </div>""")
+                team_html = f"""
                 <div class="grid md:grid-cols-3 gap-8">
-                    <div class="bg-white rounded-xl shadow-lg p-8">
-                        <h3 class="text-xl font-bold mb-1">Sarah Johnson</h3>
-                        <p class="text-{primary} font-semibold mb-3">Chief Executive Officer</p>
-                        <p class="text-gray-600">Leading our vision with passion and expertise.</p>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-lg p-8">
-                        <h3 class="text-xl font-bold mb-1">Michael Chen</h3>
-                        <p class="text-{primary} font-semibold mb-3">Chief Technology Officer</p>
-                        <p class="text-gray-600">Driving innovation and technical excellence.</p>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-lg p-8">
-                        <h3 class="text-xl font-bold mb-1">Emily Rodriguez</h3>
-                        <p class="text-{primary} font-semibold mb-3">Head of Operations</p>
-                        <p class="text-gray-600">Ensuring seamless execution and delivery.</p>
-                    </div>
+                    {''.join(team_items_html)}
                 </div>"""
 
             return f"""<main>
@@ -7213,90 +7275,69 @@ setTimeout(showCookieNotice, 1000);
         <div class="container mx-auto px-6 text-center">
             <h2 class="text-4xl font-bold mb-4">{company_content['contact_cta']}</h2>
             <p class="text-xl opacity-90 mb-8">{company_content['contact_cta_description']}</p>
-            <a href="contact.php" class="inline-block bg-white text-{primary} px-10 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition shadow-lg">Contact Us</a>
+            <a href="contact.php" class="inline-block bg-white text-{primary} px-10 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition shadow-lg">{button_labels.get('contact_us', 'Contact Us')}</a>
         </div>
     </section>
 </main>"""
 
         # Вариация 2: Современный дизайн с большими карточками
         elif company_variant == 2:
-            values_html = """
+            # SVG icons для ценностей
+            value_icons_v2 = [
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>',
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>',
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>'
+            ]
+
+            # Values section - динамические ценности
+            values_items_html_v2 = []
+            for i, value in enumerate(company_values[:3]):
+                icon = value_icons_v2[i % len(value_icons_v2)]
+                values_items_html_v2.append(f"""
+                    <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition">
+                        <div class="w-14 h-14 bg-gradient-to-br from-{primary} to-{hover} rounded-lg flex items-center justify-center mb-4">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                {icon}
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">{value.get('title', '')}</h3>
+                        <p class="text-gray-600 leading-relaxed">{value.get('description', '')}</p>
+                    </div>""")
+
+            values_html = f"""
                 <div class="grid md:grid-cols-3 gap-6">
-                    <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition">
-                        <div class="w-14 h-14 bg-gradient-to-br from-{primary} to-{hover} rounded-lg flex items-center justify-center mb-4">
-                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-3">Innovation</h3>
-                        <p class="text-gray-600 leading-relaxed">Pushing boundaries with creative solutions.</p>
-                    </div>
-                    <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition">
-                        <div class="w-14 h-14 bg-gradient-to-br from-{primary} to-{hover} rounded-lg flex items-center justify-center mb-4">
-                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-3">Collaboration</h3>
-                        <p class="text-gray-600 leading-relaxed">Working together to achieve excellence.</p>
-                    </div>
-                    <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition">
-                        <div class="w-14 h-14 bg-gradient-to-br from-{primary} to-{hover} rounded-lg flex items-center justify-center mb-4">
-                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-3">Quality</h3>
-                        <p class="text-gray-600 leading-relaxed">Delivering excellence in every detail.</p>
-                    </div>
+                    {''.join(values_items_html_v2)}
                 </div>"""
 
+            # Team section - динамические члены команды
             if has_team_images:
-                team_html = """
+                team_items_html_v2 = []
+                for i, member in enumerate(team_members[:3]):
+                    team_items_html_v2.append(f"""
+                    <div class="group">
+                        <div class="relative overflow-hidden rounded-2xl mb-4">
+                            <img src="images/team{i+1}.jpg" alt="Team Member" class="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-300">
+                        </div>
+                        <h3 class="text-2xl font-bold mb-1">{member.get('name', '')}</h3>
+                        <p class="text-{primary} font-semibold mb-2">{member.get('position', '')}</p>
+                        <p class="text-gray-600">{member.get('description', '')}</p>
+                    </div>""")
+                team_html = f"""
                 <div class="grid md:grid-cols-3 gap-8">
-                    <div class="group">
-                        <div class="relative overflow-hidden rounded-2xl mb-4">
-                            <img src="images/team1.jpg" alt="Team Member" class="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-300">
-                        </div>
-                        <h3 class="text-2xl font-bold mb-1">Sarah Johnson</h3>
-                        <p class="text-{primary} font-semibold mb-2">CEO & Founder</p>
-                        <p class="text-gray-600">Visionary leader with 15+ years of experience.</p>
-                    </div>
-                    <div class="group">
-                        <div class="relative overflow-hidden rounded-2xl mb-4">
-                            <img src="images/team2.jpg" alt="Team Member" class="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-300">
-                        </div>
-                        <h3 class="text-2xl font-bold mb-1">Michael Chen</h3>
-                        <p class="text-{primary} font-semibold mb-2">CTO</p>
-                        <p class="text-gray-600">Tech innovator building cutting-edge solutions.</p>
-                    </div>
-                    <div class="group">
-                        <div class="relative overflow-hidden rounded-2xl mb-4">
-                            <img src="images/team3.jpg" alt="Team Member" class="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-300">
-                        </div>
-                        <h3 class="text-2xl font-bold mb-1">Emily Rodriguez</h3>
-                        <p class="text-{primary} font-semibold mb-2">COO</p>
-                        <p class="text-gray-600">Operations expert ensuring smooth delivery.</p>
-                    </div>
+                    {''.join(team_items_html_v2)}
                 </div>"""
             else:
-                team_html = """
+                team_items_html_v2 = []
+                for member in team_members[:3]:
+                    team_items_html_v2.append(f"""
+                    <div class="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-100">
+                        <h3 class="text-2xl font-bold mb-1">{member.get('name', '')}</h3>
+                        <p class="text-{primary} font-semibold mb-3">{member.get('position', '')}</p>
+                        <p class="text-gray-600">{member.get('description', '')}</p>
+                    </div>""")
+                team_html = f"""
                 <div class="grid md:grid-cols-3 gap-8">
-                    <div class="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-100">
-                        <h3 class="text-2xl font-bold mb-1">Sarah Johnson</h3>
-                        <p class="text-{primary} font-semibold mb-3">CEO & Founder</p>
-                        <p class="text-gray-600">Visionary leader with 15+ years of experience.</p>
-                    </div>
-                    <div class="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-100">
-                        <h3 class="text-2xl font-bold mb-1">Michael Chen</h3>
-                        <p class="text-{primary} font-semibold mb-3">CTO</p>
-                        <p class="text-gray-600">Tech innovator building cutting-edge solutions.</p>
-                    </div>
-                    <div class="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-100">
-                        <h3 class="text-2xl font-bold mb-1">Emily Rodriguez</h3>
-                        <p class="text-{primary} font-semibold mb-3">COO</p>
-                        <p class="text-gray-600">Operations expert ensuring smooth delivery.</p>
-                    </div>
+                    {''.join(team_items_html_v2)}
                 </div>"""
 
             return f"""<main>
@@ -7345,7 +7386,7 @@ setTimeout(showCookieNotice, 1000);
             <div class="bg-gradient-to-r from-{primary} to-{hover} rounded-3xl p-16 text-center text-white shadow-2xl">
                 <h2 class="text-5xl font-bold mb-6">{company_content['contact_cta']}</h2>
                 <p class="text-2xl opacity-95 mb-10 max-w-3xl mx-auto">{company_content['contact_cta_description']}</p>
-                <a href="contact.php" class="inline-block bg-white text-{primary} px-12 py-5 rounded-lg text-xl font-bold hover:bg-gray-100 transition shadow-lg">Get in Touch</a>
+                <a href="contact.php" class="inline-block bg-white text-{primary} px-12 py-5 rounded-lg text-xl font-bold hover:bg-gray-100 transition shadow-lg">{button_labels.get('contact_us', 'Contact Us')}</a>
             </div>
         </div>
     </section>
@@ -7471,7 +7512,7 @@ setTimeout(showCookieNotice, 1000);
             <div class="max-w-4xl mx-auto text-center">
                 <h2 class="text-5xl font-bold mb-6">{company_content['contact_cta']}</h2>
                 <p class="text-2xl opacity-90 mb-10">{company_content['contact_cta_description']}</p>
-                <a href="contact.php" class="inline-block bg-white text-{primary} px-12 py-5 rounded-lg text-xl font-bold hover:bg-gray-100 transition">Contact Us</a>
+                <a href="contact.php" class="inline-block bg-white text-{primary} px-12 py-5 rounded-lg text-xl font-bold hover:bg-gray-100 transition">{button_labels.get('contact_us', 'Contact Us')}</a>
             </div>
         </div>
     </section>
@@ -7619,7 +7660,7 @@ setTimeout(showCookieNotice, 1000);
             <div class="max-w-4xl mx-auto bg-gradient-to-r from-{primary} to-{hover} rounded-2xl p-12 text-center text-white shadow-xl">
                 <h2 class="text-4xl font-bold mb-4">{company_content['contact_cta']}</h2>
                 <p class="text-xl opacity-90 mb-8">{company_content['contact_cta_description']}</p>
-                <a href="contact.php" class="inline-block bg-white text-{primary} px-10 py-4 rounded-lg text-lg font-bold hover:bg-gray-100 transition">Get Started</a>
+                <a href="contact.php" class="inline-block bg-white text-{primary} px-10 py-4 rounded-lg text-lg font-bold hover:bg-gray-100 transition">{button_labels.get('get_started', 'Get Started')}</a>
             </div>
         </div>
     </section>
