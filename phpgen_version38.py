@@ -5894,6 +5894,11 @@ setTimeout(showCookieNotice, 1000);
             selected_sections.remove('contact_form_multistep')
             selected_sections.append('contact_form_multistep')
 
+        # Если work_showcase в выбранных секциях, переместить ее в самый конец (последняя секция)
+        if 'work_showcase' in selected_sections:
+            selected_sections.remove('work_showcase')
+            selected_sections.append('work_showcase')
+
         print(f"  ✓ Выбрано {num_sections} случайных секций для Home страницы: {', '.join(selected_sections)}")
 
         # Возвращаем выбранные секции
