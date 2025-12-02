@@ -1679,6 +1679,10 @@ Return as JSON object with these EXACT fields:
 - "get_back": "Get Back to You" step heading (3-5 words)
 - "get_back_description": Description for getting back (8-12 words)
 - "thank_contacting": "Thank you for contacting" text (4-6 words)
+- "email_heading": "Email" section heading (1-2 words)
+- "email_subheading": "Check your inbox" email description (2-4 words)
+- "team_heading": "Our Team" section heading (2-3 words)
+- "team_subheading": "Ready to help" team description (2-4 words)
 
 {language_instruction}
 
@@ -1703,7 +1707,11 @@ Example:
   "response_description": "We'll prepare a detailed response tailored to your specific needs.",
   "get_back": "Get Back to You",
   "get_back_description": "Expect a response from us within 24 hours via email.",
-  "thank_contacting": "Thank you for contacting"
+  "thank_contacting": "Thank you for contacting",
+  "email_heading": "Email",
+  "email_subheading": "Check your inbox",
+  "team_heading": "Our Team",
+  "team_subheading": "Ready to help"
 }}
 
 Return ONLY valid JSON, no additional text or markdown formatting."""
@@ -7004,7 +7012,11 @@ setTimeout(showCookieNotice, 1000);
                 'response_description': 'We\'ll prepare a detailed response tailored to your specific needs.',
                 'get_back': 'Get Back to You',
                 'get_back_description': 'Expect a response from us within 24 hours via email.',
-                'thank_contacting': 'Thank you for contacting'
+                'thank_contacting': 'Thank you for contacting',
+                'email_heading': 'Email',
+                'email_subheading': 'Check your inbox',
+                'team_heading': 'Our Team',
+                'team_subheading': 'Ready to help'
             }
             thanks_content = self.get_localized_fallback('thankyou_content', thanks_content_fallback)
 
@@ -7168,8 +7180,8 @@ setTimeout(showCookieNotice, 1000);
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                                     </svg>
                                 </div>
-                                <p class="font-semibold text-gray-900">Email</p>
-                                <p class="text-sm text-gray-600">Check your inbox</p>
+                                <p class="font-semibold text-gray-900">{thanks_content.get('email_heading', 'Email')}</p>
+                                <p class="text-sm text-gray-600">{thanks_content.get('email_subheading', 'Check your inbox')}</p>
                             </div>
                             <div>
                                 <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center mx-auto mb-3">
@@ -7177,8 +7189,8 @@ setTimeout(showCookieNotice, 1000);
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                     </svg>
                                 </div>
-                                <p class="font-semibold text-gray-900">Our Team</p>
-                                <p class="text-sm text-gray-600">Ready to help</p>
+                                <p class="font-semibold text-gray-900">{thanks_content.get('team_heading', 'Our Team')}</p>
+                                <p class="text-sm text-gray-600">{thanks_content.get('team_subheading', 'Ready to help')}</p>
                             </div>
                         </div>
                     </div>
