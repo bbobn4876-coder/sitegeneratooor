@@ -2001,12 +2001,20 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             prompt = f"""Generate team member profiles for a {theme} business website.
 
 Return as JSON array of exactly {num_items} team members. Each member should have:
-- "name": Full name (first and last name)
+- "name": Full name (first and last name ONLY)
+  * CRITICAL: Do NOT include titles, honorifics, or professional designations in the name
+  * FORBIDDEN: "Доктор", "Профессор", "Инженер", "Doctor", "Professor", "Engineer", "Dr.", "Prof.", etc.
+  * CORRECT: "Anna Petrova", "Michael Smith", "Elena Morozova"
+  * WRONG: "Доктор Анна Петрова", "Dr. Michael Smith", "Профессор Елена Морозова"
 - "position": Job title or role (2-4 words, e.g., "Worldwide Partner", "Senior Consultant", "Managing Director")
+  * Titles and professional designations go HERE in the position field, NOT in the name
 - "gender": Either "male" or "female" (for image generation purposes)
 
 Create realistic, professional names and positions appropriate for a {theme} business.
 Ensure diversity in positions and genders.
+
+IMPORTANT: The "name" field must contain ONLY first name and last name, with NO titles or honorifics.
+Professional titles belong in the "position" field.
 
 {language_instruction}
 
