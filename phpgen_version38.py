@@ -814,6 +814,9 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         # ГЛОБАЛЬНАЯ инструкция - ЗАПРЕТ ЦЕН для ВСЕХ тематик
         global_price_ban = "\n\nCRITICAL REQUIREMENT: Do NOT mention ANY prices, costs, pricing information, dollar amounts, savings, or monetary values. Focus ONLY on features, benefits, quality, and outcomes."
 
+        # ГЛОБАЛЬНАЯ инструкция - ЗАПРЕТ ТИТУЛОВ В ИМЕНАХ
+        global_no_titles = "\n\nCRITICAL NAME REQUIREMENT: When generating names for people (team members, testimonials, etc.), use ONLY first and last names. DO NOT include any titles, prefixes, or honorifics such as: Dr., Doctor, Prof., Professor, Mr., Mrs., Ms., Miss, Sir, Madam, Eng., PhD, MD, CEO, etc. Use simple names like 'John Smith', 'Anna Petrova', 'Sarah Johnson'. This is MANDATORY."
+
         # Специальные инструкции для определенных тем
         theme_specific_instructions = ""
         if theme == "Furniture Store":
@@ -831,7 +834,7 @@ Return the result as a JSON array of objects, where each object has:
 - "title": short step title (2-4 words)
 - "description": detailed step description (1-2 sentences)
 
-Make the content highly specific to the {theme} industry. Use industry-specific terminology and realistic workflow.{global_price_ban}{theme_specific_instructions}{language_instruction}
+Make the content highly specific to the {theme} industry. Use industry-specific terminology and realistic workflow.{global_price_ban}{global_no_titles}{theme_specific_instructions}{language_instruction}
 
 Example format:
 [
@@ -848,7 +851,7 @@ Return the result as a JSON array of objects, where each object has:
 - "description": compelling description (1-2 sentences)
 - "image": placeholder image filename like "service1.jpg", "service2.jpg", etc.
 
-Make the content highly specific to the {theme} industry. Focus on real solutions that such a business would offer.{global_price_ban}{theme_specific_instructions}{language_instruction}
+Make the content highly specific to the {theme} industry. Focus on real solutions that such a business would offer.{global_price_ban}{global_no_titles}{theme_specific_instructions}{language_instruction}
 
 Example format:
 [
@@ -868,7 +871,7 @@ Return the result as a JSON object with these exact keys:
 - "why_text1": First paragraph about why choose (2-3 sentences, include "{theme}" in the text)
 - "why_text2": Second paragraph about why choose (2-3 sentences)
 
-Make the content highly specific to the {theme} industry and business model.{global_price_ban}{theme_specific_instructions}{language_instruction}
+Make the content highly specific to the {theme} industry and business model.{global_price_ban}{global_no_titles}{theme_specific_instructions}{language_instruction}
 
 Example format:
 {{
@@ -888,7 +891,7 @@ Return the result as a JSON array of objects, where each object has:
 - "title": service name (2-4 words)
 - "description": service description (1-2 sentences)
 
-Make the content highly specific to the {theme} industry. These should be core services that such a business would realistically offer.{global_price_ban}{theme_specific_instructions}{language_instruction}
+Make the content highly specific to the {theme} industry. These should be core services that such a business would realistically offer.{global_price_ban}{global_no_titles}{theme_specific_instructions}{language_instruction}
 
 Example format:
 [
@@ -906,7 +909,7 @@ Return as JSON array with these EXACT fields:
 - "description": project description (2 sentences max, 40 words max)
 - "metrics": array of exactly 3 short metrics (5-8 words each)
 
-Be specific to {theme} industry. Keep descriptions concise.{global_price_ban}{theme_specific_instructions}{language_instruction}
+Be specific to {theme} industry. Keep descriptions concise.{global_price_ban}{global_no_titles}{theme_specific_instructions}{language_instruction}
 
 Example:
 [
@@ -925,7 +928,7 @@ Return as JSON object with these EXACT fields:
 - "paragraph2": Second paragraph about the team/approach (2-3 sentences)
 - "button_text": Button text (e.g., "Learn More", "Discover More", etc.) - translate to the target language
 
-Be specific to {theme} industry.{global_price_ban}{theme_specific_instructions}{language_instruction}
+Be specific to {theme} industry.{global_price_ban}{global_no_titles}{theme_specific_instructions}{language_instruction}
 
 Example:
 {{
@@ -945,7 +948,7 @@ Return as JSON object with these EXACT fields:
 - "subheading": Brief subtitle (1 sentence describing the gallery)
 - "captions": Array of exactly 3 short captions for gallery items (3-5 words each) - these represent different aspects of the work
 
-Be specific to {theme} industry.{global_price_ban}{theme_specific_instructions}{language_instruction}
+Be specific to {theme} industry.{global_price_ban}{global_no_titles}{theme_specific_instructions}{language_instruction}
 
 Example:
 {{
@@ -6363,7 +6366,8 @@ REQUIREMENTS:
 CRITICAL:
 - MUST use images/team1.jpg, images/team2.jpg, images/team3.jpg for team members
 - Team cards should be in a responsive grid (3 columns on desktop, 1 column on mobile)
-- Page MUST have a CTA button at the bottom that links to contact.php{language_requirement}
+- Page MUST have a CTA button at the bottom that links to contact.php
+- For team member names: use ONLY first and last names WITHOUT any titles like Dr., Doctor, Prof., Mr., Mrs., etc. Use simple names like 'Anna Petrova', 'John Smith'{language_requirement}
 
 Return ONLY the content for <main> tag."""
         else:
@@ -6384,7 +6388,8 @@ REQUIREMENTS:
 CRITICAL:
 - DO NOT use any images - create compelling content using text, typography, and icons only
 - Focus on storytelling through well-crafted text sections
-- Page MUST have a CTA button at the bottom that links to contact.php{language_requirement}
+- Page MUST have a CTA button at the bottom that links to contact.php
+- For any names mentioned: use ONLY first and last names WITHOUT any titles like Dr., Doctor, Prof., Mr., Mrs., etc. Use simple names like 'Anna Petrova', 'John Smith'{language_requirement}
 
 Return ONLY the content for <main> tag."""
 
