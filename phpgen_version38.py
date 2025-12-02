@@ -5411,6 +5411,418 @@ setTimeout(showCookieNotice, 1000);
     </section>
 </main>"""
 
+    def get_company_translations(self, language):
+        """Возвращает переводы для Company страницы"""
+        translations = {
+            'Russian': {
+                'about_company': 'О Компании',
+                'about_us': 'О нас',
+                'who_we_are': 'Кто мы',
+                'our_story': 'Наша История',
+                'our_mission': 'Наша Миссия',
+                'our_history_mission': 'Наша История и Миссия',
+                'subtitle_partner': 'Ваш партнер в трансформации бизнеса с помощью искусственного интеллекта',
+                'subtitle_experts': 'Эксперты в предоставлении инновационных решений для развития вашего бизнеса',
+                'subtitle_dedicated': 'Мы привержены предоставлению исключительных услуг и достижению выдающихся результатов',
+                'subtitle_trusted': 'Надежный партнер для вашего успеха на протяжении более десятилетия',
+                'company_history': 'История Компании',
+                'our_story_mission': 'Наша История и Миссия',
+                'meet_our_team': 'Наша Команда',
+                'our_values': 'Наши Ценности',
+                'why_choose_us': 'Почему Выбирают Нас',
+                'our_approach': 'Наш Подход',
+                'contact_us': 'Связаться с нами',
+                'get_in_touch': 'Связаться',
+                'learn_more': 'Узнать больше',
+                'excellence': 'Превосходство',
+                'innovation': 'Инновации',
+                'integrity': 'Честность',
+                'collaboration': 'Сотрудничество',
+                'client_focused': 'Ориентация на клиента',
+                'quality_first': 'Качество прежде всего',
+            },
+            'English': {
+                'about_company': 'About Company',
+                'about_us': 'About Us',
+                'who_we_are': 'Who We Are',
+                'our_story': 'Our Story',
+                'our_mission': 'Our Mission',
+                'our_history_mission': 'Our History and Mission',
+                'subtitle_partner': 'Your partner in transforming business through artificial intelligence',
+                'subtitle_experts': 'Experts in delivering innovative solutions for your business growth',
+                'subtitle_dedicated': 'Dedicated to delivering exceptional service and outstanding results',
+                'subtitle_trusted': 'Your trusted partner for success for over a decade',
+                'company_history': 'Company History',
+                'our_story_mission': 'Our Story and Mission',
+                'meet_our_team': 'Meet Our Team',
+                'our_values': 'Our Values',
+                'why_choose_us': 'Why Choose Us',
+                'our_approach': 'Our Approach',
+                'contact_us': 'Contact Us',
+                'get_in_touch': 'Get in Touch',
+                'learn_more': 'Learn More',
+                'excellence': 'Excellence',
+                'innovation': 'Innovation',
+                'integrity': 'Integrity',
+                'collaboration': 'Collaboration',
+                'client_focused': 'Client-Focused',
+                'quality_first': 'Quality First',
+            }
+        }
+        return translations.get(language, translations['English'])
+
+    def generate_company_page(self, site_name, theme, primary, hover, language='English', has_team_images=False):
+        """Генерация Company страницы с 5 вариациями"""
+        company_variant = random.randint(1, 5)
+
+        # Получаем переводы
+        t = self.get_company_translations(language)
+
+        # Вариация 1: История + Миссия + Команда (с изображениями)
+        if company_variant == 1 and has_team_images:
+            return f"""<main>
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h1 class="text-5xl font-bold mb-6" style="color: {primary};">{t['about_us']}</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">{t['subtitle_partner']}</p>
+            </div>
+
+            <!-- История компании -->
+            <div class="max-w-4xl mx-auto mb-20">
+                <h2 class="text-3xl font-bold mb-6">{t['our_story']}</h2>
+                <div class="space-y-4 text-gray-700 text-lg leading-relaxed">
+                    <p>История {site_name} началась с простой идеи: использовать технологии для решения реальных бизнес-задач. Основанная группой экспертов в области {theme}, наша компания выросла из небольшого стартапа в признанного лидера отрасли.</p>
+                    <p>На протяжении многих лет мы помогали сотням компаний достигать их целей, предоставляя инновационные решения и превосходный сервис. Наш опыт охватывает широкий спектр проектов - от малого бизнеса до крупных корпораций.</p>
+                    <p>Сегодня {site_name} - это команда профессионалов, объединенных общей целью: помогать нашим клиентам преуспевать в быстро меняющемся мире технологий.</p>
+                </div>
+            </div>
+
+            <!-- Наша команда -->
+            <div class="mb-12">
+                <h2 class="text-3xl font-bold text-center mb-12">{t['meet_our_team']}</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-gray-50 rounded-xl p-6 text-center hover:shadow-lg transition">
+                        <img src="images/team1.jpg" alt="Team Member" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover">
+                        <h3 class="text-xl font-bold mb-2">Анна Петрова</h3>
+                        <p class="text-gray-600 mb-3">CEO & Founder</p>
+                        <p class="text-gray-700">Эксперт с 15-летним опытом в {theme}, ведет компанию к новым вершинам.</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-6 text-center hover:shadow-lg transition">
+                        <img src="images/team2.jpg" alt="Team Member" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover">
+                        <h3 class="text-xl font-bold mb-2">Михаил Соколов</h3>
+                        <p class="text-gray-600 mb-3">Technical Director</p>
+                        <p class="text-gray-700">Отвечает за техническое совершенство и инновации во всех наших проектах.</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-6 text-center hover:shadow-lg transition">
+                        <img src="images/team3.jpg" alt="Team Member" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover">
+                        <h3 class="text-xl font-bold mb-2">Елена Васильева</h3>
+                        <p class="text-gray-600 mb-3">Head of Operations</p>
+                        <p class="text-gray-700">Обеспечивает безупречную реализацию проектов и удовлетворенность клиентов.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="text-center mt-16">
+                <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                    {t['contact_us']}
+                </a>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 2: Ценности + Миссия (без изображений команды)
+        elif company_variant == 2 or (company_variant == 1 and not has_team_images):
+            return f"""<main>
+    <section class="py-20 bg-gradient-to-br from-{primary}/5 to-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h1 class="text-5xl font-bold mb-6" style="color: {primary};">{t['our_story_mission']}</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">{t['subtitle_experts']}</p>
+            </div>
+
+            <!-- История -->
+            <div class="max-w-4xl mx-auto mb-20 bg-white rounded-2xl shadow-lg p-10">
+                <h2 class="text-3xl font-bold mb-6">{t['company_history']}</h2>
+                <div class="space-y-4 text-gray-700 text-lg leading-relaxed">
+                    <p>С момента основания {site_name} стремится к одной цели - помогать бизнесу расти и развиваться с помощью современных технологий и проверенных методологий.</p>
+                    <p>Мы начинали как небольшая команда энтузиастов, увлеченных {theme}. Сегодня мы - признанные эксперты, которые реализовали сотни успешных проектов для клиентов по всему миру.</p>
+                </div>
+            </div>
+
+            <!-- Наши ценности -->
+            <div class="mb-16">
+                <h2 class="text-3xl font-bold text-center mb-12">{t['our_values']}</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-white rounded-xl shadow-md p-8 text-center hover:shadow-xl transition">
+                        <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">{t['excellence']}</h3>
+                        <p class="text-gray-600">Мы стремимся к совершенству во всем, что делаем, обеспечивая высочайшее качество для наших клиентов.</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-md p-8 text-center hover:shadow-xl transition">
+                        <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">{t['innovation']}</h3>
+                        <p class="text-gray-600">Постоянные инновации и внедрение передовых технологий - основа нашего подхода.</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-md p-8 text-center hover:shadow-xl transition">
+                        <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">{t['integrity']}</h3>
+                        <p class="text-gray-600">Честность и прозрачность в отношениях с клиентами - фундамент долгосрочного партнерства.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="text-center">
+                <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                    {t['get_in_touch']}
+                </a>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 3: Хронология истории компании
+        elif company_variant == 3:
+            return f"""<main>
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h1 class="text-5xl font-bold mb-6" style="color: {primary};">{t['who_we_are']}</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">{t['subtitle_dedicated']}</p>
+            </div>
+
+            <!-- О компании -->
+            <div class="max-w-4xl mx-auto mb-20">
+                <div class="bg-gradient-to-br from-{primary}/10 to-transparent rounded-2xl p-10">
+                    <h2 class="text-3xl font-bold mb-6">{t['our_mission']}</h2>
+                    <p class="text-gray-700 text-lg leading-relaxed mb-4">
+                        {site_name} - ведущий поставщик решений в области {theme}. Мы помогаем компаниям трансформировать свой бизнес, используя передовые технологии и проверенные практики.
+                    </p>
+                    <p class="text-gray-700 text-lg leading-relaxed">
+                        Наша миссия - делать сложные технологии доступными и эффективными для бизнеса любого размера, обеспечивая измеримые результаты и долгосрочный успех наших клиентов.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Наш путь -->
+            <div class="max-w-4xl mx-auto mb-16">
+                <h2 class="text-3xl font-bold text-center mb-12">Наш Путь</h2>
+                <div class="space-y-8">
+                    <div class="flex gap-6 items-start">
+                        <div class="flex-shrink-0">
+                            <div class="w-16 h-16 bg-{primary} rounded-full flex items-center justify-center text-white font-bold text-xl">1</div>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-2">Основание</h3>
+                            <p class="text-gray-700">Компания была основана группой экспертов с общим видением - сделать {theme} доступным для каждого бизнеса.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-6 items-start">
+                        <div class="flex-shrink-0">
+                            <div class="w-16 h-16 bg-{primary} rounded-full flex items-center justify-center text-white font-bold text-xl">2</div>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-2">Рост и Развитие</h3>
+                            <p class="text-gray-700">Расширение команды, реализация первых крупных проектов, завоевание доверия клиентов.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-6 items-start">
+                        <div class="flex-shrink-0">
+                            <div class="w-16 h-16 bg-{primary} rounded-full flex items-center justify-center text-white font-bold text-xl">3</div>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-2">Лидерство на Рынке</h3>
+                            <p class="text-gray-700">Сегодня {site_name} - признанный лидер в {theme}, с портфолио успешных проектов и довольными клиентами.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="text-center">
+                <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                    {t['contact_us']}
+                </a>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 4: Наш подход + Почему мы
+        elif company_variant == 4:
+            return f"""<main>
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h1 class="text-5xl font-bold mb-6" style="color: {primary};">{t['about_company']}</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">{t['subtitle_trusted']}</p>
+            </div>
+
+            <!-- О нас -->
+            <div class="max-w-4xl mx-auto mb-20 bg-white rounded-2xl shadow-lg p-10">
+                <p class="text-gray-700 text-lg leading-relaxed mb-4">
+                    {site_name} - это команда профессионалов, преданных своему делу. Мы специализируемся на {theme} и помогаем бизнесу достигать амбициозных целей.
+                </p>
+                <p class="text-gray-700 text-lg leading-relaxed">
+                    С годами накопленного опыта и глубокого понимания индустрии, мы предоставляем решения, которые действительно работают. Каждый проект для нас - это возможность продемонстрировать наш профессионализм и создать долгосрочные отношения с клиентами.
+                </p>
+            </div>
+
+            <!-- Почему выбирают нас -->
+            <div class="mb-16">
+                <h2 class="text-3xl font-bold text-center mb-12">{t['why_choose_us']}</h2>
+                <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    <div class="bg-white rounded-xl shadow-md p-8">
+                        <div class="flex items-start gap-4 mb-4">
+                            <div class="flex-shrink-0 w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">Проверенный Опыт</h3>
+                                <p class="text-gray-600">Более десятилетия успешной работы и сотни реализованных проектов.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-md p-8">
+                        <div class="flex items-start gap-4 mb-4">
+                            <div class="flex-shrink-0 w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">Инновационный Подход</h3>
+                                <p class="text-gray-600">Используем новейшие технологии для достижения максимальных результатов.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-md p-8">
+                        <div class="flex items-start gap-4 mb-4">
+                            <div class="flex-shrink-0 w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">{t['client_focused']}</h3>
+                                <p class="text-gray-600">Ваш успех - наш приоритет. Индивидуальный подход к каждому клиенту.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-md p-8">
+                        <div class="flex items-start gap-4 mb-4">
+                            <div class="flex-shrink-0 w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-{primary} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">{t['quality_first']}</h3>
+                                <p class="text-gray-600">Безукоризненное качество на каждом этапе реализации проекта.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="text-center">
+                <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
+                    {t['contact_us']}
+                </a>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 5: Минималистичная с акцентом на экспертизу
+        else:
+            return f"""<main>
+    <section class="min-h-screen py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-20">
+                    <h1 class="text-6xl font-bold mb-8" style="color: {primary};">{t['about_us']}</h1>
+                    <div class="w-24 h-1 bg-{primary} mx-auto mb-8"></div>
+                    <p class="text-2xl text-gray-600">{t['subtitle_experts']}</p>
+                </div>
+
+                <!-- Основной контент -->
+                <div class="space-y-12 mb-20">
+                    <div>
+                        <h2 class="text-3xl font-bold mb-6">{t['our_story']}</h2>
+                        <div class="text-gray-700 text-lg leading-relaxed space-y-4">
+                            <p>
+                                {site_name} создана командой экспертов в {theme} с одной целью - помогать бизнесу расти и развиваться в цифровую эпоху.
+                            </p>
+                            <p>
+                                Мы понимаем уникальные вызовы, с которыми сталкиваются компании, и предлагаем решения, основанные на глубоком отраслевом опыте и проверенных методологиях.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="border-l-4 border-{primary} pl-8 py-4 bg-gray-50">
+                        <p class="text-2xl font-semibold text-gray-800 italic">
+                            "Наша цель - не просто предоставить услугу, а стать надежным партнером в достижении ваших бизнес-целей"
+                        </p>
+                    </div>
+
+                    <div>
+                        <h2 class="text-3xl font-bold mb-6">{t['our_approach']}</h2>
+                        <div class="space-y-6">
+                            <div class="flex gap-4">
+                                <div class="flex-shrink-0 text-{primary} text-2xl font-bold">→</div>
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2">Индивидуальный Подход</h3>
+                                    <p class="text-gray-700">Каждый клиент уникален, и мы разрабатываем решения, идеально подходящие именно для вашего бизнеса.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="flex-shrink-0 text-{primary} text-2xl font-bold">→</div>
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2">Прозрачность</h3>
+                                    <p class="text-gray-700">Открытое общение на каждом этапе проекта - вы всегда знаете, что происходит.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="flex-shrink-0 text-{primary} text-2xl font-bold">→</div>
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2">Результат</h3>
+                                    <p class="text-gray-700">Фокус на измеримых результатах и реальной ценности для вашего бизнеса.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA -->
+                <div class="text-center border-t border-gray-200 pt-12">
+                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-12 py-4 rounded-lg text-lg font-bold transition shadow-lg hover:shadow-xl">
+                        {t['contact_us']}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>"""
+
     def generate_stats_section(self, theme, primary):
         """Генерирует секцию статистики через API с языковой поддержкой"""
         achievements_data = self.generate_theme_content_via_api(theme, "achievements_content", 1)
@@ -6079,6 +6491,16 @@ Return ONLY the content for <main> tag."""
 
             # Генерируем одну из 6 вариаций с поддержкой языка
             main_content = self.generate_thankyou_page(site_name, primary, hover, language)
+        elif page_name == 'company':
+            print(f"    📝 Генерация Company страницы (1 из 5 вариаций)...")
+            primary = colors.get('primary', 'blue-600')
+            hover = colors.get('hover', 'blue-700')
+
+            # Проверяем, есть ли изображения команды (team1-3.jpg)
+            has_team_images = hasattr(self, 'num_images_to_generate') and self.num_images_to_generate == 24
+
+            # Генерируем одну из 5 вариаций с поддержкой языка
+            main_content = self.generate_company_page(site_name, theme, primary, hover, language, has_team_images)
         else:
             # Генерируем контент через API для других страниц
             print(f"    📝 Генерация контента для {page_name}...")
