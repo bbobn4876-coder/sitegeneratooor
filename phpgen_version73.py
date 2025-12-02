@@ -8578,20 +8578,23 @@ setTimeout(showCookieNotice, 1000);
         # Определяем, какая контактная форма осталась
         contact_form = selected_contact_forms[0] if selected_contact_forms else None
         has_faq = 'faq_section' in selected_sections
+        has_work_showcase = 'work_showcase' in selected_sections
 
-        # Перемещаем FAQ и Contact Form в конец в правильном порядке
-        # FAQ должен быть предпоследним перед contact_form, или последним если contact_form нет
+        # Перемещаем work_showcase, FAQ и Contact Form в конец в правильном порядке
+        # Порядок: обычные секции -> work_showcase -> FAQ -> contact_form
         if contact_form:
             selected_sections.remove(contact_form)
         if has_faq:
             selected_sections.remove('faq_section')
+        if has_work_showcase:
+            selected_sections.remove('work_showcase')
 
         # Проверяем, что benefits_grid не является последней секцией
-        # Последней секцией должна быть контактная форма, four_images_grid или image_with_benefits
+        # Последней секцией должна быть контактная форма, work_showcase, four_images_grid или image_with_benefits
         allowed_last_sections = ['contact_form_multistep', 'contact_form_benefits', 'contact_form_office_image',
-                                 'four_images_grid', 'image_with_benefits']
+                                 'work_showcase', 'four_images_grid', 'image_with_benefits']
 
-        # Если benefits_grid последний в списке и нет contact_form или FAQ, переместим его
+        # Если benefits_grid последний в списке и нет contact_form, FAQ или work_showcase, переместим его
         if selected_sections and selected_sections[-1] == 'benefits_grid':
             # Пытаемся найти разрешенную секцию для перемещения в конец
             last_section_candidate = None
@@ -8606,6 +8609,9 @@ setTimeout(showCookieNotice, 1000);
                 selected_sections.append(last_section_candidate)
 
         # Добавляем в конец в правильном порядке
+        # Порядок: work_showcase -> faq_section -> contact_form
+        if has_work_showcase:
+            selected_sections.append('work_showcase')
         if has_faq:
             selected_sections.append('faq_section')
         if contact_form:
