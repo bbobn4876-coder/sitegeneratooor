@@ -1716,8 +1716,10 @@ Return as JSON object with these EXACT fields:
 - "subheading_1": First variation subheading (6-10 words, e.g., "Comprehensive solutions tailored to your needs")
 - "subheading_2": Second variation subheading (10-15 words, e.g., "Discover our range of professional services...")
 - "subheading_3": Third variation subheading (6-10 words, e.g., "Six core services that drive exceptional results")
+- "variant_heading": Variant section heading (5-8 words, e.g., "We serve our clients around the globe")
 - "learn_more": "Learn More" button text (2-3 words)
 - "explore": "Explore" button text (1-2 words)
+- "read_more": "Read More" button text (2-3 words)
 
 {language_instruction}
 
@@ -1727,8 +1729,10 @@ Example:
   "subheading_1": "Comprehensive solutions tailored to your needs",
   "subheading_2": "Discover our range of professional services designed to elevate your business",
   "subheading_3": "Six core services that drive exceptional results",
+  "variant_heading": "We serve our clients around the globe",
   "learn_more": "Learn More",
-  "explore": "Explore"
+  "explore": "Explore",
+  "read_more": "Read More"
 }}
 
 Return ONLY valid JSON, no additional text or markdown formatting."""
@@ -3679,8 +3683,10 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                 'subheading_1': 'Comprehensive solutions tailored to your needs',
                 'subheading_2': 'Discover our range of professional services designed to elevate your business',
                 'subheading_3': 'Six core services that drive exceptional results',
+                'variant_heading': 'We serve our clients around the globe',
                 'learn_more': 'Learn More',
-                'explore': 'Explore'
+                'explore': 'Explore',
+                'read_more': 'Read More'
             }
             what_we_offer_data = self.get_localized_fallback('what_we_offer_content', what_we_offer_data_fallback)
         heading = what_we_offer_data.get('heading', 'What We Offer')
@@ -8225,6 +8231,18 @@ setTimeout(showCookieNotice, 1000);
 
     def generate_what_we_offer_variant_section(self, site_name, theme, primary):
         """Генерирует вариацию секции What We Offer с сеткой карточек"""
+        # Получаем переводы для заголовка и кнопок
+        what_we_offer_data = self.generate_theme_content_via_api(theme, "what_we_offer_content", 1)
+        if not what_we_offer_data:
+            what_we_offer_data_fallback = {
+                'variant_heading': 'We serve our clients around the globe',
+                'read_more': 'Read More'
+            }
+            what_we_offer_data = self.get_localized_fallback('what_we_offer_content', what_we_offer_data_fallback)
+
+        variant_heading = what_we_offer_data.get('variant_heading', 'We serve our clients around the globe')
+        read_more_text = what_we_offer_data.get('read_more', 'Read More')
+
         # Получаем контент через API
         offers_data = self.generate_theme_content_via_api(theme, "what_we_offer_variant", 6)
 
@@ -8259,7 +8277,7 @@ setTimeout(showCookieNotice, 1000);
             else:
                 button_html = ""
                 if config['has_button']:
-                    button_html = f'<a href="#" class="inline-block border-2 border-white text-white hover:bg-white hover:text-{primary} px-6 py-2 rounded-lg font-semibold transition mt-4">Read More</a>'
+                    button_html = f'<a href="services.php" class="inline-block border-2 border-white text-white hover:bg-white hover:text-{primary} px-6 py-2 rounded-lg font-semibold transition mt-4">{read_more_text}</a>'
 
                 cards_html += f"""
                 <div class="{card_class} p-8 rounded-xl shadow-lg flex flex-col justify-center" style="min-height: 300px;">
@@ -8272,7 +8290,7 @@ setTimeout(showCookieNotice, 1000);
     <section class="py-20 bg-gray-900">
         <div class="container mx-auto px-6">
             <div class="text-center mb-16">
-                <h2 class="text-5xl font-bold text-white mb-4">We serve our clients around the globe</h2>
+                <h2 class="text-5xl font-bold text-white mb-4">{variant_heading}</h2>
             </div>
             <div class="grid md:grid-cols-3 gap-8">
                 {cards_html}
