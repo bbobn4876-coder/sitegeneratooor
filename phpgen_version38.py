@@ -5005,12 +5005,12 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
 
         # PRIORITY 3: Blog (динамически - 3 или 6 шт в зависимости от self.num_blog_articles)
         blog_prompts = [
-            f"Engaging blog header photograph related to {theme} topic. {location_context}. Creative composition, storytelling visual, authentic scene, natural colors, high quality, photorealistic. {ethnicity_context} if people present.",
-            f"Inspiring blog featured photograph for {theme} article. {location_context}. Professional quality, engaging composition, relevant to topic, authentic setting, natural lighting, photorealistic.",
-            f"Informative blog post photograph about {theme}. {location_context}. Clear visual storytelling, educational value, authentic scene, natural environment, high-quality photography, photorealistic.",
-            f"Unique perspective blog photograph for {theme} content. {location_context}. Creative angle, interesting composition, authentic moment, natural lighting, professional photography, photorealistic.",
-            f"Compelling blog content photograph representing {theme}. {location_context}. Strong visual narrative, authentic scene, engaging composition, natural colors, high quality, photorealistic.",
-            f"Professional blog header photograph for {theme} article. {location_context}. Attractive composition, relevant content, authentic setting, clear subject, natural lighting, photorealistic."
+            f"Engaging blog header photograph related to {theme} topic. {work_setting}. {work_context}. Creative composition, storytelling visual, authentic scene, natural colors, high quality, photorealistic. {ethnicity_context} if people present.",
+            f"Inspiring blog featured photograph for {theme} article. {work_setting}. {work_context}. Professional quality, engaging composition, relevant to topic, authentic setting, natural lighting, photorealistic. {ethnicity_context} if people present.",
+            f"Informative blog post photograph about {theme}. {work_setting}. {work_context}. Clear visual storytelling, educational value, authentic scene, natural environment, high-quality photography, photorealistic. {ethnicity_context} if people present.",
+            f"Unique perspective blog photograph for {theme} content. {work_setting}. {work_context}. Creative angle, interesting composition, authentic moment, natural lighting, professional photography, photorealistic. {ethnicity_context} if people present.",
+            f"Compelling blog content photograph representing {theme}. {work_setting}. {work_context}. Strong visual narrative, authentic scene, engaging composition, natural colors, high quality, photorealistic. {ethnicity_context} if people present.",
+            f"Professional blog header photograph for {theme} article. {work_setting}. {work_context}. Attractive composition, relevant content, authentic setting, clear subject, natural lighting, photorealistic. {ethnicity_context} if people present."
         ]
 
         # Добавляем blog изображения в зависимости от количества статей
