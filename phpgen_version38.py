@@ -3139,9 +3139,11 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         if not content or not all(key in content for key in ['approach_title', 'approach_text1', 'approach_text2', 'why_title', 'why_text1', 'why_text2']):
             content = self.get_theme_based_approach_content(theme)
 
-        # Проверяем наличие изображений
-        has_service1 = self._has_image('service1.jpg')
-        has_service2 = self._has_image('service2.jpg')
+        # service1.jpg и service2.jpg всегда генерируются как 'required'
+        # поэтому можем смело использовать их без проверки наличия
+        # (изображения генерируются ПОСЛЕ страниц, поэтому self.generated_images пуст на этом этапе)
+        has_service1 = True
+        has_service2 = True
 
         # Первая секция (approach)
         if has_service1:
@@ -6810,14 +6812,14 @@ setTimeout(showCookieNotice, 1000);
 
         # Вариация 2: Карусель с фотографиями на фоне
         elif hero_variant == 2:
-            # Собираем доступные изображения для карусели
-            carousel_images = []
-            if self._has_image('hero.jpg'):
-                carousel_images.append(('hero.jpg', 'Slide 1'))
-            if self._has_image('about.jpg'):
-                carousel_images.append(('about.jpg', 'Slide 2'))
-            if self._has_image('service1.jpg'):
-                carousel_images.append(('service1.jpg', 'Slide 3'))
+            # hero.jpg, about.jpg и service1.jpg всегда генерируются как 'required'
+            # поэтому можем смело использовать их без проверки наличия
+            # (изображения генерируются ПОСЛЕ страниц, поэтому self.generated_images пуст на этом этапе)
+            carousel_images = [
+                ('hero.jpg', 'Slide 1'),
+                ('about.jpg', 'Slide 2'),
+                ('service1.jpg', 'Slide 3')
+            ]
 
             # Генерируем слайды только для существующих изображений
             carousel_slides = ''
