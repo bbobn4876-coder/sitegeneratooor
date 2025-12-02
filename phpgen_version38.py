@@ -822,6 +822,55 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         """Возвращает разные номера телефонов и адреса в зависимости от страны"""
         country_lower = country.lower()
 
+        # Маппинг языков на страны (чтобы функция работала как с country, так и с language)
+        language_to_country = {
+            'dutch': 'netherlands',
+            'german': 'germany',
+            'french': 'france',
+            'polish': 'poland',
+            'spanish': 'spain',
+            'italian': 'italy',
+            'russian': 'russia',
+            'ukrainian': 'ukraine',
+            'turkish': 'turkey',
+            'swedish': 'sweden',
+            'norwegian': 'norway',
+            'danish': 'denmark',
+            'finnish': 'finland',
+            'czech': 'czech',
+            'english': 'uk',
+            'portuguese': 'portugal',
+            'romanian': 'romania',
+            'greek': 'greece',
+            'hungarian': 'hungary',
+            'belgian': 'belgium',
+            'bulgarian': 'bulgaria',
+            'croatian': 'croatia',
+            'serbian': 'serbia',
+            'slovak': 'slovakia',
+            'austrian': 'austria',
+            'swiss': 'switzerland',
+            'albanian': 'albania',
+            'catalan': 'andorra',
+            'armenian': 'armenia',
+            'azerbaijani': 'azerbaijan',
+            'belarusian': 'belarus',
+            'bosnian': 'bosnia',
+            'estonian': 'estonia',
+            'georgian': 'georgia',
+            'latvian': 'latvia',
+            'lithuanian': 'lithuania',
+            'maltese': 'malta',
+            'macedonian': 'macedonia',
+            'montenegrin': 'montenegro',
+            'slovenian': 'slovenia'
+        }
+
+        # Если передан язык вместо страны - преобразуем в страну
+        if country_lower in language_to_country:
+            country_lower = language_to_country[country_lower]
+            print(f"  ℹ️  Язык '{country}' преобразован в страну '{country_lower}'")
+
         # Данные по странам
         country_data = {
             'netherlands': {
