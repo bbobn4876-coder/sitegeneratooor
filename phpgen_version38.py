@@ -1080,9 +1080,11 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
         elif content_type == "approach_content":
             prompt = f"""Generate approach/philosophy content for a {theme} business.
 Return the result as a JSON object with these exact keys:
+- "approach_badge": Badge label for approach section (2-3 words, e.g., "Our Philosophy", "Our Approach")
 - "approach_title": Section title (e.g., "Our Approach")
 - "approach_text1": First paragraph about approach (2-3 sentences)
 - "approach_text2": Second paragraph about approach (2-3 sentences)
+- "why_badge": Badge label for advantages section (2-3 words, e.g., "Our Advantages", "Why Us")
 - "why_title": Why choose us section title (e.g., "Why Choose Us")
 - "why_text1": First paragraph about why choose (2-3 sentences, include "{theme}" in the text)
 - "why_text2": Second paragraph about why choose (2-3 sentences)
@@ -1091,9 +1093,11 @@ Make the content highly specific to the {theme} industry and business model.{glo
 
 Example format:
 {{
+  "approach_badge": "Our Philosophy",
   "approach_title": "Our Approach",
   "approach_text1": "...",
   "approach_text2": "...",
+  "why_badge": "Our Advantages",
   "why_title": "Why Choose Us",
   "why_text1": "...",
   "why_text2": "..."
@@ -3046,9 +3050,11 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         # Travel / Tourism
         if any(word in theme_lower for word in ['travel', 'tourism', 'tour', 'vacation', 'holiday', 'trip']):
             return {
+                'approach_badge': 'Our Philosophy',
                 'approach_title': 'Our Approach',
                 'approach_text1': 'We create personalized travel experiences that go beyond typical tourist destinations. Understanding your travel style and preferences allows us to craft unforgettable journeys.',
                 'approach_text2': 'Our expert travel planners combine local knowledge with global expertise to design itineraries that match your dreams and exceed your expectations.',
+                'why_badge': 'Our Advantages',
                 'why_title': 'Why Choose Us',
                 'why_text1': f'With years of experience in the {theme} industry, we\'ve helped thousands of travelers discover amazing destinations and create lasting memories.',
                 'why_text2': 'Our dedication to exceptional service means you can travel with confidence, knowing every detail has been carefully planned and arranged for your comfort.'
@@ -3057,9 +3063,11 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         # Restaurant / Food
         elif any(word in theme_lower for word in ['restaurant', 'cafe', 'food', 'dining', 'cuisine']):
             return {
+                'approach_badge': 'Our Philosophy',
                 'approach_title': 'Our Philosophy',
                 'approach_text1': 'We believe exceptional dining starts with the finest ingredients and passionate chefs who bring authentic flavors to every dish.',
                 'approach_text2': 'Our culinary approach honors traditional recipes while embracing innovation, creating memorable dining experiences that delight all senses.',
+                'why_badge': 'Our Advantages',
                 'why_title': 'Why Dine With Us',
                 'why_text1': f'With years of culinary excellence in the {theme} industry, we\'ve earned a reputation for outstanding food, warm hospitality, and unforgettable moments.',
                 'why_text2': 'From sourcing fresh ingredients to crafting each dish with care, our commitment to quality shines through in every meal we serve.'
@@ -3068,9 +3076,11 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         # Fitness / Gym / Sports
         elif any(word in theme_lower for word in ['fitness', 'gym', 'sport', 'workout', 'training']):
             return {
+                'approach_badge': 'Our Philosophy',
                 'approach_title': 'Our Training Philosophy',
                 'approach_text1': 'We understand that every fitness journey is unique. Our personalized approach focuses on your individual goals, abilities, and lifestyle.',
                 'approach_text2': 'Combining proven training methods with cutting-edge fitness science, we create programs that deliver real, sustainable results.',
+                'why_badge': 'Our Advantages',
                 'why_title': 'Why Train With Us',
                 'why_text1': f'With extensive experience in the {theme} industry, our certified trainers have helped countless members achieve and exceed their fitness goals.',
                 'why_text2': 'Your success is our motivation. We provide ongoing support, expert guidance, and a welcoming community to keep you inspired every step of the way.'
@@ -3079,9 +3089,11 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         # Real Estate / Property
         elif any(word in theme_lower for word in ['real estate', 'property', 'realty', 'housing']):
             return {
+                'approach_badge': 'Our Philosophy',
                 'approach_title': 'Our Approach',
                 'approach_text1': 'We take a personalized approach to real estate, taking time to understand your unique needs, preferences, and long-term investment goals.',
                 'approach_text2': 'Our market expertise and dedication to client service ensure you make informed decisions whether buying, selling, or investing in property.',
+                'why_badge': 'Our Advantages',
                 'why_title': 'Why Choose Us',
                 'why_text1': f'With deep knowledge of the {theme} market, we\'ve built a strong reputation for integrity, professionalism, and exceptional results.',
                 'why_text2': 'From first consultation to closing and beyond, we\'re committed to making your real estate journey smooth, successful, and stress-free.'
@@ -3090,9 +3102,11 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         # Education / School / Courses
         elif any(word in theme_lower for word in ['education', 'school', 'course', 'learning', 'training', 'academy']):
             return {
+                'approach_badge': 'Our Philosophy',
                 'approach_title': 'Our Teaching Approach',
                 'approach_text1': 'We believe effective learning combines engaging instruction, hands-on practice, and personalized support tailored to each student\'s needs.',
                 'approach_text2': 'Our curriculum blends theoretical knowledge with practical skills, preparing students for real-world success in their chosen fields.',
+                'why_badge': 'Our Advantages',
                 'why_title': 'Why Learn With Us',
                 'why_text1': f'With proven expertise in the {theme} field, our instructors bring both academic knowledge and industry experience to every class.',
                 'why_text2': 'Your educational success matters to us. We provide comprehensive support, flexible learning options, and a pathway to achieving your career goals.'
@@ -3101,9 +3115,11 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         # Healthcare / Medical / Clinic
         elif any(word in theme_lower for word in ['health', 'medical', 'clinic', 'doctor', 'care', 'hospital']):
             return {
+                'approach_badge': 'Our Philosophy',
                 'approach_title': 'Our Care Philosophy',
                 'approach_text1': 'We provide compassionate, patient-centered healthcare that treats you as a whole person, not just a set of symptoms.',
                 'approach_text2': 'Our medical team combines clinical expertise with genuine care, ensuring you receive personalized treatment in a comfortable, supportive environment.',
+                'why_badge': 'Our Advantages',
                 'why_title': 'Why Choose Us',
                 'why_text1': f'With years of experience in {theme}, we\'ve earned the trust of our community through quality care, professional excellence, and genuine compassion.',
                 'why_text2': 'Your health and wellbeing are our priority. We\'re committed to providing accessible, comprehensive care that helps you live your healthiest life.'
@@ -3112,9 +3128,11 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         # Cryptocurrency / Blockchain / Crypto
         elif any(word in theme_lower for word in ['crypto', 'cryptocurrency', 'blockchain', 'bitcoin', 'ethereum', 'defi', 'nft', 'web3']):
             return {
+                'approach_badge': 'Our Philosophy',
                 'approach_title': 'Our Platform',
                 'approach_text1': 'We\'ve built a cutting-edge cryptocurrency platform that combines institutional-grade security with an intuitive user experience for traders of all levels.',
                 'approach_text2': 'Our technology infrastructure ensures lightning-fast execution, deep liquidity, and 24/7 uptime so you never miss market opportunities.',
+                'why_badge': 'Our Advantages',
                 'why_title': 'Why Trade With Us',
                 'why_text1': f'As leaders in the {theme} space, we provide the most secure and reliable platform with advanced features trusted by millions of users worldwide.',
                 'why_text2': 'Your assets are protected by multi-layered security, cold storage, and insurance. Our dedicated support team is available around the clock to assist you.'
@@ -3123,9 +3141,11 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         # Default / Business / Technology
         else:
             return {
+                'approach_badge': 'Our Philosophy',
                 'approach_title': 'Our Approach',
                 'approach_text1': 'We believe in a personalized approach to every project. Understanding your unique needs allows us to deliver tailored solutions that exceed expectations.',
                 'approach_text2': 'Our methodology combines industry best practices with innovative thinking to ensure optimal results for your business.',
+                'why_badge': 'Our Advantages',
                 'why_title': 'Why Choose Us',
                 'why_text1': f'With years of experience in the {theme} industry, we\'ve built a reputation for reliability, quality, and exceptional customer service.',
                 'why_text2': 'Our commitment to your success drives everything we do, from initial consultation to project completion and beyond.'
@@ -3136,7 +3156,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         content = self.generate_theme_content_via_api(theme, "approach_content", 1)
 
         # Fallback если API не вернул результат или вернул неполный результат
-        if not content or not all(key in content for key in ['approach_title', 'approach_text1', 'approach_text2', 'why_title', 'why_text1', 'why_text2']):
+        if not content or not all(key in content for key in ['approach_badge', 'approach_title', 'approach_text1', 'approach_text2', 'why_badge', 'why_title', 'why_text1', 'why_text2']):
             content = self.get_theme_based_approach_content(theme)
 
         # service1.jpg и service2.jpg всегда генерируются как 'required'
@@ -3155,7 +3175,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                 </div>
                 <div class="space-y-6">
                     <div class="inline-block">
-                        <span class="bg-{primary} text-white px-4 py-2 rounded-full text-sm font-semibold tracking-wide uppercase">Notre Philosophie</span>
+                        <span class="bg-{primary} text-white px-4 py-2 rounded-full text-sm font-semibold tracking-wide uppercase">{content.get('approach_badge', 'Our Philosophy')}</span>
                     </div>
                     <h3 class="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">{content.get('approach_title', 'Our Approach')}</h3>
                     <div class="space-y-4">
@@ -3172,7 +3192,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
             section1 = f"""
             <div class="mb-24 text-center max-w-4xl mx-auto">
                 <div class="inline-block mb-6">
-                    <span class="bg-{primary} text-white px-4 py-2 rounded-full text-sm font-semibold tracking-wide uppercase">Notre Philosophie</span>
+                    <span class="bg-{primary} text-white px-4 py-2 rounded-full text-sm font-semibold tracking-wide uppercase">{content.get('approach_badge', 'Our Philosophy')}</span>
                 </div>
                 <h3 class="text-4xl md:text-5xl font-bold text-gray-900 mb-8 leading-tight">{content.get('approach_title', 'Our Approach')}</h3>
                 <div class="space-y-4">
@@ -3191,7 +3211,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
             <div class="grid md:grid-cols-2 gap-16 items-center">
                 <div class="space-y-6 order-2 md:order-1">
                     <div class="inline-block">
-                        <span class="bg-{primary} text-white px-4 py-2 rounded-full text-sm font-semibold tracking-wide uppercase">Nos Avantages</span>
+                        <span class="bg-{primary} text-white px-4 py-2 rounded-full text-sm font-semibold tracking-wide uppercase">{content.get('why_badge', 'Our Advantages')}</span>
                     </div>
                     <h3 class="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">{content.get('why_title', 'Why Choose Us')}</h3>
                     <div class="space-y-4">
@@ -3212,7 +3232,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
             section2 = f"""
             <div class="text-center max-w-4xl mx-auto">
                 <div class="inline-block mb-6">
-                    <span class="bg-{primary} text-white px-4 py-2 rounded-full text-sm font-semibold tracking-wide uppercase">Nos Avantages</span>
+                    <span class="bg-{primary} text-white px-4 py-2 rounded-full text-sm font-semibold tracking-wide uppercase">{content.get('why_badge', 'Our Advantages')}</span>
                 </div>
                 <h3 class="text-4xl md:text-5xl font-bold text-gray-900 mb-8 leading-tight">{content.get('why_title', 'Why Choose Us')}</h3>
                 <div class="space-y-4">
