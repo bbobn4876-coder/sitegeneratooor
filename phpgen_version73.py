@@ -9081,6 +9081,14 @@ setTimeout(showCookieNotice, 1000);
         mission_data = self.generate_theme_content_via_api(theme, "mission_content", 1)
         cta_data = self.generate_theme_content_via_api(theme, "cta_bottom_block", 1)
 
+        # Извлекаем первый элемент, если API вернул список
+        if isinstance(hero_data, list) and len(hero_data) > 0:
+            hero_data = hero_data[0]
+        if isinstance(mission_data, list) and len(mission_data) > 0:
+            mission_data = mission_data[0]
+        if isinstance(cta_data, list) and len(cta_data) > 0:
+            cta_data = cta_data[0]
+
         if not hero_data:
             hero_data_fallback = {
                 'heading': 'We are always beginner friendly',
