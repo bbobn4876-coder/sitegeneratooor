@@ -1862,6 +1862,56 @@ Example for {theme} business:
 
 IMPORTANT: Return ONLY valid JSON object with ALL 5 fields. No additional text, no markdown formatting, no explanations."""
 
+        elif content_type == "company_page_content":
+            prompt = f"""Generate translation content for a Company/About page for a {theme} business website.
+
+IMPORTANT: Create professional, engaging content that effectively presents the company story and values. The content should be clear, compelling, and build trust with visitors.
+
+Return as JSON object with these EXACT fields (all fields are REQUIRED and MUST be present):
+- "section_heading": Company section heading (2-4 words, e.g., "About Us", "Our Company", "Our Story")
+  * Should be clear and welcoming
+  * Should be appropriate for the {theme} industry
+  * Examples: "About Us", "Our Company", "Our Story", "Who We Are"
+
+- "section_description": Brief description introducing the company (15-25 words)
+  * Should introduce the company's mission in a compelling way
+  * Should highlight unique value proposition
+  * Should be specific to {theme} industry
+  * Example: "Your trusted partner in digital transformation, helping businesses thrive through innovative AI-powered solutions."
+
+- "values_heading": Section heading for company values (2-4 words, e.g., "Our Values", "Core Values")
+  * Should be clear and professional
+  * Examples: "Our Values", "Core Values", "What We Stand For", "Our Principles"
+
+- "team_heading": Section heading for team members (2-4 words, e.g., "Our Team", "Meet the Team")
+  * Should be welcoming and professional
+  * Examples: "Our Team", "Meet the Team", "The Team", "Our People"
+
+- "contact_cta": Call-to-action heading at bottom (4-8 words)
+  * Should be engaging and action-oriented
+  * Examples: "Ready to Work Together?", "Let's Start Your Journey"
+
+- "contact_cta_description": CTA description (15-25 words)
+  * Should explain benefits of contacting
+  * Should be persuasive and professional
+  * Should relate to {theme} industry
+
+{language_instruction}
+
+CRITICAL: You MUST provide ALL 6 fields. Do NOT skip any fields. Return a complete JSON object.
+
+Example for {theme} business:
+{{
+  "section_heading": "About Us",
+  "section_description": "Your trusted partner in business transformation, delivering innovative solutions that help organizations achieve their goals.",
+  "values_heading": "Our Core Values",
+  "team_heading": "Meet Our Team",
+  "contact_cta": "Ready to Work Together?",
+  "contact_cta_description": "Get in touch today to discover how our expertise can help transform your business and achieve lasting success."
+}}
+
+IMPORTANT: Return ONLY valid JSON object with ALL 6 fields. No additional text, no markdown formatting, no explanations."""
+
         elif content_type == "our_approach_blocks":
             prompt = f"""Generate "Our Approach" section blocks for a {theme} business website.
 
@@ -2380,7 +2430,7 @@ Return ONLY valid JSON, no additional text or markdown formatting."""
             max_tokens = 6000  # Больше токенов для 4 детальных кейсов
         elif content_type in ["services", "featured_solutions", "process_steps", "blog_posts", "benefits_content", "benefits_list", "benefits_icons", "what_we_offer_variant"]:
             max_tokens = 5000  # Увеличенный лимит для списков
-        elif content_type in ["approach_content", "about_content", "gallery_content", "faq_blocks", "services_page_content", "thankyou_content", "what_we_offer_content", "contact_form_benefits", "contact_form_quick", "faq_content"]:
+        elif content_type in ["approach_content", "about_content", "gallery_content", "faq_blocks", "services_page_content", "company_page_content", "thankyou_content", "what_we_offer_content", "contact_form_benefits", "contact_form_quick", "faq_content"]:
             max_tokens = 4000  # Увеличенный лимит для контента с несколькими параграфами и полями
         elif content_type == "testimonials_content":
             max_tokens = 4000  # Достаточно для 3 отзывов
@@ -6983,6 +7033,581 @@ setTimeout(showCookieNotice, 1000);
     </section>
 """
 
+    def generate_company_page(self, site_name, primary, hover):
+        """Генерация Company страницы с 4 вариациями"""
+        theme = self.blueprint.get('theme', 'business')
+
+        # Получаем переводы company page через API
+        company_content = self.generate_theme_content_via_api(theme, "company_page_content", 1)
+
+        # Получаем контент about_content через API для истории компании
+        about_data = self.generate_theme_content_via_api(theme, "about_content", 1)
+
+        # Fallback если API не вернул результат
+        if not company_content:
+            company_content = {
+                'section_heading': 'About Us',
+                'section_description': 'Your trusted partner in business transformation, delivering innovative solutions that help organizations achieve their goals.',
+                'values_heading': 'Our Core Values',
+                'team_heading': 'Meet Our Team',
+                'contact_cta': 'Ready to Work Together?',
+                'contact_cta_description': 'Get in touch today to discover how our expertise can help transform your business and achieve lasting success.'
+            }
+            company_content = self.get_localized_fallback('company_page_content', company_content)
+
+        if not about_data:
+            about_data = {
+                'heading': 'Our Story',
+                'paragraph1': 'Founded in 2012, we have been dedicated to providing exceptional services and solutions to our clients.',
+                'paragraph2': 'Our team brings years of experience and expertise to every project, ensuring the best possible outcomes.',
+                'button_text': 'Learn More'
+            }
+            about_data = self.get_localized_fallback('about_content', about_data)
+
+        # Проверяем наличие team изображений
+        has_team_images = all(img in self.generated_images for img in ['team1.jpg', 'team2.jpg', 'team3.jpg'])
+
+        # Используем предвыбранный вариант или выбираем случайно
+        company_variant = getattr(self, 'selected_company_variant', random.randint(1, 4))
+
+        # Вариация 1: Классический дизайн с историей, ценностями и командой
+        if company_variant == 1:
+            # Values section
+            values_html = """
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Passion</h3>
+                        <p class="text-gray-600">We love what we do and it shows in our work.</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Integrity</h3>
+                        <p class="text-gray-600">Trust and transparency in everything we do.</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-{primary}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Excellence</h3>
+                        <p class="text-gray-600">Committed to delivering the highest quality.</p>
+                    </div>
+                </div>"""
+
+            # Team section
+            if has_team_images:
+                team_html = """
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <img src="images/team1.jpg" alt="Team Member" class="w-full h-64 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-1">Sarah Johnson</h3>
+                            <p class="text-{primary} font-semibold mb-3">Chief Executive Officer</p>
+                            <p class="text-gray-600">Leading our vision with passion and expertise.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <img src="images/team2.jpg" alt="Team Member" class="w-full h-64 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-1">Michael Chen</h3>
+                            <p class="text-{primary} font-semibold mb-3">Chief Technology Officer</p>
+                            <p class="text-gray-600">Driving innovation and technical excellence.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <img src="images/team3.jpg" alt="Team Member" class="w-full h-64 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-1">Emily Rodriguez</h3>
+                            <p class="text-{primary} font-semibold mb-3">Head of Operations</p>
+                            <p class="text-gray-600">Ensuring seamless execution and delivery.</p>
+                        </div>
+                    </div>
+                </div>"""
+            else:
+                team_html = """
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-white rounded-xl shadow-lg p-8">
+                        <h3 class="text-xl font-bold mb-1">Sarah Johnson</h3>
+                        <p class="text-{primary} font-semibold mb-3">Chief Executive Officer</p>
+                        <p class="text-gray-600">Leading our vision with passion and expertise.</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-8">
+                        <h3 class="text-xl font-bold mb-1">Michael Chen</h3>
+                        <p class="text-{primary} font-semibold mb-3">Chief Technology Officer</p>
+                        <p class="text-gray-600">Driving innovation and technical excellence.</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-8">
+                        <h3 class="text-xl font-bold mb-1">Emily Rodriguez</h3>
+                        <p class="text-{primary} font-semibold mb-3">Head of Operations</p>
+                        <p class="text-gray-600">Ensuring seamless execution and delivery.</p>
+                    </div>
+                </div>"""
+
+            return f"""<main>
+    <!-- Header Section -->
+    <section class="py-20 bg-gradient-to-br from-{primary}/10 to-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h1 class="text-5xl font-bold mb-6">{company_content['section_heading']}</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">{company_content['section_description']}</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Story Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold mb-6">{about_data.get('heading', 'Our Story')}</h2>
+                <p class="text-lg text-gray-700 mb-4 leading-relaxed">{about_data.get('paragraph1', '')}</p>
+                <p class="text-lg text-gray-700 leading-relaxed">{about_data.get('paragraph2', '')}</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values Section -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-12">{company_content['values_heading']}</h2>
+            {values_html}
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-12">{company_content['team_heading']}</h2>
+            {team_html}
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 bg-gradient-to-r from-{primary} to-{hover} text-white">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-4xl font-bold mb-4">{company_content['contact_cta']}</h2>
+            <p class="text-xl opacity-90 mb-8">{company_content['contact_cta_description']}</p>
+            <a href="contact.php" class="inline-block bg-white text-{primary} px-10 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition shadow-lg">Contact Us</a>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 2: Современный дизайн с большими карточками
+        elif company_variant == 2:
+            values_html = """
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition">
+                        <div class="w-14 h-14 bg-gradient-to-br from-{primary} to-{hover} rounded-lg flex items-center justify-center mb-4">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Innovation</h3>
+                        <p class="text-gray-600 leading-relaxed">Pushing boundaries with creative solutions.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition">
+                        <div class="w-14 h-14 bg-gradient-to-br from-{primary} to-{hover} rounded-lg flex items-center justify-center mb-4">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Collaboration</h3>
+                        <p class="text-gray-600 leading-relaxed">Working together to achieve excellence.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition">
+                        <div class="w-14 h-14 bg-gradient-to-br from-{primary} to-{hover} rounded-lg flex items-center justify-center mb-4">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Quality</h3>
+                        <p class="text-gray-600 leading-relaxed">Delivering excellence in every detail.</p>
+                    </div>
+                </div>"""
+
+            if has_team_images:
+                team_html = """
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="group">
+                        <div class="relative overflow-hidden rounded-2xl mb-4">
+                            <img src="images/team1.jpg" alt="Team Member" class="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-300">
+                        </div>
+                        <h3 class="text-2xl font-bold mb-1">Sarah Johnson</h3>
+                        <p class="text-{primary} font-semibold mb-2">CEO & Founder</p>
+                        <p class="text-gray-600">Visionary leader with 15+ years of experience.</p>
+                    </div>
+                    <div class="group">
+                        <div class="relative overflow-hidden rounded-2xl mb-4">
+                            <img src="images/team2.jpg" alt="Team Member" class="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-300">
+                        </div>
+                        <h3 class="text-2xl font-bold mb-1">Michael Chen</h3>
+                        <p class="text-{primary} font-semibold mb-2">CTO</p>
+                        <p class="text-gray-600">Tech innovator building cutting-edge solutions.</p>
+                    </div>
+                    <div class="group">
+                        <div class="relative overflow-hidden rounded-2xl mb-4">
+                            <img src="images/team3.jpg" alt="Team Member" class="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-300">
+                        </div>
+                        <h3 class="text-2xl font-bold mb-1">Emily Rodriguez</h3>
+                        <p class="text-{primary} font-semibold mb-2">COO</p>
+                        <p class="text-gray-600">Operations expert ensuring smooth delivery.</p>
+                    </div>
+                </div>"""
+            else:
+                team_html = """
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-100">
+                        <h3 class="text-2xl font-bold mb-1">Sarah Johnson</h3>
+                        <p class="text-{primary} font-semibold mb-3">CEO & Founder</p>
+                        <p class="text-gray-600">Visionary leader with 15+ years of experience.</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-100">
+                        <h3 class="text-2xl font-bold mb-1">Michael Chen</h3>
+                        <p class="text-{primary} font-semibold mb-3">CTO</p>
+                        <p class="text-gray-600">Tech innovator building cutting-edge solutions.</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-100">
+                        <h3 class="text-2xl font-bold mb-1">Emily Rodriguez</h3>
+                        <p class="text-{primary} font-semibold mb-3">COO</p>
+                        <p class="text-gray-600">Operations expert ensuring smooth delivery.</p>
+                    </div>
+                </div>"""
+
+            return f"""<main>
+    <!-- Header Section -->
+    <section class="py-24 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center max-w-4xl mx-auto">
+                <h1 class="text-6xl font-bold mb-6 bg-gradient-to-r from-{primary} to-{hover} bg-clip-text text-transparent">{company_content['section_heading']}</h1>
+                <p class="text-2xl text-gray-600">{company_content['section_description']}</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Story Section -->
+    <section class="py-20 bg-gradient-to-br from-gray-50 to-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-5xl mx-auto">
+                <div class="bg-white rounded-3xl shadow-2xl p-12">
+                    <h2 class="text-4xl font-bold mb-8 text-center">{about_data.get('heading', 'Our Story')}</h2>
+                    <p class="text-xl text-gray-700 mb-6 leading-relaxed">{about_data.get('paragraph1', '')}</p>
+                    <p class="text-xl text-gray-700 leading-relaxed">{about_data.get('paragraph2', '')}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values Section -->
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-5xl font-bold text-center mb-16">{company_content['values_heading']}</h2>
+            {values_html}
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-5xl font-bold text-center mb-16">{company_content['team_heading']}</h2>
+            {team_html}
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="bg-gradient-to-r from-{primary} to-{hover} rounded-3xl p-16 text-center text-white shadow-2xl">
+                <h2 class="text-5xl font-bold mb-6">{company_content['contact_cta']}</h2>
+                <p class="text-2xl opacity-95 mb-10 max-w-3xl mx-auto">{company_content['contact_cta_description']}</p>
+                <a href="contact.php" class="inline-block bg-white text-{primary} px-12 py-5 rounded-lg text-xl font-bold hover:bg-gray-100 transition shadow-lg">Get in Touch</a>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 3: Минималистичный дизайн
+        elif company_variant == 3:
+            values_html = """
+                <div class="space-y-8">
+                    <div class="border-l-4 border-{primary} pl-6">
+                        <h3 class="text-2xl font-bold mb-2">Customer Focus</h3>
+                        <p class="text-gray-600 text-lg">Your success is our priority in everything we do.</p>
+                    </div>
+                    <div class="border-l-4 border-{primary} pl-6">
+                        <h3 class="text-2xl font-bold mb-2">Continuous Improvement</h3>
+                        <p class="text-gray-600 text-lg">Always learning, growing, and evolving.</p>
+                    </div>
+                    <div class="border-l-4 border-{primary} pl-6">
+                        <h3 class="text-2xl font-bold mb-2">Results Driven</h3>
+                        <p class="text-gray-600 text-lg">Focused on delivering measurable outcomes.</p>
+                    </div>
+                </div>"""
+
+            if has_team_images:
+                team_html = """
+                <div class="space-y-12">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div class="order-2 md:order-1">
+                            <h3 class="text-3xl font-bold mb-2">Sarah Johnson</h3>
+                            <p class="text-{primary} text-xl font-semibold mb-4">Chief Executive Officer</p>
+                            <p class="text-gray-600 text-lg">Passionate about building exceptional businesses and empowering teams.</p>
+                        </div>
+                        <div class="order-1 md:order-2">
+                            <img src="images/team1.jpg" alt="Team Member" class="rounded-2xl shadow-lg w-full h-96 object-cover">
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <img src="images/team2.jpg" alt="Team Member" class="rounded-2xl shadow-lg w-full h-96 object-cover">
+                        </div>
+                        <div>
+                            <h3 class="text-3xl font-bold mb-2">Michael Chen</h3>
+                            <p class="text-{primary} text-xl font-semibold mb-4">Chief Technology Officer</p>
+                            <p class="text-gray-600 text-lg">Expert in building scalable, innovative technology solutions.</p>
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div class="order-2 md:order-1">
+                            <h3 class="text-3xl font-bold mb-2">Emily Rodriguez</h3>
+                            <p class="text-{primary} text-xl font-semibold mb-4">Head of Operations</p>
+                            <p class="text-gray-600 text-lg">Dedicated to operational excellence and seamless delivery.</p>
+                        </div>
+                        <div class="order-1 md:order-2">
+                            <img src="images/team3.jpg" alt="Team Member" class="rounded-2xl shadow-lg w-full h-96 object-cover">
+                        </div>
+                    </div>
+                </div>"""
+            else:
+                team_html = """
+                <div class="max-w-4xl mx-auto space-y-8">
+                    <div class="border-b border-gray-200 pb-8">
+                        <h3 class="text-3xl font-bold mb-2">Sarah Johnson</h3>
+                        <p class="text-{primary} text-xl font-semibold mb-3">Chief Executive Officer</p>
+                        <p class="text-gray-600 text-lg">Passionate about building exceptional businesses and empowering teams.</p>
+                    </div>
+                    <div class="border-b border-gray-200 pb-8">
+                        <h3 class="text-3xl font-bold mb-2">Michael Chen</h3>
+                        <p class="text-{primary} text-xl font-semibold mb-3">Chief Technology Officer</p>
+                        <p class="text-gray-600 text-lg">Expert in building scalable, innovative technology solutions.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-3xl font-bold mb-2">Emily Rodriguez</h3>
+                        <p class="text-{primary} text-xl font-semibold mb-3">Head of Operations</p>
+                        <p class="text-gray-600 text-lg">Dedicated to operational excellence and seamless delivery.</p>
+                    </div>
+                </div>"""
+
+            return f"""<main>
+    <!-- Header Section -->
+    <section class="py-32 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-7xl font-bold mb-8">{company_content['section_heading']}</h1>
+                <p class="text-2xl text-gray-600 leading-relaxed">{company_content['section_description']}</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Story Section -->
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-4xl font-bold mb-8">{about_data.get('heading', 'Our Story')}</h2>
+                <div class="space-y-6 text-lg text-gray-700 leading-relaxed">
+                    <p>{about_data.get('paragraph1', '')}</p>
+                    <p>{about_data.get('paragraph2', '')}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values Section -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-3xl mx-auto">
+                <h2 class="text-4xl font-bold mb-12">{company_content['values_heading']}</h2>
+                {values_html}
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold mb-16">{company_content['team_heading']}</h2>
+            {team_html}
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-24 bg-{primary} text-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-5xl font-bold mb-6">{company_content['contact_cta']}</h2>
+                <p class="text-2xl opacity-90 mb-10">{company_content['contact_cta_description']}</p>
+                <a href="contact.php" class="inline-block bg-white text-{primary} px-12 py-5 rounded-lg text-xl font-bold hover:bg-gray-100 transition">Contact Us</a>
+            </div>
+        </div>
+    </section>
+</main>"""
+
+        # Вариация 4: Компактный дизайн с акцентом на ценности
+        else:
+            values_html = """
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 bg-{primary} rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">Client Success</h3>
+                            <p class="text-gray-600">Committed to helping our clients achieve their goals.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 bg-{primary} rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">Innovation</h3>
+                            <p class="text-gray-600">Constantly evolving to stay ahead of the curve.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 bg-{primary} rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">Teamwork</h3>
+                            <p class="text-gray-600">Collaboration is at the heart of everything we do.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 bg-{primary} rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">Excellence</h3>
+                            <p class="text-gray-600">Delivering quality in every project we undertake.</p>
+                        </div>
+                    </div>
+                </div>"""
+
+            if has_team_images:
+                team_html = """
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div>
+                        <img src="images/team1.jpg" alt="Team Member" class="w-full h-64 object-cover rounded-xl mb-4">
+                        <h3 class="text-xl font-bold">Sarah Johnson</h3>
+                        <p class="text-{primary} font-semibold">CEO</p>
+                    </div>
+                    <div>
+                        <img src="images/team2.jpg" alt="Team Member" class="w-full h-64 object-cover rounded-xl mb-4">
+                        <h3 class="text-xl font-bold">Michael Chen</h3>
+                        <p class="text-{primary} font-semibold">CTO</p>
+                    </div>
+                    <div>
+                        <img src="images/team3.jpg" alt="Team Member" class="w-full h-64 object-cover rounded-xl mb-4">
+                        <h3 class="text-xl font-bold">Emily Rodriguez</h3>
+                        <p class="text-{primary} font-semibold">COO</p>
+                    </div>
+                </div>"""
+            else:
+                team_html = """
+                <div class="grid md:grid-cols-3 gap-6 text-center">
+                    <div class="p-6">
+                        <div class="w-20 h-20 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl font-bold text-{primary}">SJ</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-1">Sarah Johnson</h3>
+                        <p class="text-{primary} font-semibold">CEO</p>
+                    </div>
+                    <div class="p-6">
+                        <div class="w-20 h-20 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl font-bold text-{primary}">MC</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-1">Michael Chen</h3>
+                        <p class="text-{primary} font-semibold">CTO</p>
+                    </div>
+                    <div class="p-6">
+                        <div class="w-20 h-20 bg-{primary}/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl font-bold text-{primary}">ER</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-1">Emily Rodriguez</h3>
+                        <p class="text-{primary} font-semibold">COO</p>
+                    </div>
+                </div>"""
+
+            return f"""<main>
+    <!-- Header Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-5xl font-bold mb-6">{company_content['section_heading']}</h1>
+                <p class="text-xl text-gray-600">{company_content['section_description']}</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Combined Story & Values Section -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="max-w-5xl mx-auto">
+                <!-- Story -->
+                <div class="mb-16">
+                    <h2 class="text-3xl font-bold mb-6">{about_data.get('heading', 'Our Story')}</h2>
+                    <p class="text-lg text-gray-700 mb-4">{about_data.get('paragraph1', '')}</p>
+                    <p class="text-lg text-gray-700">{about_data.get('paragraph2', '')}</p>
+                </div>
+
+                <!-- Values -->
+                <div>
+                    <h2 class="text-3xl font-bold mb-8">{company_content['values_heading']}</h2>
+                    {values_html}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12">{company_content['team_heading']}</h2>
+            <div class="max-w-5xl mx-auto">
+                {team_html}
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto bg-gradient-to-r from-{primary} to-{hover} rounded-2xl p-12 text-center text-white shadow-xl">
+                <h2 class="text-4xl font-bold mb-4">{company_content['contact_cta']}</h2>
+                <p class="text-xl opacity-90 mb-8">{company_content['contact_cta_description']}</p>
+                <a href="contact.php" class="inline-block bg-white text-{primary} px-10 py-4 rounded-lg text-lg font-bold hover:bg-gray-100 transition">Get Started</a>
+            </div>
+        </div>
+    </section>
+</main>"""
+
     def generate_thankyou_page(self, site_name, primary, hover):
         """Генерация Thanks You страницы с 6 вариациями"""
         theme = self.blueprint.get('theme', 'business')
@@ -8915,6 +9540,13 @@ Return ONLY the content for <main> tag."""
 
             # Генерируем одну из 4 вариаций
             main_content = self.generate_services_page(site_name, primary, hover)
+        elif page_name == 'company':
+            print(f"    📝 Генерация Company страницы (1 из 4 вариаций)...")
+            primary = colors.get('primary', 'blue-600')
+            hover = colors.get('hover', 'blue-700')
+
+            # Генерируем одну из 4 вариаций
+            main_content = self.generate_company_page(site_name, primary, hover)
         else:
             # Генерируем контент через API для других страниц
             print(f"    📝 Генерация контента для {page_name}...")
