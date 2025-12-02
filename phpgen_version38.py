@@ -5080,9 +5080,98 @@ setTimeout(showCookieNotice, 1000);
     </section>
 """
 
-    def generate_thankyou_page(self, site_name, primary, hover):
-        """Генерация Thanks You страницы с 6 вариациями"""
+    def get_thankyou_translations(self, language):
+        """Возвращает переводы для Thank You страницы в зависимости от языка"""
+        translations = {
+            'Russian': {
+                'thank_you': 'Спасибо!',
+                'thanks': 'Спасибо!',
+                'success': 'Успешно!',
+                'message_received': 'Сообщение получено!',
+                'message_sent_successfully': 'Сообщение отправлено успешно!',
+                'your_message_sent': 'Ваше сообщение успешно получено. Мы свяжемся с вами в ближайшее время.',
+                'your_message_received': 'Ваше сообщение успешно получено.',
+                'well_get_back': 'Мы скоро свяжемся с вами.',
+                'well_respond_soon': 'Наша команда ответит в ближайшее время.',
+                'return_to_homepage': 'На главную',
+                'back_to_homepage': 'На главную',
+                'back_to_home': 'На главную',
+                'thank_you_for_reaching_out': 'Спасибо, что связались с нами!',
+                'received_and_respond': 'Мы получили ваше сообщение и ответим в течение 24 часов.',
+                'view_services': 'Посмотреть услуги',
+                'thank_you_for_contacting': 'Спасибо, что связались с',
+                'what_happens_next': 'Что будет дальше?',
+                'we_review_your_message': 'Мы рассмотрим ваше сообщение',
+                'review_inquiry': 'Наша команда внимательно рассмотрит ваш запрос в ближайшие несколько часов.',
+                'personalized_response': 'Персонализированный ответ',
+                'prepare_detailed_response': 'Мы подготовим подробный ответ с учетом ваших конкретных потребностей.',
+                'get_back_to_you': 'Свяжемся с вами',
+                'expect_response_24h': 'Ожидайте ответа от нас в течение 24 часов по электронной почте.',
+                'weve_received_your_message': 'Мы получили ваше сообщение.',
+                'our_team_will_respond': 'Наша команда ответит в ближайшее время.',
+                'response_time': 'Ответим в течение 24 часов.',
+                'within_24_hours': 'Ожидайте ответа от нас в течение 24 часов по электронной почте.',
+                'email': 'Email',
+                'check_your_inbox': 'Check your inbox',
+                'our_team': 'Our Team',
+                'ready_to_help': 'Ready to help',
+                'thank_you_for_contacting_us': 'Спасибо, что связались с нами.',
+                'well_be_in_touch': 'Мы скоро свяжемся с вами!',
+                'while_you_wait_explore': 'Пока вы ждете, изучите больше',
+                'our_services': 'Наши услуги',
+                'about_us': 'О нас',
+                'blog': 'Блог',
+            },
+            'English': {
+                'thank_you': 'Thank You!',
+                'thanks': 'Thanks!',
+                'success': 'Success!',
+                'message_received': 'Message Received!',
+                'message_sent_successfully': 'Message Sent Successfully!',
+                'your_message_sent': 'Your message has been successfully sent to our team.',
+                'your_message_received': 'Your message has been sent successfully.',
+                'well_get_back': "We'll get back to you soon.",
+                'well_respond_soon': 'Our team will respond shortly.',
+                'return_to_homepage': 'Return to Homepage',
+                'back_to_homepage': 'Back to Homepage',
+                'back_to_home': 'Back to Home',
+                'thank_you_for_reaching_out': 'Thank you for reaching out!',
+                'received_and_respond': "We've received your message and will respond within 24 hours.",
+                'view_services': 'View Services',
+                'thank_you_for_contacting': 'Thank you for contacting',
+                'what_happens_next': 'What Happens Next?',
+                'we_review_your_message': 'We Review Your Message',
+                'review_inquiry': 'Our team will carefully review your inquiry within the next few hours.',
+                'personalized_response': 'Personalized Response',
+                'prepare_detailed_response': "We'll prepare a detailed response tailored to your specific needs.",
+                'get_back_to_you': 'Get Back to You',
+                'expect_response_24h': 'Expect a response from us within 24 hours via email.',
+                'weve_received_your_message': "We've received your message.",
+                'our_team_will_respond': 'Our team will respond shortly.',
+                'response_time': 'Response Time',
+                'within_24_hours': 'Within 24 hours',
+                'email': 'Email',
+                'check_your_inbox': 'Check your inbox',
+                'our_team': 'Our Team',
+                'ready_to_help': 'Ready to help',
+                'thank_you_for_contacting_us': 'Thank you for contacting us.',
+                'well_be_in_touch': "We'll be in touch very soon!",
+                'while_you_wait_explore': 'While You Wait, Explore More',
+                'our_services': 'Our Services',
+                'about_us': 'About Us',
+                'blog': 'Blog',
+            }
+        }
+
+        # Возвращаем переводы для указанного языка или English по умолчанию
+        return translations.get(language, translations['English'])
+
+    def generate_thankyou_page(self, site_name, primary, hover, language='English'):
+        """Генерация Thanks You страницы с 6 вариациями с поддержкой языков"""
         thanks_variant = random.randint(1, 6)
+
+        # Получаем переводы для выбранного языка
+        t = self.get_thankyou_translations(language)
 
         # Вариация 1: Простая с иконкой галочки
         if thanks_variant == 1:
@@ -5095,10 +5184,10 @@ setTimeout(showCookieNotice, 1000);
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                     </svg>
                 </div>
-                <h1 class="text-5xl md:text-6xl font-bold mb-6">Thank You!</h1>
-                <p class="text-xl text-gray-600 mb-8">Your message has been sent successfully. We'll get back to you soon.</p>
+                <h1 class="text-5xl md:text-6xl font-bold mb-6">{t['thank_you']}</h1>
+                <p class="text-xl text-gray-600 mb-8">{t['your_message_received']} {t['well_get_back']}</p>
                 <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
-                    Return to Homepage
+                    {t['return_to_homepage']}
                 </a>
             </div>
         </div>
@@ -5120,16 +5209,16 @@ setTimeout(showCookieNotice, 1000);
                     </div>
                 </div>
                 <h1 class="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-{primary} to-{hover} bg-clip-text text-transparent">
-                    Success!
+                    {t['success']}
                 </h1>
-                <p class="text-2xl text-gray-700 mb-4 font-semibold">Thank you for reaching out!</p>
-                <p class="text-lg text-gray-600 mb-10">We've received your message and will respond within 24 hours.</p>
+                <p class="text-2xl text-gray-700 mb-4 font-semibold">{t['thank_you_for_reaching_out']}</p>
+                <p class="text-lg text-gray-600 mb-10">{t['received_and_respond']}</p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-lg text-lg font-semibold transition transform hover:scale-105 shadow-xl">
-                        Back to Home
+                        {t['back_to_home']}
                     </a>
                     <a href="services.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-10 py-4 rounded-lg text-lg font-semibold transition transform hover:scale-105">
-                        View Services
+                        {t['view_services']}
                     </a>
                 </div>
             </div>
@@ -5149,32 +5238,32 @@ setTimeout(showCookieNotice, 1000);
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
                     </div>
-                    <h1 class="text-5xl font-bold mb-4">Message Sent Successfully!</h1>
-                    <p class="text-xl text-gray-600">Thank you for contacting {site_name}</p>
+                    <h1 class="text-5xl font-bold mb-4">{t['message_sent_successfully']}</h1>
+                    <p class="text-xl text-gray-600">{t['thank_you_for_contacting']} {site_name}</p>
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-xl p-10 mb-12">
-                    <h2 class="text-2xl font-bold mb-8 text-center">What Happens Next?</h2>
+                    <h2 class="text-2xl font-bold mb-8 text-center">{t['what_happens_next']}</h2>
                     <div class="space-y-6">
                         <div class="flex items-start">
                             <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold">1</div>
                             <div class="ml-6">
-                                <h3 class="text-xl font-bold mb-2">We Review Your Message</h3>
-                                <p class="text-gray-600">Our team will carefully review your inquiry within the next few hours.</p>
+                                <h3 class="text-xl font-bold mb-2">{t['we_review_your_message']}</h3>
+                                <p class="text-gray-600">{t['review_inquiry']}</p>
                             </div>
                         </div>
                         <div class="flex items-start">
                             <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold">2</div>
                             <div class="ml-6">
-                                <h3 class="text-xl font-bold mb-2">Personalized Response</h3>
-                                <p class="text-gray-600">We'll prepare a detailed response tailored to your specific needs.</p>
+                                <h3 class="text-xl font-bold mb-2">{t['personalized_response']}</h3>
+                                <p class="text-gray-600">{t['prepare_detailed_response']}</p>
                             </div>
                         </div>
                         <div class="flex items-start">
                             <div class="w-12 h-12 bg-{primary} rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold">3</div>
                             <div class="ml-6">
-                                <h3 class="text-xl font-bold mb-2">Get Back to You</h3>
-                                <p class="text-gray-600">Expect a response from us within 24 hours via email.</p>
+                                <h3 class="text-xl font-bold mb-2">{t['get_back_to_you']}</h3>
+                                <p class="text-gray-600">{t['expect_response_24h']}</p>
                             </div>
                         </div>
                     </div>
@@ -5182,7 +5271,7 @@ setTimeout(showCookieNotice, 1000);
 
                 <div class="text-center">
                     <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
-                        Return to Homepage
+                        {t['return_to_homepage']}
                     </a>
                 </div>
             </div>
@@ -5196,12 +5285,12 @@ setTimeout(showCookieNotice, 1000);
     <section class="min-h-screen flex items-center justify-center bg-white">
         <div class="container mx-auto px-6">
             <div class="max-w-xl mx-auto text-center">
-                <h1 class="text-7xl md:text-8xl font-bold mb-8 text-{primary}">Thanks!</h1>
+                <h1 class="text-7xl md:text-8xl font-bold mb-8 text-{primary}">{t['thanks']}</h1>
                 <div class="w-24 h-1 bg-{primary} mx-auto mb-8"></div>
-                <p class="text-2xl text-gray-700 mb-4">We've received your message.</p>
-                <p class="text-lg text-gray-600 mb-12">Our team will respond shortly.</p>
+                <p class="text-2xl text-gray-700 mb-4">{t['weve_received_your_message']}</p>
+                <p class="text-lg text-gray-600 mb-12">{t['our_team_will_respond']}</p>
                 <a href="index.php" class="text-{primary} hover:text-{hover} text-lg font-semibold transition border-b-2 border-{primary}">
-                    ← Back to Home
+                    ← {t['back_to_home']}
                 </a>
             </div>
         </div>
@@ -5221,8 +5310,8 @@ setTimeout(showCookieNotice, 1000);
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                         </div>
-                        <h1 class="text-5xl font-bold mb-4">Thank You!</h1>
-                        <p class="text-xl text-gray-600">Your message has been successfully sent to our team.</p>
+                        <h1 class="text-5xl font-bold mb-4">{t['thank_you']}</h1>
+                        <p class="text-xl text-gray-600">{t['your_message_sent']}</p>
                     </div>
 
                     <div class="border-t border-gray-200 pt-8 mb-8">
@@ -5233,8 +5322,8 @@ setTimeout(showCookieNotice, 1000);
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                 </div>
-                                <p class="font-semibold text-gray-900">Response Time</p>
-                                <p class="text-sm text-gray-600">Within 24 hours</p>
+                                <p class="font-semibold text-gray-900">{t['response_time']}</p>
+                                <p class="text-sm text-gray-600">{t['within_24_hours']}</p>
                             </div>
                             <div>
                                 <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center mx-auto mb-3">
@@ -5242,8 +5331,8 @@ setTimeout(showCookieNotice, 1000);
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                                     </svg>
                                 </div>
-                                <p class="font-semibold text-gray-900">Email</p>
-                                <p class="text-sm text-gray-600">Check your inbox</p>
+                                <p class="font-semibold text-gray-900">{t['email']}</p>
+                                <p class="text-sm text-gray-600">{t['check_your_inbox']}</p>
                             </div>
                             <div>
                                 <div class="w-12 h-12 bg-{primary}/10 rounded-lg flex items-center justify-center mx-auto mb-3">
@@ -5251,15 +5340,15 @@ setTimeout(showCookieNotice, 1000);
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                     </svg>
                                 </div>
-                                <p class="font-semibold text-gray-900">Our Team</p>
-                                <p class="text-sm text-gray-600">Ready to help</p>
+                                <p class="font-semibold text-gray-900">{t['our_team']}</p>
+                                <p class="text-sm text-gray-600">{t['ready_to_help']}</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="text-center pt-4">
                         <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
-                            Back to Homepage
+                            {t['back_to_homepage']}
                         </a>
                     </div>
                 </div>
@@ -5283,38 +5372,38 @@ setTimeout(showCookieNotice, 1000);
                         </div>
                         <div class="absolute -top-2 -right-2 w-8 h-8 bg-{primary} rounded-full animate-ping"></div>
                     </div>
-                    <h1 class="text-6xl font-bold mb-6">Message Received!</h1>
-                    <p class="text-2xl text-gray-700 mb-3">Thank you for contacting us.</p>
-                    <p class="text-lg text-gray-600 mb-10">We'll be in touch very soon!</p>
+                    <h1 class="text-6xl font-bold mb-6">{t['message_received']}</h1>
+                    <p class="text-2xl text-gray-700 mb-3">{t['thank_you_for_contacting_us']}</p>
+                    <p class="text-lg text-gray-600 mb-10">{t['well_be_in_touch']}</p>
                 </div>
 
                 <div class="bg-gray-50 rounded-2xl p-8 mb-10">
-                    <h2 class="text-xl font-bold mb-6 text-center">While You Wait, Explore More</h2>
+                    <h2 class="text-xl font-bold mb-6 text-center">{t['while_you_wait_explore']}</h2>
                     <div class="grid md:grid-cols-3 gap-4">
                         <a href="services.php" class="block p-6 bg-white rounded-xl hover:shadow-lg transition text-center">
                             <svg class="w-8 h-8 text-{primary} mx-auto mb-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                             </svg>
-                            <p class="font-semibold text-gray-900">Our Services</p>
+                            <p class="font-semibold text-gray-900">{t['our_services']}</p>
                         </a>
                         <a href="company.php" class="block p-6 bg-white rounded-xl hover:shadow-lg transition text-center">
                             <svg class="w-8 h-8 text-{primary} mx-auto mb-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                             </svg>
-                            <p class="font-semibold text-gray-900">About Us</p>
+                            <p class="font-semibold text-gray-900">{t['about_us']}</p>
                         </a>
                         <a href="blog.php" class="block p-6 bg-white rounded-xl hover:shadow-lg transition text-center">
                             <svg class="w-8 h-8 text-{primary} mx-auto mb-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                             </svg>
-                            <p class="font-semibold text-gray-900">Blog</p>
+                            <p class="font-semibold text-gray-900">{t['blog']}</p>
                         </a>
                     </div>
                 </div>
 
                 <div class="text-center">
                     <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-12 py-4 rounded-full text-lg font-bold transition shadow-xl hover:shadow-2xl transform hover:scale-105">
-                        Return to Homepage
+                        {t['return_to_homepage']}
                     </a>
                 </div>
             </div>
@@ -5983,8 +6072,8 @@ Return ONLY the content for <main> tag."""
             primary = colors.get('primary', 'blue-600')
             hover = colors.get('hover', 'blue-700')
 
-            # Генерируем одну из 6 вариаций
-            main_content = self.generate_thankyou_page(site_name, primary, hover)
+            # Генерируем одну из 6 вариаций с поддержкой языка
+            main_content = self.generate_thankyou_page(site_name, primary, hover, language)
         else:
             # Генерируем контент через API для других страниц
             print(f"    📝 Генерация контента для {page_name}...")
