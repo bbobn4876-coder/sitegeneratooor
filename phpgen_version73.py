@@ -1022,8 +1022,9 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
         Returns:
             Структурированный контент в виде списка словарей или словаря
         """
-        # Получаем язык из blueprint
+        # Получаем язык и страну из blueprint
         language = self.blueprint.get('language', 'English')
+        country = self.blueprint.get('country', 'USA')
 
         # Проверяем кэш (теперь с учетом языка)
         cache_key = f"{theme}_{content_type}_{num_items}_{language}"
@@ -2010,6 +2011,18 @@ Return as JSON array of exactly {num_items} team members. Each member should hav
   * Titles and professional designations go HERE in the position field, NOT in the name
 - "gender": Either "male" or "female" (for image generation purposes)
 
+CRITICAL NAME GENERATION REQUIREMENT:
+* Names MUST be appropriate for {country} (the country where the business is located)
+* Names MUST be written in {language} (the target language)
+* Example 1: If country is USA and language is Russian, use AMERICAN names written in Russian:
+  - CORRECT: "Джон Смит" (John Smith in Russian), "Мэри Джонсон" (Mary Johnson in Russian)
+  - WRONG: "Анна Петрова" (Russian name), "John Smith" (English text)
+* Example 2: If country is Russia and language is English, use RUSSIAN names written in English:
+  - CORRECT: "Anna Petrova", "Dmitry Smirnov"
+  - WRONG: "John Smith" (American name)
+* Example 3: If country is France and language is Spanish, use FRENCH names written in Spanish:
+  - CORRECT: "Jean Dupont" (French name in Spanish text)
+
 Create realistic, professional names and positions appropriate for a {theme} business.
 Ensure diversity in positions and genders.
 
@@ -2018,7 +2031,7 @@ Professional titles belong in the "position" field.
 
 {language_instruction}
 
-Example for 3 members:
+Example for 3 members (if country={country}):
 [
   {{"name": "Nat Reynolds", "position": "Worldwide Partner", "gender": "male"}},
   {{"name": "Jennie Roberts", "position": "Partner", "gender": "female"}},
