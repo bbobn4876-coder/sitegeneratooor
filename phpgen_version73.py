@@ -5500,8 +5500,12 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         theme_match = re.search(r'theme[:\s]+([^,\n]+)', user_prompt, re.IGNORECASE)
         language_match = re.search(r'language[:\s]+([^,\n]+)', user_prompt, re.IGNORECASE)
 
+        # Флаг для отслеживания явного указания страны
+        country_explicitly_set = False
+
         if country_match:
             country = country_match.group(1).strip()
+            country_explicitly_set = True  # Страна указана явно
 
         if theme_match:
             theme = theme_match.group(1).strip()
@@ -5531,112 +5535,113 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
             elif any(word in prompt_lower for word in ['travel', 'tour', 'туризм', 'путешеств']):
                 theme = "Travel"
 
-        # Ищем страну в тексте
-        prompt_lower = user_prompt.lower()
-        # Европейские страны
-        if any(word in prompt_lower for word in ['albania', 'албания']):
-            country = "Albania"
-        elif any(word in prompt_lower for word in ['andorra', 'андорра']):
-            country = "Andorra"
-        elif any(word in prompt_lower for word in ['armenia', 'армения']):
-            country = "Armenia"
-        elif any(word in prompt_lower for word in ['austria', 'австрия']):
-            country = "Austria"
-        elif any(word in prompt_lower for word in ['azerbaijan', 'азербайджан']):
-            country = "Azerbaijan"
-        elif any(word in prompt_lower for word in ['belarus', 'беларусь']):
-            country = "Belarus"
-        elif any(word in prompt_lower for word in ['belgium', 'бельгия']):
-            country = "Belgium"
-        elif any(word in prompt_lower for word in ['bosnia', 'herzegovina', 'босния', 'герцеговина']):
-            country = "Bosnia and Herzegovina"
-        elif any(word in prompt_lower for word in ['bulgaria', 'болгария']):
-            country = "Bulgaria"
-        elif any(word in prompt_lower for word in ['uk', 'britain', 'united kingdom', 'великобритания']):
-            country = "United Kingdom"
-        elif any(word in prompt_lower for word in ['hungary', 'венгрия']):
-            country = "Hungary"
-        elif any(word in prompt_lower for word in ['venezuela', 'венесуэла']):
-            country = "Venezuela"
-        elif any(word in prompt_lower for word in ['germany', 'german', 'германия']):
-            country = "Germany"
-        elif any(word in prompt_lower for word in ['greece', 'греция']):
-            country = "Greece"
-        elif any(word in prompt_lower for word in ['georgia', 'грузия']):
-            country = "Georgia"
-        elif any(word in prompt_lower for word in ['denmark', 'дания']):
-            country = "Denmark"
-        elif any(word in prompt_lower for word in ['estonia', 'эстония']):
-            country = "Estonia"
-        elif any(word in prompt_lower for word in ['spain', 'spanish', 'испания']):
-            country = "Spain"
-        elif any(word in prompt_lower for word in ['italy', 'italian', 'италия']):
-            country = "Italy"
-        elif any(word in prompt_lower for word in ['cyprus', 'кипр']):
-            country = "Cyprus"
-        elif any(word in prompt_lower for word in ['latvia', 'латвия']):
-            country = "Latvia"
-        elif any(word in prompt_lower for word in ['liechtenstein', 'лихтенштейн']):
-            country = "Liechtenstein"
-        elif any(word in prompt_lower for word in ['lithuania', 'литва']):
-            country = "Lithuania"
-        elif any(word in prompt_lower for word in ['luxembourg', 'люксембург']):
-            country = "Luxembourg"
-        elif any(word in prompt_lower for word in ['malta', 'мальта']):
-            country = "Malta"
-        elif any(word in prompt_lower for word in ['moldova', 'молдавия', 'молдова']):
-            country = "Moldova"
-        elif any(word in prompt_lower for word in ['monaco', 'монако']):
-            country = "Monaco"
-        elif any(word in prompt_lower for word in ['montenegro', 'черногория']):
-            country = "Montenegro"
-        elif any(word in prompt_lower for word in ['netherlands', 'dutch', 'holland', 'amsterdam', 'нидерланды', 'голландия']):
-            country = "Netherlands"
-        elif any(word in prompt_lower for word in ['norway', 'норвегия']):
-            country = "Norway"
-        elif any(word in prompt_lower for word in ['poland', 'польша']):
-            country = "Poland"
-        elif any(word in prompt_lower for word in ['portugal', 'португалия']):
-            country = "Portugal"
-        elif any(word in prompt_lower for word in ['macedonia', 'македония']):
-            country = "North Macedonia"
-        elif any(word in prompt_lower for word in ['romania', 'румыния']):
-            country = "Romania"
-        elif any(word in prompt_lower for word in ['russia', 'россия']):
-            country = "Russia"
-        elif any(word in prompt_lower for word in ['san marino', 'сан-марино']):
-            country = "San Marino"
-        elif any(word in prompt_lower for word in ['serbia', 'сербия']):
-            country = "Serbia"
-        elif any(word in prompt_lower for word in ['slovakia', 'словакия']):
-            country = "Slovakia"
-        elif any(word in prompt_lower for word in ['slovenia', 'словения']):
-            country = "Slovenia"
-        elif any(word in prompt_lower for word in ['turkey', 'турция']):
-            country = "Turkey"
-        elif any(word in prompt_lower for word in ['ukraine', 'украина']):
-            country = "Ukraine"
-        elif any(word in prompt_lower for word in ['finland', 'финляндия']):
-            country = "Finland"
-        elif any(word in prompt_lower for word in ['france', 'french', 'франция']):
-            country = "France"
-        elif any(word in prompt_lower for word in ['croatia', 'хорватия']):
-            country = "Croatia"
-        elif any(word in prompt_lower for word in ['czech', 'чехия']):
-            country = "Czech Republic"
-        elif any(word in prompt_lower for word in ['switzerland', 'швейцария']):
-            country = "Switzerland"
-        elif any(word in prompt_lower for word in ['sweden', 'швеция']):
-            country = "Sweden"
-        # Другие страны
-        elif 'singapore' in prompt_lower:
-            country = "Singapore"
-        elif 'usa' in prompt_lower or 'america' in prompt_lower:
-            country = "USA"
-        elif 'japan' in prompt_lower or 'japanese' in prompt_lower:
-            country = "Japan"
-        elif 'china' in prompt_lower or 'chinese' in prompt_lower:
-            country = "China"
+        # Ищем страну в тексте ТОЛЬКО если она НЕ была явно указана через "Country:"
+        if not country_explicitly_set:
+            prompt_lower = user_prompt.lower()
+            # Европейские страны
+            if any(word in prompt_lower for word in ['albania', 'албания']):
+                country = "Albania"
+            elif any(word in prompt_lower for word in ['andorra', 'андорра']):
+                country = "Andorra"
+            elif any(word in prompt_lower for word in ['armenia', 'армения']):
+                country = "Armenia"
+            elif any(word in prompt_lower for word in ['austria', 'австрия']):
+                country = "Austria"
+            elif any(word in prompt_lower for word in ['azerbaijan', 'азербайджан']):
+                country = "Azerbaijan"
+            elif any(word in prompt_lower for word in ['belarus', 'беларусь']):
+                country = "Belarus"
+            elif any(word in prompt_lower for word in ['belgium', 'бельгия']):
+                country = "Belgium"
+            elif any(word in prompt_lower for word in ['bosnia', 'herzegovina', 'босния', 'герцеговина']):
+                country = "Bosnia and Herzegovina"
+            elif any(word in prompt_lower for word in ['bulgaria', 'болгария']):
+                country = "Bulgaria"
+            elif any(word in prompt_lower for word in ['uk', 'britain', 'united kingdom', 'великобритания']):
+                country = "United Kingdom"
+            elif any(word in prompt_lower for word in ['hungary', 'венгрия']):
+                country = "Hungary"
+            elif any(word in prompt_lower for word in ['venezuela', 'венесуэла']):
+                country = "Venezuela"
+            elif any(word in prompt_lower for word in ['germany', 'german', 'германия']):
+                country = "Germany"
+            elif any(word in prompt_lower for word in ['greece', 'греция']):
+                country = "Greece"
+            elif any(word in prompt_lower for word in ['georgia', 'грузия']):
+                country = "Georgia"
+            elif any(word in prompt_lower for word in ['denmark', 'дания']):
+                country = "Denmark"
+            elif any(word in prompt_lower for word in ['estonia', 'эстония']):
+                country = "Estonia"
+            elif any(word in prompt_lower for word in ['spain', 'spanish', 'испания']):
+                country = "Spain"
+            elif any(word in prompt_lower for word in ['italy', 'italian', 'италия']):
+                country = "Italy"
+            elif any(word in prompt_lower for word in ['cyprus', 'кипр']):
+                country = "Cyprus"
+            elif any(word in prompt_lower for word in ['latvia', 'латвия']):
+                country = "Latvia"
+            elif any(word in prompt_lower for word in ['liechtenstein', 'лихтенштейн']):
+                country = "Liechtenstein"
+            elif any(word in prompt_lower for word in ['lithuania', 'литва']):
+                country = "Lithuania"
+            elif any(word in prompt_lower for word in ['luxembourg', 'люксембург']):
+                country = "Luxembourg"
+            elif any(word in prompt_lower for word in ['malta', 'мальта']):
+                country = "Malta"
+            elif any(word in prompt_lower for word in ['moldova', 'молдавия', 'молдова']):
+                country = "Moldova"
+            elif any(word in prompt_lower for word in ['monaco', 'монако']):
+                country = "Monaco"
+            elif any(word in prompt_lower for word in ['montenegro', 'черногория']):
+                country = "Montenegro"
+            elif any(word in prompt_lower for word in ['netherlands', 'dutch', 'holland', 'amsterdam', 'нидерланды', 'голландия']):
+                country = "Netherlands"
+            elif any(word in prompt_lower for word in ['norway', 'норвегия']):
+                country = "Norway"
+            elif any(word in prompt_lower for word in ['poland', 'польша']):
+                country = "Poland"
+            elif any(word in prompt_lower for word in ['portugal', 'португалия']):
+                country = "Portugal"
+            elif any(word in prompt_lower for word in ['macedonia', 'македония']):
+                country = "North Macedonia"
+            elif any(word in prompt_lower for word in ['romania', 'румыния']):
+                country = "Romania"
+            elif any(word in prompt_lower for word in ['russia', 'россия']):
+                country = "Russia"
+            elif any(word in prompt_lower for word in ['san marino', 'сан-марино']):
+                country = "San Marino"
+            elif any(word in prompt_lower for word in ['serbia', 'сербия']):
+                country = "Serbia"
+            elif any(word in prompt_lower for word in ['slovakia', 'словакия']):
+                country = "Slovakia"
+            elif any(word in prompt_lower for word in ['slovenia', 'словения']):
+                country = "Slovenia"
+            elif any(word in prompt_lower for word in ['turkey', 'турция']):
+                country = "Turkey"
+            elif any(word in prompt_lower for word in ['ukraine', 'украина']):
+                country = "Ukraine"
+            elif any(word in prompt_lower for word in ['finland', 'финляндия']):
+                country = "Finland"
+            elif any(word in prompt_lower for word in ['france', 'french', 'франция']):
+                country = "France"
+            elif any(word in prompt_lower for word in ['croatia', 'хорватия']):
+                country = "Croatia"
+            elif any(word in prompt_lower for word in ['czech', 'чехия']):
+                country = "Czech Republic"
+            elif any(word in prompt_lower for word in ['switzerland', 'швейцария']):
+                country = "Switzerland"
+            elif any(word in prompt_lower for word in ['sweden', 'швеция']):
+                country = "Sweden"
+            # Другие страны
+            elif 'singapore' in prompt_lower:
+                country = "Singapore"
+            elif 'usa' in prompt_lower or 'america' in prompt_lower:
+                country = "USA"
+            elif 'japan' in prompt_lower or 'japanese' in prompt_lower:
+                country = "Japan"
+            elif 'china' in prompt_lower or 'chinese' in prompt_lower:
+                country = "China"
 
         # Определяем язык: сначала проверяем явное указание, потом определяем по стране
         if language_match:
