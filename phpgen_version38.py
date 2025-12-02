@@ -8281,7 +8281,7 @@ setTimeout(showCookieNotice, 1000);
             if config['has_image']:
                 cards_html += f"""
                 <div class="overflow-hidden rounded-xl shadow-lg">
-                    <img src="images/service{(i % 3) + 1}.jpg" alt="{offer.get('title', 'Service')}" class="w-full h-full object-cover" style="min-height: 300px;">
+                    <img src="images/gallery{(i % 3) + 1}.jpg" alt="{offer.get('title', 'Service')}" class="w-full h-full object-cover" style="min-height: 300px;">
                 </div>"""
             else:
                 button_html = ""
