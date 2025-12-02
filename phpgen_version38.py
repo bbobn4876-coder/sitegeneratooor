@@ -8496,7 +8496,6 @@ setTimeout(showCookieNotice, 1000);
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
             <div class="grid md:grid-cols-3 gap-8 items-stretch">
-                <!-- Left Column: Main Content -->
                 <div class="flex flex-col justify-center">
                     <h1 class="text-5xl font-bold mb-6 text-{primary}">{hero_data.get('heading', 'We are always beginner friendly')}</h1>
                     <p class="text-gray-600 mb-8 leading-relaxed">{hero_data.get('description', 'Professional services description.')}</p>
@@ -8507,16 +8506,13 @@ setTimeout(showCookieNotice, 1000);
                     </div>
                 </div>
 
-                <!-- Center Column: Mission & CTA Blocks -->
                 <div class="flex flex-col gap-8">
-                    <!-- Mission Block -->
                     <div class="text-white p-8 rounded-2xl flex flex-col justify-center" style="background: linear-gradient(135deg, #C8985A 0%, #B8885A 100%);">
                         <p class="text-sm uppercase tracking-wider mb-4 opacity-90">{mission_data.get('label', 'Our Mission')}</p>
                         <h2 class="text-6xl font-bold mb-2">{mission_data.get('heading', 'Excel')}</h2>
                         <p class="text-xl uppercase tracking-wide">{mission_data.get('subheading', 'Every Day')}</p>
                     </div>
 
-                    <!-- CTA Block -->
                     <div class="bg-{primary} text-white p-8 rounded-2xl flex flex-col justify-between">
                         <div>
                             <h3 class="text-2xl font-bold mb-4">{cta_data.get('heading', 'Join Us Today')}</h3>
@@ -8530,7 +8526,6 @@ setTimeout(showCookieNotice, 1000);
                     </div>
                 </div>
 
-                <!-- Right Column: Image -->
                 <div class="flex items-stretch">
                     <img src="images/hero.jpg" alt="{site_name}" class="rounded-2xl shadow-2xl w-full h-full object-cover" style="min-height: 500px;">
                 </div>
