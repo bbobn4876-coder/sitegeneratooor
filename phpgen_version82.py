@@ -7145,12 +7145,9 @@ setTimeout(showCookieNotice, 1000);
                 <div>
                     <h1 class="text-5xl md:text-6xl font-bold mb-6">{title}</h1>
                     <p class="text-xl text-gray-600 mb-8">{subtitle}</p>
-                    <div class="flex flex-col sm:flex-row gap-4">
+                    <div>
                         <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl text-center">
                             {button_primary}
-                        </a>
-                        <a href="services.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition text-center">
-                            {button_secondary}
                         </a>
                     </div>
                 </div>
@@ -7194,12 +7191,9 @@ setTimeout(showCookieNotice, 1000);
             <div class="max-w-4xl mx-auto text-center text-white">
                 <h1 class="text-5xl md:text-7xl font-bold mb-6 drop-shadow-lg">{title}</h1>
                 <p class="text-xl md:text-2xl mb-8 drop-shadow-lg">{subtitle}</p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <div class="flex justify-center">
                     <a href="contact.php" class="inline-block bg-white hover:bg-gray-100 text-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
                         {button_primary}
-                    </a>
-                    <a href="services.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
-                        {button_secondary}
                     </a>
                 </div>
             </div>
@@ -7237,12 +7231,9 @@ setTimeout(showCookieNotice, 1000);
                 <p class="text-xl md:text-2xl text-gray-600 mb-8">
                     {subtitle}
                 </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <div class="flex justify-center">
                     <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
                         {button_primary}
-                    </a>
-                    <a href="services.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition">
-                        {button_secondary}
                     </a>
                 </div>
             </div>
@@ -7287,12 +7278,9 @@ setTimeout(showCookieNotice, 1000);
                 <div class="order-1 md:order-2">
                     <h1 class="text-5xl md:text-6xl font-bold mb-6">{title}</h1>
                     <p class="text-xl text-gray-600 mb-8">{subtitle}</p>
-                    <div class="flex flex-col sm:flex-row gap-4">
+                    <div>
                         <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl text-center">
                             {button_primary}
-                        </a>
-                        <a href="services.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition text-center">
-                            {button_secondary}
                         </a>
                     </div>
                 </div>
