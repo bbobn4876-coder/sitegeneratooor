@@ -5948,7 +5948,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
             if self.site_type == "landing":
                 nav_pages = [
                     (menu_content.get('home', 'Home'), 'index.php'),
-                    (menu_content.get('contact', 'Contact'), 'index.php#contact')
+                    (menu_content.get('contact', 'Contact'), 'contact.php')
                 ]
             else:
                 nav_pages = [
@@ -10834,7 +10834,7 @@ Return ONLY the content for <main> tag."""
 
         if site_type == "landing":
             # Лендинг - только главная страница с секциями + служебные страницы
-            pages_to_generate = ['index', 'thanks_you', 'privacy', 'terms', 'cookie']
+            pages_to_generate = ['index', 'contact', 'thanks_you', 'privacy', 'terms', 'cookie']
             print("  Режим: ЛЕНДИНГ (одна страница с секциями)")
         else:
             # Многостраничный сайт - все основные страницы включая blog
