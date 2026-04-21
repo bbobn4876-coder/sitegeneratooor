@@ -4470,7 +4470,6 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
             if not api_blog_posts or len(api_blog_posts) < 6:
                 # Генерируем даты с интервалом ~6 месяцев от текущей даты
                 from datetime import datetime, timedelta
-                import random
 
                 now = datetime.now()
                 blog_dates = []
