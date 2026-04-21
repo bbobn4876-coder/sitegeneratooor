@@ -4452,15 +4452,16 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
             blog_headers = self.get_localized_fallback('blog_section_headers', headers_fallback)
 
         section_heading = blog_headers.get('section_heading', 'Latest from Our Blog')
-        view_all_text = blog_headers.get('view_all_text', 'View All')
         read_more_text = blog_headers.get('read_more', 'Read More')
+
+        num_preview_posts = random.randint(3, 6)
 
         # КРИТИЧЕСКИ ВАЖНО: Проверяем, есть ли уже blog_posts_previews в blueprint
         # Если есть - используем их для синхронизации с blog.php и blog1-blog6.php
         if hasattr(self, 'blueprint') and 'blog_posts_previews' in self.blueprint:
             # Используем существующие данные из blueprint
             all_blog_articles = self.blueprint['blog_posts_previews']
-            blog_posts = all_blog_articles[:3]  # Берем первые 3 статьи для превью
+            blog_posts = all_blog_articles[:num_preview_posts]
         else:
             # Генерируем 6 статей через API (будут использоваться позже в blog.php)
             api_blog_posts = self.generate_theme_content_via_api(theme, "blog_posts", 6)
@@ -4537,11 +4538,11 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
 
             # Сохраняем в blueprint для использования в blog.php и blog1-blog6.php
             self.blueprint['blog_posts_previews'] = all_blog_articles
-            blog_posts = all_blog_articles[:3]  # Берем первые 3 для превью
+            blog_posts = all_blog_articles[:num_preview_posts]
 
         # Генерируем статьи
         articles_html = ''
-        for i, post in enumerate(blog_posts[:3]):
+        for i, post in enumerate(blog_posts):
             article_num = i + 1
             articles_html += f"""
                 <article class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
@@ -4559,12 +4560,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         return f"""
     <section class="py-20 bg-gray-50">
         <div class="container mx-auto px-6">
-            <div class="flex justify-between items-center mb-12">
-                <h2 class="text-4xl font-bold">{section_heading}</h2>
-                <a href="blog.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                    {view_all_text} →
-                </a>
-            </div>
+            <h2 class="text-4xl font-bold mb-12">{section_heading}</h2>
             <div class="grid md:grid-cols-3 gap-8">{articles_html}
             </div>
         </div>
@@ -8498,12 +8494,9 @@ setTimeout(showCookieNotice, 1000);
             <div class="max-w-3xl mx-auto text-center">
                 <h2 class="text-4xl font-bold text-white mb-6">{cta_data.get('heading', 'Ready to Get Started?')}</h2>
                 <p class="text-white/90 text-xl mb-8">{cta_data.get('subheading', 'Let us discuss how we can help you achieve your goals')}</p>
-                <div class="flex flex-wrap gap-4 justify-center">
+                <div class="flex justify-center">
                     <a href="contact.php" class="inline-block bg-white text-{primary} px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition shadow-lg">
                         {cta_data.get('button_primary', 'Contact Us Today')}
-                    </a>
-                    <a href="services.php" class="inline-block bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-{primary} transition">
-                        {cta_data.get('button_secondary', 'View Services')}
                     </a>
                 </div>
             </div>
@@ -8748,9 +8741,6 @@ setTimeout(showCookieNotice, 1000);
                 <div class="text-white">
                     <h2 class="text-5xl font-bold mb-6">{content_data.get('heading', 'Complete HR Management Support Services')}</h2>
                     <p class="text-white opacity-90 mb-8 text-lg leading-relaxed">{content_data.get('description', 'Professional services tailored to your needs.')}</p>
-                    <a href="services.php" class="inline-block border-2 border-white text-white hover:bg-white hover:text-{primary} px-8 py-4 rounded-lg text-lg font-semibold transition">
-                        {content_data.get('button_text', 'Read More')}
-                    </a>
                 </div>
             </div>
         </div>
@@ -9100,8 +9090,6 @@ setTimeout(showCookieNotice, 1000);
                 </div>"""
             else:
                 button_html = ""
-                if config['has_button']:
-                    button_html = f'<a href="services.php" class="inline-block border-2 border-white text-white hover:bg-white hover:text-{primary} px-6 py-2 rounded-lg font-semibold transition mt-4">{read_more_text}</a>'
 
                 cards_html += f"""
                 <div class="{card_class} p-8 rounded-xl shadow-lg flex flex-col justify-center" style="min-height: 300px;">
@@ -9322,11 +9310,6 @@ setTimeout(showCookieNotice, 1000);
                 <div class="flex flex-col justify-center">
                     <h1 class="text-5xl font-bold mb-6 text-{primary}">{hero_data.get('heading', 'We are always beginner friendly')}</h1>
                     <p class="text-gray-600 mb-8 leading-relaxed">{hero_data.get('description', 'Professional services description.')}</p>
-                    <div>
-                        <a href="services.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
-                            {hero_data.get('button_text', 'Read More')}
-                        </a>
-                    </div>
                 </div>
 
                 <div class="flex flex-col gap-8">
