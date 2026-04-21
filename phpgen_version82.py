@@ -3616,6 +3616,8 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
 
         # Генерируем карточки только для доступных решений
         cards_html = ""
+        _sol_contact_btn = ('' if self.site_type == 'landing' else
+                            f'<a href="contact.php" class="inline-block bg-white text-{primary} px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition w-fit">{contact_us_text}</a>')
         for sol in available_solutions:
             cards_html += f"""
                 <div class="relative overflow-hidden rounded-xl shadow-lg h-96 group">
@@ -3624,9 +3626,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                     <div class="relative h-full flex flex-col justify-end p-8">
                         <h3 class="text-white text-2xl font-bold mb-3">{sol['title']}</h3>
                         <p class="text-white/90 mb-4">{sol['description']}</p>
-                        <a href="contact.php" class="inline-block bg-white text-{primary} px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition w-fit">
-                            {contact_us_text}
-                        </a>
+                        {_sol_contact_btn}
                     </div>
                 </div>"""
 
@@ -3681,6 +3681,11 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
             step_labels_localized.get('step_3', 'STEP 03'),
             step_labels_localized.get('step_4', 'STEP 04')
         ]
+
+        _cta_start = ('' if self.site_type == 'landing' else
+                      f'<div class="text-center mt-16"><a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">{start_project_text}</a></div>')
+        _cta_get_started = ('' if self.site_type == 'landing' else
+                            f'<div class="text-center mt-16"><a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">{get_started_text}</a></div>')
 
         if variation == 1:
             return f"""
@@ -3756,11 +3761,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                 </div>
             </div>
 
-            <div class="text-center mt-16">
-                <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                    {start_project_text}
-                </a>
-            </div>
+            {_cta_start}
         </div>
     </section>"""
 
@@ -3833,11 +3834,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                     </div>
                 </div>
 
-                <div class="text-center mt-16">
-                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                        {get_started_text}
-                    </a>
-                </div>
+                {_cta_get_started}
             </div>
         </div>
     </section>"""
@@ -3913,11 +3910,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                 </div>
             </div>
 
-            <div class="text-center mt-16">
-                <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                    {start_project_text}
-                </a>
-            </div>
+            {_cta_start}
         </div>
     </section>"""
 
@@ -3955,6 +3948,13 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         button_texts = self.generate_theme_content_via_api(theme, "button_texts", 1)
         discuss_project_text = button_texts.get('discuss_your_project', 'Discuss Your Project') if button_texts else 'Discuss Your Project'
 
+        _card_link_v1 = ('' if self.site_type == 'landing' else
+                         f'<a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">\n                        {learn_more} →\n                    </a>')
+        _card_link_v2 = ('' if self.site_type == 'landing' else
+                         f'<a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">\n                        {explore} <span class="ml-2">→</span>\n                    </a>')
+        _cta_discuss = ('' if self.site_type == 'landing' else
+                        f'<div class="text-center mt-16"><a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">{discuss_project_text}</a></div>')
+
         if variation == 1:
             return f"""
     <section class="py-20 bg-white">
@@ -3965,44 +3965,32 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                 <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
                     <h4 class="text-xl font-bold mb-3">{services[0]['title']}</h4>
                     <p class="text-gray-600 mb-4">{services[0]['description']}</p>
-                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                        {learn_more} →
-                    </a>
+                    {_card_link_v1}
                 </div>
                 <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
                     <h4 class="text-xl font-bold mb-3">{services[1]['title']}</h4>
                     <p class="text-gray-600 mb-4">{services[1]['description']}</p>
-                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                        {learn_more} →
-                    </a>
+                    {_card_link_v1}
                 </div>
                 <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
                     <h4 class="text-xl font-bold mb-3">{services[2]['title']}</h4>
                     <p class="text-gray-600 mb-4">{services[2]['description']}</p>
-                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                        {learn_more} →
-                    </a>
+                    {_card_link_v1}
                 </div>
                 <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
                     <h4 class="text-xl font-bold mb-3">{services[3]['title']}</h4>
                     <p class="text-gray-600 mb-4">{services[3]['description']}</p>
-                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                        {learn_more} →
-                    </a>
+                    {_card_link_v1}
                 </div>
                 <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
                     <h4 class="text-xl font-bold mb-3">{services[4]['title']}</h4>
                     <p class="text-gray-600 mb-4">{services[4]['description']}</p>
-                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                        {learn_more} →
-                    </a>
+                    {_card_link_v1}
                 </div>
                 <div class="bg-gradient-to-br from-{primary}/5 to-white border border-gray-200 rounded-xl p-6">
                     <h4 class="text-xl font-bold mb-3">{services[5]['title']}</h4>
                     <p class="text-gray-600 mb-4">{services[5]['description']}</p>
-                    <a href="contact.php" class="text-{primary} hover:text-{hover} font-semibold transition">
-                        {learn_more} →
-                    </a>
+                    {_card_link_v1}
                 </div>
             </div>
         </div>
@@ -4026,9 +4014,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                     </div>
                     <h3 class="text-2xl font-bold mb-4">{services[0]['title']}</h3>
                     <p class="text-gray-600 leading-relaxed mb-6">{services[0]['description']}</p>
-                    <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
-                        {explore} <span class="ml-2">→</span>
-                    </a>
+                    {_card_link_v2}
                 </div>
 
                 <div class="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-{primary}/20">
@@ -4039,9 +4025,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                     </div>
                     <h3 class="text-2xl font-bold mb-4">{services[1]['title']}</h3>
                     <p class="text-gray-600 leading-relaxed mb-6">{services[1]['description']}</p>
-                    <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
-                        {explore} <span class="ml-2">→</span>
-                    </a>
+                    {_card_link_v2}
                 </div>
 
                 <div class="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-{primary}/20">
@@ -4052,9 +4036,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                     </div>
                     <h3 class="text-2xl font-bold mb-4">{services[2]['title']}</h3>
                     <p class="text-gray-600 leading-relaxed mb-6">{services[2]['description']}</p>
-                    <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
-                        {explore} <span class="ml-2">→</span>
-                    </a>
+                    {_card_link_v2}
                 </div>
 
                 <div class="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-{primary}/20">
@@ -4065,9 +4047,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                     </div>
                     <h3 class="text-2xl font-bold mb-4">{services[3]['title']}</h3>
                     <p class="text-gray-600 leading-relaxed mb-6">{services[3]['description']}</p>
-                    <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
-                        {explore} <span class="ml-2">→</span>
-                    </a>
+                    {_card_link_v2}
                 </div>
 
                 <div class="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-{primary}/20">
@@ -4078,9 +4058,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                     </div>
                     <h3 class="text-2xl font-bold mb-4">{services[4]['title']}</h3>
                     <p class="text-gray-600 leading-relaxed mb-6">{services[4]['description']}</p>
-                    <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
-                        {explore} <span class="ml-2">→</span>
-                    </a>
+                    {_card_link_v2}
                 </div>
 
                 <div class="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-{primary}/20">
@@ -4091,9 +4069,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                     </div>
                     <h3 class="text-2xl font-bold mb-4">{services[5]['title']}</h3>
                     <p class="text-gray-600 leading-relaxed mb-6">{services[5]['description']}</p>
-                    <a href="contact.php" class="inline-flex items-center text-{primary} hover:text-{hover} font-semibold transition group-hover:translate-x-2 transform duration-300">
-                        {explore} <span class="ml-2">→</span>
-                    </a>
+                    {_card_link_v2}
                 </div>
             </div>
         </div>
@@ -4170,11 +4146,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                 </div>
             </div>
 
-            <div class="text-center mt-16">
-                <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                    {discuss_project_text}
-                </a>
-            </div>
+            {_cta_discuss}
         </div>
     </section>"""
 
@@ -4219,6 +4191,9 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
             cta_description = work_data.get('cta_description', "Let's discuss how we can help you achieve your goals.")
             cta_button = work_data.get('cta_button', 'Start Your Project')
             case_studies = work_data.get('cases', [])
+
+        _work_cta_btn = ('' if self.site_type == 'landing' else
+                         f'<a href="contact.php" class="inline-block bg-white text-{primary} hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold transition shadow-lg hover:shadow-xl">{cta_button}</a>')
 
         # SVG иконки для карточек
         icons = [
@@ -4273,9 +4248,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                 <p class="text-white/90 mb-6 max-w-2xl mx-auto">
                     {cta_description}
                 </p>
-                <a href="contact.php" class="inline-block bg-white text-{primary} hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold transition shadow-lg hover:shadow-xl">
-                    {cta_button}
-                </a>
+                {_work_cta_btn}
             </div>
         </div>
     </section>"""
@@ -4306,6 +4279,8 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         founded_year_badge = ""
         if content.get('founded_year'):
             founded_year_badge = f'<span class="inline-block bg-{primary}/10 text-{primary} px-4 py-2 rounded-lg font-semibold mb-4">Est. {content.get("founded_year")}</span>'
+        _company_link = ('' if self.site_type == 'landing' else
+                         f'<a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg font-semibold transition">{content.get("button_text", "Learn More")}</a>')
 
         return f"""
     <section class="py-20 bg-white">
@@ -4320,9 +4295,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                     <p class="text-gray-700 mb-6">
                         {content.get('paragraph2', 'Our team brings expertise and innovation to every project.')}
                     </p>
-                    <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg font-semibold transition">
-                        {content.get('button_text', 'Learn More')}
-                    </a>
+                    {_company_link}
                 </div>
                 <div>
                     <img src="images/about.jpg" alt="{content.get('heading', 'About Us')}" class="rounded-xl shadow-lg w-full h-96 object-cover">
@@ -4741,6 +4714,8 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
             locations = country_locations['usa']
 
         # Генерируем HTML с 6 локациями
+        _location_contact_btn = ('' if self.site_type == 'landing' else
+                                 f'<a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">Contact</a>')
         location_cards = ""
         for i, location in enumerate(locations, 1):
             location_cards += f"""
@@ -4749,9 +4724,7 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                             <img src="images/location{i}.jpg" alt="{location['city']}" class="w-full h-40 object-cover rounded-lg mb-4">
                             <h4 class="text-xl font-bold mb-2">{location['city']} Office</h4>
                             <p class="text-gray-600 mb-4">{location['description']}</p>
-                            <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-6 py-2 rounded-lg font-semibold transition">
-                                Contact
-                            </a>
+                            {_location_contact_btn}
                         </div>
                     </div>
 """
@@ -7829,6 +7802,29 @@ setTimeout(showCookieNotice, 1000);
 
         thanks_variant = random.randint(1, 6)
 
+        # Для лендингов убираем кнопку services.php и блок "While you wait"
+        _thanks_services_btn = ('' if self.site_type == 'landing' else
+                                f'<a href="services.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-10 py-4 rounded-lg text-lg font-semibold transition transform hover:scale-105">{thanks_content.get("view_services", "View Services")}</a>')
+
+        if self.site_type == 'landing':
+            _explore_block = ''
+        else:
+            _explore_block = (
+                '<div class="bg-gray-50 rounded-2xl p-8 mb-10">'
+                f'<h2 class="text-xl font-bold mb-6 text-center">{thanks_content.get("explore_more_heading", "While You Wait, Explore More")}</h2>'
+                '<div class="grid md:grid-cols-3 gap-4">'
+                f'<a href="services.php" class="block p-6 bg-white rounded-xl hover:shadow-lg transition text-center">'
+                f'<svg class="w-8 h-8 text-{primary} mx-auto mb-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>'
+                f'<p class="font-semibold text-gray-900">{thanks_content.get("view_services", "Our Services")}</p></a>'
+                f'<a href="company.php" class="block p-6 bg-white rounded-xl hover:shadow-lg transition text-center">'
+                f'<svg class="w-8 h-8 text-{primary} mx-auto mb-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>'
+                f'<p class="font-semibold text-gray-900">{thanks_content.get("about_us", "About Us")}</p></a>'
+                f'<a href="blog.php" class="block p-6 bg-white rounded-xl hover:shadow-lg transition text-center">'
+                f'<svg class="w-8 h-8 text-{primary} mx-auto mb-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>'
+                f'<p class="font-semibold text-gray-900">{thanks_content.get("blog", "Blog")}</p></a>'
+                '</div></div>'
+            )
+
         # Вариация 1: Простая с иконкой галочки
         if thanks_variant == 1:
             return f"""<main>
@@ -7873,9 +7869,7 @@ setTimeout(showCookieNotice, 1000);
                     <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-10 py-4 rounded-lg text-lg font-semibold transition transform hover:scale-105 shadow-xl">
                         {thanks_content.get('back_home', 'Back to Home')}
                     </a>
-                    <a href="services.php" class="inline-block bg-white hover:bg-gray-50 text-{primary} border-2 border-{primary} px-10 py-4 rounded-lg text-lg font-semibold transition transform hover:scale-105">
-                        {thanks_content.get('view_services', 'View Services')}
-                    </a>
+                    {_thanks_services_btn}
                 </div>
             </div>
         </div>
@@ -8033,29 +8027,8 @@ setTimeout(showCookieNotice, 1000);
                     <p class="text-lg text-gray-600 mb-10">{thanks_content.get('get_back_soon', "We'll be in touch very soon!")}</p>
                 </div>
 
-                <div class="bg-gray-50 rounded-2xl p-8 mb-10">
-                    <h2 class="text-xl font-bold mb-6 text-center">{thanks_content.get('explore_more_heading', 'While You Wait, Explore More')}</h2>
-                    <div class="grid md:grid-cols-3 gap-4">
-                        <a href="services.php" class="block p-6 bg-white rounded-xl hover:shadow-lg transition text-center">
-                            <svg class="w-8 h-8 text-{primary} mx-auto mb-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                            </svg>
-                            <p class="font-semibold text-gray-900">{thanks_content.get('view_services', 'Our Services')}</p>
-                        </a>
-                        <a href="company.php" class="block p-6 bg-white rounded-xl hover:shadow-lg transition text-center">
-                            <svg class="w-8 h-8 text-{primary} mx-auto mb-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                            </svg>
-                            <p class="font-semibold text-gray-900">{thanks_content.get('about_us', 'About Us')}</p>
-                        </a>
-                        <a href="blog.php" class="block p-6 bg-white rounded-xl hover:shadow-lg transition text-center">
-                            <svg class="w-8 h-8 text-{primary} mx-auto mb-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                            </svg>
-                            <p class="font-semibold text-gray-900">{thanks_content.get('blog', 'Blog')}</p>
-                        </a>
-                    </div>
-                </div>
+                {_explore_block}
+
 
                 <div class="text-center">
                     <a href="index.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-12 py-4 rounded-full text-lg font-bold transition shadow-xl hover:shadow-2xl transform hover:scale-105">
@@ -8487,6 +8460,9 @@ setTimeout(showCookieNotice, 1000);
                 'button_secondary': 'View Services'
             }
 
+        _cta_contact_btn = ('' if self.site_type == 'landing' else
+                            f'<a href="contact.php" class="inline-block bg-white text-{primary} px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition shadow-lg">{cta_data.get("button_primary", "Contact Us Today")}</a>')
+
         return f"""
     <section class="py-20 bg-{primary}">
         <div class="container mx-auto px-6">
@@ -8494,9 +8470,7 @@ setTimeout(showCookieNotice, 1000);
                 <h2 class="text-4xl font-bold text-white mb-6">{cta_data.get('heading', 'Ready to Get Started?')}</h2>
                 <p class="text-white/90 text-xl mb-8">{cta_data.get('subheading', 'Let us discuss how we can help you achieve your goals')}</p>
                 <div class="flex justify-center">
-                    <a href="contact.php" class="inline-block bg-white text-{primary} px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition shadow-lg">
-                        {cta_data.get('button_primary', 'Contact Us Today')}
-                    </a>
+                    {_cta_contact_btn}
                 </div>
             </div>
         </div>
@@ -8526,6 +8500,9 @@ setTimeout(showCookieNotice, 1000);
             cta_description = features_data.get('cta_description', 'Contact us today to discuss your project.')
             cta_button = features_data.get('cta_button', 'Start Your Project')
             features = features_data.get('features', [])
+
+        _features_cta_btn = ('' if self.site_type == 'landing' else
+                             f'<a href="contact.php" class="inline-block bg-white text-{primary} px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition">{cta_button}</a>')
 
         # Генерируем список фич
         features_html = ''
@@ -8557,9 +8534,7 @@ setTimeout(showCookieNotice, 1000);
                     <div class="bg-gradient-to-br from-{primary} to-{hover} rounded-xl p-12 text-white">
                         <h3 class="text-3xl font-bold mb-6">{cta_heading}</h3>
                         <p class="text-white/90 mb-8">{cta_description}</p>
-                        <a href="contact.php" class="inline-block bg-white text-{primary} px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition">
-                            {cta_button}
-                        </a>
+                        {_features_cta_btn}
                     </div>
                 </div>
             </div>
@@ -8627,6 +8602,9 @@ setTimeout(showCookieNotice, 1000);
                 'button_text': 'Learn More'
             }
 
+        _two_images_btn = ('' if self.site_type == 'landing' else
+                           f'<a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">{content_data.get("button_text", "Learn More")} →</a>')
+
         return f"""
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
@@ -8634,9 +8612,7 @@ setTimeout(showCookieNotice, 1000);
                 <div>
                     <h2 class="text-5xl font-bold mb-6 text-gray-900">{content_data.get('heading', 'Reduce Your Expenses by 50%')}</h2>
                     <p class="text-gray-600 text-lg mb-8 leading-relaxed">{content_data.get('description', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.')}</p>
-                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
-                        {content_data.get('button_text', 'Learn More')} →
-                    </a>
+                    {_two_images_btn}
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-4">
@@ -9021,6 +8997,9 @@ setTimeout(showCookieNotice, 1000);
             image_file = 'service3.jpg'
             image_alt = 'Professional service'
 
+        _benefits_btn = ('' if self.site_type == 'landing' else
+                         f'<a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">{content_data.get("button_text", "View More")}</a>')
+
         return f"""
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
@@ -9031,9 +9010,7 @@ setTimeout(showCookieNotice, 1000);
                         <img src="images/{image_file}" alt="{image_alt}" class="rounded-xl shadow-2xl w-full h-80 object-cover">
                     </div>
                     <p class="text-gray-600 text-lg mb-8 leading-relaxed">{content_data.get('description', 'Professional services description.')}</p>
-                    <a href="contact.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition shadow-lg hover:shadow-xl">
-                        {content_data.get('button_text', 'View More')}
-                    </a>
+                    {_benefits_btn}
                 </div>
                 <div class="text-gray-900">
                     {benefits_html}
@@ -9302,6 +9279,9 @@ setTimeout(showCookieNotice, 1000);
             }
             cta_data = self.get_localized_fallback('cta_bottom_block', cta_data_fallback)
 
+        _mission_cta_btn = ('' if self.site_type == 'landing' else
+                            f'<a href="contact.php" class="inline-block bg-white text-{primary} hover:bg-gray-100 px-6 py-3 rounded-lg font-semibold transition">{cta_data.get("button_text", "Join Now")}</a>')
+
         return f"""
     <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
@@ -9324,9 +9304,7 @@ setTimeout(showCookieNotice, 1000);
                             <p class="text-white opacity-90 mb-6 leading-relaxed">{cta_data.get('description', 'Get in touch with us.')}</p>
                         </div>
                         <div>
-                            <a href="contact.php" class="inline-block bg-white text-{primary} hover:bg-gray-100 px-6 py-3 rounded-lg font-semibold transition">
-                                {cta_data.get('button_text', 'Join Now')}
-                            </a>
+                            {_mission_cta_btn}
                         </div>
                     </div>
                 </div>
@@ -9860,9 +9838,7 @@ Return ONLY the content for <main> tag."""
                         We are dedicated to providing excellent service and building lasting relationships with our clients. 
                         Our team brings years of experience and expertise to every project.
                     </p>
-                    <a href="company.php" class="inline-block bg-{primary} hover:bg-{hover} text-white px-8 py-4 rounded-lg text-lg font-semibold transition">
-                        Learn More
-                    </a>
+                    {'<a href="company.php" class="inline-block bg-' + primary + ' hover:bg-' + hover + ' text-white px-8 py-4 rounded-lg text-lg font-semibold transition">Learn More</a>' if self.site_type != 'landing' else ''}
                 </div>
                 <div class="rounded-xl overflow-hidden shadow-lg">
                     <img src="images/about.jpg" alt="About Us" class="w-full h-full object-cover">
