@@ -9332,6 +9332,10 @@ setTimeout(showCookieNotice, 1000);
             'what_we_offer_variant', 'testimonials_with_image', 'hero_mission_variant'
         ]
 
+        # Для лендинга убираем блог-секцию
+        if self.site_type == 'landing':
+            all_section_keys = [k for k in all_section_keys if k != 'carousel_blog']
+
         # Секции, требующие изображений
         sections_requiring_gallery = {'gallery_centered'}
 
