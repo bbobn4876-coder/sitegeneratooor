@@ -11353,6 +11353,9 @@ class GeneratorApp(App):
             cmd = [sys.executable, script, "--generate"]
             cwd = os.path.dirname(script)
         try:
+            _env = env.copy()
+            _env["PYTHONIOENCODING"] = "utf-8"
+            _env["PYTHONUTF8"] = "1"
             proc = subprocess.Popen(
                 cmd,
                 stdin=subprocess.PIPE,
@@ -11360,7 +11363,9 @@ class GeneratorApp(App):
                 stderr=subprocess.STDOUT,
                 text=True,
                 bufsize=1,
-                env=env,
+                encoding="utf-8",
+                errors="replace",
+                env=_env,
                 cwd=cwd,
             )
             proc.stdin.write(inp)
@@ -11599,10 +11604,14 @@ def _run_tk_gui():
             cmd = [sys.executable, script, "--generate"]
             cwd = os.path.dirname(script)
         try:
+            _env = env.copy()
+            _env["PYTHONIOENCODING"] = "utf-8"
+            _env["PYTHONUTF8"] = "1"
             proc = subprocess.Popen(
                 cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT, text=True, bufsize=1,
-                env=env, cwd=cwd,
+                encoding="utf-8", errors="replace",
+                env=_env, cwd=cwd,
             )
             proc.stdin.write(inp)
             proc.stdin.close()
@@ -12031,6 +12040,11 @@ def _run_tk_gui():
 if __name__ == "__main__":
     if "--generate" in sys.argv:
         # ── Headless generator mode (called by GUI subprocess) ──────────
+        # Принудительно UTF-8 для stdout/stdin на Windows (pipe наследует cp1251)
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        if hasattr(sys.stdin, "reconfigure"):
+            sys.stdin.reconfigure(encoding="utf-8", errors="replace")
         # stdin lines: description, site_type, site_name, num_images, data_dir, output_dir
         _stdin_lines = sys.stdin.read().splitlines()
         _user_prompt = _stdin_lines[0].strip() if len(_stdin_lines) > 0 else ""
