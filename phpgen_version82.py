@@ -11137,7 +11137,7 @@ class GeneratorApp(App):
         Binding("ctrl+q", "quit", "Quit"),
     ]
 
-    _running: reactive[bool] = reactive(False)
+    _running = reactive(False)
 
     def __init__(self):
         super().__init__()
