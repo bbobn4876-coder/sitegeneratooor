@@ -11629,7 +11629,7 @@ def _run_tk_gui():
         w.see("end")
 
     def _drain_queue() -> None:
-        finished = False
+        all_done = False
         for _ in range(60):
             try:
                 kind, val = _out_q.get_nowait()
@@ -11638,25 +11638,47 @@ def _run_tk_gui():
             if kind == "line":
                 _append_console(val)
             elif kind == "done":
-                finished = True
-                if val == 0:
+                code, lbl = val
+                pending = max(0, _state.get("pending", 1) - 1)
+                _state["pending"] = pending
+                if code != 0:
+                    _state["error_count"] = _state.get("error_count", 0) + 1
+                if code == 0:
                     _append_console("")
-                    _append_console("✓ Generation complete.", C_GREEN)
-                    _status_var.set("✓ done")
-                    if _W["status_lbl"]:
-                        _W["status_lbl"].configure(fg=C_GREEN)
+                    msg = f"✓ [{lbl}] complete." if lbl else "✓ Generation complete."
+                    _append_console(msg, C_GREEN)
                 else:
-                    _append_console(f"✗ Process exited with code {val}", C_RED)
-                    _status_var.set(f"✗ exit {val}")
+                    msg = (f"✗ [{lbl}] exited with code {code}" if lbl
+                           else f"✗ Process exited with code {code}")
+                    _append_console(msg, C_RED)
+                if pending == 0:
+                    all_done = True
+                    err_n = _state.get("error_count", 0)
+                    if err_n == 0:
+                        _status_var.set("✓ done")
+                        if _W["status_lbl"]:
+                            _W["status_lbl"].configure(fg=C_GREEN)
+                    else:
+                        _status_var.set(f"✗ {err_n} failed")
+                        if _W["status_lbl"]:
+                            _W["status_lbl"].configure(fg=C_RED)
+                else:
+                    _status_var.set(f"● running ({pending} left)")
+            elif kind == "error":
+                lbl, msg = val if isinstance(val, tuple) else ("", val)
+                pending = max(0, _state.get("pending", 1) - 1)
+                _state["pending"] = pending
+                _state["error_count"] = _state.get("error_count", 0) + 1
+                err_msg = f"ERROR [{lbl}]: {msg}" if lbl else f"ERROR: {msg}"
+                _append_console(err_msg, C_RED)
+                if pending == 0:
+                    all_done = True
+                    _status_var.set(f"✗ {_state.get('error_count', 1)} failed")
                     if _W["status_lbl"]:
                         _W["status_lbl"].configure(fg=C_RED)
-            elif kind == "error":
-                finished = True
-                _append_console(f"ERROR: {val}", C_RED)
-                _status_var.set("✗ error")
-                if _W["status_lbl"]:
-                    _W["status_lbl"].configure(fg=C_RED)
-        if finished:
+                else:
+                    _status_var.set(f"● running ({pending} left)")
+        if all_done:
             _state["running"] = False
             btn = _W["create_btn"]
             if btn:
@@ -11665,7 +11687,7 @@ def _run_tk_gui():
         if not _state["stopped"]:
             root.after(40, _drain_queue)
 
-    def _run_subprocess_bg(inp: str, env: dict) -> None:
+    def _run_subprocess_bg(inp: str, env: dict, label: str = "") -> None:
         if getattr(sys, "frozen", False):
             cmd = [sys.executable, "--generate"]
             cwd = os.path.dirname(sys.executable)
@@ -11686,11 +11708,12 @@ def _run_tk_gui():
             proc.stdin.write(inp)
             proc.stdin.close()
             for line in proc.stdout:
-                _out_q.put(("line", line.rstrip("\n")))
+                text = line.rstrip("\n")
+                _out_q.put(("line", f"[{label}] {text}" if label else text))
             proc.wait()
-            _out_q.put(("done", proc.returncode))
+            _out_q.put(("done", (proc.returncode, label)))
         except Exception as exc:
-            _out_q.put(("error", str(exc)))
+            _out_q.put(("error", (label, str(exc))))
 
     # ── Вспомогательные ────────────────────────────────────────────────────
     def _center(win: tk.Tk) -> None:
@@ -11869,22 +11892,62 @@ def _run_tk_gui():
         # ── ЛЕВАЯ КОЛОНКА ──────────────────────────────────────────────────
         left = tk.Frame(body, bg=C_BG, width=360)
         left.grid(row=0, column=0, sticky="nsew", padx=(0, 0))
-        left.pack_propagate(False)
+        left.grid_propagate(False)
+        left.grid_rowconfigure(0, weight=1)
+        left.grid_rowconfigure(1, weight=0)
+        left.grid_columnconfigure(0, weight=1)
+
+        # Scrollable content canvas
+        _lcv = tk.Canvas(left, bg=C_BG, highlightthickness=0)
+        _lcv.grid(row=0, column=0, sticky="nsew")
+        _lsb = tk.Scrollbar(left, orient="vertical", command=_lcv.yview,
+                             bg=C_SURF2, troughcolor=C_BG, width=8, relief="flat")
+        _lsb.grid(row=0, column=1, sticky="ns")
+        _lcv.configure(yscrollcommand=_lsb.set)
+
+        lc = tk.Frame(_lcv, bg=C_BG)
+        _lwin = _lcv.create_window((0, 0), window=lc, anchor="nw")
+        lc.bind("<Configure>",
+                lambda e: _lcv.configure(scrollregion=_lcv.bbox("all")))
+        _lcv.bind("<Configure>",
+                  lambda e: _lcv.itemconfig(_lwin, width=e.width))
+
+        def _lwheel(e):
+            if sys.platform == "darwin":
+                _lcv.yview_scroll(-int(e.delta), "units")
+            elif e.num == 4:
+                _lcv.yview_scroll(-1, "units")
+            elif e.num == 5:
+                _lcv.yview_scroll(1, "units")
+            else:
+                _lcv.yview_scroll(-1 * (1 if e.delta > 0 else -1), "units")
+        _lcv.bind("<MouseWheel>", _lwheel)
+        _lcv.bind("<Button-4>", _lwheel)
+        _lcv.bind("<Button-5>", _lwheel)
+        lc.bind("<MouseWheel>", _lwheel)
+        lc.bind("<Button-4>", _lwheel)
+        lc.bind("<Button-5>", _lwheel)
 
         # API KEYS
-        tk.Label(left, text="API KEYS", bg=C_BG, fg=C_DIM,
+        tk.Label(lc, text="API KEYS", bg=C_BG, fg=C_DIM,
                  font=("Helvetica", 8, "bold"), anchor="w").pack(
             fill="x", pady=(2, 4))
 
         _v_api = tk.StringVar(value=cfg.get("api_key", ""))
-        _row_lbl(left, "OpenRouter key")
-        api_e = _make_entry(left, _v_api, show="*")
+        _row_lbl(lc, "OpenRouter key")
+        api_e = _make_entry(lc, _v_api, show="*")
         api_e.pack(fill="x", ipady=6, pady=(0, 2))
+        api_e.bind("<MouseWheel>", _lwheel)
+        api_e.bind("<Button-4>", _lwheel)
+        api_e.bind("<Button-5>", _lwheel)
 
         _v_bdc = tk.StringVar(value=cfg.get("bytedance_key", ""))
-        _row_lbl(left, "ByteDance key")
-        bdc_e = _make_entry(left, _v_bdc, show="*")
+        _row_lbl(lc, "ByteDance key")
+        bdc_e = _make_entry(lc, _v_bdc, show="*")
         bdc_e.pack(fill="x", ipady=6, pady=(0, 2))
+        bdc_e.bind("<MouseWheel>", _lwheel)
+        bdc_e.bind("<Button-4>", _lwheel)
+        bdc_e.bind("<Button-5>", _lwheel)
 
         def _do_save_keys():
             _gui_save_config({
@@ -11893,24 +11956,27 @@ def _run_tk_gui():
             })
             _flash_btn(sk_btn, "  ✓ Saved  ", "  Save keys  ")
 
-        sk_btn = _Btn(left, C_SURF2, C_SURF, fg_n=C_DIM,
+        sk_btn = _Btn(lc, C_SURF2, C_SURF, fg_n=C_DIM,
                       text="  Save keys  ",
                       font=("Helvetica", 9), command=_do_save_keys,
                       pady=4, padx=8)
         sk_btn.pack(anchor="w", pady=(6, 0))
+        sk_btn.bind("<MouseWheel>", _lwheel)
+        sk_btn.bind("<Button-4>", _lwheel)
+        sk_btn.bind("<Button-5>", _lwheel)
 
-        tk.Frame(left, bg=C_BORDER, height=1).pack(fill="x", pady=(12, 4))
+        tk.Frame(lc, bg=C_BORDER, height=1).pack(fill="x", pady=(12, 4))
 
         # GENERATION
-        tk.Label(left, text="GENERATION", bg=C_BG, fg=C_DIM,
+        tk.Label(lc, text="GENERATION", bg=C_BG, fg=C_DIM,
                  font=("Helvetica", 8, "bold"), anchor="w").pack(
             fill="x", pady=(0, 4))
 
-        tk.Label(left, text="Description", bg=C_BG, fg=C_DIM,
+        tk.Label(lc, text="Description", bg=C_BG, fg=C_DIM,
                  font=("Helvetica", 9, "bold"), anchor="w").pack(
             fill="x", pady=(0, 2))
         desc_txt = tk.Text(
-            left, bg=C_SURF2, fg=C_TEXT, insertbackground=C_TEXT,
+            lc, bg=C_SURF2, fg=C_TEXT, insertbackground=C_TEXT,
             relief="flat", bd=0, font=("Helvetica", 11),
             height=4, wrap="word",
             highlightthickness=1,
@@ -11919,26 +11985,100 @@ def _run_tk_gui():
         )
         desc_txt.pack(fill="x")
 
-        _row_lbl(left, "Site type")
+        _row_lbl(lc, "Site type")
         _v_stype = tk.StringVar(value=cfg.get("site_type", "landing"))
-        rf = tk.Frame(left, bg=C_BG)
+        rf = tk.Frame(lc, bg=C_BG)
         rf.pack(fill="x", pady=(2, 4))
-        for _val, _label in (("landing", "Landing page"),
+        rf.bind("<MouseWheel>", _lwheel)
+        rf.bind("<Button-4>", _lwheel)
+        rf.bind("<Button-5>", _lwheel)
+        for _val, _ltext in (("landing", "Landing page"),
                               ("multipage", "Multipage site")):
-            tk.Radiobutton(
-                rf, text=_label, variable=_v_stype, value=_val,
+            _rb = tk.Radiobutton(
+                rf, text=_ltext, variable=_v_stype, value=_val,
                 bg=C_BG, fg=C_TEXT, selectcolor=C_SURF2,
                 activebackground=C_BG, activeforeground=C_TEXT,
                 font=("Helvetica", 10),
-            ).pack(side="left", padx=(0, 16))
+            )
+            _rb.pack(side="left", padx=(0, 16))
+            _rb.bind("<MouseWheel>", _lwheel)
+            _rb.bind("<Button-4>", _lwheel)
+            _rb.bind("<Button-5>", _lwheel)
 
-        _v_name = tk.StringVar(value=cfg.get("site_name", ""))
-        _row_lbl(left, "Site name")
-        name_e = _make_entry(left, _v_name, hint="My Awesome Company")
-        name_e.pack(fill="x", ipady=6, pady=(0, 2))
+        # Dynamic site name rows
+        _row_lbl(lc, "Site name")
+        names_frame = tk.Frame(lc, bg=C_BG)
+        names_frame.pack(fill="x", pady=(2, 0))
+        names_frame.bind("<MouseWheel>", _lwheel)
+        names_frame.bind("<Button-4>", _lwheel)
+        names_frame.bind("<Button-5>", _lwheel)
 
-        img_row = tk.Frame(left, bg=C_BG)
+        _all_name_vars: list = []
+        _add_btn_ref: list = [None]
+
+        def _update_add_btn():
+            b = _add_btn_ref[0]
+            if b is None:
+                return
+            n = len(_all_name_vars)
+            if n >= 10:
+                b.configure(state="disabled", text="  +  Add name  (10/10)")
+            else:
+                b.configure(state="normal", text=f"  +  Add name  ({n}/10)")
+
+        def _add_name_row(initial_val=""):
+            if len(_all_name_vars) >= 10:
+                return
+            var = tk.StringVar(value=initial_val)
+            row_f = tk.Frame(names_frame, bg=C_BG)
+            row_f.pack(fill="x", pady=(0, 2))
+            row_f.bind("<MouseWheel>", _lwheel)
+            row_f.bind("<Button-4>", _lwheel)
+            row_f.bind("<Button-5>", _lwheel)
+
+            ent = _make_entry(row_f, var, hint="My Awesome Company")
+            ent.pack(side="left", fill="x", expand=True, ipady=6)
+            ent.bind("<MouseWheel>", _lwheel)
+            ent.bind("<Button-4>", _lwheel)
+            ent.bind("<Button-5>", _lwheel)
+
+            def _remove(_rf=row_f):
+                idx = next(
+                    (i for i, (v, f) in enumerate(_all_name_vars) if f is _rf), -1
+                )
+                if idx >= 0:
+                    _all_name_vars.pop(idx)
+                _rf.destroy()
+                _update_add_btn()
+
+            rm = _Btn(row_f, C_SURF2, C_SURF, fg_n=C_DIM,
+                      text=" − ", font=("Helvetica", 10, "bold"),
+                      command=_remove, pady=2, padx=6)
+            rm.pack(side="left", padx=(4, 0), ipady=4)
+            rm.bind("<MouseWheel>", _lwheel)
+            rm.bind("<Button-4>", _lwheel)
+            rm.bind("<Button-5>", _lwheel)
+
+            _all_name_vars.append((var, row_f))
+            _update_add_btn()
+
+        _add_name_row(cfg.get("site_name", ""))
+
+        add_name_btn = _Btn(lc, C_SURF2, C_SURF, fg_n=C_DIM,
+                            text="  +  Add name  (1/10)",
+                            font=("Helvetica", 9), command=_add_name_row,
+                            pady=4, padx=8)
+        add_name_btn.pack(anchor="w", pady=(4, 0))
+        add_name_btn.bind("<MouseWheel>", _lwheel)
+        add_name_btn.bind("<Button-4>", _lwheel)
+        add_name_btn.bind("<Button-5>", _lwheel)
+        _add_btn_ref[0] = add_name_btn
+
+        img_row = tk.Frame(lc, bg=C_BG)
         img_row.pack(fill="x", pady=(8, 0))
+        img_row.bind("<MouseWheel>", _lwheel)
+        img_row.bind("<Button-4>", _lwheel)
+        img_row.bind("<Button-5>", _lwheel)
         tk.Label(img_row, text="Images:", bg=C_BG, fg=C_DIM,
                  font=("Helvetica", 9, "bold")).pack(side="left")
         _v_imgs = tk.StringVar(value=str(cfg.get("num_images", 24)))
@@ -11951,20 +12091,30 @@ def _run_tk_gui():
             highlightbackground=C_BORDER,
         )
         imgs_e.pack(side="left", padx=(8, 0), ipady=6)
+        imgs_e.bind("<MouseWheel>", _lwheel)
+        imgs_e.bind("<Button-4>", _lwheel)
+        imgs_e.bind("<Button-5>", _lwheel)
 
         _v_data = tk.StringVar(value=cfg.get("data_dir", "data"))
-        _row_lbl(left, "Data folder")
-        data_e = _make_entry(left, _v_data, hint="data")
+        _row_lbl(lc, "Data folder")
+        data_e = _make_entry(lc, _v_data, hint="data")
         data_e.pack(fill="x", ipady=6, pady=(0, 2))
+        data_e.bind("<MouseWheel>", _lwheel)
+        data_e.bind("<Button-4>", _lwheel)
+        data_e.bind("<Button-5>", _lwheel)
 
         _v_out = tk.StringVar(value=cfg.get("output_dir", "generated_website"))
-        _row_lbl(left, "Output folder")
-        out_e = _make_entry(left, _v_out, hint="generated_website")
+        _row_lbl(lc, "Output folder")
+        out_e = _make_entry(lc, _v_out, hint="generated_website")
         out_e.pack(fill="x", ipady=6, pady=(0, 2))
+        out_e.bind("<MouseWheel>", _lwheel)
+        out_e.bind("<Button-4>", _lwheel)
+        out_e.bind("<Button-5>", _lwheel)
 
         def _do_save_def():
+            first_name = _all_name_vars[0][0].get() if _all_name_vars else ""
             _gui_save_config({
-                "site_name":  _v_name.get(),
+                "site_name":  first_name,
                 "site_type":  _v_stype.get(),
                 "num_images": _v_imgs.get(),
                 "data_dir":   _v_data.get(),
@@ -11972,25 +12122,28 @@ def _run_tk_gui():
             })
             _flash_btn(sd_btn, "  ✓ Saved  ", "  Save defaults  ")
 
-        sd_btn = _Btn(left, C_SURF2, C_SURF, fg_n=C_DIM,
+        sd_btn = _Btn(lc, C_SURF2, C_SURF, fg_n=C_DIM,
                       text="  Save defaults  ",
                       font=("Helvetica", 9), command=_do_save_def,
                       pady=4, padx=8)
-        sd_btn.pack(anchor="w", pady=(8, 0))
-
-        tk.Frame(left, bg=C_BG, height=12).pack()
+        sd_btn.pack(anchor="w", pady=(8, 4))
+        sd_btn.bind("<MouseWheel>", _lwheel)
+        sd_btn.bind("<Button-4>", _lwheel)
+        sd_btn.bind("<Button-5>", _lwheel)
 
         def _do_create():
             if _state["running"]:
                 return
-            desc      = desc_txt.get("1.0", "end").strip()
-            site_name = _v_name.get().strip()
+            desc     = desc_txt.get("1.0", "end").strip()
             site_type = _v_stype.get()
-            num_img   = _v_imgs.get().strip() or "24"
-            data_dir  = _v_data.get().strip()  or "data"
-            out_dir   = _v_out.get().strip()   or "generated_website"
-            api_key   = _v_api.get().strip()
-            bdc_key   = _v_bdc.get().strip()
+            num_img  = _v_imgs.get().strip() or "24"
+            data_dir = _v_data.get().strip()  or "data"
+            out_dir  = _v_out.get().strip()   or "generated_website"
+            api_key  = _v_api.get().strip()
+            bdc_key  = _v_bdc.get().strip()
+
+            names = [v.get().strip() for v, f in _all_name_vars]
+            names = [n for n in names if n] or [""]
 
             if not desc:
                 desc_txt.focus_set()
@@ -12002,7 +12155,8 @@ def _run_tk_gui():
                 con.delete("1.0", "end")
                 con.configure(state="disabled")
 
-            _status_var.set("● running")
+            count = len(names)
+            _status_var.set(f"● running ({count})" if count > 1 else "● running")
             if _W["status_lbl"]:
                 _W["status_lbl"].configure(fg=C_GREEN)
             create_btn._bg_n = C_AMBER_D
@@ -12012,8 +12166,13 @@ def _run_tk_gui():
                 bg=C_AMBER_D,
             )
             _state["running"] = True
+            _state["pending"] = count
+            _state["error_count"] = 0
 
-            _append_console("$ python phpgen_version82.py --generate", C_DIM)
+            if count > 1:
+                _append_console(f"$ Launching {count} parallel generations…", C_DIM)
+            else:
+                _append_console("$ python phpgen_version82.py --generate", C_DIM)
             _append_console("")
 
             env = os.environ.copy()
@@ -12023,13 +12182,16 @@ def _run_tk_gui():
                 env["BYTEDANCE_KEY"] = bdc_key
 
             desc_line = desc.replace("\n", " ").replace("\r", " ")
-            inp = (
-                f"{desc_line}\n{site_type}\n{site_name}\n"
-                f"{num_img}\n{data_dir}\n{out_dir}\n"
-            )
-            threading.Thread(
-                target=_run_subprocess_bg, args=(inp, env), daemon=True
-            ).start()
+            use_labels = count > 1
+            for i, name in enumerate(names):
+                inp = (
+                    f"{desc_line}\n{site_type}\n{name}\n"
+                    f"{num_img}\n{data_dir}\n{out_dir}\n"
+                )
+                lbl = (name if name else str(i + 1)) if use_labels else ""
+                threading.Thread(
+                    target=_run_subprocess_bg, args=(inp, env, lbl), daemon=True
+                ).start()
 
         create_btn = _Btn(
             left, C_AMBER, C_AMBER_H, fg_n=C_BLACK,
@@ -12037,7 +12199,7 @@ def _run_tk_gui():
             font=("Helvetica", 12, "bold"),
             command=_do_create, pady=10,
         )
-        create_btn.pack(fill="x")
+        create_btn.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(8, 0))
         _W["create_btn"] = create_btn
 
         # ── РАЗДЕЛИТЕЛЬ ────────────────────────────────────────────────────
