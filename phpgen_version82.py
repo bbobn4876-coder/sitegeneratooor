@@ -38,7 +38,6 @@ try:
     from textual.binding import Binding
     from textual.containers import Container, Horizontal
     from textual.widgets import Button, Input, RadioButton, RadioSet, RichLog, Static, TextArea
-    from textual.reactive import reactive
     _TEXTUAL_OK = True
 except ImportError:
     _TEXTUAL_OK = False
@@ -11137,7 +11136,7 @@ class GeneratorApp(App):
         Binding("ctrl+q", "quit", "Quit"),
     ]
 
-    _running = reactive(False)
+    _running: bool = False
 
     def __init__(self):
         super().__init__()
