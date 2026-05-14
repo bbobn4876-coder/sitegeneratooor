@@ -13,7 +13,6 @@ import threading
 import subprocess
 from pathlib import Path
 from byteplussdkarkruntime import Ark
-from byteplussdkarkruntime.types.images.images import SequentialImageGenerationOptions
 from dotenv import load_dotenv
 
 # Опциональный импорт для Windows (Ctrl+V в password input)
@@ -4974,8 +4973,15 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         num_sections = random.randint(5, 8)
         return random.sample(all_sections, num_sections)
     
+    # Модели Seedream в порядке предпочтения (от новой к старой)
+    _SEEDREAM_MODELS = [
+        "seedream-4-5-251128",
+        "seedream-4-0-250828",
+        "seedream-3-0-t2i-250415",
+    ]
+
     def generate_image_via_bytedance(self, prompt, filename, output_dir, allow_text=False):
-        """Генерация изображения через ByteDance Ark SDK. Возвращает filename или None."""
+        """Генерация изображения через ByteDance Ark SDK (non-streaming)."""
         try:
             text_restriction = "" if allow_text else ", no text, no words, no letters"
             full_prompt = (
@@ -4985,74 +4991,33 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
 
             image_url = None
 
-            # ── Попытка 1: потоковый режим ──────────────────────────────
-            try:
-                imagesResponse = self.ark_client.images.generate(
-                    model="seedream-4-0-250828",
-                    prompt=full_prompt,
-                    response_format="url",
-                    size="2K",
-                    stream=True,
-                    watermark=False,
-                )
-                for event in imagesResponse:
-                    if event is None:
-                        continue
-                    etype = getattr(event, "type", None)
-                    if etype == "image_generation.partial_failed":
-                        err = getattr(event, "error", None)
-                        code = getattr(err, "code", "unknown") if err else "unknown"
-                        msg  = getattr(err, "message", "") if err else ""
-                        print(f"\n      [BD stream partial_failed] {code}: {msg}", end=" ")
-                        if code == "InternalServiceError":
-                            return None
-                    elif etype == "image_generation.partial_succeeded":
-                        err = getattr(event, "error", None)
-                        url = getattr(event, "url", None)
-                        if err is None and url:
-                            image_url = url
-                    elif etype == "image_generation.completed":
-                        err = getattr(event, "error", None)
-                        if err:
-                            msg = getattr(err, "message", str(err))
-                            print(f"\n      [BD stream completed error] {msg}", end=" ")
-                        break
-                    elif not etype and hasattr(event, "data"):
-                        # Не-потоковый объект внутри итератора
-                        data = getattr(event, "data", None)
-                        if data and len(data) > 0:
-                            image_url = getattr(data[0], "url", None)
-                            break
-
-            except Exception as stream_err:
-                print(f"\n      [BD stream error] {stream_err}", end=" ")
-                # ── Попытка 2: не-потоковый режим ───────────────────────
+            for model in self._SEEDREAM_MODELS:
                 try:
                     resp = self.ark_client.images.generate(
-                        model="seedream-4-0-250828",
+                        model=model,
                         prompt=full_prompt,
                         response_format="url",
-                        size="2K",
                         watermark=False,
                     )
                     data = getattr(resp, "data", None)
                     if data and len(data) > 0:
                         image_url = getattr(data[0], "url", None)
-                except Exception as nostream_err:
-                    print(f"\n      [BD nostream error] {nostream_err}", end=" ")
-                    return None
+                    if image_url:
+                        break
+                except Exception as model_err:
+                    print(f"\n      [BD {model}] {model_err}", end=" ")
+                    continue
 
-            # ── Скачиваем изображение ────────────────────────────────────
-            if image_url:
-                img_response = requests.get(image_url, timeout=60)
-                img_response.raise_for_status()
-                image_path = os.path.join(output_dir, filename)
-                with open(image_path, "wb") as f:
-                    f.write(img_response.content)
-                return filename
-            else:
-                print(f"\n      [BD] URL не получен", end=" ")
+            if not image_url:
+                print(f"\n      [BD] URL не получен ни от одной модели", end=" ")
                 return None
+
+            img_response = requests.get(image_url, timeout=60)
+            img_response.raise_for_status()
+            image_path = os.path.join(output_dir, filename)
+            with open(image_path, "wb") as f:
+                f.write(img_response.content)
+            return filename
 
         except Exception as e:
             print(f"\n      [BD fatal] {e}", end=" ")
