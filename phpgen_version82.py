@@ -11972,18 +11972,29 @@ def _run_tk_gui():
                  font=("Helvetica", 8, "bold"), anchor="w").pack(
             fill="x", pady=(0, 4))
 
-        tk.Label(lc, text="Description", bg=C_BG, fg=C_DIM,
-                 font=("Helvetica", 9, "bold"), anchor="w").pack(
-            fill="x", pady=(0, 2))
-        desc_txt = tk.Text(
-            lc, bg=C_SURF2, fg=C_TEXT, insertbackground=C_TEXT,
-            relief="flat", bd=0, font=("Helvetica", 11),
-            height=4, wrap="word",
-            highlightthickness=1,
-            highlightcolor=C_AMBER,
-            highlightbackground=C_BORDER,
-        )
-        desc_txt.pack(fill="x")
+        _v_theme = tk.StringVar(value=cfg.get("theme", ""))
+        _row_lbl(lc, "Theme")
+        theme_e = _make_entry(lc, _v_theme, hint="e.g. digital agency, restaurant, law firm")
+        theme_e.pack(fill="x", ipady=6, pady=(0, 2))
+        theme_e.bind("<MouseWheel>", _lwheel)
+        theme_e.bind("<Button-4>", _lwheel)
+        theme_e.bind("<Button-5>", _lwheel)
+
+        _v_language = tk.StringVar(value=cfg.get("language", ""))
+        _row_lbl(lc, "Language")
+        lang_e = _make_entry(lc, _v_language, hint="e.g. English, Russian, German")
+        lang_e.pack(fill="x", ipady=6, pady=(0, 2))
+        lang_e.bind("<MouseWheel>", _lwheel)
+        lang_e.bind("<Button-4>", _lwheel)
+        lang_e.bind("<Button-5>", _lwheel)
+
+        _v_country = tk.StringVar(value=cfg.get("country", ""))
+        _row_lbl(lc, "Country")
+        country_e = _make_entry(lc, _v_country, hint="e.g. United States, Germany, Estonia")
+        country_e.pack(fill="x", ipady=6, pady=(0, 2))
+        country_e.bind("<MouseWheel>", _lwheel)
+        country_e.bind("<Button-4>", _lwheel)
+        country_e.bind("<Button-5>", _lwheel)
 
         _row_lbl(lc, "Site type")
         _v_stype = tk.StringVar(value=cfg.get("site_type", "landing"))
@@ -12115,6 +12126,9 @@ def _run_tk_gui():
             first_name = _all_name_vars[0][0].get() if _all_name_vars else ""
             _gui_save_config({
                 "site_name":  first_name,
+                "theme":      _v_theme.get(),
+                "language":   _v_language.get(),
+                "country":    _v_country.get(),
                 "site_type":  _v_stype.get(),
                 "num_images": _v_imgs.get(),
                 "data_dir":   _v_data.get(),
@@ -12134,7 +12148,10 @@ def _run_tk_gui():
         def _do_create():
             if _state["running"]:
                 return
-            desc     = desc_txt.get("1.0", "end").strip()
+            theme    = _v_theme.get().strip()
+            language = _v_language.get().strip()
+            country  = _v_country.get().strip()
+            desc     = f"Theme: {theme}. Language: {language}. Country: {country}."
             site_type = _v_stype.get()
             num_img  = _v_imgs.get().strip() or "24"
             data_dir = _v_data.get().strip()  or "data"
@@ -12145,8 +12162,8 @@ def _run_tk_gui():
             names = [v.get().strip() for v, f in _all_name_vars]
             names = [n for n in names if n] or [""]
 
-            if not desc:
-                desc_txt.focus_set()
+            if not theme:
+                theme_e.focus_set()
                 return
 
             con = _W["console_txt"]
