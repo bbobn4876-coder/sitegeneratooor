@@ -11612,7 +11612,7 @@ def _run_dpg_gui():
         _flash_btn("save_keys_btn", "  ✓ Saved  ", 1.5)
 
     def cb_save_defaults(sender, app_data, user_data):
-        stype = "multipage" if dpg.get_value("site_type") == 1 else "landing"
+        stype = "multipage" if dpg.get_value("site_type") == "multipage" else "landing"
         _gui_save_config({
             "site_name":  dpg.get_value("site_name"),
             "site_type":  stype,
@@ -11640,8 +11640,7 @@ def _run_dpg_gui():
             return
         desc      = dpg.get_value("description").strip()
         site_name = dpg.get_value("site_name").strip()
-        stype_idx = dpg.get_value("site_type")
-        site_type = "multipage" if stype_idx == 1 else "landing"
+        site_type = "multipage" if dpg.get_value("site_type") == "multipage" else "landing"
         num_img   = str(dpg.get_value("num_images")).strip() or "24"
         data_dir  = dpg.get_value("data_dir").strip()  or "data"
         out_dir   = dpg.get_value("output_dir").strip() or "generated_website"
@@ -11760,8 +11759,8 @@ def _run_dpg_gui():
     # ── Viewport ───────────────────────────────────────────────────────────
     dpg.create_viewport(
         title="PHP Site Generator",
-        width=920, height=760,
-        min_width=720, min_height=560,
+        width=980, height=700,
+        min_width=760, min_height=560,
         small_icon="", large_icon="",
     )
     dpg.setup_dearpygui()
@@ -11782,7 +11781,7 @@ def _run_dpg_gui():
         no_scrollbar=True,
         width=380, height=290,
         show=not trusted,
-        pos=[270, 235],
+        pos=[300, 205],
     ):
         dpg.add_spacer(height=10)
         # Логотип
@@ -11832,7 +11831,7 @@ def _run_dpg_gui():
     # ──────────────────────────────────────────────────────────────────────
     # ГЛАВНОЕ ОКНО
     # ──────────────────────────────────────────────────────────────────────
-    W, H = 920, 760
+    W, H = 980, 700
 
     with dpg.window(
         tag="main_win",
@@ -11854,85 +11853,108 @@ def _run_dpg_gui():
             dpg.add_spacer(width=8)
             dpg.add_text("PHP Site Generator", color=C_TEXT)
             dpg.add_spacer(width=8)
-            dpg.add_text("v82 · terminal ui", color=C_DIM)
+            dpg.add_text("v82", color=C_DIM)
         dpg.add_spacer(height=4)
         dpg.add_separator()
-        dpg.add_spacer(height=6)
+        dpg.add_spacer(height=8)
 
         # ── Две колонки: форма (левая) + консоль (правая) ──────────────────
-        FORM_W  = 340
-        CON_W   = W - FORM_W - 54   # 54 = padding*2 + gap
+        FORM_W = 360
+        CON_W  = W - FORM_W - 54   # 54 = padding*2 + gap
 
         with dpg.group(horizontal=True):
 
-            # ── ЛЕВАЯ КОЛОНКА: форма ───────────────────────────────────────
-            with dpg.child_window(width=FORM_W, height=H-100, border=False, no_scrollbar=False):
-
-                # SETTINGS
-                dpg.add_text("SETTINGS", color=C_DIM)
-                dpg.add_spacer(height=2)
-                with dpg.child_window(width=-1, height=130, border=True):
-                    dpg.add_spacer(height=2)
-                    dpg.add_text("api_key", color=C_DIM)
-                    dpg.add_input_text(tag="api_key", width=-1, password=True,
-                                       hint="sk-or-v1-…",
-                                       default_value=cfg.get("api_key",""))
-                    dpg.add_spacer(height=4)
-                    dpg.add_text("bytedance_key", color=C_DIM)
-                    dpg.add_input_text(tag="bytedance_key", width=-1, password=True,
-                                       hint="ark-…",
-                                       default_value=cfg.get("bytedance_key",""))
-                    dpg.add_spacer(height=6)
-                    dpg.add_button(tag="save_keys_btn", label="  Save keys  ",
-                                   callback=cb_save_keys)
-                    dpg.bind_item_theme("save_keys_btn", save_theme)
-
-                dpg.add_spacer(height=10)
-
-                # GENERATION
-                dpg.add_text("GENERATION", color=C_DIM)
-                dpg.add_spacer(height=2)
-                with dpg.child_window(width=-1, height=H-310, border=True):
-                    dpg.add_spacer(height=2)
-                    dpg.add_text("description", color=C_DIM)
-                    dpg.add_input_text(tag="description", multiline=True,
-                                       width=-1, height=90,
-                                       hint="Describe your website…",
-                                       default_value="")
-                    dpg.add_spacer(height=6)
-                    dpg.add_text("site_type", color=C_DIM)
-                    dpg.add_radio_button(
-                        ("landing", "multipage"),
-                        tag="site_type",
-                        default_value="multipage" if cfg.get("site_type","landing")=="multipage" else "landing",
-                        horizontal=False,
-                    )
-                    dpg.add_spacer(height=6)
-                    dpg.add_text("site_name", color=C_DIM)
-                    dpg.add_input_text(tag="site_name", width=-1,
-                                       hint="My Awesome Company",
-                                       default_value=cfg.get("site_name",""))
-                    dpg.add_spacer(height=6)
-                    dpg.add_text("num_images", color=C_DIM)
-                    dpg.add_input_text(tag="num_images", width=-1,
-                                       hint="24",
-                                       default_value=str(cfg.get("num_images",24)))
-                    dpg.add_spacer(height=6)
-                    dpg.add_text("data_dir", color=C_DIM)
-                    dpg.add_input_text(tag="data_dir", width=-1,
-                                       hint="data",
-                                       default_value=cfg.get("data_dir","data"))
-                    dpg.add_spacer(height=6)
-                    dpg.add_text("output_dir", color=C_DIM)
-                    dpg.add_input_text(tag="output_dir", width=-1,
-                                       hint="generated_website",
-                                       default_value=cfg.get("output_dir","generated_website"))
-                    dpg.add_spacer(height=8)
-                    dpg.add_button(tag="save_def_btn", label="  Save defaults  ",
-                                   callback=cb_save_defaults)
-                    dpg.bind_item_theme("save_def_btn", save_theme)
+            # ── ЛЕВАЯ КОЛОНКА: вся форма без скролла ──────────────────────
+            with dpg.child_window(
+                width=FORM_W, height=H - 52,
+                border=False, no_scrollbar=True,
+            ):
+                # ── API ключи ─────────────────────────────────────────────
+                dpg.add_text("API KEYS", color=C_DIM)
+                dpg.add_spacer(height=3)
+                dpg.add_input_text(
+                    tag="api_key", width=-1, password=True,
+                    hint="OpenRouter key  sk-or-v1-…",
+                    default_value=cfg.get("api_key", ""),
+                )
+                dpg.add_spacer(height=4)
+                dpg.add_input_text(
+                    tag="bytedance_key", width=-1, password=True,
+                    hint="ByteDance key  ark-…",
+                    default_value=cfg.get("bytedance_key", ""),
+                )
+                dpg.add_spacer(height=6)
+                dpg.add_button(
+                    tag="save_keys_btn", label="  Save keys  ",
+                    callback=cb_save_keys,
+                )
+                dpg.bind_item_theme("save_keys_btn", save_theme)
 
                 dpg.add_spacer(height=8)
+                dpg.add_separator()
+                dpg.add_spacer(height=8)
+
+                # ── Параметры генерации ───────────────────────────────────
+                dpg.add_text("GENERATION", color=C_DIM)
+                dpg.add_spacer(height=3)
+
+                dpg.add_input_text(
+                    tag="description", multiline=True,
+                    width=-1, height=76,
+                    hint="Describe your website…",
+                    default_value="",
+                )
+                dpg.add_spacer(height=6)
+
+                # Тип сайта (горизонтальное радио)
+                dpg.add_radio_button(
+                    ("landing", "multipage"),
+                    tag="site_type",
+                    default_value="multipage" if cfg.get("site_type", "landing") == "multipage" else "landing",
+                    horizontal=True,
+                )
+                dpg.add_spacer(height=6)
+
+                dpg.add_text("Site name", color=C_DIM)
+                dpg.add_input_text(
+                    tag="site_name", width=-1,
+                    hint="My Awesome Company",
+                    default_value=cfg.get("site_name", ""),
+                )
+                dpg.add_spacer(height=6)
+
+                # Images count — строка: метка + поле 80px
+                with dpg.group(horizontal=True):
+                    dpg.add_text("Images:", color=C_DIM)
+                    dpg.add_input_text(
+                        tag="num_images", width=80,
+                        hint="24",
+                        default_value=str(cfg.get("num_images", 24)),
+                    )
+                dpg.add_spacer(height=6)
+
+                dpg.add_text("Data folder", color=C_DIM)
+                dpg.add_input_text(
+                    tag="data_dir", width=-1,
+                    hint="data",
+                    default_value=cfg.get("data_dir", "data"),
+                )
+                dpg.add_spacer(height=6)
+
+                dpg.add_text("Output folder", color=C_DIM)
+                dpg.add_input_text(
+                    tag="output_dir", width=-1,
+                    hint="generated_website",
+                    default_value=cfg.get("output_dir", "generated_website"),
+                )
+                dpg.add_spacer(height=8)
+                dpg.add_button(
+                    tag="save_def_btn", label="  Save defaults  ",
+                    callback=cb_save_defaults,
+                )
+                dpg.bind_item_theme("save_def_btn", save_theme)
+
+                dpg.add_spacer(height=10)
                 dpg.add_button(
                     tag="create_btn",
                     label="  ▶   Create",
@@ -11945,7 +11967,6 @@ def _run_dpg_gui():
 
             # ── ПРАВАЯ КОЛОНКА: консоль ────────────────────────────────────
             with dpg.group():
-                # Шапка консоли
                 with dpg.group(horizontal=True):
                     dpg.add_text("⬤ ", color=(255,95,87,255))
                     dpg.add_text("⬤ ", color=(254,188,46,255))
@@ -11961,14 +11982,13 @@ def _run_dpg_gui():
                 with dpg.child_window(
                     tag="console_win",
                     width=CON_W,
-                    height=H - 94,
+                    height=H - 56,
                     border=True,
                 ):
                     with dpg.theme() as con_theme:
                         with dpg.theme_component(dpg.mvChildWindow):
                             dpg.add_theme_color(dpg.mvThemeCol_ChildBg, (10,10,10,255))
                     dpg.bind_item_theme("console_win", con_theme)
-
                     _state["console_id"] = dpg.add_group(tag="console_content")
 
     # ── Применяем глобальную тему ──────────────────────────────────────────
@@ -12027,6 +12047,22 @@ if __name__ == "__main__":
             _data_dir = "data"
         if not _output_dir:
             _output_dir = "generated_website"
+
+        # Создаём пронумерованную подпапку (1, 2, 3…) внутри _output_dir.
+        # os.mkdir() атомарна: при гонке двух процессов один получает папку,
+        # другой — FileExistsError и пробует следующий номер.
+        def _claim_numbered_dir(base):
+            os.makedirs(base, exist_ok=True)
+            for _n in range(1, 100000):
+                _d = os.path.join(base, str(_n))
+                try:
+                    os.mkdir(_d)
+                    return _d
+                except FileExistsError:
+                    continue
+            raise RuntimeError("Слишком много папок вывода")
+
+        _output_dir = _claim_numbered_dir(_output_dir)
 
         print()
         print("=" * 60)
