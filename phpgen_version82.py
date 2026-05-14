@@ -10898,7 +10898,8 @@ Screen {
 .app-container {
     width: 100%;
     height: 100%;
-    padding: 1 2;
+    layout: vertical;
+    padding: 0 2;
 }
 .header-bar {
     height: 3;
@@ -10927,17 +10928,27 @@ Screen {
     width: 1fr;
     text-align: right;
 }
+.form-scroll {
+    height: auto;
+    max-height: 60%;
+    overflow-y: auto;
+    scrollbar-background: #0d0d0d;
+    scrollbar-color: #2a2a2a;
+}
 .section-label {
     color: #555555;
     text-style: bold;
     margin-bottom: 0;
     padding: 0 1;
+    height: 2;
+    content-align: left bottom;
 }
 .box {
     border: solid #2a2a2a;
     background: #141414;
     margin-bottom: 1;
     padding: 0;
+    height: auto;
 }
 .field-row {
     height: 3;
@@ -10945,9 +10956,6 @@ Screen {
     align: left middle;
     border-bottom: solid #1e1e1e;
     padding: 0 1;
-}
-.field-row:last-of-type {
-    border-bottom: none;
 }
 .field-label {
     width: 18;
@@ -10966,19 +10974,53 @@ Screen {
     background: #141414;
     color: #60a5fa;
 }
-.radio-row {
-    height: 3;
+.desc-row {
+    height: auto;
+    min-height: 5;
     layout: horizontal;
-    align: left middle;
     border-bottom: solid #1e1e1e;
     padding: 0 1;
+    align: left top;
+}
+.desc-label {
+    width: 18;
+    color: #555555;
+    padding-top: 1;
+}
+.desc-area {
+    background: #141414;
+    border: none;
+    color: #e0e0e0;
+    width: 1fr;
+    height: 4;
+    padding: 0;
+}
+.desc-area:focus {
+    border: none;
+    background: #141414;
+}
+TextArea .text-area--cursor {
+    background: #d97706;
+}
+.radio-section-row {
+    height: auto;
+    layout: horizontal;
+    border-bottom: solid #1e1e1e;
+    padding: 0 1;
+    align: left top;
+}
+.radio-label {
+    width: 18;
+    color: #555555;
+    padding-top: 1;
 }
 RadioSet {
     background: #141414;
     border: none;
     padding: 0;
-    height: 1;
+    height: auto;
     width: 1fr;
+    layout: vertical;
 }
 RadioSet:focus {
     border: none;
@@ -10987,7 +11029,8 @@ RadioButton {
     background: #141414;
     border: none;
     color: #888888;
-    padding: 0 1 0 0;
+    height: 2;
+    padding: 0;
 }
 RadioButton:hover {
     background: #141414;
@@ -11000,26 +11043,29 @@ RadioButton > .toggle--button {
     color: #d97706;
     background: #141414;
 }
-.desc-row {
-    min-height: 6;
-    layout: horizontal;
-    border-bottom: none;
-    padding: 0 1;
+.save-btn {
+    margin: 1 1 0 1;
+    background: #1e1e1e;
+    color: #555555;
+    border: solid #2a2a2a;
+    height: 2;
+    width: auto;
+    min-width: 20;
+    text-style: none;
 }
-.desc-area {
-    background: #141414;
-    border: none;
-    color: #e0e0e0;
-    width: 1fr;
-    height: 5;
-    padding: 0;
+.save-btn:hover {
+    background: #252525;
+    color: #888888;
+    border: solid #3a3a3a;
 }
-.desc-area:focus {
-    border: none;
-    background: #141414;
+.save-btn:focus {
+    border: solid #d97706;
+    color: #d97706;
+    background: #1e1e1e;
 }
-TextArea .text-area--cursor {
-    background: #d97706;
+.save-btn.saved {
+    color: #22c55e;
+    border: solid #166534;
 }
 .create-btn {
     width: 100%;
@@ -11068,15 +11114,9 @@ TextArea .text-area--cursor {
     text-align: right;
     color: #444444;
 }
-.console-status.running {
-    color: #22c55e;
-}
-.console-status.done {
-    color: #22c55e;
-}
-.console-status.error {
-    color: #ef4444;
-}
+.console-status.running { color: #22c55e; }
+.console-status.done    { color: #22c55e; }
+.console-status.error   { color: #ef4444; }
 RichLog {
     background: #0a0a0a;
     color: #e0e0e0;
@@ -11105,57 +11145,107 @@ class GeneratorApp(App):
         self._cfg = _gui_load_config()
 
     def compose(self) -> ComposeResult:
+        from textual.containers import ScrollableContainer
         cfg = self._cfg
         with Container(classes="app-container"):
+            # ── Header ──────────────────────────────────────────────────
             with Horizontal(classes="header-bar"):
                 yield Static(" G ", classes="header-logo")
                 yield Static("PHP Site Generator", classes="header-title")
                 yield Static("v82 · terminal ui", classes="header-version")
 
-            yield Static("SETTINGS", classes="section-label")
-            with Container(classes="box"):
-                with Horizontal(classes="field-row"):
-                    yield Static("api_key", classes="field-label")
-                    yield Input(
-                        value=cfg.get("api_key", ""),
-                        placeholder="sk-or-v1-…",
-                        password=True,
-                        id="api_key",
-                        classes="field-input",
-                    )
-                with Horizontal(classes="field-row"):
-                    yield Static("bytedance_key", classes="field-label")
-                    yield Input(
-                        value=cfg.get("bytedance_key", ""),
-                        placeholder="ark-…",
-                        password=True,
-                        id="bytedance_key",
-                        classes="field-input",
-                    )
+            # ── Scrollable form area ─────────────────────────────────────
+            with ScrollableContainer(classes="form-scroll"):
 
-            yield Static("GENERATION", classes="section-label")
-            with Container(classes="box"):
-                with Horizontal(classes="field-row"):
-                    yield Static("site_name", classes="field-label")
-                    yield Input(
-                        placeholder="My Awesome Company",
-                        id="site_name",
-                        classes="field-input",
-                    )
-                with Horizontal(classes="radio-row"):
-                    yield Static("site_type", classes="field-label")
-                    with RadioSet(id="site_type"):
-                        yield RadioButton("landing", value=True, id="rb_landing")
-                        yield RadioButton("multipage", id="rb_multipage")
-                with Horizontal(classes="desc-row"):
-                    yield Static("description", classes="field-label")
-                    yield TextArea(
-                        id="description",
-                        classes="desc-area",
-                    )
+                # ── SETTINGS ────────────────────────────────────────────
+                yield Static("SETTINGS", classes="section-label")
+                with Container(classes="box"):
+                    with Horizontal(classes="field-row"):
+                        yield Static("api_key", classes="field-label")
+                        yield Input(
+                            value=cfg.get("api_key", ""),
+                            placeholder="sk-or-v1-…",
+                            password=True,
+                            id="api_key",
+                            classes="field-input",
+                        )
+                    with Horizontal(classes="field-row"):
+                        yield Static("bytedance_key", classes="field-label")
+                        yield Input(
+                            value=cfg.get("bytedance_key", ""),
+                            placeholder="ark-…",
+                            password=True,
+                            id="bytedance_key",
+                            classes="field-input",
+                        )
+                    yield Button("↓ Save keys", id="save_keys_btn", classes="save-btn")
 
+                # ── GENERATION ──────────────────────────────────────────
+                yield Static("GENERATION", classes="section-label")
+                with Container(classes="box"):
+                    # 1. Description
+                    with Horizontal(classes="desc-row"):
+                        yield Static("description", classes="desc-label")
+                        yield TextArea(
+                            id="description",
+                            classes="desc-area",
+                        )
+                    # 2. Site type (vertical radio)
+                    with Horizontal(classes="radio-section-row"):
+                        yield Static("site_type", classes="radio-label")
+                        with RadioSet(id="site_type_set"):
+                            yield RadioButton(
+                                "landing",
+                                value=(cfg.get("site_type", "landing") == "landing"),
+                                id="rb_landing",
+                            )
+                            yield RadioButton(
+                                "multipage",
+                                value=(cfg.get("site_type", "landing") == "multipage"),
+                                id="rb_multipage",
+                            )
+                    # 3. Site name
+                    with Horizontal(classes="field-row"):
+                        yield Static("site_name", classes="field-label")
+                        yield Input(
+                            value=cfg.get("site_name", ""),
+                            placeholder="My Awesome Company",
+                            id="site_name",
+                            classes="field-input",
+                        )
+                    # 4. Number of images
+                    with Horizontal(classes="field-row"):
+                        yield Static("num_images", classes="field-label")
+                        yield Input(
+                            value=str(cfg.get("num_images", 24)),
+                            placeholder="24",
+                            id="num_images",
+                            classes="field-input",
+                        )
+                    # 5. Data folder
+                    with Horizontal(classes="field-row"):
+                        yield Static("data_dir", classes="field-label")
+                        yield Input(
+                            value=cfg.get("data_dir", "data"),
+                            placeholder="data",
+                            id="data_dir",
+                            classes="field-input",
+                        )
+                    # 6. Output folder
+                    with Horizontal(classes="field-row"):
+                        yield Static("output_dir", classes="field-label")
+                        yield Input(
+                            value=cfg.get("output_dir", "generated_website"),
+                            placeholder="generated_website",
+                            id="output_dir",
+                            classes="field-input",
+                        )
+                    yield Button("↓ Save defaults", id="save_defaults_btn", classes="save-btn")
+
+            # ── Create button ────────────────────────────────────────────
             yield Button("▶   Create", id="create_btn", classes="create-btn")
 
+            # ── Console ──────────────────────────────────────────────────
             with Container(classes="console-outer"):
                 with Horizontal(classes="console-bar"):
                     yield Static("⬤ ⬤ ⬤", classes="console-dots")
@@ -11169,29 +11259,57 @@ class GeneratorApp(App):
                     auto_scroll=True,
                 )
 
+    # ── Button handlers ──────────────────────────────────────────────────
+
     @_tui_on(Button.Pressed, "#create_btn")
     def on_create(self) -> None:
         if self._running:
             return
         self._start_generation()
 
-    @_tui_on(Input.Submitted)
-    def on_input_submitted(self) -> None:
-        self._start_generation()
-
-    def _start_generation(self) -> None:
+    @_tui_on(Button.Pressed, "#save_keys_btn")
+    def on_save_keys(self) -> None:
         api_key = self.query_one("#api_key", Input).value.strip()
         bdc_key = self.query_one("#bytedance_key", Input).value.strip()
-        site_name = self.query_one("#site_name", Input).value.strip()
-        description = self.query_one("#description", TextArea).text.strip()
+        _gui_save_config({"api_key": api_key, "bytedance_key": bdc_key})
+        self._flash_saved("save_keys_btn")
+
+    @_tui_on(Button.Pressed, "#save_defaults_btn")
+    def on_save_defaults(self) -> None:
         site_type = "multipage" if self.query_one("#rb_multipage", RadioButton).value else "landing"
+        _gui_save_config({
+            "site_name":  self.query_one("#site_name", Input).value.strip(),
+            "site_type":  site_type,
+            "num_images": self.query_one("#num_images", Input).value.strip(),
+            "data_dir":   self.query_one("#data_dir", Input).value.strip(),
+            "output_dir": self.query_one("#output_dir", Input).value.strip(),
+        })
+        self._flash_saved("save_defaults_btn")
+
+    def _flash_saved(self, btn_id: str) -> None:
+        btn = self.query_one(f"#{btn_id}", Button)
+        btn.label = "✓ Saved"
+        btn.add_class("saved")
+        self.set_timer(1.5, lambda: self._reset_save_btn(btn_id))
+
+    def _reset_save_btn(self, btn_id: str) -> None:
+        btn = self.query_one(f"#{btn_id}", Button)
+        btn.label = "↓ Save keys" if btn_id == "save_keys_btn" else "↓ Save defaults"
+        btn.remove_class("saved")
+
+    def _start_generation(self) -> None:
+        api_key     = self.query_one("#api_key", Input).value.strip()
+        bdc_key     = self.query_one("#bytedance_key", Input).value.strip()
+        site_name   = self.query_one("#site_name", Input).value.strip()
+        description = self.query_one("#description", TextArea).text.strip()
+        site_type   = "multipage" if self.query_one("#rb_multipage", RadioButton).value else "landing"
+        num_images  = self.query_one("#num_images", Input).value.strip() or "24"
+        data_dir    = self.query_one("#data_dir", Input).value.strip() or "data"
+        output_dir  = self.query_one("#output_dir", Input).value.strip() or "generated_website"
 
         if not description:
             self.query_one("#description", TextArea).focus()
             return
-
-        if api_key or bdc_key:
-            _gui_save_config({"api_key": api_key, "bytedance_key": bdc_key})
 
         log = self.query_one("#console_log", RichLog)
         log.clear()
@@ -11208,9 +11326,8 @@ class GeneratorApp(App):
         if bdc_key:
             env["BYTEDANCE_KEY"] = bdc_key
 
-        # Send description as single line (replace newlines with spaces)
         desc_line = description.replace("\n", " ").replace("\r", " ")
-        inp = f"{desc_line}\n{site_type}\n{site_name}\n"
+        inp = f"{desc_line}\n{site_type}\n{site_name}\n{num_images}\n{data_dir}\n{output_dir}\n"
 
         threading.Thread(
             target=self._run_subprocess,
@@ -11315,11 +11432,14 @@ def _gui_esc(t: str) -> str:
 if __name__ == "__main__":
     if "--generate" in sys.argv:
         # ── Headless generator mode (called by GUI subprocess) ──────────
-        # Reads from stdin: line1=description, line2=site_type, line3=site_name
+        # stdin lines: description, site_type, site_name, num_images, data_dir, output_dir
         _stdin_lines = sys.stdin.read().splitlines()
         _user_prompt = _stdin_lines[0].strip() if len(_stdin_lines) > 0 else ""
         _site_type   = _stdin_lines[1].strip() if len(_stdin_lines) > 1 else "landing"
         _site_name   = _stdin_lines[2].strip() if len(_stdin_lines) > 2 else ""
+        _ni_raw      = _stdin_lines[3].strip() if len(_stdin_lines) > 3 else ""
+        _data_dir    = _stdin_lines[4].strip() if len(_stdin_lines) > 4 else ""
+        _output_dir  = _stdin_lines[5].strip() if len(_stdin_lines) > 5 else ""
 
         if not _user_prompt:
             print("❌ Промпт пустой!")
@@ -11328,9 +11448,16 @@ if __name__ == "__main__":
             print("❌ Название не может быть пустым!")
             sys.exit(1)
 
-        _num_images = 24
-        _data_dir   = "data"
-        _output_dir = "generated_website"
+        try:
+            _num_images = int(_ni_raw) if _ni_raw else 24
+            if _num_images < 10:
+                _num_images = 10
+        except ValueError:
+            _num_images = 24
+        if not _data_dir:
+            _data_dir = "data"
+        if not _output_dir:
+            _output_dir = "generated_website"
 
         print()
         print("=" * 60)
