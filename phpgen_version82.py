@@ -407,10 +407,31 @@ class PHPWebsiteGenerator:
                     _cfg = _json.load(_f)
             except Exception:
                 pass
-        self.api_key = (api_key or os.environ.get('OPENROUTER_API_KEY') or _cfg.get('api_key') or
-                        "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")
-        self.bytedance_key = (bytedance_key or os.environ.get('BYTEDANCE_KEY') or _cfg.get('bytedance_key') or
-                              "ark-d010e341-cb4f-4a84-89e7-d26637845463-9bf03")
+
+        def _pick(arg, env_name, cfg_key, default):
+            """Выбирает первый непустой источник и логирует его."""
+            sources = [
+                (arg,                                           "constructor arg"),
+                (os.environ.get(env_name),                     f"env {env_name}"),
+                (_cfg.get(cfg_key),                            "generator_config.json"),
+                (default,                                       "hardcoded default"),
+            ]
+            for val, label in sources:
+                if val and val.strip():
+                    return val.strip(), label
+            return "", "none"
+
+        self.api_key, _ak_src = _pick(
+            api_key, "OPENROUTER_API_KEY", "api_key",
+            "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",
+        )
+        self.bytedance_key, _bk_src = _pick(
+            bytedance_key, "BYTEDANCE_KEY", "bytedance_key",
+            "ark-d010e341-cb4f-4a84-89e7-d26637845463-9bf03",
+        )
+
+        print(f"🔑 OpenRouter key : {self.api_key[:18]}…  (source: {_ak_src})")
+        print(f"🔑 ByteDance key  : {self.bytedance_key[:18]}…  (source: {_bk_src})")
         
         self.api_url = "https://openrouter.ai/api/v1/chat/completions"
         self.code_model = "google/gemini-2.5-flash"
@@ -648,19 +669,46 @@ class PHPWebsiteGenerator:
                     return None
                     
             except requests.exceptions.HTTPError as e:
-                if e.response.status_code >= 500:
+                status = e.response.status_code
+                # Пытаемся показать тело ответа (OpenRouter возвращает JSON с причиной)
+                try:
+                    err_body = e.response.json()
+                    err_msg = (err_body.get("error", {}) or {}).get("message", "") \
+                              or str(err_body)
+                except Exception:
+                    err_msg = e.response.text[:300]
+
+                if status == 401:
+                    print(f"    ✗ Ошибка 401 Unauthorized — неверный или просроченный ключ")
+                    print(f"      Используется ключ: {self.api_key[:18]}…")
+                    print(f"      Детали: {err_msg}")
+                    print(f"      Совет: введите актуальный ключ в поле API Key и нажмите Save keys,")
+                    print(f"             либо удалите generator_config.json и перезапустите.")
+                    return None
+                elif status == 402:
+                    print(f"    ✗ Ошибка 402 — нет кредитов на счёте OpenRouter")
+                    print(f"      Детали: {err_msg}")
+                    return None
+                elif status == 429:
                     if attempt < 4:
                         import time
-                        # Экспоненциальная задержка: 5, 10, 15, 20 секунд
-                        delay = 5 * (attempt + 1)
-                        print(f"    ⚠️  Ошибка сервера {e.response.status_code}, попытка {attempt + 2}/5... (ожидание {delay}с)")
+                        delay = 10 * (attempt + 1)
+                        print(f"    ⚠️  Rate limit (429), ожидание {delay}с перед попыткой {attempt + 2}/5…")
                         time.sleep(delay)
                         continue
-                    else:
-                        print(f"    ✗ Ошибка API после 5 попыток: {e.response.status_code}")
-                        return None
+                    print(f"    ✗ Rate limit после 5 попыток")
+                    return None
+                elif status >= 500:
+                    if attempt < 4:
+                        import time
+                        delay = 5 * (attempt + 1)
+                        print(f"    ⚠️  Ошибка сервера {status}, попытка {attempt + 2}/5… (ожидание {delay}с)")
+                        time.sleep(delay)
+                        continue
+                    print(f"    ✗ Ошибка сервера {status} после 5 попыток: {err_msg}")
+                    return None
                 else:
-                    print(f"    ✗ Ошибка API: {e.response.status_code}")
+                    print(f"    ✗ Ошибка API {status}: {err_msg}")
                     return None
                     
             except (KeyError, ValueError, json.JSONDecodeError) as e:
