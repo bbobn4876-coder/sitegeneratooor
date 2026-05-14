@@ -4975,55 +4975,87 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         return random.sample(all_sections, num_sections)
     
     def generate_image_via_bytedance(self, prompt, filename, output_dir, allow_text=False):
-        """Генерация изображения через ByteDance Ark SDK"""
-        # Убрали вывод отсюда - он делается в generate_images_for_site
-
+        """Генерация изображения через ByteDance Ark SDK. Возвращает filename или None."""
         try:
-            # Формируем промпт с условным добавлением ограничения на текст
             text_restriction = "" if allow_text else ", no text, no words, no letters"
-            full_prompt = f"{prompt}, professional photography, high quality, photorealistic, 4K{text_restriction}"
-
-            # Генерация изображения через Ark API
-            imagesResponse = self.ark_client.images.generate(
-                model="seedream-4-0-250828",
-                prompt=full_prompt,
-                response_format="url",
-                size="2K",
-                stream=True,
-                watermark=False
+            full_prompt = (
+                f"{prompt}, professional photography, high quality, "
+                f"photorealistic, 4K{text_restriction}"
             )
-            
+
             image_url = None
-            for event in imagesResponse:
-                if event is None:
-                    continue
-                    
-                if event.type == "image_generation.partial_failed":
-                    if event.error is not None and hasattr(event.error, 'code') and event.error.code == "InternalServiceError":
-                        return None
 
-                elif event.type == "image_generation.partial_succeeded":
-                    if event.error is None and event.url:
-                        image_url = event.url
-
-                elif event.type == "image_generation.completed":
-                    if event.error is None:
+            # ── Попытка 1: потоковый режим ──────────────────────────────
+            try:
+                imagesResponse = self.ark_client.images.generate(
+                    model="seedream-4-0-250828",
+                    prompt=full_prompt,
+                    response_format="url",
+                    size="2K",
+                    stream=True,
+                    watermark=False,
+                )
+                for event in imagesResponse:
+                    if event is None:
+                        continue
+                    etype = getattr(event, "type", None)
+                    if etype == "image_generation.partial_failed":
+                        err = getattr(event, "error", None)
+                        code = getattr(err, "code", "unknown") if err else "unknown"
+                        msg  = getattr(err, "message", "") if err else ""
+                        print(f"\n      [BD stream partial_failed] {code}: {msg}", end=" ")
+                        if code == "InternalServiceError":
+                            return None
+                    elif etype == "image_generation.partial_succeeded":
+                        err = getattr(event, "error", None)
+                        url = getattr(event, "url", None)
+                        if err is None and url:
+                            image_url = url
+                    elif etype == "image_generation.completed":
+                        err = getattr(event, "error", None)
+                        if err:
+                            msg = getattr(err, "message", str(err))
+                            print(f"\n      [BD stream completed error] {msg}", end=" ")
                         break
+                    elif not etype and hasattr(event, "data"):
+                        # Не-потоковый объект внутри итератора
+                        data = getattr(event, "data", None)
+                        if data and len(data) > 0:
+                            image_url = getattr(data[0], "url", None)
+                            break
 
-            # Скачивание изображения
+            except Exception as stream_err:
+                print(f"\n      [BD stream error] {stream_err}", end=" ")
+                # ── Попытка 2: не-потоковый режим ───────────────────────
+                try:
+                    resp = self.ark_client.images.generate(
+                        model="seedream-4-0-250828",
+                        prompt=full_prompt,
+                        response_format="url",
+                        size="2K",
+                        watermark=False,
+                    )
+                    data = getattr(resp, "data", None)
+                    if data and len(data) > 0:
+                        image_url = getattr(data[0], "url", None)
+                except Exception as nostream_err:
+                    print(f"\n      [BD nostream error] {nostream_err}", end=" ")
+                    return None
+
+            # ── Скачиваем изображение ────────────────────────────────────
             if image_url:
                 img_response = requests.get(image_url, timeout=60)
                 img_response.raise_for_status()
-
                 image_path = os.path.join(output_dir, filename)
-                with open(image_path, 'wb') as f:
+                with open(image_path, "wb") as f:
                     f.write(img_response.content)
-
                 return filename
             else:
+                print(f"\n      [BD] URL не получен", end=" ")
                 return None
 
         except Exception as e:
+            print(f"\n      [BD fatal] {e}", end=" ")
             return None
     
     def generate_placeholder_image(self, filename, output_dir, description=""):
@@ -5487,31 +5519,41 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
 
         generated_count = 0
 
+        real_count = 0
+        placeholder_count = 0
+
         # ЭТАП 1: Генерируем ВСЕ обязательные изображения (без ограничения num_images)
         print(f"\n   🔥 Этап 1/2: Генерация обязательных изображений ({len(required_images)} шт)...")
         for img_data in required_images:
-            print(f"      → {img_data['filename']}...", end=' ')
+            print(f"      → {img_data['filename']}...", end=' ', flush=True)
 
             # Сначала пробуем ByteDance
             result = self.generate_image_via_bytedance(
                 img_data['prompt'],
                 img_data['filename'],
                 images_dir,
-                allow_text=img_data.get('allow_text', False)
+                allow_text=img_data.get('allow_text', False),
             )
+            is_placeholder = False
 
             # Если не получилось, создаем placeholder
             if not result:
                 result = self.generate_placeholder_image(
                     img_data['filename'],
                     images_dir,
-                    img_data['prompt']
+                    img_data['prompt'],
                 )
+                is_placeholder = True
 
             if result:
                 self.generated_images.append(img_data['filename'])
                 generated_count += 1
-                print(f"✓ ({generated_count})")
+                if is_placeholder:
+                    placeholder_count += 1
+                    print(f"⚠ placeholder ({generated_count})")
+                else:
+                    real_count += 1
+                    print(f"✓ AI ({generated_count})")
             else:
                 print("✗ ошибка")
 
@@ -5521,33 +5563,42 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         if remaining > 0:
             print(f"\n   ⭐ Этап 2/2: Генерация дополнительных изображений (осталось {remaining})...")
             for img_data in optional_images[:remaining]:
-                print(f"      → {img_data['filename']}...", end=' ')
+                print(f"      → {img_data['filename']}...", end=' ', flush=True)
 
-                # Сначала пробуем ByteDance
                 result = self.generate_image_via_bytedance(
                     img_data['prompt'],
                     img_data['filename'],
                     images_dir,
-                    allow_text=img_data.get('allow_text', False)
+                    allow_text=img_data.get('allow_text', False),
                 )
+                is_placeholder = False
 
-                # Если не получилось, создаем placeholder
                 if not result:
                     result = self.generate_placeholder_image(
                         img_data['filename'],
                         images_dir,
-                        img_data['prompt']
+                        img_data['prompt'],
                     )
+                    is_placeholder = True
 
                 if result:
                     self.generated_images.append(img_data['filename'])
                     generated_count += 1
-                    print(f"✓ ({generated_count}/{num_images})")
+                    if is_placeholder:
+                        placeholder_count += 1
+                        print(f"⚠ placeholder ({generated_count}/{num_images})")
+                    else:
+                        real_count += 1
+                        print(f"✓ AI ({generated_count}/{num_images})")
                 else:
                     print("✗ ошибка")
 
-        print(f"\n   ✅ Сгенерировано: {generated_count} изображений")
-        print(f"      Успешные: {', '.join(self.generated_images)}")
+        print(f"\n   📊 Итого: {generated_count} изображений")
+        print(f"      ✓ AI-генерация: {real_count}")
+        print(f"      ⚠ Placeholders: {placeholder_count}")
+        if real_count == 0 and generated_count > 0:
+            print(f"      ❌ ByteDance API не сработал — проверьте ключ и URL!")
+        print(f"      Список: {', '.join(self.generated_images)}")
 
     def _has_image(self, filename):
         """Проверяет наличие сгенерированного изображения"""
