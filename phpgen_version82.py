@@ -34,7 +34,7 @@ load_dotenv()
 # Textual TUI — опциональный (нужен для GUI режима: pip install textual)
 try:
     from textual import on as _tui_on
-    from textual.app import App, ComposeResult
+    from textual.app import App
     from textual.binding import Binding
     from textual.containers import Container, Horizontal
     from textual.widgets import Button, Input, RadioButton, RadioSet, RichLog, Static, TextArea
@@ -11143,7 +11143,7 @@ class GeneratorApp(App):
         self._q: queue.Queue = queue.Queue()
         self._cfg = _gui_load_config()
 
-    def compose(self) -> ComposeResult:
+    def compose(self):
         from textual.containers import ScrollableContainer
         cfg = self._cfg
         with Container(classes="app-container"):
