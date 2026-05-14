@@ -8,6 +8,9 @@ import shutil
 import base64
 import random
 import time
+import queue
+import threading
+import subprocess
 from pathlib import Path
 from byteplussdkarkruntime import Ark
 from byteplussdkarkruntime.types.images.images import SequentialImageGenerationOptions
@@ -27,6 +30,18 @@ except ImportError:
 
 # Загрузка переменных окружения из .env файла (если есть)
 load_dotenv()
+
+# Textual TUI — опциональный (нужен для GUI режима: pip install textual)
+try:
+    from textual import on as _tui_on
+    from textual.app import App, ComposeResult
+    from textual.binding import Binding
+    from textual.containers import Container, Horizontal
+    from textual.widgets import Button, Input, RadioButton, RadioSet, RichLog, Static, TextArea
+    from textual.reactive import reactive
+    _TEXTUAL_OK = True
+except ImportError:
+    _TEXTUAL_OK = False
 
 # ============================================================================
 # SOUND NOTIFICATION FUNCTION
@@ -368,7 +383,8 @@ def verify_access():
     sys.exit(1)
 
 # Запускаем проверку доступа при импорте модуля (только если запускается напрямую)
-if __name__ == "__main__":
+# Пропускаем при запуске как subprocess (флаг --generate)
+if __name__ == "__main__" and "--generate" not in sys.argv:
     verify_access()
 
 # ============================================================================
@@ -10851,123 +10867,508 @@ Return ONLY the content for <main> tag."""
         pass
 
 
-if __name__ == "__main__":
-    print("┌──────────────────────────────────────────────────────────┐")
-    print("│         ____  _   _ ____   ____  _____ _   _             │")
-    print("│        |  _ \\| | | |  _ \\ / ___|| ____| \\ | |            │")
-    print("│        | |_) | |_| | |_) | |  _ |  _| |  \\| |            │")
-    print("│        |  __/|  _  |  __/| |_| || |___| |\\  |            │")
-    print("│        |_|   |_| |_|_|    \\____||_____|_| \\_|            │")
-    print("│                                                          │")
-    print("│                      PHPGEN v77                          │")
-    print("│                  by Gosha Chepchik                       │")
-    print("└──────────────────────────────────────────────────────────┘")
-    print()
-    
-    print("📝 Опишите сайт:")
-    print("   (Для завершения введите 'END')")
-    print("-" * 60)
-    
-    lines = []
-    while True:
-        line = input()
-        if line.strip() == "END":
-            break
-        lines.append(line)
-    
-    user_prompt = "\n".join(lines)
-    
-    if not user_prompt.strip():
-        print("❌ Промпт пустой!")
-        exit(1)
-    
-    print()
-    print("-" * 60)
-    
-    print("\n🎯 Тип сайта:")
-    print("   1. Лендинг (одна страница)")
-    print("   2. Многостраничный сайт")
-    site_type_choice = input("Выберите (1 или 2): ").strip()
+# ============================================================================
+# GUI (Textual TUI)
+# ============================================================================
 
-    site_type = "landing" if site_type_choice == "1" else "multipage"
+_GUI_CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "generator_config.json")
 
-    print("\n✏️  Название сайта:")
-    print("   (Введите название для вашего сайта)")
-    site_name = input(">>> ").strip()
 
-    if not site_name:
-        print("❌ Название не может быть пустым!")
-        exit(1)
-
-    print("\n🖼️  Количество изображений:")
-    print("   (Минимум 17)")
-    print("   (По умолчанию: 24 - все изображения)")
-    num_images_input = input(">>> ").strip()
-
-    if num_images_input:
+def _gui_load_config() -> dict:
+    if os.path.exists(_GUI_CONFIG_PATH):
         try:
-            num_images = int(num_images_input)
-            if num_images < 10:
-                print("⚠️  Минимум 17 изображений! Установлено: 17")
-                num_images = 10
-        except ValueError:
-            print("⚠️  Некорректное число! Установлено: 24")
-            num_images = 24
+            with open(_GUI_CONFIG_PATH) as _f:
+                return json.load(_f)
+        except Exception:
+            pass
+    return {}
+
+
+def _gui_save_config(data: dict) -> None:
+    cfg = _gui_load_config()
+    cfg.update(data)
+    with open(_GUI_CONFIG_PATH, "w") as _f:
+        json.dump(cfg, _f, indent=2)
+
+
+_GUI_CSS = """
+Screen {
+    background: #0d0d0d;
+}
+.app-container {
+    width: 100%;
+    height: 100%;
+    padding: 1 2;
+}
+.header-bar {
+    height: 3;
+    width: 100%;
+    border-bottom: solid #2a2a2a;
+    margin-bottom: 1;
+    padding: 0 1;
+    layout: horizontal;
+    align: left middle;
+}
+.header-logo {
+    background: #d97706;
+    color: #000000;
+    width: 3;
+    height: 1;
+    text-style: bold;
+    content-align: center middle;
+    margin-right: 1;
+}
+.header-title {
+    color: #e0e0e0;
+    text-style: bold;
+}
+.header-version {
+    color: #444444;
+    width: 1fr;
+    text-align: right;
+}
+.section-label {
+    color: #555555;
+    text-style: bold;
+    margin-bottom: 0;
+    padding: 0 1;
+}
+.box {
+    border: solid #2a2a2a;
+    background: #141414;
+    margin-bottom: 1;
+    padding: 0;
+}
+.field-row {
+    height: 3;
+    layout: horizontal;
+    align: left middle;
+    border-bottom: solid #1e1e1e;
+    padding: 0 1;
+}
+.field-row:last-of-type {
+    border-bottom: none;
+}
+.field-label {
+    width: 18;
+    color: #555555;
+    content-align: left middle;
+}
+.field-input {
+    background: #141414;
+    border: none;
+    color: #e0e0e0;
+    width: 1fr;
+    padding: 0;
+}
+.field-input:focus {
+    border: none;
+    background: #141414;
+    color: #60a5fa;
+}
+.radio-row {
+    height: 3;
+    layout: horizontal;
+    align: left middle;
+    border-bottom: solid #1e1e1e;
+    padding: 0 1;
+}
+RadioSet {
+    background: #141414;
+    border: none;
+    padding: 0;
+    height: 1;
+    width: 1fr;
+}
+RadioSet:focus {
+    border: none;
+}
+RadioButton {
+    background: #141414;
+    border: none;
+    color: #888888;
+    padding: 0 1 0 0;
+}
+RadioButton:hover {
+    background: #141414;
+    color: #e0e0e0;
+}
+RadioButton.-selected {
+    color: #e0e0e0;
+}
+RadioButton > .toggle--button {
+    color: #d97706;
+    background: #141414;
+}
+.desc-row {
+    min-height: 6;
+    layout: horizontal;
+    border-bottom: none;
+    padding: 0 1;
+}
+.desc-area {
+    background: #141414;
+    border: none;
+    color: #e0e0e0;
+    width: 1fr;
+    height: 5;
+    padding: 0;
+}
+.desc-area:focus {
+    border: none;
+    background: #141414;
+}
+TextArea .text-area--cursor {
+    background: #d97706;
+}
+.create-btn {
+    width: 100%;
+    margin-top: 1;
+    background: #d97706;
+    color: #000000;
+    text-style: bold;
+    border: none;
+    height: 3;
+}
+.create-btn:hover {
+    background: #e88b0a;
+}
+.create-btn:disabled {
+    background: #92400e;
+    color: #4a3000;
+}
+.create-btn:focus {
+    border: none;
+    background: #d97706;
+}
+.console-outer {
+    border: solid #2a2a2a;
+    background: #0a0a0a;
+    margin-top: 1;
+    height: 1fr;
+}
+.console-bar {
+    height: 2;
+    background: #141414;
+    border-bottom: solid #2a2a2a;
+    layout: horizontal;
+    align: left middle;
+    padding: 0 1;
+}
+.console-dots {
+    width: 9;
+    color: #ff5f57;
+}
+.console-title {
+    color: #444444;
+    padding-left: 1;
+}
+.console-status {
+    width: 1fr;
+    text-align: right;
+    color: #444444;
+}
+.console-status.running {
+    color: #22c55e;
+}
+.console-status.done {
+    color: #22c55e;
+}
+.console-status.error {
+    color: #ef4444;
+}
+RichLog {
+    background: #0a0a0a;
+    color: #e0e0e0;
+    padding: 0 1;
+    scrollbar-background: #0a0a0a;
+    scrollbar-color: #2a2a2a;
+    scrollbar-color-active: #3a3a3a;
+    scrollbar-color-hover: #333333;
+    border: none;
+}
+"""
+
+
+class GeneratorApp(App):
+    CSS = _GUI_CSS
+    BINDINGS = [
+        Binding("ctrl+c", "quit", "Quit", priority=True),
+        Binding("ctrl+q", "quit", "Quit"),
+    ]
+
+    _running: reactive[bool] = reactive(False)
+
+    def __init__(self):
+        super().__init__()
+        self._q: queue.Queue = queue.Queue()
+        self._cfg = _gui_load_config()
+
+    def compose(self) -> ComposeResult:
+        cfg = self._cfg
+        with Container(classes="app-container"):
+            with Horizontal(classes="header-bar"):
+                yield Static(" G ", classes="header-logo")
+                yield Static("PHP Site Generator", classes="header-title")
+                yield Static("v82 · terminal ui", classes="header-version")
+
+            yield Static("SETTINGS", classes="section-label")
+            with Container(classes="box"):
+                with Horizontal(classes="field-row"):
+                    yield Static("api_key", classes="field-label")
+                    yield Input(
+                        value=cfg.get("api_key", ""),
+                        placeholder="sk-or-v1-…",
+                        password=True,
+                        id="api_key",
+                        classes="field-input",
+                    )
+                with Horizontal(classes="field-row"):
+                    yield Static("bytedance_key", classes="field-label")
+                    yield Input(
+                        value=cfg.get("bytedance_key", ""),
+                        placeholder="ark-…",
+                        password=True,
+                        id="bytedance_key",
+                        classes="field-input",
+                    )
+
+            yield Static("GENERATION", classes="section-label")
+            with Container(classes="box"):
+                with Horizontal(classes="field-row"):
+                    yield Static("site_name", classes="field-label")
+                    yield Input(
+                        placeholder="My Awesome Company",
+                        id="site_name",
+                        classes="field-input",
+                    )
+                with Horizontal(classes="radio-row"):
+                    yield Static("site_type", classes="field-label")
+                    with RadioSet(id="site_type"):
+                        yield RadioButton("landing", value=True, id="rb_landing")
+                        yield RadioButton("multipage", id="rb_multipage")
+                with Horizontal(classes="desc-row"):
+                    yield Static("description", classes="field-label")
+                    yield TextArea(
+                        id="description",
+                        classes="desc-area",
+                    )
+
+            yield Button("▶   Create", id="create_btn", classes="create-btn")
+
+            with Container(classes="console-outer"):
+                with Horizontal(classes="console-bar"):
+                    yield Static("⬤ ⬤ ⬤", classes="console-dots")
+                    yield Static("generator output", classes="console-title")
+                    yield Static("idle", id="console_status", classes="console-status")
+                yield RichLog(
+                    id="console_log",
+                    highlight=True,
+                    markup=True,
+                    wrap=True,
+                    auto_scroll=True,
+                )
+
+    @_tui_on(Button.Pressed, "#create_btn")
+    def on_create(self) -> None:
+        if self._running:
+            return
+        self._start_generation()
+
+    @_tui_on(Input.Submitted)
+    def on_input_submitted(self) -> None:
+        self._start_generation()
+
+    def _start_generation(self) -> None:
+        api_key = self.query_one("#api_key", Input).value.strip()
+        bdc_key = self.query_one("#bytedance_key", Input).value.strip()
+        site_name = self.query_one("#site_name", Input).value.strip()
+        description = self.query_one("#description", TextArea).text.strip()
+        site_type = "multipage" if self.query_one("#rb_multipage", RadioButton).value else "landing"
+
+        if not description:
+            self.query_one("#description", TextArea).focus()
+            return
+
+        if api_key or bdc_key:
+            _gui_save_config({"api_key": api_key, "bytedance_key": bdc_key})
+
+        log = self.query_one("#console_log", RichLog)
+        log.clear()
+        self._set_status("● running", "running")
+        self.query_one("#create_btn", Button).disabled = True
+        self._running = True
+
+        log.write("[dim]$ python phpgen_version82.py --generate[/dim]")
+        log.write("")
+
+        env = os.environ.copy()
+        if api_key:
+            env["OPENROUTER_API_KEY"] = api_key
+        if bdc_key:
+            env["BYTEDANCE_KEY"] = bdc_key
+
+        # Send description as single line (replace newlines with spaces)
+        desc_line = description.replace("\n", " ").replace("\r", " ")
+        inp = f"{desc_line}\n{site_type}\n{site_name}\n"
+
+        threading.Thread(
+            target=self._run_subprocess,
+            args=(inp, env),
+            daemon=True,
+        ).start()
+        self._drain_timer = self.set_interval(0.05, self._drain_queue)
+
+    def _run_subprocess(self, inp: str, env: dict) -> None:
+        script = os.path.abspath(__file__)
+        try:
+            proc = subprocess.Popen(
+                [sys.executable, script, "--generate"],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+                env=env,
+                cwd=os.path.dirname(script),
+            )
+            proc.stdin.write(inp)
+            proc.stdin.close()
+            for line in proc.stdout:
+                self._q.put(("line", line.rstrip("\n")))
+            proc.wait()
+            self._q.put(("done", proc.returncode))
+        except Exception as exc:
+            self._q.put(("error", str(exc)))
+
+    def _drain_queue(self) -> None:
+        log = self.query_one("#console_log", RichLog)
+        finished = False
+        for _ in range(50):
+            try:
+                kind, val = self._q.get_nowait()
+            except queue.Empty:
+                break
+            if kind == "line":
+                log.write(self._markup(val))
+            elif kind == "done":
+                finished = True
+                if val == 0:
+                    log.write("")
+                    log.write("[bold green]✓ Generation complete.[/bold green]")
+                    self._set_status("✓ done", "done")
+                else:
+                    log.write("")
+                    log.write(f"[red]✗ Process exited with code {val}[/red]")
+                    self._set_status(f"✗ exit {val}", "error")
+            elif kind == "error":
+                finished = True
+                log.write(f"[red]ERROR: {val}[/red]")
+                self._set_status("✗ error", "error")
+
+        if finished:
+            self._running = False
+            self.query_one("#create_btn", Button).disabled = False
+            try:
+                self._drain_timer.stop()
+            except Exception:
+                pass
+
+    def _set_status(self, text: str, css_class: str) -> None:
+        status = self.query_one("#console_status", Static)
+        status.update(text)
+        status.remove_class("running", "done", "error")
+        status.add_class(css_class)
+
+    def _markup(self, t: str) -> str:
+        if not t.strip():
+            return ""
+        if any(c in t for c in ("❌",)) or any(
+            w in t.lower() for w in ("traceback", "exception", "ошибка")
+        ):
+            return f"[red]{_gui_esc(t)}[/red]"
+        if "error" in t.lower() and "openrouter" not in t.lower():
+            return f"[red]{_gui_esc(t)}[/red]"
+        if "✓" in t or "✅" in t:
+            return f"[green]{_gui_esc(t)}[/green]"
+        if any(w in t.lower() for w in ("успешно", "готово", "complete", "saved", "done")):
+            return f"[green]{_gui_esc(t)}[/green]"
+        if "⚠" in t or "warning" in t.lower():
+            return f"[yellow]{_gui_esc(t)}[/yellow]"
+        if any(t.startswith(p) for p in ("🚀", "📋", "📄", "🔧", "🎨", "🖼", "💾", "📁", "🏗", "⚙", "🔑", "🌐", "📝", "✨", "▶")):
+            return f"[bold #d97706]{_gui_esc(t)}[/bold #d97706]"
+        if len(t.strip()) > 4 and all(c in "═━─ =" for c in t.strip()):
+            return f"[#a78bfa]{_gui_esc(t)}[/#a78bfa]"
+        if any(w in t.lower() for w in ("генерац", "генерир", "создан", "обработ", "пишем")):
+            return f"[#22d3ee]{_gui_esc(t)}[/#22d3ee]"
+        if t.strip().startswith("#"):
+            return f"[dim]{_gui_esc(t)}[/dim]"
+        return _gui_esc(t)
+
+
+def _gui_esc(t: str) -> str:
+    return t.replace("[", "\\[").replace("]", "\\]")
+
+
+# ============================================================================
+
+if __name__ == "__main__":
+    if "--generate" in sys.argv:
+        # ── Headless generator mode (called by GUI subprocess) ──────────
+        # Reads from stdin: line1=description, line2=site_type, line3=site_name
+        _stdin_lines = sys.stdin.read().splitlines()
+        _user_prompt = _stdin_lines[0].strip() if len(_stdin_lines) > 0 else ""
+        _site_type   = _stdin_lines[1].strip() if len(_stdin_lines) > 1 else "landing"
+        _site_name   = _stdin_lines[2].strip() if len(_stdin_lines) > 2 else ""
+
+        if not _user_prompt:
+            print("❌ Промпт пустой!")
+            sys.exit(1)
+        if not _site_name:
+            print("❌ Название не может быть пустым!")
+            sys.exit(1)
+
+        _num_images = 24
+        _data_dir   = "data"
+        _output_dir = "generated_website"
+
+        print()
+        print("=" * 60)
+        print(f"🚀 Старт генерации...")
+        print(f"✏️  Название: {_site_name}")
+        print(f"🖼️  Изображений: {_num_images}")
+        print(f"📂 Папка данных: {_data_dir}")
+        print(f"📂 Папка вывода: {_output_dir}")
+        print(f"🎯 Тип: {'ЛЕНДИНГ' if _site_type == 'landing' else 'МНОГОСТРАНИЧНЫЙ'}")
+        print("=" * 60)
+        print()
+
+        _generator = PHPWebsiteGenerator()
+        try:
+            _success = _generator.generate_website(
+                _user_prompt,
+                site_name=_site_name,
+                num_images=_num_images,
+                output_dir=_output_dir,
+                data_dir=_data_dir,
+                site_type=_site_type,
+            )
+            if _success:
+                print("\n✨ Готово!")
+            else:
+                print("\n⚠️  Генерация завершена с предупреждениями")
+        except KeyboardInterrupt:
+            print("\n\n⚠️  Прервано пользователем")
+            sys.exit(1)
+        except Exception as _e:
+            print(f"\n❌ Критическая ошибка: {_e}")
+            import traceback
+            traceback.print_exc()
+            sys.exit(1)
+
     else:
-        num_images = 24
-
-    print("\n📁 Путь к папке data:")
-    print("   (по умолчанию: data)")
-    data_dir = input(">>> ").strip()
-    
-    if not data_dir:
-        data_dir = "data"
-    
-    print("\n📁 Папка для сохранения сайта:")
-    print("   (по умолчанию: generated_website)")
-    output_dir = input(">>> ").strip()
-    
-    if not output_dir:
-        output_dir = "generated_website"
-    
-    print()
-    print("=" * 60)
-    print(f"🚀 Старт генерации...")
-    print(f"✏️  Название: {site_name}")
-    print(f"🖼️  Изображений: {num_images}")
-    print(f"📂 Папка данных: {data_dir}")
-    print(f"📂 Папка вывода: {output_dir}")
-    print(f"🎯 Тип: {'ЛЕНДИНГ' if site_type == 'landing' else 'МНОГОСТРАНИЧНЫЙ'}")
-    print("=" * 60)
-    print()
-
-    generator = PHPWebsiteGenerator()
-
-    try:
-        success = generator.generate_website(user_prompt, site_name=site_name, num_images=num_images, output_dir=output_dir, data_dir=data_dir, site_type=site_type)
-
-        if success:
-            print("\n✨ Готово!")
-        else:
-            print("\n⚠️  Генерация завершена с предупреждениями")
-
-        # Воспроизводим звуковое уведомление
-        print("\n🔔 Воспроизведение звукового сигнала...")
-        play_notification_sound()
-
-        # Ждем 6 секунд перед закрытием
-        print("⏱️  Консоль закроется через 6 секунд...")
-        time.sleep(6)
-
-    except KeyboardInterrupt:
-        print("\n\n⚠️  Прервано пользователем")
-        # Воспроизводим звук и ждем даже при прерывании
-        play_notification_sound()
-        time.sleep(6)
-    except Exception as e:
-        print(f"\n❌ Критическая ошибка: {e}")
-        import traceback
-        traceback.print_exc()
-        # Воспроизводим звук и ждем даже при ошибке
-        play_notification_sound()
-        time.sleep(6)
+        # ── GUI mode ────────────────────────────────────────────────────
+        if not _TEXTUAL_OK:
+            print("❌ Textual не установлен. Установите: pip install textual")
+            sys.exit(1)
+        GeneratorApp().run()
