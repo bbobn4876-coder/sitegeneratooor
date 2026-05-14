@@ -10929,24 +10929,20 @@ Screen {
 }
 .form-scroll {
     height: auto;
-    max-height: 60%;
-    overflow-y: auto;
     scrollbar-background: #0d0d0d;
     scrollbar-color: #2a2a2a;
 }
 .section-label {
     color: #555555;
     text-style: bold;
-    margin-bottom: 0;
-    padding: 0 1;
     height: 2;
+    padding: 0 1;
     content-align: left bottom;
 }
 .box {
     border: solid #2a2a2a;
     background: #141414;
     margin-bottom: 1;
-    padding: 0;
     height: auto;
 }
 .field-row {
@@ -10974,8 +10970,7 @@ Screen {
     color: #60a5fa;
 }
 .desc-row {
-    height: auto;
-    min-height: 5;
+    height: 6;
     layout: horizontal;
     border-bottom: solid #1e1e1e;
     padding: 0 1;
@@ -10991,7 +10986,7 @@ Screen {
     border: none;
     color: #e0e0e0;
     width: 1fr;
-    height: 4;
+    height: 5;
     padding: 0;
 }
 .desc-area:focus {
@@ -11001,8 +10996,12 @@ Screen {
 TextArea .text-area--cursor {
     background: #d97706;
 }
+TextArea > .text-area--gutter {
+    display: none;
+    width: 0;
+}
 .radio-section-row {
-    height: auto;
+    height: 6;
     layout: horizontal;
     border-bottom: solid #1e1e1e;
     padding: 0 1;
@@ -11017,7 +11016,7 @@ RadioSet {
     background: #141414;
     border: none;
     padding: 0;
-    height: auto;
+    height: 5;
     width: 1fr;
     layout: vertical;
 }
@@ -11043,18 +11042,17 @@ RadioButton > .toggle--button {
     background: #141414;
 }
 .save-btn {
-    margin: 1 1 0 1;
+    margin: 0 1 1 1;
     background: #1e1e1e;
-    color: #555555;
+    color: #666666;
     border: solid #2a2a2a;
-    height: 2;
+    height: 3;
     width: auto;
-    min-width: 20;
-    text-style: none;
+    min-width: 22;
 }
 .save-btn:hover {
     background: #252525;
-    color: #888888;
+    color: #999999;
     border: solid #3a3a3a;
 }
 .save-btn:focus {
@@ -11091,6 +11089,7 @@ RadioButton > .toggle--button {
     background: #0a0a0a;
     margin-top: 1;
     height: 1fr;
+    min-height: 8;
 }
 .console-bar {
     height: 2;
@@ -11144,7 +11143,7 @@ class GeneratorApp(App):
         self._cfg = _gui_load_config()
 
     def compose(self):
-        from textual.containers import ScrollableContainer
+        from textual.containers import VerticalScroll
         cfg = self._cfg
         with Container(classes="app-container"):
             # ── Header ──────────────────────────────────────────────────
@@ -11154,7 +11153,7 @@ class GeneratorApp(App):
                 yield Static("v82 · terminal ui", classes="header-version")
 
             # ── Scrollable form area ─────────────────────────────────────
-            with ScrollableContainer(classes="form-scroll"):
+            with VerticalScroll(classes="form-scroll"):
 
                 # ── SETTINGS ────────────────────────────────────────────
                 yield Static("SETTINGS", classes="section-label")
@@ -11177,7 +11176,7 @@ class GeneratorApp(App):
                             id="bytedance_key",
                             classes="field-input",
                         )
-                    yield Button("↓ Save keys", id="save_keys_btn", classes="save-btn")
+                    yield Button("Save keys", id="save_keys_btn", classes="save-btn")
 
                 # ── GENERATION ──────────────────────────────────────────
                 yield Static("GENERATION", classes="section-label")
@@ -11188,6 +11187,7 @@ class GeneratorApp(App):
                         yield TextArea(
                             id="description",
                             classes="desc-area",
+                            show_line_numbers=False,
                         )
                     # 2. Site type (vertical radio)
                     with Horizontal(classes="radio-section-row"):
@@ -11239,7 +11239,7 @@ class GeneratorApp(App):
                             id="output_dir",
                             classes="field-input",
                         )
-                    yield Button("↓ Save defaults", id="save_defaults_btn", classes="save-btn")
+                    yield Button("Save defaults", id="save_defaults_btn", classes="save-btn")
 
             # ── Create button ────────────────────────────────────────────
             yield Button("▶   Create", id="create_btn", classes="create-btn")
@@ -11293,7 +11293,7 @@ class GeneratorApp(App):
 
     def _reset_save_btn(self, btn_id: str) -> None:
         btn = self.query_one(f"#{btn_id}", Button)
-        btn.label = "↓ Save keys" if btn_id == "save_keys_btn" else "↓ Save defaults"
+        btn.label = "Save keys" if btn_id == "save_keys_btn" else "Save defaults"
         btn.remove_class("saved")
 
     def _start_generation(self) -> None:
