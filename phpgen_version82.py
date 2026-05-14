@@ -31,12 +31,13 @@ except ImportError:
 # Загрузка переменных окружения из .env файла (если есть)
 load_dotenv()
 
-# GUI — Dear PyGui (pip install dearpygui)
+# GUI — tkinter (stdlib, always available)
 try:
-    import dearpygui.dearpygui as _dpg
-    _DPG_OK = True
-except ImportError:
-    _DPG_OK = False
+    import tkinter as _tk
+    _tk.Tk  # quick smoke-test
+    _TK_OK = True
+except Exception:
+    _TK_OK = False
 
 # Textual TUI — fallback (pip install textual)
 try:
@@ -11444,35 +11445,30 @@ def _gui_esc(t: str) -> str:
 # Dear PyGui — полноценный GUI
 # ============================================================================
 
-def _run_dpg_gui():
-    """Запуск полноценного GUI на Dear PyGui."""
+def _run_tk_gui():
+    """Полноценный GUI на tkinter: экран пароля → форма + консоль."""
+    import tkinter as tk
     import hashlib as _hashlib
-    import dearpygui.dearpygui as dpg
 
-    # ── Цвета (R,G,B,A) ────────────────────────────────────────────────────
-    C_BG       = (13,  13,  13,  255)
-    C_SURFACE  = (20,  20,  20,  255)
-    C_SURFACE2 = (26,  26,  26,  255)
-    C_BORDER   = (45,  45,  45,  255)
-    C_TEXT     = (220, 220, 220, 255)
-    C_DIM      = (90,  90,  90,  255)
-    C_AMBER    = (217, 119,   6, 255)
-    C_AMBER_H  = (232, 139,  10, 255)
-    C_AMBER_D  = (100,  55,   0, 255)
-    C_GREEN    = ( 34, 197,  94, 255)
-    C_RED      = (239,  68,  68, 255)
-    C_YELLOW   = (251, 191,  36, 255)
-    C_CYAN     = ( 34, 211, 238, 255)
-    C_PURPLE   = (167, 139, 250, 255)
-    C_BLUE     = ( 96, 165, 250, 255)
+    # ── Цвета (hex) ────────────────────────────────────────────────────────
+    C_BG      = "#0d0d0d"
+    C_SURF    = "#141414"
+    C_SURF2   = "#1a1a1a"
+    C_BORDER  = "#2d2d2d"
+    C_TEXT    = "#dcdcdc"
+    C_DIM     = "#5a5a5a"
+    C_AMBER   = "#d97706"
+    C_AMBER_H = "#e88b0a"
+    C_AMBER_D = "#643700"
+    C_GREEN   = "#22c55e"
+    C_RED     = "#ef4444"
+    C_YELLOW  = "#fbbf24"
+    C_CYAN    = "#22d3ee"
+    C_PURPLE  = "#a78bfa"
+    C_BLACK   = "#000000"
 
     # ── Состояние ──────────────────────────────────────────────────────────
-    _state = {
-        "auth_ok":    False,
-        "running":    False,
-        "attempts":   0,
-        "console_id": None,
-    }
+    _state: dict = {"running": False, "attempts": 0, "stopped": False}
     _out_q: queue.Queue = queue.Queue()
 
     # ── Пути для auth ──────────────────────────────────────────────────────
@@ -11483,42 +11479,81 @@ def _run_dpg_gui():
     _password_file = os.path.join(_script_dir, "password.txt")
     _auth_file     = os.path.join(_script_dir, ".auth_devices")
 
-    # ── Вспомогательные ────────────────────────────────────────────────────
-    def _clamp_text(t, w):
-        """Обрезать строку до ширины w символов."""
-        return t if len(t) <= w else t[:w-1] + "…"
+    trusted = (
+        os.path.exists(_password_file)
+        and is_device_trusted(get_device_id(), _auth_file)
+    )
+    cfg = _gui_load_config()
 
-    def _classify_color(t):
+    # ── Корневое окно ──────────────────────────────────────────────────────
+    root = tk.Tk()
+    root.title("PHP Site Generator")
+    root.configure(bg=C_BG)
+    root.withdraw()
+
+    # Общие контейнеры для виджетов, заполняемые в _build_main
+    _status_var = tk.StringVar(value="idle")
+    _W: dict = {"status_lbl": None, "create_btn": None, "console_txt": None}
+
+    # ── Кнопка с hover-эффектом ────────────────────────────────────────────
+    class _Btn(tk.Button):
+        def __init__(self, parent, bg_n, bg_h, fg_n=C_TEXT, **kw):
+            super().__init__(
+                parent, bg=bg_n, fg=fg_n,
+                activebackground=bg_h, activeforeground=fg_n,
+                relief="flat", bd=0, cursor="hand2",
+                highlightthickness=0, **kw,
+            )
+            self._bg_n = bg_n
+            self.bind("<Enter>", lambda e: self.config(bg=bg_h)
+                      if str(self["state"]) != "disabled" else None)
+            self.bind("<Leave>", lambda e: self.config(bg=self._bg_n)
+                      if str(self["state"]) != "disabled" else None)
+
+    # ── Консольные утилиты ─────────────────────────────────────────────────
+    def _classify_color(t: str) -> str:
         if not t.strip():
             return C_DIM
-        if any(c in t for c in ("✓","✅")) or any(w in t.lower() for w in ("успешно","готово","complete","done","saved")):
+        if any(c in t for c in ("✓", "✅")) or any(
+            w in t.lower() for w in ("успешно", "готово", "complete", "done", "saved")
+        ):
             return C_GREEN
-        if "❌" in t or any(w in t.lower() for w in ("traceback","exception","ошибка")):
+        if "❌" in t or any(
+            w in t.lower() for w in ("traceback", "exception", "ошибка")
+        ):
             return C_RED
-        if ("error" in t.lower() and "openrouter" not in t.lower()):
+        if "error" in t.lower() and "openrouter" not in t.lower():
             return C_RED
         if "⚠" in t or "warning" in t.lower():
             return C_YELLOW
-        if any(t.startswith(p) for p in ("🚀","📋","📄","🔧","🎨","🖼","💾","📁","🏗","⚙","🔑","🌐","📝","✨","▶")):
+        if any(
+            t.startswith(p)
+            for p in ("🚀", "📋", "📄", "🔧", "🎨", "🖼", "💾", "📁",
+                      "🏗", "⚙", "🔑", "🌐", "📝", "✨", "▶")
+        ):
             return C_AMBER
         if len(t.strip()) > 4 and all(c in "═━─ =" for c in t.strip()):
             return C_PURPLE
-        if any(w in t.lower() for w in ("генерац","генерир","создан","обработ","пишем")):
+        if any(
+            w in t.lower()
+            for w in ("генерац", "генерир", "создан", "обработ", "пишем")
+        ):
             return C_CYAN
         return C_TEXT
 
-    def _append_console(text, color=None):
-        if _state["console_id"] is None:
+    def _append_console(text: str, color: str | None = None) -> None:
+        w = _W["console_txt"]
+        if w is None:
             return
-        c = color if color else _classify_color(text)
-        dpg.add_text(text or " ", color=c, parent=_state["console_id"], wrap=0)
-        dpg.set_y_scroll(
-            "console_win",
-            dpg.get_y_scroll_max("console_win"),
-        )
+        c = color or _classify_color(text)
+        tag = f"t{c.lstrip('#')}"
+        w.tag_configure(tag, foreground=c)
+        w.configure(state="normal")
+        w.insert("end", (text or "") + "\n", tag)
+        w.configure(state="disabled")
+        w.see("end")
 
-    def _drain_queue():
-        """Вызывается каждый кадр из главного цикла."""
+    def _drain_queue() -> None:
         finished = False
         for _ in range(60):
             try:
@@ -11532,19 +11567,30 @@ def _run_dpg_gui():
                 if val == 0:
                     _append_console("")
                     _append_console("✓ Generation complete.", C_GREEN)
-                    dpg.configure_item("status_text", default_value="✓ done", color=C_GREEN)
+                    _status_var.set("✓ done")
+                    if _W["status_lbl"]:
+                        _W["status_lbl"].configure(fg=C_GREEN)
                 else:
                     _append_console(f"✗ Process exited with code {val}", C_RED)
-                    dpg.configure_item("status_text", default_value=f"✗ exit {val}", color=C_RED)
+                    _status_var.set(f"✗ exit {val}")
+                    if _W["status_lbl"]:
+                        _W["status_lbl"].configure(fg=C_RED)
             elif kind == "error":
                 finished = True
                 _append_console(f"ERROR: {val}", C_RED)
-                dpg.configure_item("status_text", default_value="✗ error", color=C_RED)
+                _status_var.set("✗ error")
+                if _W["status_lbl"]:
+                    _W["status_lbl"].configure(fg=C_RED)
         if finished:
             _state["running"] = False
-            dpg.configure_item("create_btn", enabled=True, label="  ▶   Create")
+            btn = _W["create_btn"]
+            if btn:
+                btn._bg_n = C_AMBER
+                btn.configure(state="normal", text="  ▶   Create  ", bg=C_AMBER)
+        if not _state["stopped"]:
+            root.after(40, _drain_queue)
 
-    def _run_subprocess_bg(inp, env):
+    def _run_subprocess_bg(inp: str, env: dict) -> None:
         if getattr(sys, "frozen", False):
             cmd = [sys.executable, "--generate"]
             cwd = os.path.dirname(sys.executable)
@@ -11567,453 +11613,417 @@ def _run_dpg_gui():
         except Exception as exc:
             _out_q.put(("error", str(exc)))
 
-    # ── Callbacks ──────────────────────────────────────────────────────────
+    # ── Вспомогательные ────────────────────────────────────────────────────
+    def _center(win: tk.Tk) -> None:
+        win.update_idletasks()
+        w = win.winfo_reqwidth()
+        h = win.winfo_reqheight()
+        sw, sh = win.winfo_screenwidth(), win.winfo_screenheight()
+        win.geometry(f"{w}x{h}+{(sw - w) // 2}+{(sh - h) // 2}")
 
-    def cb_check_password(sender, app_data, user_data):
-        pw = dpg.get_value("pw_input").strip()
-        if not pw:
-            return
-        if not os.path.exists(_password_file):
-            # Нет файла пароля — пропускаем
-            _do_unlock()
-            return
-        with open(_password_file) as f:
-            stored = f.read().strip()
-        h = _hashlib.sha256(pw.encode()).hexdigest()
-        if h == stored:
-            _do_unlock()
-        else:
-            _state["attempts"] += 1
-            left = 3 - _state["attempts"]
-            if left <= 0:
-                dpg.configure_item("auth_err", default_value="✗ Доступ заблокирован", color=C_RED)
-                dpg.configure_item("pw_input", enabled=False)
-                dpg.configure_item("unlock_btn", enabled=False)
-            else:
-                dpg.configure_item(
-                    "auth_err",
-                    default_value=f"✗ Неверный пароль — осталось попыток: {left}",
-                    color=C_RED,
-                )
-            dpg.set_value("pw_input", "")
-
-    def _do_unlock():
-        device_id = get_device_id()
-        add_trusted_device(device_id, _auth_file)
-        dpg.configure_item("auth_modal", show=False)
-        dpg.configure_item("main_win", show=True)
-        _state["auth_ok"] = True
-
-    def cb_save_keys(sender, app_data, user_data):
-        _gui_save_config({
-            "api_key":      dpg.get_value("api_key"),
-            "bytedance_key": dpg.get_value("bytedance_key"),
-        })
-        _flash_btn("save_keys_btn", "  ✓ Saved  ", 1.5)
-
-    def cb_save_defaults(sender, app_data, user_data):
-        stype = "multipage" if dpg.get_value("site_type") == "multipage" else "landing"
-        _gui_save_config({
-            "site_name":  dpg.get_value("site_name"),
-            "site_type":  stype,
-            "num_images": dpg.get_value("num_images"),
-            "data_dir":   dpg.get_value("data_dir"),
-            "output_dir": dpg.get_value("output_dir"),
-        })
-        _flash_btn("save_def_btn", "  ✓ Saved  ", 1.5)
-
-    _flash_timers = {}
-    def _flash_btn(tag, label_ok, secs):
-        orig = {"save_keys_btn": "  Save keys  ", "save_def_btn": "  Save defaults  "}.get(tag, "Save")
-        dpg.configure_item(tag, label=label_ok)
-        import time as _t
+    def _flash_btn(btn: _Btn, label_ok: str, label_orig: str) -> None:
+        btn.configure(text=label_ok)
         def _restore():
-            _t.sleep(secs)
             try:
-                dpg.configure_item(tag, label=orig)
+                btn.configure(text=label_orig)
             except Exception:
                 pass
-        threading.Thread(target=_restore, daemon=True).start()
+        t = threading.Timer(1.5, lambda: root.after(0, _restore))
+        t.daemon = True
+        t.start()
 
-    def cb_create(sender, app_data, user_data):
-        if _state["running"]:
-            return
-        desc      = dpg.get_value("description").strip()
-        site_name = dpg.get_value("site_name").strip()
-        site_type = "multipage" if dpg.get_value("site_type") == "multipage" else "landing"
-        num_img   = str(dpg.get_value("num_images")).strip() or "24"
-        data_dir  = dpg.get_value("data_dir").strip()  or "data"
-        out_dir   = dpg.get_value("output_dir").strip() or "generated_website"
-        api_key   = dpg.get_value("api_key").strip()
-        bdc_key   = dpg.get_value("bytedance_key").strip()
+    def _make_entry(parent, var, *, show="", hint="", width=None) -> tk.Entry:
+        kw = {"width": width} if width else {}
+        e = tk.Entry(
+            parent, textvariable=var, show=show,
+            bg=C_SURF2, fg=C_TEXT if var.get() else C_DIM,
+            insertbackground=C_TEXT,
+            relief="flat", bd=0, font=("Helvetica", 11),
+            highlightthickness=1,
+            highlightcolor=C_AMBER,
+            highlightbackground=C_BORDER,
+            **kw,
+        )
+        if hint and not var.get():
+            e.insert(0, hint)
+            e.configure(fg=C_DIM)
+            def _fi(ev, _e=e, _h=hint, _s=show):
+                if _e.get() == _h:
+                    _e.delete(0, "end")
+                    _e.configure(fg=C_TEXT, show=_s)
+                    var.set("")
+            def _fo(ev, _e=e, _h=hint):
+                if not _e.get():
+                    _e.configure(show="", fg=C_DIM)
+                    _e.insert(0, _h)
+            e.bind("<FocusIn>", _fi)
+            e.bind("<FocusOut>", _fo)
+        return e
 
-        if not desc:
-            dpg.focus_item("description")
-            return
-
-        # Очищаем консоль
-        if _state["console_id"] is not None:
-            dpg.delete_item(_state["console_id"], children_only=True)
-        dpg.configure_item("status_text", default_value="● running", color=C_GREEN)
-        dpg.configure_item("create_btn", enabled=False, label="  ⏳  Generating…")
-        _state["running"] = True
-
-        _append_console(f"$ python phpgen_version82.py --generate", C_DIM)
-        _append_console("")
-
-        env = os.environ.copy()
-        if api_key:  env["OPENROUTER_API_KEY"] = api_key
-        if bdc_key:  env["BYTEDANCE_KEY"]       = bdc_key
-
-        desc_line = desc.replace("\n", " ").replace("\r", " ")
-        inp = f"{desc_line}\n{site_type}\n{site_name}\n{num_img}\n{data_dir}\n{out_dir}\n"
-
-        threading.Thread(target=_run_subprocess_bg, args=(inp, env), daemon=True).start()
-
-    def cb_pw_enter(sender, app_data, user_data):
-        cb_check_password(sender, app_data, user_data)
-
-    # ── Тема ───────────────────────────────────────────────────────────────
-    dpg.create_context()
-
-    with dpg.theme() as global_theme:
-        with dpg.theme_component(dpg.mvAll):
-            dpg.add_theme_color(dpg.mvThemeCol_WindowBg,        C_BG)
-            dpg.add_theme_color(dpg.mvThemeCol_ChildBg,         C_SURFACE)
-            dpg.add_theme_color(dpg.mvThemeCol_PopupBg,         C_SURFACE)
-            dpg.add_theme_color(dpg.mvThemeCol_FrameBg,         C_SURFACE2)
-            dpg.add_theme_color(dpg.mvThemeCol_FrameBgHovered,  (32,32,32,255))
-            dpg.add_theme_color(dpg.mvThemeCol_FrameBgActive,   (38,38,38,255))
-            dpg.add_theme_color(dpg.mvThemeCol_Border,          C_BORDER)
-            dpg.add_theme_color(dpg.mvThemeCol_BorderShadow,    (0,0,0,0))
-            dpg.add_theme_color(dpg.mvThemeCol_Text,            C_TEXT)
-            dpg.add_theme_color(dpg.mvThemeCol_TextDisabled,    C_DIM)
-            dpg.add_theme_color(dpg.mvThemeCol_Button,          (30,30,30,255))
-            dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered,   (40,40,40,255))
-            dpg.add_theme_color(dpg.mvThemeCol_ButtonActive,    (50,50,50,255))
-            dpg.add_theme_color(dpg.mvThemeCol_Header,          (30,30,30,255))
-            dpg.add_theme_color(dpg.mvThemeCol_HeaderHovered,   (40,40,40,255))
-            dpg.add_theme_color(dpg.mvThemeCol_TitleBg,         C_SURFACE)
-            dpg.add_theme_color(dpg.mvThemeCol_TitleBgActive,   C_SURFACE)
-            dpg.add_theme_color(dpg.mvThemeCol_MenuBarBg,       C_SURFACE)
-            dpg.add_theme_color(dpg.mvThemeCol_ScrollbarBg,     C_BG)
-            dpg.add_theme_color(dpg.mvThemeCol_ScrollbarGrab,   (55,55,55,255))
-            dpg.add_theme_color(dpg.mvThemeCol_ScrollbarGrabHovered, (70,70,70,255))
-            dpg.add_theme_color(dpg.mvThemeCol_ScrollbarGrabActive,  (85,85,85,255))
-            dpg.add_theme_color(dpg.mvThemeCol_CheckMark,       C_AMBER)
-            dpg.add_theme_style(dpg.mvStyleVar_WindowRounding,   6)
-            dpg.add_theme_style(dpg.mvStyleVar_ChildRounding,    6)
-            dpg.add_theme_style(dpg.mvStyleVar_FrameRounding,    4)
-            dpg.add_theme_style(dpg.mvStyleVar_GrabRounding,     4)
-            dpg.add_theme_style(dpg.mvStyleVar_WindowPadding,   16, 14)
-            dpg.add_theme_style(dpg.mvStyleVar_FramePadding,     8, 5)
-            dpg.add_theme_style(dpg.mvStyleVar_ItemSpacing,     10, 8)
-            dpg.add_theme_style(dpg.mvStyleVar_ScrollbarSize,    8)
-
-    # Тема кнопки Create (amber)
-    with dpg.theme() as create_theme:
-        with dpg.theme_component(dpg.mvButton):
-            dpg.add_theme_color(dpg.mvThemeCol_Button,        C_AMBER)
-            dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, C_AMBER_H)
-            dpg.add_theme_color(dpg.mvThemeCol_ButtonActive,  C_AMBER_D)
-            dpg.add_theme_color(dpg.mvThemeCol_Text,          (0,0,0,255))
-            dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 6)
-
-    # Тема кнопки Save (subtle)
-    with dpg.theme() as save_theme:
-        with dpg.theme_component(dpg.mvButton):
-            dpg.add_theme_color(dpg.mvThemeCol_Button,        (28,28,28,255))
-            dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, (38,38,38,255))
-            dpg.add_theme_color(dpg.mvThemeCol_ButtonActive,  (50,50,50,255))
-            dpg.add_theme_color(dpg.mvThemeCol_Text,          C_DIM)
-            dpg.add_theme_color(dpg.mvThemeCol_Border,        C_BORDER)
-            dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 4)
-
-    with dpg.theme() as unlock_theme:
-        with dpg.theme_component(dpg.mvButton):
-            dpg.add_theme_color(dpg.mvThemeCol_Button,        C_AMBER)
-            dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, C_AMBER_H)
-            dpg.add_theme_color(dpg.mvThemeCol_ButtonActive,  C_AMBER_D)
-            dpg.add_theme_color(dpg.mvThemeCol_Text,          (0,0,0,255))
-            dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 6)
-
-    # ── Шрифт ──────────────────────────────────────────────────────────────
-    with dpg.font_registry():
-        _font_paths = [
-            "/System/Library/Fonts/Menlo.ttc",
-            "/System/Library/Fonts/Monaco.ttf",
-            "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
-            "/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf",
-        ]
-        _loaded_font = None
-        for _fp in _font_paths:
-            if os.path.exists(_fp):
-                try:
-                    _loaded_font = dpg.add_font(_fp, 14)
-                    break
-                except Exception:
-                    pass
-
-    cfg = _gui_load_config()
-
-    # ── Viewport ───────────────────────────────────────────────────────────
-    dpg.create_viewport(
-        title="PHP Site Generator",
-        width=980, height=700,
-        min_width=760, min_height=560,
-        small_icon="", large_icon="",
-    )
-    dpg.setup_dearpygui()
+    def _row_lbl(parent, text: str) -> None:
+        tk.Label(
+            parent, text=text, bg=C_BG, fg=C_DIM,
+            font=("Helvetica", 9, "bold"), anchor="w",
+        ).pack(fill="x", pady=(8, 2))
 
     # ──────────────────────────────────────────────────────────────────────
-    # ОКНО АВТОРИЗАЦИИ
+    # ЭКРАН АВТОРИЗАЦИИ
     # ──────────────────────────────────────────────────────────────────────
-    trusted = os.path.exists(_password_file) and is_device_trusted(get_device_id(), _auth_file)
+    def _build_auth() -> None:
+        root.resizable(False, False)
+        _center(root)
+        root.deiconify()
 
-    with dpg.window(
-        tag="auth_modal",
-        label="",
-        modal=False,
-        no_title_bar=True,
-        no_resize=True,
-        no_move=True,
-        no_close=True,
-        no_scrollbar=True,
-        width=380, height=290,
-        show=not trusted,
-        pos=[300, 205],
-    ):
-        dpg.add_spacer(height=10)
+        frame = tk.Frame(root, bg=C_BG)
+        frame.pack(fill="both", expand=True, padx=28, pady=24)
+
         # Логотип
-        with dpg.group(horizontal=True):
-            dpg.add_spacer(width=155)
-            with dpg.drawlist(width=46, height=46):
-                dpg.draw_rectangle((0,0), (46,46), color=C_AMBER, fill=C_AMBER, rounding=8)
-                dpg.draw_text((14, 11), "G", color=(0,0,0,255), size=26)
-        dpg.add_spacer(height=8)
+        c = tk.Canvas(frame, width=50, height=50, bg=C_BG, highlightthickness=0)
+        c.pack(pady=(0, 10))
+        c.create_rectangle(0, 0, 50, 50, fill=C_AMBER, outline="")
+        c.create_text(25, 26, text="G", fill=C_BLACK, font=("Helvetica", 26, "bold"))
 
-        # Заголовок по центру
-        with dpg.group(horizontal=True):
-            dpg.add_spacer(width=80)
-            dpg.add_text("PHP Site Generator", color=C_TEXT)
-        with dpg.group(horizontal=True):
-            dpg.add_spacer(width=85)
-            dpg.add_text("v82 · enter password", color=C_DIM)
+        tk.Label(
+            frame, text="PHP Site Generator", bg=C_BG, fg=C_TEXT,
+            font=("Helvetica", 15, "bold"),
+        ).pack()
+        tk.Label(
+            frame, text="v82  ·  enter password", bg=C_BG, fg=C_DIM,
+            font=("Helvetica", 10),
+        ).pack(pady=(2, 18))
 
-        dpg.add_spacer(height=20)
-        dpg.add_separator()
-        dpg.add_spacer(height=12)
+        tk.Frame(frame, bg=C_BORDER, height=1).pack(fill="x", pady=(0, 14))
 
-        # Поле пароля
-        dpg.add_text("Password", color=C_DIM)
-        dpg.add_spacer(height=4)
-        dpg.add_input_text(
-            tag="pw_input",
-            password=True,
-            width=-1,
-            hint="••••••••",
-            on_enter=True,
-            callback=cb_pw_enter,
+        tk.Label(frame, text="Password", bg=C_BG, fg=C_DIM,
+                 font=("Helvetica", 9, "bold"), anchor="w").pack(fill="x")
+
+        pw_var = tk.StringVar()
+        pw_e = tk.Entry(
+            frame, textvariable=pw_var, show="*",
+            bg=C_SURF2, fg=C_TEXT, insertbackground=C_TEXT,
+            relief="flat", bd=0, font=("Helvetica", 12),
+            highlightthickness=1, highlightcolor=C_AMBER,
+            highlightbackground=C_BORDER,
         )
-        dpg.add_spacer(height=6)
-        dpg.add_text("", tag="auth_err", color=C_RED)
-        dpg.add_spacer(height=10)
+        pw_e.pack(fill="x", ipady=8, pady=(4, 6))
+        pw_e.focus_set()
 
-        dpg.add_button(
-            tag="unlock_btn",
-            label="  Unlock  →  ",
-            width=-1,
-            height=36,
-            callback=cb_check_password,
+        err_var = tk.StringVar()
+        tk.Label(frame, textvariable=err_var, bg=C_BG, fg=C_RED,
+                 font=("Helvetica", 9), anchor="w").pack(fill="x")
+
+        def _try_unlock(*_):
+            pw = pw_var.get().strip()
+            if not pw:
+                return
+            if not os.path.exists(_password_file):
+                _proceed()
+                return
+            with open(_password_file) as f:
+                stored = f.read().strip()
+            if _hashlib.sha256(pw.encode()).hexdigest() == stored:
+                _proceed()
+            else:
+                _state["attempts"] += 1
+                left = 3 - _state["attempts"]
+                if left <= 0:
+                    err_var.set("✗ Доступ заблокирован")
+                    pw_e.configure(state="disabled")
+                    unlock_btn.configure(state="disabled")
+                else:
+                    err_var.set(
+                        f"✗ Неверный пароль — осталось попыток: {left}"
+                    )
+                pw_var.set("")
+
+        def _proceed():
+            add_trusted_device(get_device_id(), _auth_file)
+            for w in root.winfo_children():
+                w.destroy()
+            root.resizable(True, True)
+            _build_main()
+
+        pw_e.bind("<Return>", _try_unlock)
+
+        unlock_btn = _Btn(
+            frame, C_AMBER, C_AMBER_H, fg_n=C_BLACK,
+            text="  Unlock  →  ",
+            font=("Helvetica", 11, "bold"),
+            command=_try_unlock, pady=10,
         )
-        dpg.bind_item_theme("unlock_btn", unlock_theme)
+        unlock_btn.pack(fill="x", pady=(12, 0))
 
     # ──────────────────────────────────────────────────────────────────────
     # ГЛАВНОЕ ОКНО
     # ──────────────────────────────────────────────────────────────────────
-    W, H = 980, 700
+    def _build_main() -> None:
+        root.geometry("980x700")
+        root.minsize(780, 560)
+        _center(root)
+        root.deiconify()
 
-    with dpg.window(
-        tag="main_win",
-        label="",
-        no_title_bar=True,
-        no_resize=True,
-        no_move=True,
-        no_close=True,
-        no_scrollbar=True,
-        width=W, height=H,
-        pos=[0, 0],
-        show=trusted,
-    ):
-        # ── Шапка ──────────────────────────────────────────────────────────
-        with dpg.group(horizontal=True):
-            with dpg.drawlist(width=26, height=22):
-                dpg.draw_rectangle((0,2),(26,22), color=C_AMBER, fill=C_AMBER, rounding=4)
-                dpg.draw_text((7, 4), "G", color=(0,0,0,255), size=16)
-            dpg.add_spacer(width=8)
-            dpg.add_text("PHP Site Generator", color=C_TEXT)
-            dpg.add_spacer(width=8)
-            dpg.add_text("v82", color=C_DIM)
-        dpg.add_spacer(height=4)
-        dpg.add_separator()
-        dpg.add_spacer(height=8)
+        # ── ШАПКА ──────────────────────────────────────────────────────────
+        hdr = tk.Frame(root, bg=C_BG)
+        hdr.pack(fill="x", padx=16, pady=(12, 0))
 
-        # ── Две колонки: форма (левая) + консоль (правая) ──────────────────
-        FORM_W = 360
-        CON_W  = W - FORM_W - 54   # 54 = padding*2 + gap
+        logo = tk.Canvas(hdr, width=26, height=22, bg=C_BG, highlightthickness=0)
+        logo.pack(side="left")
+        logo.create_rectangle(0, 2, 26, 22, fill=C_AMBER, outline="")
+        logo.create_text(13, 12, text="G", fill=C_BLACK,
+                         font=("Helvetica", 12, "bold"))
 
-        with dpg.group(horizontal=True):
+        tk.Label(hdr, text="  PHP Site Generator", bg=C_BG, fg=C_TEXT,
+                 font=("Helvetica", 12, "bold")).pack(side="left")
+        tk.Label(hdr, text="  v82", bg=C_BG, fg=C_DIM,
+                 font=("Helvetica", 11)).pack(side="left")
 
-            # ── ЛЕВАЯ КОЛОНКА: вся форма без скролла ──────────────────────
-            with dpg.child_window(
-                width=FORM_W, height=H - 52,
-                border=False, no_scrollbar=True,
-            ):
-                # ── API ключи ─────────────────────────────────────────────
-                dpg.add_text("API KEYS", color=C_DIM)
-                dpg.add_spacer(height=3)
-                dpg.add_input_text(
-                    tag="api_key", width=-1, password=True,
-                    hint="OpenRouter key  sk-or-v1-…",
-                    default_value=cfg.get("api_key", ""),
-                )
-                dpg.add_spacer(height=4)
-                dpg.add_input_text(
-                    tag="bytedance_key", width=-1, password=True,
-                    hint="ByteDance key  ark-…",
-                    default_value=cfg.get("bytedance_key", ""),
-                )
-                dpg.add_spacer(height=6)
-                dpg.add_button(
-                    tag="save_keys_btn", label="  Save keys  ",
-                    callback=cb_save_keys,
-                )
-                dpg.bind_item_theme("save_keys_btn", save_theme)
+        tk.Frame(root, bg=C_BORDER, height=1).pack(fill="x", padx=16, pady=(8, 0))
 
-                dpg.add_spacer(height=8)
-                dpg.add_separator()
-                dpg.add_spacer(height=8)
+        # ── ТЕЛО ───────────────────────────────────────────────────────────
+        body = tk.Frame(root, bg=C_BG)
+        body.pack(fill="both", expand=True, padx=16, pady=10)
+        body.grid_columnconfigure(0, weight=0, minsize=360)
+        body.grid_columnconfigure(1, weight=0)
+        body.grid_columnconfigure(2, weight=1)
+        body.grid_rowconfigure(0, weight=1)
 
-                # ── Параметры генерации ───────────────────────────────────
-                dpg.add_text("GENERATION", color=C_DIM)
-                dpg.add_spacer(height=3)
+        # ── ЛЕВАЯ КОЛОНКА ──────────────────────────────────────────────────
+        left = tk.Frame(body, bg=C_BG, width=360)
+        left.grid(row=0, column=0, sticky="nsew", padx=(0, 0))
+        left.pack_propagate(False)
 
-                dpg.add_input_text(
-                    tag="description", multiline=True,
-                    width=-1, height=76,
-                    hint="Describe your website…",
-                    default_value="",
-                )
-                dpg.add_spacer(height=6)
+        # API KEYS
+        tk.Label(left, text="API KEYS", bg=C_BG, fg=C_DIM,
+                 font=("Helvetica", 8, "bold"), anchor="w").pack(
+            fill="x", pady=(2, 4))
 
-                # Тип сайта (горизонтальное радио)
-                dpg.add_radio_button(
-                    ("landing", "multipage"),
-                    tag="site_type",
-                    default_value="multipage" if cfg.get("site_type", "landing") == "multipage" else "landing",
-                    horizontal=True,
-                )
-                dpg.add_spacer(height=6)
+        _v_api = tk.StringVar(value=cfg.get("api_key", ""))
+        _row_lbl(left, "OpenRouter key")
+        api_e = _make_entry(left, _v_api, show="*")
+        api_e.pack(fill="x", ipady=6, pady=(0, 2))
 
-                dpg.add_text("Site name", color=C_DIM)
-                dpg.add_input_text(
-                    tag="site_name", width=-1,
-                    hint="My Awesome Company",
-                    default_value=cfg.get("site_name", ""),
-                )
-                dpg.add_spacer(height=6)
+        _v_bdc = tk.StringVar(value=cfg.get("bytedance_key", ""))
+        _row_lbl(left, "ByteDance key")
+        bdc_e = _make_entry(left, _v_bdc, show="*")
+        bdc_e.pack(fill="x", ipady=6, pady=(0, 2))
 
-                # Images count — строка: метка + поле 80px
-                with dpg.group(horizontal=True):
-                    dpg.add_text("Images:", color=C_DIM)
-                    dpg.add_input_text(
-                        tag="num_images", width=80,
-                        hint="24",
-                        default_value=str(cfg.get("num_images", 24)),
-                    )
-                dpg.add_spacer(height=6)
+        def _do_save_keys():
+            _gui_save_config({
+                "api_key": _v_api.get(),
+                "bytedance_key": _v_bdc.get(),
+            })
+            _flash_btn(sk_btn, "  ✓ Saved  ", "  Save keys  ")
 
-                dpg.add_text("Data folder", color=C_DIM)
-                dpg.add_input_text(
-                    tag="data_dir", width=-1,
-                    hint="data",
-                    default_value=cfg.get("data_dir", "data"),
-                )
-                dpg.add_spacer(height=6)
+        sk_btn = _Btn(left, C_SURF2, C_SURF, fg_n=C_DIM,
+                      text="  Save keys  ",
+                      font=("Helvetica", 9), command=_do_save_keys,
+                      pady=4, padx=8)
+        sk_btn.pack(anchor="w", pady=(6, 0))
 
-                dpg.add_text("Output folder", color=C_DIM)
-                dpg.add_input_text(
-                    tag="output_dir", width=-1,
-                    hint="generated_website",
-                    default_value=cfg.get("output_dir", "generated_website"),
-                )
-                dpg.add_spacer(height=8)
-                dpg.add_button(
-                    tag="save_def_btn", label="  Save defaults  ",
-                    callback=cb_save_defaults,
-                )
-                dpg.bind_item_theme("save_def_btn", save_theme)
+        tk.Frame(left, bg=C_BORDER, height=1).pack(fill="x", pady=(12, 4))
 
-                dpg.add_spacer(height=10)
-                dpg.add_button(
-                    tag="create_btn",
-                    label="  ▶   Create",
-                    width=-1, height=42,
-                    callback=cb_create,
-                )
-                dpg.bind_item_theme("create_btn", create_theme)
+        # GENERATION
+        tk.Label(left, text="GENERATION", bg=C_BG, fg=C_DIM,
+                 font=("Helvetica", 8, "bold"), anchor="w").pack(
+            fill="x", pady=(0, 4))
 
-            dpg.add_spacer(width=10)
+        tk.Label(left, text="Description", bg=C_BG, fg=C_DIM,
+                 font=("Helvetica", 9, "bold"), anchor="w").pack(
+            fill="x", pady=(0, 2))
+        desc_txt = tk.Text(
+            left, bg=C_SURF2, fg=C_TEXT, insertbackground=C_TEXT,
+            relief="flat", bd=0, font=("Helvetica", 11),
+            height=4, wrap="word",
+            highlightthickness=1,
+            highlightcolor=C_AMBER,
+            highlightbackground=C_BORDER,
+        )
+        desc_txt.pack(fill="x")
 
-            # ── ПРАВАЯ КОЛОНКА: консоль ────────────────────────────────────
-            with dpg.group():
-                with dpg.group(horizontal=True):
-                    dpg.add_text("⬤ ", color=(255,95,87,255))
-                    dpg.add_text("⬤ ", color=(254,188,46,255))
-                    dpg.add_text("⬤ ", color=(40,200,64,255))
-                    dpg.add_spacer(width=6)
-                    dpg.add_text("generator output", color=C_DIM)
-                    dpg.add_spacer(width=10)
-                    dpg.add_text("idle", tag="status_text", color=C_DIM)
+        _row_lbl(left, "Site type")
+        _v_stype = tk.StringVar(value=cfg.get("site_type", "landing"))
+        rf = tk.Frame(left, bg=C_BG)
+        rf.pack(fill="x", pady=(2, 4))
+        for _val, _label in (("landing", "Landing page"),
+                              ("multipage", "Multipage site")):
+            tk.Radiobutton(
+                rf, text=_label, variable=_v_stype, value=_val,
+                bg=C_BG, fg=C_TEXT, selectcolor=C_SURF2,
+                activebackground=C_BG, activeforeground=C_TEXT,
+                font=("Helvetica", 10),
+            ).pack(side="left", padx=(0, 16))
 
-                dpg.add_separator()
-                dpg.add_spacer(height=2)
+        _v_name = tk.StringVar(value=cfg.get("site_name", ""))
+        _row_lbl(left, "Site name")
+        name_e = _make_entry(left, _v_name, hint="My Awesome Company")
+        name_e.pack(fill="x", ipady=6, pady=(0, 2))
 
-                with dpg.child_window(
-                    tag="console_win",
-                    width=CON_W,
-                    height=H - 56,
-                    border=True,
-                ):
-                    with dpg.theme() as con_theme:
-                        with dpg.theme_component(dpg.mvChildWindow):
-                            dpg.add_theme_color(dpg.mvThemeCol_ChildBg, (10,10,10,255))
-                    dpg.bind_item_theme("console_win", con_theme)
-                    _state["console_id"] = dpg.add_group(tag="console_content")
+        img_row = tk.Frame(left, bg=C_BG)
+        img_row.pack(fill="x", pady=(8, 0))
+        tk.Label(img_row, text="Images:", bg=C_BG, fg=C_DIM,
+                 font=("Helvetica", 9, "bold")).pack(side="left")
+        _v_imgs = tk.StringVar(value=str(cfg.get("num_images", 24)))
+        imgs_e = tk.Entry(
+            img_row, textvariable=_v_imgs, width=6,
+            bg=C_SURF2, fg=C_TEXT, insertbackground=C_TEXT,
+            relief="flat", bd=0, font=("Helvetica", 11),
+            highlightthickness=1,
+            highlightcolor=C_AMBER,
+            highlightbackground=C_BORDER,
+        )
+        imgs_e.pack(side="left", padx=(8, 0), ipady=6)
 
-    # ── Применяем глобальную тему ──────────────────────────────────────────
-    dpg.bind_theme(global_theme)
-    if _loaded_font:
-        dpg.bind_font(_loaded_font)
+        _v_data = tk.StringVar(value=cfg.get("data_dir", "data"))
+        _row_lbl(left, "Data folder")
+        data_e = _make_entry(left, _v_data, hint="data")
+        data_e.pack(fill="x", ipady=6, pady=(0, 2))
 
-    # ── Viewport resize → обновляем размеры окон ──────────────────────────
-    def _on_resize():
-        vw = dpg.get_viewport_client_width()
-        vh = dpg.get_viewport_client_height()
-        dpg.configure_item("main_win", width=vw, height=vh)
-        dpg.configure_item("auth_modal",
-                           pos=[(vw-380)//2, (vh-290)//2])
+        _v_out = tk.StringVar(value=cfg.get("output_dir", "generated_website"))
+        _row_lbl(left, "Output folder")
+        out_e = _make_entry(left, _v_out, hint="generated_website")
+        out_e.pack(fill="x", ipady=6, pady=(0, 2))
 
-    dpg.set_viewport_resize_callback(_on_resize)
+        def _do_save_def():
+            _gui_save_config({
+                "site_name":  _v_name.get(),
+                "site_type":  _v_stype.get(),
+                "num_images": _v_imgs.get(),
+                "data_dir":   _v_data.get(),
+                "output_dir": _v_out.get(),
+            })
+            _flash_btn(sd_btn, "  ✓ Saved  ", "  Save defaults  ")
 
-    dpg.show_viewport()
+        sd_btn = _Btn(left, C_SURF2, C_SURF, fg_n=C_DIM,
+                      text="  Save defaults  ",
+                      font=("Helvetica", 9), command=_do_save_def,
+                      pady=4, padx=8)
+        sd_btn.pack(anchor="w", pady=(8, 0))
 
-    # ── Главный цикл ───────────────────────────────────────────────────────
-    while dpg.is_dearpygui_running():
-        _drain_queue()
-        dpg.render_dearpygui_frame()
+        tk.Frame(left, bg=C_BG, height=12).pack()
 
-    dpg.destroy_context()
+        def _do_create():
+            if _state["running"]:
+                return
+            desc      = desc_txt.get("1.0", "end").strip()
+            site_name = _v_name.get().strip()
+            site_type = _v_stype.get()
+            num_img   = _v_imgs.get().strip() or "24"
+            data_dir  = _v_data.get().strip()  or "data"
+            out_dir   = _v_out.get().strip()   or "generated_website"
+            api_key   = _v_api.get().strip()
+            bdc_key   = _v_bdc.get().strip()
+
+            if not desc:
+                desc_txt.focus_set()
+                return
+
+            con = _W["console_txt"]
+            if con:
+                con.configure(state="normal")
+                con.delete("1.0", "end")
+                con.configure(state="disabled")
+
+            _status_var.set("● running")
+            if _W["status_lbl"]:
+                _W["status_lbl"].configure(fg=C_GREEN)
+            create_btn._bg_n = C_AMBER_D
+            create_btn.configure(
+                state="disabled",
+                text="  ⏳  Generating…",
+                bg=C_AMBER_D,
+            )
+            _state["running"] = True
+
+            _append_console("$ python phpgen_version82.py --generate", C_DIM)
+            _append_console("")
+
+            env = os.environ.copy()
+            if api_key:
+                env["OPENROUTER_API_KEY"] = api_key
+            if bdc_key:
+                env["BYTEDANCE_KEY"] = bdc_key
+
+            desc_line = desc.replace("\n", " ").replace("\r", " ")
+            inp = (
+                f"{desc_line}\n{site_type}\n{site_name}\n"
+                f"{num_img}\n{data_dir}\n{out_dir}\n"
+            )
+            threading.Thread(
+                target=_run_subprocess_bg, args=(inp, env), daemon=True
+            ).start()
+
+        create_btn = _Btn(
+            left, C_AMBER, C_AMBER_H, fg_n=C_BLACK,
+            text="  ▶   Create  ",
+            font=("Helvetica", 12, "bold"),
+            command=_do_create, pady=10,
+        )
+        create_btn.pack(fill="x")
+        _W["create_btn"] = create_btn
+
+        # ── РАЗДЕЛИТЕЛЬ ────────────────────────────────────────────────────
+        tk.Frame(body, bg=C_BORDER, width=1).grid(
+            row=0, column=1, sticky="ns", padx=12)
+
+        # ── ПРАВАЯ КОЛОНКА: консоль ────────────────────────────────────────
+        right = tk.Frame(body, bg=C_BG)
+        right.grid(row=0, column=2, sticky="nsew")
+        right.grid_rowconfigure(1, weight=1)
+        right.grid_columnconfigure(0, weight=1)
+
+        con_hdr = tk.Frame(right, bg=C_BG)
+        con_hdr.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 4))
+        tk.Label(con_hdr, text="⬤ ", bg=C_BG, fg="#ff5f57",
+                 font=("Helvetica", 11)).pack(side="left")
+        tk.Label(con_hdr, text="⬤ ", bg=C_BG, fg="#febc2e",
+                 font=("Helvetica", 11)).pack(side="left")
+        tk.Label(con_hdr, text="⬤ ", bg=C_BG, fg="#28c840",
+                 font=("Helvetica", 11)).pack(side="left")
+        tk.Label(con_hdr, text="  generator output", bg=C_BG, fg=C_DIM,
+                 font=("Helvetica", 10)).pack(side="left")
+        sl = tk.Label(con_hdr, textvariable=_status_var, bg=C_BG, fg=C_DIM,
+                      font=("Helvetica", 10))
+        sl.pack(side="left", padx=(16, 0))
+        _W["status_lbl"] = sl
+
+        tk.Frame(right, bg=C_BORDER, height=1).grid(
+            row=0, column=0, columnspan=2, sticky="ew", pady=(26, 2))
+
+        con_txt = tk.Text(
+            right,
+            bg="#0a0a0a", fg=C_TEXT,
+            insertbackground=C_TEXT,
+            relief="flat", bd=0,
+            font=("Courier", 11) if sys.platform == "darwin"
+                 else ("Courier New", 10),
+            state="disabled", wrap="word",
+            padx=10, pady=8,
+            highlightthickness=1,
+            highlightbackground=C_BORDER,
+        )
+        con_txt.grid(row=1, column=0, sticky="nsew")
+        sb = tk.Scrollbar(right, orient="vertical", command=con_txt.yview,
+                          bg=C_SURF2, troughcolor=C_BG,
+                          width=8, relief="flat")
+        sb.grid(row=1, column=1, sticky="ns")
+        con_txt.configure(yscrollcommand=sb.set)
+        _W["console_txt"] = con_txt
+
+        root.after(40, _drain_queue)
+
+    # ── Завершение ─────────────────────────────────────────────────────────
+    def _on_close():
+        _state["stopped"] = True
+        root.destroy()
+
+    root.protocol("WM_DELETE_WINDOW", _on_close)
+
+    if trusted:
+        _build_main()
+    else:
+        _build_auth()
+
+    root.mainloop()
 
 
 # ============================================================================
@@ -12100,10 +12110,10 @@ if __name__ == "__main__":
 
     else:
         # ── GUI mode ────────────────────────────────────────────────────
-        if _DPG_OK:
-            _run_dpg_gui()
+        if _TK_OK:
+            _run_tk_gui()
         elif _TEXTUAL_OK:
             GeneratorApp().run()
         else:
-            print("❌ Установите Dear PyGui: pip install dearpygui")
+            print("❌ Нужен tkinter (python3-tk) или textual")
             sys.exit(1)
