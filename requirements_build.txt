@@ -1,0 +1,6 @@
+pyinstaller>=6.0
+textual>=8.0
+requests
+python-dotenv
+byteplussdkarkruntime
+rich

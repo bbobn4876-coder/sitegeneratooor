@@ -11336,17 +11336,24 @@ class GeneratorApp(App):
         self._drain_timer = self.set_interval(0.05, self._drain_queue)
 
     def _run_subprocess(self, inp: str, env: dict) -> None:
-        script = os.path.abspath(__file__)
+        # When running as a PyInstaller bundle sys.executable IS the app binary
+        if getattr(sys, "frozen", False):
+            cmd = [sys.executable, "--generate"]
+            cwd = os.path.dirname(sys.executable)
+        else:
+            script = os.path.abspath(__file__)
+            cmd = [sys.executable, script, "--generate"]
+            cwd = os.path.dirname(script)
         try:
             proc = subprocess.Popen(
-                [sys.executable, script, "--generate"],
+                cmd,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
                 bufsize=1,
                 env=env,
-                cwd=os.path.dirname(script),
+                cwd=cwd,
             )
             proc.stdin.write(inp)
             proc.stdin.close()
