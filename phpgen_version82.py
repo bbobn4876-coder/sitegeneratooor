@@ -1066,6 +1066,12 @@ Return ONLY the site name, nothing else. No quotes, no punctuation, no explanati
                 'cities': ['Bratislava', 'Košice', 'Prešov', 'Nitra', 'Žilina', 'Banská Bystrica'],
                 'streets': ['Obchodná', 'Hlavná', 'Masarykova', 'Štefánikova', 'Námestie SNP'],
                 'postal_codes': ['811 01', '040 01', '080 01', '949 01', '010 01']
+            },
+            'estonia': {
+                'phones': ['+372 6 528 493', '+372 7 394 825', '+372 5 682 7394'],
+                'cities': ['Tallinn', 'Tartu', 'Narva', 'Pärnu', 'Kohtla-Järve', 'Viljandi'],
+                'streets': ['Viru tänav', 'Pikk tänav', 'Rüütli tänav', 'Küüni tänav', 'Narva maantee'],
+                'postal_codes': ['10111', '51003', '20303', '80010', '30322']
             }
         }
 
