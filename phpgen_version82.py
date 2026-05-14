@@ -374,10 +374,21 @@ if __name__ == "__main__":
 # ============================================================================
 
 class PHPWebsiteGenerator:
-    def __init__(self):
-        # API ключи (жестко заданные - всегда работают!)
-        self.api_key = "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"
-        self.bytedance_key = "ark-d010e341-cb4f-4a84-89e7-d26637845463-9bf03"
+    def __init__(self, api_key=None, bytedance_key=None):
+        # API ключи: приоритет — аргументы, потом env vars, потом дефолт
+        import os, json as _json
+        _cfg_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'generator_config.json')
+        _cfg = {}
+        if os.path.exists(_cfg_path):
+            try:
+                with open(_cfg_path) as _f:
+                    _cfg = _json.load(_f)
+            except Exception:
+                pass
+        self.api_key = (api_key or os.environ.get('OPENROUTER_API_KEY') or _cfg.get('api_key') or
+                        "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")
+        self.bytedance_key = (bytedance_key or os.environ.get('BYTEDANCE_KEY') or _cfg.get('bytedance_key') or
+                              "ark-d010e341-cb4f-4a84-89e7-d26637845463-9bf03")
         
         self.api_url = "https://openrouter.ai/api/v1/chat/completions"
         self.code_model = "google/gemini-2.5-flash"

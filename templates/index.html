@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Site Generator</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0d;
+    --surface: #141414;
+    --border: #2a2a2a;
+    --border-focus: #4a4a4a;
+    --text: #e0e0e0;
+    --text-dim: #666;
+    --text-muted: #444;
+    --accent: #d97706;
+    --accent-dim: #92400e;
+    --green: #22c55e;
+    --red: #ef4444;
+    --blue: #60a5fa;
+    --yellow: #fbbf24;
+    --purple: #a78bfa;
+    --cyan: #22d3ee;
+    --font: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', 'Monaco', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 20px 48px;
+    gap: 0;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .header-logo {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: #000;
+    flex-shrink: 0;
+  }
+  .header-title { font-size: 14px; font-weight: 600; color: var(--text); letter-spacing: 0.02em; }
+  .header-sub { font-size: 11px; color: var(--text-dim); margin-left: auto; }
+
+  /* ── Section wrapper ── */
+  .section {
+    margin-bottom: 20px;
+  }
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    padding-left: 2px;
+  }
+
+  /* ── Settings block ── */
+  .settings-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .settings-row {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-key {
+    font-size: 11px;
+    color: var(--text-dim);
+    flex: 0 0 120px;
+    white-space: nowrap;
+  }
+  .settings-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 12px;
+    padding: 2px 0;
+  }
+  .settings-input::placeholder { color: var(--text-muted); }
+  .settings-input:focus { color: var(--accent); }
+  .save-indicator {
+    font-size: 10px;
+    color: var(--green);
+    opacity: 0;
+    transition: opacity 0.3s;
+    flex-shrink: 0;
+  }
+  .save-indicator.visible { opacity: 1; }
+
+  /* ── Form fields ── */
+  .form-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .form-row {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px 14px;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .form-row:last-child { border-bottom: none; }
+  .form-row-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    flex: 0 0 120px;
+    padding-top: 3px;
+  }
+  .form-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 12px;
+    padding: 2px 0;
+    resize: none;
+    min-height: 20px;
+  }
+  .form-input::placeholder { color: var(--text-muted); }
+  .form-input:focus { color: var(--blue); }
+
+  /* radio / select */
+  .type-options { display: flex; gap: 16px; align-items: center; padding-top: 3px; }
+  .type-option {
+    display: flex; align-items: center; gap: 6px;
+    cursor: pointer; color: var(--text-dim); font-size: 12px;
+    user-select: none;
+  }
+  .type-option input[type=radio] { display: none; }
+  .type-dot {
+    width: 12px; height: 12px;
+    border: 1px solid var(--border-focus);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: border-color 0.15s;
+  }
+  .type-dot::after {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .type-option input[type=radio]:checked ~ .type-dot { border-color: var(--accent); }
+  .type-option input[type=radio]:checked ~ .type-dot::after { opacity: 1; }
+  .type-option input[type=radio]:checked ~ span { color: var(--text); }
+
+  /* ── Create button ── */
+  .create-btn {
+    width: 100%;
+    margin-top: 16px;
+    padding: 12px 20px;
+    background: var(--accent);
+    color: #000;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .create-btn:hover { background: #e88b0a; }
+  .create-btn:active { opacity: 0.85; }
+  .create-btn:disabled { opacity: 0.4; cursor: not-allowed; background: var(--accent); }
+  .create-btn .btn-icon { font-size: 14px; }
+
+  /* ── Console output ── */
+  .console-wrapper {
+    margin-top: 24px;
+    display: none;
+  }
+  .console-wrapper.visible { display: block; }
+  .console-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1a1a1a;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    padding: 8px 14px;
+  }
+  .console-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .console-dot.red   { background: #ff5f57; }
+  .console-dot.yellow{ background: #febc2e; }
+  .console-dot.green { background: #28c840; }
+  .console-title { font-size: 11px; color: var(--text-dim); margin-left: 6px; }
+  .console-status { margin-left: auto; font-size: 10px; color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
+  .pulse {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green); flex-shrink: 0;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.2} }
+  .pulse.stopped { animation: none; background: var(--text-dim); }
+
+  .console-body {
+    background: #0a0a0a;
+    border: 1px solid var(--border);
+    border-radius: 0 0 8px 8px;
+    padding: 14px;
+    height: 460px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+  .console-body::-webkit-scrollbar { width: 5px; }
+  .console-body::-webkit-scrollbar-track { background: transparent; }
+  .console-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .log-line {
+    display: block;
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .log-line.dim    { color: var(--text-dim); }
+  .log-line.info   { color: var(--text); }
+  .log-line.ok     { color: var(--green); }
+  .log-line.warn   { color: var(--yellow); }
+  .log-line.err    { color: var(--red); }
+  .log-line.step   { color: var(--accent); font-weight: 600; }
+  .log-line.section{ color: var(--purple); }
+  .log-line.gen    { color: var(--cyan); }
+  .log-line.prompt { color: var(--text-dim); font-size: 11px; }
+  .log-line.empty  { height: 6px; display: block; }
+
+  .done-banner {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: #052e16;
+    border: 1px solid #166534;
+    border-radius: 8px;
+    color: var(--green);
+    font-size: 12px;
+    display: none;
+  }
+  .done-banner.visible { display: block; }
+  .error-banner {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: #1c0a0a;
+    border: 1px solid #7f1d1d;
+    border-radius: 8px;
+    color: var(--red);
+    font-size: 12px;
+    display: none;
+  }
+  .error-banner.visible { display: block; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-logo">G</div>
+    <div class="header-title">PHP Site Generator</div>
+    <div class="header-sub">v82 · terminal ui</div>
+  </div>
+
+  <!-- Settings -->
+  <div class="section">
+    <div class="section-label">Settings</div>
+    <div class="settings-block">
+      <div class="settings-row">
+        <span class="settings-key">api_key</span>
+        <input class="settings-input" id="api_key" type="password"
+               placeholder="sk-or-v1-…" value="{{ api_key }}" autocomplete="off" spellcheck="false">
+        <span class="save-indicator" id="save-ok">saved</span>
+      </div>
+      <div class="settings-row">
+        <span class="settings-key">bytedance_key</span>
+        <input class="settings-input" id="bytedance_key" type="password"
+               placeholder="ark-…" value="{{ bytedance_key }}" autocomplete="off" spellcheck="false">
+      </div>
+    </div>
+  </div>
+
+  <!-- Generation inputs -->
+  <div class="section">
+    <div class="section-label">Generation</div>
+    <div class="form-block">
+      <div class="form-row">
+        <label class="form-row-label" for="site_name">site_name</label>
+        <input class="form-input" id="site_name" type="text"
+               placeholder="My Awesome Company" spellcheck="false">
+      </div>
+      <div class="form-row">
+        <label class="form-row-label">site_type</label>
+        <div class="type-options">
+          <label class="type-option">
+            <input type="radio" name="site_type" value="landing" checked>
+            <div class="type-dot"></div>
+            <span>landing</span>
+          </label>
+          <label class="type-option">
+            <input type="radio" name="site_type" value="multipage">
+            <div class="type-dot"></div>
+            <span>multipage</span>
+          </label>
+        </div>
+      </div>
+      <div class="form-row" style="align-items:flex-start">
+        <label class="form-row-label" for="site_description" style="padding-top:3px">description</label>
+        <textarea class="form-input" id="site_description" rows="4"
+                  placeholder="Describe your website: industry, target audience, key services, tone…"
+                  spellcheck="false"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create button -->
+  <button class="create-btn" id="create-btn" onclick="startGeneration()">
+    <span class="btn-icon">▶</span> Create
+  </button>
+
+  <!-- Console output -->
+  <div class="console-wrapper" id="console-wrapper">
+    <div class="console-header">
+      <div class="console-dot red"></div>
+      <div class="console-dot yellow"></div>
+      <div class="console-dot green"></div>
+      <span class="console-title">generator output</span>
+      <div class="console-status" id="console-status">
+        <div class="pulse" id="pulse-dot"></div>
+        <span id="status-text">running…</span>
+      </div>
+    </div>
+    <div class="console-body" id="console-body"></div>
+  </div>
+
+  <div class="done-banner" id="done-banner">✓ Generation complete.</div>
+  <div class="error-banner" id="error-banner" id="err-banner"></div>
+
+</div>
+
+<script>
+  // Auto-save settings on blur
+  ['api_key', 'bytedance_key'].forEach(id => {
+    document.getElementById(id).addEventListener('blur', saveSettings);
+  });
+
+  function saveSettings() {
+    const api_key = document.getElementById('api_key').value;
+    const bytedance_key = document.getElementById('bytedance_key').value;
+    fetch('/save_config', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({api_key, bytedance_key})
+    }).then(() => {
+      const ind = document.getElementById('save-ok');
+      ind.classList.add('visible');
+      setTimeout(() => ind.classList.remove('visible'), 1500);
+    });
+  }
+
+  // Line classifier → CSS class
+  function classifyLine(text) {
+    if (!text.trim()) return 'empty';
+    const t = text;
+    if (/✓|✅|успешно|готов|complete|done|saved|OK/i.test(t)) return 'ok';
+    if (/❌|error|ошибка|failed|traceback|exception/i.test(t)) return 'err';
+    if (/⚠|warning|предупрежд/i.test(t)) return 'warn';
+    if (/^(🚀|📋|📄|🔧|🎨|🖼|💾|📁|🏗|⚙️|🔑|🌐|📝|\[STEP\]|═+)/i.test(t)) return 'step';
+    if (/^(генерац|генерир|создан|обработ|пишем|загруж)/i.test(t)) return 'gen';
+    if (/^(#|\/\/|<!--)/i.test(t)) return 'prompt';
+    if (/^[\s\-─]+$/.test(t)) return 'dim';
+    return 'info';
+  }
+
+  function appendLine(text) {
+    const body = document.getElementById('console-body');
+    const el = document.createElement('span');
+    el.className = 'log-line ' + classifyLine(text);
+    el.textContent = text || '​';
+    body.appendChild(el);
+    body.appendChild(document.createTextNode('\n'));
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function startGeneration() {
+    const btn = document.getElementById('create-btn');
+    const site_description = document.getElementById('site_description').value.trim();
+    const site_name = document.getElementById('site_name').value.trim();
+    const site_type = document.querySelector('input[name="site_type"]:checked').value;
+    const api_key = document.getElementById('api_key').value;
+    const bytedance_key = document.getElementById('bytedance_key').value;
+
+    if (!site_description) {
+      document.getElementById('site_description').focus();
+      return;
+    }
+
+    // Reset UI
+    const body = document.getElementById('console-body');
+    body.innerHTML = '';
+    document.getElementById('done-banner').classList.remove('visible');
+    document.getElementById('error-banner').classList.remove('visible');
+    document.getElementById('console-wrapper').classList.add('visible');
+    document.getElementById('pulse-dot').classList.remove('stopped');
+    document.getElementById('status-text').textContent = 'running…';
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-icon">⏳</span> Generating…';
+
+    appendLine('$ python phpgen_version82.py');
+    appendLine('');
+
+    fetch('/generate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({site_description, site_type, site_name, api_key, bytedance_key})
+    }).then(resp => {
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = '';
+
+      function pump() {
+        return reader.read().then(({done, value}) => {
+          if (done) return;
+          buf += decoder.decode(value, {stream: true});
+          const parts = buf.split('\n\n');
+          buf = parts.pop();
+          parts.forEach(part => {
+            if (!part.startsWith('data: ')) return;
+            let evt;
+            try { evt = JSON.parse(part.slice(6)); } catch(e) { return; }
+            if (evt.type === 'line') {
+              appendLine(evt.text);
+            } else if (evt.type === 'done') {
+              document.getElementById('pulse-dot').classList.add('stopped');
+              document.getElementById('status-text').textContent = evt.code === 0 ? 'done' : 'exited ' + evt.code;
+              document.getElementById('done-banner').classList.add('visible');
+              btn.disabled = false;
+              btn.innerHTML = '<span class="btn-icon">▶</span> Create';
+            } else if (evt.type === 'error') {
+              appendLine('ERROR: ' + evt.text);
+              document.getElementById('pulse-dot').classList.add('stopped');
+              document.getElementById('status-text').textContent = 'error';
+              const eb = document.getElementById('error-banner');
+              eb.textContent = '✗ ' + evt.text;
+              eb.classList.add('visible');
+              btn.disabled = false;
+              btn.innerHTML = '<span class="btn-icon">▶</span> Create';
+            }
+          });
+          return pump();
+        });
+      }
+      return pump();
+    }).catch(err => {
+      appendLine('FETCH ERROR: ' + err.message);
+      btn.disabled = false;
+      btn.innerHTML = '<span class="btn-icon">▶</span> Create';
+    });
+  }
+</script>
+</body>
+</html>
