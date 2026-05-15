@@ -10968,6 +10968,35 @@ def _gui_save_config(data: dict) -> None:
         json.dump(cfg, _f, indent=2)
 
 
+_GUI_PRESETS_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "generator_presets.json"
+)
+
+
+def _presets_load() -> dict:
+    if os.path.exists(_GUI_PRESETS_PATH):
+        try:
+            with open(_GUI_PRESETS_PATH) as _f:
+                return json.load(_f)
+        except Exception:
+            pass
+    return {}
+
+
+def _presets_save(name: str, data: dict) -> None:
+    p = _presets_load()
+    p[name] = data
+    with open(_GUI_PRESETS_PATH, "w") as _f:
+        json.dump(p, _f, indent=2, ensure_ascii=False)
+
+
+def _presets_delete(name: str) -> None:
+    p = _presets_load()
+    p.pop(name, None)
+    with open(_GUI_PRESETS_PATH, "w") as _f:
+        json.dump(p, _f, indent=2, ensure_ascii=False)
+
+
 _GUI_CSS = """
 Screen {
     background: #0d0d0d;
@@ -12122,9 +12151,9 @@ def _run_tk_gui():
         out_e.bind("<Button-4>", _lwheel)
         out_e.bind("<Button-5>", _lwheel)
 
-        def _do_save_def():
+        def _current_fields() -> dict:
             first_name = _all_name_vars[0][0].get() if _all_name_vars else ""
-            _gui_save_config({
+            return {
                 "site_name":  first_name,
                 "theme":      _v_theme.get(),
                 "language":   _v_language.get(),
@@ -12133,17 +12162,137 @@ def _run_tk_gui():
                 "num_images": _v_imgs.get(),
                 "data_dir":   _v_data.get(),
                 "output_dir": _v_out.get(),
-            })
-            _flash_btn(sd_btn, "  ✓ Saved  ", "  Save defaults  ")
+            }
+
+        def _load_preset(data: dict):
+            if "site_name" in data and _all_name_vars:
+                _all_name_vars[0][0].set(data["site_name"])
+            for key, var in (
+                ("theme",      _v_theme),
+                ("language",   _v_language),
+                ("country",    _v_country),
+                ("site_type",  _v_stype),
+                ("num_images", _v_imgs),
+                ("data_dir",   _v_data),
+                ("output_dir", _v_out),
+            ):
+                if key in data:
+                    var.set(data[key])
+
+        def _refresh_presets():
+            for w in presets_list_frame.winfo_children():
+                w.destroy()
+            for pname, pdata in _presets_load().items():
+                def _make_row(n=pname, d=pdata):
+                    pb = _Btn(
+                        presets_list_frame, C_SURF2, C_SURF, fg_n=C_TEXT,
+                        text=f"  {n}",
+                        font=("Helvetica", 9), command=lambda: _load_preset(d),
+                        pady=3, padx=8, anchor="w",
+                    )
+                    pb.pack(fill="x", pady=(2, 0))
+                    for ev in ("<MouseWheel>", "<Button-4>", "<Button-5>"):
+                        pb.bind(ev, _lwheel)
+                    pb.bind("<Button-3>", lambda e, _n=n: _confirm_delete(_n))
+                _make_row()
+
+        def _confirm_delete(preset_name: str):
+            dlg = tk.Toplevel(root)
+            dlg.title("Delete preset")
+            dlg.configure(bg=C_BG)
+            dlg.resizable(False, False)
+            dlg.grab_set()
+            dlg.transient(root)
+            tk.Label(
+                dlg, text=f'Delete preset "{preset_name}"?',
+                bg=C_BG, fg=C_TEXT, font=("Helvetica", 11),
+            ).pack(padx=24, pady=(20, 10))
+            btn_row = tk.Frame(dlg, bg=C_BG)
+            btn_row.pack(padx=24, pady=(0, 20))
+
+            def _do_del():
+                _presets_delete(preset_name)
+                _refresh_presets()
+                dlg.destroy()
+
+            _Btn(btn_row, "#c0392b", "#e74c3c", fg_n="white",
+                 text="  Delete  ", font=("Helvetica", 10, "bold"),
+                 command=_do_del, pady=6, padx=12).pack(side="left", padx=(0, 8))
+            _Btn(btn_row, C_SURF2, C_SURF, fg_n=C_DIM,
+                 text="  Cancel  ", font=("Helvetica", 10),
+                 command=dlg.destroy, pady=6, padx=12).pack(side="left")
+            dlg.update_idletasks()
+            dlg.geometry(
+                f"+{root.winfo_x() + (root.winfo_width()  - dlg.winfo_reqwidth())  // 2}"
+                f"+{root.winfo_y() + (root.winfo_height() - dlg.winfo_reqheight()) // 2}"
+            )
+
+        def _open_save_preset_popup():
+            dlg = tk.Toplevel(root)
+            dlg.title("Save preset")
+            dlg.configure(bg=C_BG)
+            dlg.resizable(False, False)
+            dlg.grab_set()
+            dlg.transient(root)
+            tk.Label(dlg, text="Preset name", bg=C_BG, fg=C_DIM,
+                     font=("Helvetica", 9, "bold"), anchor="w").pack(
+                fill="x", padx=20, pady=(16, 2))
+            name_var = tk.StringVar()
+            name_ent = tk.Entry(
+                dlg, textvariable=name_var,
+                bg=C_SURF2, fg=C_TEXT, insertbackground=C_TEXT,
+                relief="flat", bd=0, font=("Helvetica", 11),
+                highlightthickness=1, highlightcolor=C_AMBER,
+                highlightbackground=C_BORDER, width=26,
+            )
+            name_ent.pack(padx=20, ipady=6, pady=(0, 2))
+            name_ent.focus_set()
+            err_var = tk.StringVar()
+            tk.Label(dlg, textvariable=err_var, bg=C_BG, fg=C_RED,
+                     font=("Helvetica", 9)).pack(padx=20, anchor="w")
+
+            def _do_save():
+                n = name_var.get().strip()
+                if not n:
+                    err_var.set("Enter a name")
+                    return
+                _presets_save(n, _current_fields())
+                _gui_save_config(_current_fields())
+                _refresh_presets()
+                dlg.destroy()
+
+            name_ent.bind("<Return>", lambda e: _do_save())
+            btn_row = tk.Frame(dlg, bg=C_BG)
+            btn_row.pack(padx=20, pady=(8, 20))
+            _Btn(btn_row, C_AMBER, C_AMBER_H, fg_n=C_BLACK,
+                 text="  Save  ", font=("Helvetica", 10, "bold"),
+                 command=_do_save, pady=6, padx=12).pack(side="left", padx=(0, 8))
+            _Btn(btn_row, C_SURF2, C_SURF, fg_n=C_DIM,
+                 text="  Cancel  ", font=("Helvetica", 10),
+                 command=dlg.destroy, pady=6, padx=12).pack(side="left")
+            dlg.update_idletasks()
+            dlg.geometry(
+                f"+{root.winfo_x() + (root.winfo_width()  - dlg.winfo_reqwidth())  // 2}"
+                f"+{root.winfo_y() + (root.winfo_height() - dlg.winfo_reqheight()) // 2}"
+            )
 
         sd_btn = _Btn(lc, C_SURF2, C_SURF, fg_n=C_DIM,
                       text="  Save defaults  ",
-                      font=("Helvetica", 9), command=_do_save_def,
+                      font=("Helvetica", 9), command=_open_save_preset_popup,
                       pady=4, padx=8)
         sd_btn.pack(anchor="w", pady=(8, 4))
-        sd_btn.bind("<MouseWheel>", _lwheel)
-        sd_btn.bind("<Button-4>", _lwheel)
-        sd_btn.bind("<Button-5>", _lwheel)
+        for _ev in ("<MouseWheel>", "<Button-4>", "<Button-5>"):
+            sd_btn.bind(_ev, _lwheel)
+
+        tk.Frame(lc, bg=C_BORDER, height=1).pack(fill="x", pady=(6, 4))
+        tk.Label(lc, text="PRESETS", bg=C_BG, fg=C_DIM,
+                 font=("Helvetica", 8, "bold"), anchor="w").pack(
+            fill="x", pady=(0, 2))
+        presets_list_frame = tk.Frame(lc, bg=C_BG)
+        presets_list_frame.pack(fill="x", pady=(0, 4))
+        for _ev in ("<MouseWheel>", "<Button-4>", "<Button-5>"):
+            presets_list_frame.bind(_ev, _lwheel)
+        _refresh_presets()
 
         def _do_create():
             if _state["running"]:
