@@ -5531,6 +5531,179 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
             }
         ])
 
+        # ── CSGO OVERRIDE: replace ALL prompts with CS2 game/skin/case content ──
+        if any(w in theme_lower for w in ['csgo', 'cs go', 'counter-strike', 'counter strike', 'cs2']):
+            _csgo = {
+                # Services → weapon skins & cases
+                'service1.jpg': (
+                    "Ultra-detailed product render of a CS2 AWP sniper rifle with rare Factory New skin "
+                    "(Dragon Lore or Medusa style), floating on a dark smoky background with dramatic "
+                    "studio lighting, skin pattern clearly visible, gold and intricate artwork, cinematic "
+                    "depth of field, no text, no UI, photorealistic 8k render."
+                ),
+                'service2.jpg': (
+                    "Ultra-detailed product render of a closed CS2 weapon case (Recoil Case or Prisma 2 "
+                    "style), rotating on a dark velvet surface, holographic lock glowing amber, dramatic "
+                    "spotlight from above, case artwork fully visible, cinematic 8k render, no text, no UI."
+                ),
+                'service3.jpg': (
+                    "Ultra-detailed CS2 AK-47 rifle with rare skin (Fire Serpent or Case Hardened style), "
+                    "floating at a slight angle on dark background, intricate pattern detail crisp and sharp, "
+                    "dramatic side lighting with colour reflections, factory-new condition, photorealistic 8k render, no text."
+                ),
+                'service4.jpg': (
+                    "Ultra-detailed CS2 Karambit knife with Doppler Phase 2 or Fade skin, spinning slowly "
+                    "above a dark reflective surface, rainbow colour reflections visible on blade, dramatic "
+                    "studio lighting, extreme close-up detail of pattern, photorealistic 8k render, no text, no UI."
+                ),
+                'service5.jpg': (
+                    "Ultra-detailed CS2 Sport Gloves or Bloodhound Gloves product render, displayed on a "
+                    "dark background, intricate leather texture and stitching clearly visible, dramatic lighting "
+                    "highlighting the pattern, Factory New quality, cinematic 8k render, no text, no UI."
+                ),
+                'service6.jpg': (
+                    "Ultra-detailed CS2 M4A4 or M4A1-S rifle with rare skin (Howl or Golden Coil style), "
+                    "floating on dark background, intricate artwork fully visible, dramatic studio lighting, "
+                    "crisp pattern detail, Factory New condition, photorealistic 8k render, no text, no UI."
+                ),
+                # Blog → gameplay, cases, collections, esports
+                'blog1.jpg': (
+                    "Epic CS2 gameplay screenshot: A-site bomb defusal on Dust2, dynamic action, smoke "
+                    "grenade cloud lit by flashbang, rifles raised, muzzle flash, dramatic motion blur, "
+                    "cinematic game art quality, dark atmospheric lighting, ultra-high detail, no UI elements."
+                ),
+                'blog2.jpg': (
+                    "Dramatic CS2 case-opening moment: glowing weapon case floating open, bright light rays "
+                    "bursting from inside, rare knife silhouette rising out, dark epic background, particle "
+                    "effects, cinematic composition, game art quality, no text, no UI overlays."
+                ),
+                'blog3.jpg': (
+                    "Flat-lay product photograph of multiple CS2 weapon skins arranged in a semicircle — "
+                    "rifles, pistols, and SMGs all in Factory New condition — on a dark textured surface with "
+                    "soft dramatic studio lighting, each skin pattern clearly visible, 8k quality, no text."
+                ),
+                'blog4.jpg': (
+                    "Wide establishing shot of a major CS2 esports tournament arena: massive LED screens "
+                    "showing live gameplay, crowd packed with fans holding glowing banners, stage bathed in "
+                    "blue and orange spotlights, atmospheric smoke, cinematic angle from upper tier, 8k render, no text."
+                ),
+                'blog5.jpg': (
+                    "Ultra-detailed CS2 rare knife collection display — Butterfly Knife, Karambit, M9 Bayonet, "
+                    "Stiletto — arranged on black velvet, each with unique Doppler or Fade pattern, dramatic "
+                    "studio spotlights, crisp blade reflections, 8k photorealistic product render, no text."
+                ),
+                'blog6.jpg': (
+                    "Cinematic CS2 map environment: Mirage A-site at night, dynamic lighting from windows, "
+                    "smoke grenade cloud catching the light, tactically rich composition, atmospheric depth, "
+                    "epic game-art quality, photorealistic rendering, no UI elements, no text."
+                ),
+                # About / company
+                'about.jpg': (
+                    "Professional CS2 esports team photograph: five players at gaming stations in a sleek "
+                    "dark arena, RGB gaming setups glowing, team jerseys, focused expressions, dramatic "
+                    "overhead lighting, cinematic wide angle, photorealistic, no text, no UI."
+                ),
+                'mission.jpg': (
+                    "Cinematic CS2 clutch gameplay moment: lone player crouched behind cover on Inferno "
+                    "banana, enemies visible through smoke, tense atmosphere, dramatic lighting, first-person "
+                    "perspective, ultra-high detail game art quality, no UI, no HUD."
+                ),
+                'values.jpg': (
+                    "CS2 Major tournament crowd scene: thousands of fans cheering, wave of blue and white "
+                    "light sticks, giant main-stage screen showing match, atmospheric fog, cinematic wide "
+                    "angle, photorealistic event photography quality, no text."
+                ),
+                'team.jpg': (
+                    "Professional CS2 esports squad portrait: five players standing in matching team jerseys "
+                    "in front of a branded backdrop, gaming headsets around their necks, confident poses, "
+                    "dramatic studio lighting, photorealistic, no text, no UI."
+                ),
+                # Team portraits — gaming style instead of corporate
+                'team1.jpg': (
+                    "Professional esports player portrait: young person wearing a CS2 team jersey and gaming "
+                    "headset, dark studio background with subtle neon RGB glow, direct confident gaze, "
+                    "dramatic side lighting, photorealistic headshot, no text, no UI."
+                ),
+                'team2.jpg': (
+                    "Professional CS2 streamer or analyst portrait: person at gaming desk with dual monitors "
+                    "showing CS2 gameplay, RGB keyboard in foreground, team jersey, confident expression, "
+                    "dark atmospheric background, photorealistic, no text, no UI."
+                ),
+                'team3.jpg': (
+                    "Professional esports coach portrait: experienced person wearing a CS2 team polo shirt, "
+                    "standing in a dark gaming studio, arms crossed, confident professional expression, "
+                    "dramatic cinematic lighting, photorealistic headshot, no text, no UI."
+                ),
+                # Gallery → skin collections, cases, knives
+                'gallery1.jpg': (
+                    "Curated CS2 rifle skin collection display: AK-47, M4A4, M4A1-S, AWP all with "
+                    "Factory New rare skins arranged in a V-shape on dark reflective surface, dramatic "
+                    "studio lighting, each pattern clearly visible, 8k product render, no text."
+                ),
+                'gallery2.jpg': (
+                    "CS2 weapon case collection stack: Prisma 2, Recoil, Dreams & Nightmares, Snakebite "
+                    "cases arranged in a pyramid on dark velvet, holographic locks glowing, dramatic "
+                    "spotlight, vibrant case artwork, 8k render, no text, no UI."
+                ),
+                'gallery3.jpg': (
+                    "CS2 knife collection display: Karambit, Butterfly Knife, M9 Bayonet, Stiletto, "
+                    "Shadow Daggers all with Doppler/Fade/Marble Fade skins laid on black velvet, "
+                    "dramatic overhead lighting, blade reflections, 8k product photography, no text."
+                ),
+                'gallery4.jpg': (
+                    "CS2 sticker capsule and souvenir package collection: multiple capsules and souvenir "
+                    "packages from different Majors arranged on dark background, holographic foil stickers "
+                    "visible, dramatic studio lighting, cinematic product render, 8k quality, no text."
+                ),
+                # Workspace → gaming setups instead of office
+                'workspace1.jpg': (
+                    "High-end CS2 gaming battlestation: curved ultrawide monitor showing CS2 gameplay, "
+                    "mechanical gaming keyboard, high-DPI gaming mouse on large mousepad, RGB case lighting, "
+                    "gaming headset on stand, dark room with ambient neon glow, photorealistic 8k render, no text."
+                ),
+                'workspace2.jpg': (
+                    "Professional CS2 esports arena training station: six gaming PCs in a row, players "
+                    "at stations with matching setups, CS2 on all screens, team jerseys, dramatic overhead "
+                    "lighting, atmospheric dark environment, cinematic wide angle, photorealistic, no text."
+                ),
+                # Locations → CS2 map environments
+                'location1.jpg': (
+                    "Cinematic CS2 Dust2 map environment: long A-site corridor at dawn, sun shining through "
+                    "dust particles, detailed Middle Eastern architecture, atmospheric depth, game-art quality "
+                    "render, photorealistic, no players, no UI, no text."
+                ),
+                'location2.jpg': (
+                    "Cinematic CS2 Mirage map environment: A-site palace interior, morning light through "
+                    "arched windows, detailed Moroccan tiles and decor, atmospheric dust motes, game-art "
+                    "quality render, photorealistic, no players, no UI, no text."
+                ),
+                'location3.jpg': (
+                    "Cinematic CS2 Inferno map environment: Banana alley looking toward B-site, warm "
+                    "Mediterranean sunlight, lush greenery, detailed cobblestone, atmospheric depth, "
+                    "game-art quality render, photorealistic, no players, no UI, no text."
+                ),
+                'location4.jpg': (
+                    "Cinematic CS2 Nuke map environment: outside ramp area, industrial storage facility, "
+                    "dramatic overcast sky, chain-link fence and barrels, atmospheric lighting, game-art "
+                    "quality render, photorealistic, no players, no UI, no text."
+                ),
+                'location5.jpg': (
+                    "Cinematic CS2 Ancient map environment: jungle temple ruins at A-site, dramatic "
+                    "dappled light through foliage, detailed stone carvings, atmospheric mist, game-art "
+                    "quality render, photorealistic, no players, no UI, no text."
+                ),
+                'location6.jpg': (
+                    "Cinematic CS2 Vertigo map environment: rooftop construction site, dramatic city skyline "
+                    "below, scaffolding and wooden planks, dynamic lighting, vertiginous depth, game-art "
+                    "quality render, photorealistic, no players, no UI, no text."
+                ),
+            }
+            for _img in images_to_generate:
+                _fn = _img['filename']
+                if _fn in _csgo:
+                    _img['prompt'] = _csgo[_fn]
+        # ── END CSGO OVERRIDE ───────────────────────────────────────────────────
+
         self.generated_images = []
 
         # Разделяем изображения по приоритетам
