@@ -5196,6 +5196,10 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
             # Medical - медицинские помещения
             work_context = "medical office or clinic interior, healthcare professionals in medical attire"
             work_setting = "clean medical facility interior, examination rooms, modern medical equipment"
+        elif any(w in theme_lower for w in ['csgo', 'cs go', 'counter-strike', 'counter strike', 'cs2']):
+            # CS:GO / Counter-Strike 2 - gaming/esports
+            work_context = "Counter-Strike 2 competitive FPS gameplay, esports tournament atmosphere, professional gaming environment"
+            work_setting = "CS2 iconic maps (Dust2, Mirage, Inferno, Ancient, Nuke), esports arena with gaming setups, dynamic action scenes with smoke grenades and tactical gunfights"
         else:
             # General business - офисная среда
             work_context = "professional office environment, business attire, workplace interaction"
@@ -5263,8 +5267,9 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
         else:
             # Для остальных - интерьер без текста, для Travel - красивые виды
             if 'travel' in theme_lower or 'tour' in theme_lower or 'voyage' in theme_lower or 'tourism' in theme_lower:
-                # Для Travel: красивое изображение места назначения с человеком
                 hero_prompt = f"Professional wide banner photograph for {theme} website. Beautiful travel destination scene: stunning beach with turquoise water, mountains in background, modern resort buildings along the coast, sunny day with clear blue sky. {ethnicity_context} person relaxing in foreground (sitting at a cafe table or terrace), enjoying the view, natural lifestyle photography. Clean composition, natural lighting, high quality, photorealistic, 8k resolution. CRITICAL: Pure photograph only, NO website headers, NO navigation bars, NO UI elements, NO text overlays, just a beautiful travel scene."
+            elif any(w in theme_lower for w in ['csgo', 'cs go', 'counter-strike', 'counter strike', 'cs2']):
+                hero_prompt = f"Epic wide banner digital artwork for Counter-Strike 2 website. Dynamic esports action scene on iconic CS2 map (Dust2 or Mirage), professional players in tactical positions, dramatic lighting with muzzle flashes and smoke grenades, cinematic composition, dark atmospheric ambiance with neon highlights, high-detail game environment. {work_setting}. Ultra-high quality, photorealistic game art, 8k resolution. CRITICAL: Pure game artwork only, NO website headers, NO navigation bars, NO UI elements, NO text overlays."
             else:
                 hero_prompt = f"Professional wide banner photograph for {theme} website. {work_setting}. {work_context}. Clean composition, natural lighting, high quality, photorealistic, 8k resolution. {ethnicity_context} if people are visible. STRICTLY NO outdoor scenes, NO streets, NO city exteriors. Interior setting only. CRITICAL: Pure photograph only, NO website headers, NO navigation bars, NO UI elements, NO text overlays."
             hero_allow_text = False
@@ -6016,20 +6021,21 @@ Return ONLY the translated JSON, no additional text or markdown formatting."""
                 }
                 menu_content = self.get_localized_fallback('menu_content', menu_content_fallback)
 
+            _has_contact = self.blueprint.get('contact_form', True)
             # Определяем страницы в зависимости от типа сайта
             if self.site_type == "landing":
-                nav_pages = [
-                    (menu_content.get('home', 'Home'), 'index.php'),
-                    (menu_content.get('contact', 'Contact'), 'contact.php')
-                ]
+                nav_pages = [(menu_content.get('home', 'Home'), 'index.php')]
+                if _has_contact:
+                    nav_pages.append((menu_content.get('contact', 'Contact'), 'contact.php'))
             else:
                 nav_pages = [
                     (menu_content.get('home', 'Home'), 'index.php'),
                     (menu_content.get('company', 'Company'), 'company.php'),
                     (menu_content.get('services', 'Services'), 'services.php'),
                     (menu_content.get('blog', 'Blog'), 'blog.php'),
-                    (menu_content.get('contact', 'Contact'), 'contact.php')
                 ]
+                if _has_contact:
+                    nav_pages.append((menu_content.get('contact', 'Contact'), 'contact.php'))
             
             # Случайный выбор варианта header (2 варианта)
             header_variant = random.randint(1, 2)
@@ -9440,6 +9446,11 @@ setTimeout(showCookieNotice, 1000);
         if self.site_type == 'landing':
             all_section_keys = [k for k in all_section_keys if k != 'carousel_blog']
 
+        # Если контактная форма отключена — убираем все contact-form секции
+        if not getattr(self, 'contact_form', True):
+            _cf_keys = {'contact_form_multistep', 'contact_form_benefits', 'contact_form_office_image'}
+            all_section_keys = [k for k in all_section_keys if k not in _cf_keys]
+
         # Секции, требующие изображений
         sections_requiring_gallery = {'gallery_centered'}
 
@@ -10840,9 +10851,10 @@ Return ONLY the content for <main> tag."""
         print(f"    ✓ {page_name}.php создана")
         return True
 
-    def generate_website(self, user_prompt, site_name, num_images=24, output_dir="generated_website", data_dir="data", site_type="multipage"):
+    def generate_website(self, user_prompt, site_name, num_images=24, output_dir="generated_website", data_dir="data", site_type="multipage", contact_form=True):
         """Основной метод генерации"""
         self.site_type = site_type
+        self.contact_form = contact_form
         self.num_images_to_generate = num_images  # Сохраняем для использования в generate_home_sections()
 
         # Определяем количество статей блога заранее (3 или 6 случайно)
@@ -10861,6 +10873,7 @@ Return ONLY the content for <main> tag."""
         print("\n[2/7] Blueprint (название, цвета, layouts)...")
         if not self.create_blueprint(user_prompt, site_name):
             print("⚠️  Ошибка Blueprint (использован fallback)")
+        self.blueprint['contact_form'] = contact_form
 
         print("\n[3/7] Header и Footer (без соц. сетей, единый hover)...")
         if not self.generate_header_footer():
@@ -10887,13 +10900,16 @@ Return ONLY the content for <main> tag."""
         print("\n[6/7] Страницы...")
 
         if site_type == "landing":
-            # Лендинг - только главная страница с секциями + служебные страницы
-            pages_to_generate = ['index', 'contact', 'thanks_you', 'privacy', 'terms', 'cookie']
             print("  Режим: ЛЕНДИНГ (одна страница с секциями)")
+            pages_to_generate = ['index', 'privacy', 'terms', 'cookie']
+            if contact_form:
+                pages_to_generate = ['index', 'contact', 'thanks_you', 'privacy', 'terms', 'cookie']
         else:
-            # Многостраничный сайт - все основные страницы включая blog
             print("  Режим: МНОГОСТРАНИЧНЫЙ САЙТ (все страницы + blog главная + статьи)")
-            pages_to_generate = ['index', 'company', 'services', 'contact', 'blog', 'privacy', 'terms', 'cookie', 'thanks_you']
+            pages_to_generate = ['index', 'company', 'services', 'blog', 'privacy', 'terms', 'cookie']
+            if contact_form:
+                pages_to_generate = ['index', 'company', 'services', 'contact', 'blog', 'privacy', 'terms', 'cookie', 'thanks_you']
+        print(f"  Contact Form: {'ВКЛ' if contact_form else 'ВЫКЛ'}")
 
         # Генерируем каждую страницу с повышенным вниманием
         for page in pages_to_generate:
@@ -11614,6 +11630,29 @@ def _run_tk_gui():
             self.bind("<Leave>", lambda e: self.config(bg=self._bg_n)
                       if str(self["state"]) != "disabled" else None)
 
+    class _Toggle(tk.Canvas):
+        """Pill-shaped toggle switch (44×22 px)."""
+        _W, _H = 44, 22
+        def __init__(self, parent, var: tk.BooleanVar, **kw):
+            super().__init__(
+                parent, width=self._W, height=self._H,
+                bg=C_BG, highlightthickness=0, cursor="hand2", **kw,
+            )
+            self._var = var
+            var.trace_add("write", lambda *_: self._draw())
+            self.bind("<Button-1>", lambda e: self._var.set(not self._var.get()))
+            self._draw()
+        def _draw(self):
+            self.delete("all")
+            on = self._var.get()
+            fill = C_AMBER if on else "#444444"
+            r = self._H // 2
+            self.create_oval(0, 0, self._H, self._H, fill=fill, outline="")
+            self.create_oval(self._W - self._H, 0, self._W, self._H, fill=fill, outline="")
+            self.create_rectangle(r, 0, self._W - r, self._H, fill=fill, outline="")
+            kx = self._W - r if on else r
+            self.create_oval(kx - r + 3, 3, kx + r - 3, self._H - 3, fill="white", outline="")
+
     # ── Консольные утилиты ─────────────────────────────────────────────────
     def _classify_color(t: str) -> str:
         if not t.strip():
@@ -12045,6 +12084,15 @@ def _run_tk_gui():
             _rb.bind("<Button-4>", _lwheel)
             _rb.bind("<Button-5>", _lwheel)
 
+        _v_contact = tk.BooleanVar(value=bool(cfg.get("contact_form", True)))
+        cf_row = tk.Frame(lc, bg=C_BG)
+        cf_row.pack(fill="x", pady=(6, 0))
+        _Toggle(cf_row, _v_contact).pack(side="left")
+        tk.Label(cf_row, text="  Contact Form", bg=C_BG, fg=C_TEXT,
+                 font=("Helvetica", 10)).pack(side="left")
+        for _ev in ("<MouseWheel>", "<Button-4>", "<Button-5>"):
+            cf_row.bind(_ev, _lwheel)
+
         # Dynamic site name rows
         _row_lbl(lc, "Site name")
         names_frame = tk.Frame(lc, bg=C_BG)
@@ -12154,14 +12202,15 @@ def _run_tk_gui():
         def _current_fields() -> dict:
             first_name = _all_name_vars[0][0].get() if _all_name_vars else ""
             return {
-                "site_name":  first_name,
-                "theme":      _v_theme.get(),
-                "language":   _v_language.get(),
-                "country":    _v_country.get(),
-                "site_type":  _v_stype.get(),
-                "num_images": _v_imgs.get(),
-                "data_dir":   _v_data.get(),
-                "output_dir": _v_out.get(),
+                "site_name":    first_name,
+                "theme":        _v_theme.get(),
+                "language":     _v_language.get(),
+                "country":      _v_country.get(),
+                "site_type":    _v_stype.get(),
+                "contact_form": _v_contact.get(),
+                "num_images":   _v_imgs.get(),
+                "data_dir":     _v_data.get(),
+                "output_dir":   _v_out.get(),
             }
 
         def _load_preset(data: dict):
@@ -12178,6 +12227,8 @@ def _run_tk_gui():
             ):
                 if key in data:
                     var.set(data[key])
+            if "contact_form" in data:
+                _v_contact.set(bool(data["contact_form"]))
 
         def _refresh_presets():
             for w in presets_list_frame.winfo_children():
@@ -12348,11 +12399,12 @@ def _run_tk_gui():
                 env["BYTEDANCE_KEY"] = bdc_key
 
             desc_line = desc.replace("\n", " ").replace("\r", " ")
+            contact_flag = "1" if _v_contact.get() else "0"
             use_labels = count > 1
             for i, name in enumerate(names):
                 inp = (
                     f"{desc_line}\n{site_type}\n{name}\n"
-                    f"{num_img}\n{data_dir}\n{out_dir}\n"
+                    f"{num_img}\n{data_dir}\n{out_dir}\n{contact_flag}\n"
                 )
                 lbl = (name if name else str(i + 1)) if use_labels else ""
                 threading.Thread(
@@ -12443,14 +12495,15 @@ if __name__ == "__main__":
             sys.stdout.reconfigure(encoding="utf-8", errors="replace")
         if hasattr(sys.stdin, "reconfigure"):
             sys.stdin.reconfigure(encoding="utf-8", errors="replace")
-        # stdin lines: description, site_type, site_name, num_images, data_dir, output_dir
-        _stdin_lines = sys.stdin.read().splitlines()
-        _user_prompt = _stdin_lines[0].strip() if len(_stdin_lines) > 0 else ""
-        _site_type   = _stdin_lines[1].strip() if len(_stdin_lines) > 1 else "landing"
-        _site_name   = _stdin_lines[2].strip() if len(_stdin_lines) > 2 else ""
-        _ni_raw      = _stdin_lines[3].strip() if len(_stdin_lines) > 3 else ""
-        _data_dir    = _stdin_lines[4].strip() if len(_stdin_lines) > 4 else ""
-        _output_dir  = _stdin_lines[5].strip() if len(_stdin_lines) > 5 else ""
+        # stdin lines: description, site_type, site_name, num_images, data_dir, output_dir, contact_form
+        _stdin_lines   = sys.stdin.read().splitlines()
+        _user_prompt   = _stdin_lines[0].strip() if len(_stdin_lines) > 0 else ""
+        _site_type     = _stdin_lines[1].strip() if len(_stdin_lines) > 1 else "landing"
+        _site_name     = _stdin_lines[2].strip() if len(_stdin_lines) > 2 else ""
+        _ni_raw        = _stdin_lines[3].strip() if len(_stdin_lines) > 3 else ""
+        _data_dir      = _stdin_lines[4].strip() if len(_stdin_lines) > 4 else ""
+        _output_dir    = _stdin_lines[5].strip() if len(_stdin_lines) > 5 else ""
+        _contact_form  = (_stdin_lines[6].strip() if len(_stdin_lines) > 6 else "1") != "0"
 
         if not _user_prompt:
             print("❌ Промпт пустой!")
@@ -12506,6 +12559,7 @@ if __name__ == "__main__":
                 output_dir=_output_dir,
                 data_dir=_data_dir,
                 site_type=_site_type,
+                contact_form=_contact_form,
             )
             if _success:
                 print("\n✨ Готово!")
